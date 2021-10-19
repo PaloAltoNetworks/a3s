@@ -1,0 +1,11 @@
+$cidr_optional:
+  elemental:
+    name: ValidateCIDROptional
+
+$cidr_list_optional:
+  elemental:
+    name: ValidateCIDRListOptional
+
+$duration:
+  elemental:
+    name: ValidateTimeDuration

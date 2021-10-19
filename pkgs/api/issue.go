@@ -1,0 +1,870 @@
+package api
+
+import (
+	"fmt"
+
+	"github.com/globalsign/mgo/bson"
+	"github.com/mitchellh/copystructure"
+	"go.aporeto.io/elemental"
+)
+
+// IssueSourceValue represents the possible values for attribute "source".
+type IssueSourceValue string
+
+const (
+	// IssueSourceA3SIdentityToken represents the value A3SIdentityToken.
+	IssueSourceA3SIdentityToken IssueSourceValue = "A3SIdentityToken"
+
+	// IssueSourceAWSSecurityToken represents the value AWSSecurityToken.
+	IssueSourceAWSSecurityToken IssueSourceValue = "AWSSecurityToken"
+
+	// IssueSourceAzureIdentityToken represents the value AzureIdentityToken.
+	IssueSourceAzureIdentityToken IssueSourceValue = "AzureIdentityToken"
+
+	// IssueSourceCertificate represents the value Certificate.
+	IssueSourceCertificate IssueSourceValue = "Certificate"
+
+	// IssueSourceGCPIdentityToken represents the value GCPIdentityToken.
+	IssueSourceGCPIdentityToken IssueSourceValue = "GCPIdentityToken"
+
+	// IssueSourceLDAP represents the value LDAP.
+	IssueSourceLDAP IssueSourceValue = "LDAP"
+
+	// IssueSourceOIDC represents the value OIDC.
+	IssueSourceOIDC IssueSourceValue = "OIDC"
+
+	// IssueSourceSAML represents the value SAML.
+	IssueSourceSAML IssueSourceValue = "SAML"
+)
+
+// IssueIdentity represents the Identity of the object.
+var IssueIdentity = elemental.Identity{
+	Name:     "issue",
+	Category: "issue",
+	Package:  "authn",
+	Private:  false,
+}
+
+// IssuesList represents a list of Issues
+type IssuesList []*Issue
+
+// Identity returns the identity of the objects in the list.
+func (o IssuesList) Identity() elemental.Identity {
+
+	return IssueIdentity
+}
+
+// Copy returns a pointer to a copy the IssuesList.
+func (o IssuesList) Copy() elemental.Identifiables {
+
+	copy := append(IssuesList{}, o...)
+	return &copy
+}
+
+// Append appends the objects to the a new copy of the IssuesList.
+func (o IssuesList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
+
+	out := append(IssuesList{}, o...)
+	for _, obj := range objects {
+		out = append(out, obj.(*Issue))
+	}
+
+	return out
+}
+
+// List converts the object to an elemental.IdentifiablesList.
+func (o IssuesList) List() elemental.IdentifiablesList {
+
+	out := make(elemental.IdentifiablesList, len(o))
+	for i := 0; i < len(o); i++ {
+		out[i] = o[i]
+	}
+
+	return out
+}
+
+// DefaultOrder returns the default ordering fields of the content.
+func (o IssuesList) DefaultOrder() []string {
+
+	return []string{}
+}
+
+// ToSparse returns the IssuesList converted to SparseIssuesList.
+// Objects in the list will only contain the given fields. No field means entire field set.
+func (o IssuesList) ToSparse(fields ...string) elemental.Identifiables {
+
+	out := make(SparseIssuesList, len(o))
+	for i := 0; i < len(o); i++ {
+		out[i] = o[i].ToSparse(fields...).(*SparseIssue)
+	}
+
+	return out
+}
+
+// Version returns the version of the content.
+func (o IssuesList) Version() int {
+
+	return 1
+}
+
+// Issue represents the model of a issue
+type Issue struct {
+	// Contains various additional information. Meaning depends on the `source`.
+	Metadata map[string]interface{} `json:"metadata" msgpack:"metadata" bson:"-" mapstructure:"metadata,omitempty"`
+
+	// Opaque data that will be included in the issued token.
+	Opaque map[string]string `json:"opaque" msgpack:"opaque" bson:"-" mapstructure:"opaque,omitempty"`
+
+	// Restricts the namespace where the token can be used.
+	//
+	// For instance, if you have have access to `/namespace` and below, you can
+	// tell the policy engine that it should restrict further more to
+	// `/namespace/child`.
+	//
+	// Restricting to a namespace you don't have initially access according to the
+	// policy engine has no effect and may end up making the token unusable.
+	RestrictedNamespace string `json:"restrictedNamespace" msgpack:"restrictedNamespace" bson:"-" mapstructure:"restrictedNamespace,omitempty"`
+
+	// Restricts the networks from where the token can be used. This will reduce the
+	// existing set of authorized networks that normally apply to the token according
+	// to the policy engine.
+	//
+	// For instance, If you have authorized access from `0.0.0.0/0` (by default) or
+	// from
+	// `10.0.0.0/8`, you can ask for a token that will only be valid if used from
+	// `10.1.0.0/16`.
+	//
+	// Restricting to a network that is not initially authorized by the policy
+	// engine has no effect and may end up making the token unusable.
+	RestrictedNetworks []string `json:"restrictedNetworks" msgpack:"restrictedNetworks" bson:"-" mapstructure:"restrictedNetworks,omitempty"`
+
+	// Restricts the permissions of token. This will reduce the existing permissions
+	// that normally apply to the token according to the policy engine.
+	//
+	// For instance, if you have administrative role, you can ask for a token that will
+	// tell the policy engine to reduce the permission it would have granted to what is
+	// given defined in the token.
+	//
+	// Restricting to some permissions you don't initially have according to the policy
+	// engine has no effect and may end up making the token unusable.
+	RestrictedPermissions []string `json:"restrictedPermissions" msgpack:"restrictedPermissions" bson:"-" mapstructure:"restrictedPermissions,omitempty"`
+
+	// The authentication source. This will define how to verify
+	// credentials from internal or external source of authentication.
+	Source IssueSourceValue `json:"source" msgpack:"source" bson:"-" mapstructure:"source,omitempty"`
+
+	// Issued token.
+	Token string `json:"token,omitempty" msgpack:"token,omitempty" bson:"-" mapstructure:"token,omitempty"`
+
+	// Configures the maximum length of validity for a token, using
+	// [Golang duration syntax](https://golang.org/pkg/time/#example_Duration). If it
+	// is bigger than the configured max validity, it will be capped. Default: `24h`.
+	Validity string `json:"validity" msgpack:"validity" bson:"-" mapstructure:"validity,omitempty"`
+
+	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
+}
+
+// NewIssue returns a new *Issue
+func NewIssue() *Issue {
+
+	return &Issue{
+		ModelVersion:          1,
+		Metadata:              map[string]interface{}{},
+		Opaque:                map[string]string{},
+		RestrictedNetworks:    []string{},
+		RestrictedPermissions: []string{},
+		Validity:              "24h",
+	}
+}
+
+// Identity returns the Identity of the object.
+func (o *Issue) Identity() elemental.Identity {
+
+	return IssueIdentity
+}
+
+// Identifier returns the value of the object's unique identifier.
+func (o *Issue) Identifier() string {
+
+	return ""
+}
+
+// SetIdentifier sets the value of the object's unique identifier.
+func (o *Issue) SetIdentifier(id string) {
+
+}
+
+// GetBSON implements the bson marshaling interface.
+// This is used to transparently convert ID to MongoDBID as ObectID.
+func (o *Issue) GetBSON() (interface{}, error) {
+
+	if o == nil {
+		return nil, nil
+	}
+
+	s := &mongoAttributesIssue{}
+
+	return s, nil
+}
+
+// SetBSON implements the bson marshaling interface.
+// This is used to transparently convert ID to MongoDBID as ObectID.
+func (o *Issue) SetBSON(raw bson.Raw) error {
+
+	if o == nil {
+		return nil
+	}
+
+	s := &mongoAttributesIssue{}
+	if err := raw.Unmarshal(s); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// Version returns the hardcoded version of the model.
+func (o *Issue) Version() int {
+
+	return 1
+}
+
+// BleveType implements the bleve.Classifier Interface.
+func (o *Issue) BleveType() string {
+
+	return "issue"
+}
+
+// DefaultOrder returns the list of default ordering fields.
+func (o *Issue) DefaultOrder() []string {
+
+	return []string{}
+}
+
+// Doc returns the documentation for the object
+func (o *Issue) Doc() string {
+
+	return `Issues a new a normalized token using various authentication sources.`
+}
+
+func (o *Issue) String() string {
+
+	return fmt.Sprintf("<%s:%s>", o.Identity().Name, o.Identifier())
+}
+
+// ToSparse returns the sparse version of the model.
+// The returned object will only contain the given fields. No field means entire field set.
+func (o *Issue) ToSparse(fields ...string) elemental.SparseIdentifiable {
+
+	if len(fields) == 0 {
+		// nolint: goimports
+		return &SparseIssue{
+			Metadata:              &o.Metadata,
+			Opaque:                &o.Opaque,
+			RestrictedNamespace:   &o.RestrictedNamespace,
+			RestrictedNetworks:    &o.RestrictedNetworks,
+			RestrictedPermissions: &o.RestrictedPermissions,
+			Source:                &o.Source,
+			Token:                 &o.Token,
+			Validity:              &o.Validity,
+		}
+	}
+
+	sp := &SparseIssue{}
+	for _, f := range fields {
+		switch f {
+		case "metadata":
+			sp.Metadata = &(o.Metadata)
+		case "opaque":
+			sp.Opaque = &(o.Opaque)
+		case "restrictedNamespace":
+			sp.RestrictedNamespace = &(o.RestrictedNamespace)
+		case "restrictedNetworks":
+			sp.RestrictedNetworks = &(o.RestrictedNetworks)
+		case "restrictedPermissions":
+			sp.RestrictedPermissions = &(o.RestrictedPermissions)
+		case "source":
+			sp.Source = &(o.Source)
+		case "token":
+			sp.Token = &(o.Token)
+		case "validity":
+			sp.Validity = &(o.Validity)
+		}
+	}
+
+	return sp
+}
+
+// Patch apply the non nil value of a *SparseIssue to the object.
+func (o *Issue) Patch(sparse elemental.SparseIdentifiable) {
+	if !sparse.Identity().IsEqual(o.Identity()) {
+		panic("cannot patch from a parse with different identity")
+	}
+
+	so := sparse.(*SparseIssue)
+	if so.Metadata != nil {
+		o.Metadata = *so.Metadata
+	}
+	if so.Opaque != nil {
+		o.Opaque = *so.Opaque
+	}
+	if so.RestrictedNamespace != nil {
+		o.RestrictedNamespace = *so.RestrictedNamespace
+	}
+	if so.RestrictedNetworks != nil {
+		o.RestrictedNetworks = *so.RestrictedNetworks
+	}
+	if so.RestrictedPermissions != nil {
+		o.RestrictedPermissions = *so.RestrictedPermissions
+	}
+	if so.Source != nil {
+		o.Source = *so.Source
+	}
+	if so.Token != nil {
+		o.Token = *so.Token
+	}
+	if so.Validity != nil {
+		o.Validity = *so.Validity
+	}
+}
+
+// DeepCopy returns a deep copy if the Issue.
+func (o *Issue) DeepCopy() *Issue {
+
+	if o == nil {
+		return nil
+	}
+
+	out := &Issue{}
+	o.DeepCopyInto(out)
+
+	return out
+}
+
+// DeepCopyInto copies the receiver into the given *Issue.
+func (o *Issue) DeepCopyInto(out *Issue) {
+
+	target, err := copystructure.Copy(o)
+	if err != nil {
+		panic(fmt.Sprintf("Unable to deepcopy Issue: %s", err))
+	}
+
+	*out = *target.(*Issue)
+}
+
+// Validate valides the current information stored into the structure.
+func (o *Issue) Validate() error {
+
+	errors := elemental.Errors{}
+	requiredErrors := elemental.Errors{}
+
+	if err := elemental.ValidateRequiredString("source", string(o.Source)); err != nil {
+		requiredErrors = requiredErrors.Append(err)
+	}
+
+	if err := elemental.ValidateStringInList("source", string(o.Source), []string{"AWSSecurityToken", "Certificate", "LDAP", "GCPIdentityToken", "AzureIdentityToken", "OIDC", "SAML", "A3SIdentityToken"}, false); err != nil {
+		errors = errors.Append(err)
+	}
+
+	if len(requiredErrors) > 0 {
+		return requiredErrors
+	}
+
+	if len(errors) > 0 {
+		return errors
+	}
+
+	return nil
+}
+
+// SpecificationForAttribute returns the AttributeSpecification for the given attribute name key.
+func (*Issue) SpecificationForAttribute(name string) elemental.AttributeSpecification {
+
+	if v, ok := IssueAttributesMap[name]; ok {
+		return v
+	}
+
+	// We could not find it, so let's check on the lower case indexed spec map
+	return IssueLowerCaseAttributesMap[name]
+}
+
+// AttributeSpecifications returns the full attribute specifications map.
+func (*Issue) AttributeSpecifications() map[string]elemental.AttributeSpecification {
+
+	return IssueAttributesMap
+}
+
+// ValueForAttribute returns the value for the given attribute.
+// This is a very advanced function that you should not need but in some
+// very specific use cases.
+func (o *Issue) ValueForAttribute(name string) interface{} {
+
+	switch name {
+	case "metadata":
+		return o.Metadata
+	case "opaque":
+		return o.Opaque
+	case "restrictedNamespace":
+		return o.RestrictedNamespace
+	case "restrictedNetworks":
+		return o.RestrictedNetworks
+	case "restrictedPermissions":
+		return o.RestrictedPermissions
+	case "source":
+		return o.Source
+	case "token":
+		return o.Token
+	case "validity":
+		return o.Validity
+	}
+
+	return nil
+}
+
+// IssueAttributesMap represents the map of attribute for Issue.
+var IssueAttributesMap = map[string]elemental.AttributeSpecification{
+	"Metadata": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Metadata",
+		Description:    `Contains various additional information. Meaning depends on the ` + "`" + `source` + "`" + `.`,
+		Exposed:        true,
+		Name:           "metadata",
+		Orderable:      true,
+		SubType:        "map[string]interface{}",
+		Type:           "external",
+	},
+	"Opaque": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Opaque",
+		Description:    `Opaque data that will be included in the issued token.`,
+		Exposed:        true,
+		Name:           "opaque",
+		SubType:        "map[string]string",
+		Type:           "external",
+	},
+	"RestrictedNamespace": {
+		AllowedChoices: []string{},
+		ConvertedName:  "RestrictedNamespace",
+		Description: `Restricts the namespace where the token can be used.
+
+For instance, if you have have access to ` + "`" + `/namespace` + "`" + ` and below, you can
+tell the policy engine that it should restrict further more to
+` + "`" + `/namespace/child` + "`" + `.
+
+Restricting to a namespace you don't have initially access according to the
+policy engine has no effect and may end up making the token unusable.`,
+		Exposed: true,
+		Name:    "restrictedNamespace",
+		Type:    "string",
+	},
+	"RestrictedNetworks": {
+		AllowedChoices: []string{},
+		ConvertedName:  "RestrictedNetworks",
+		Description: `Restricts the networks from where the token can be used. This will reduce the
+existing set of authorized networks that normally apply to the token according
+to the policy engine.
+
+For instance, If you have authorized access from ` + "`" + `0.0.0.0/0` + "`" + ` (by default) or
+from
+` + "`" + `10.0.0.0/8` + "`" + `, you can ask for a token that will only be valid if used from
+` + "`" + `10.1.0.0/16` + "`" + `.
+
+Restricting to a network that is not initially authorized by the policy
+engine has no effect and may end up making the token unusable.`,
+		Exposed: true,
+		Name:    "restrictedNetworks",
+		SubType: "string",
+		Type:    "list",
+	},
+	"RestrictedPermissions": {
+		AllowedChoices: []string{},
+		ConvertedName:  "RestrictedPermissions",
+		Description: `Restricts the permissions of token. This will reduce the existing permissions
+that normally apply to the token according to the policy engine.
+
+For instance, if you have administrative role, you can ask for a token that will
+tell the policy engine to reduce the permission it would have granted to what is
+given defined in the token.
+
+Restricting to some permissions you don't initially have according to the policy
+engine has no effect and may end up making the token unusable.`,
+		Exposed: true,
+		Name:    "restrictedPermissions",
+		SubType: "string",
+		Type:    "list",
+	},
+	"Source": {
+		AllowedChoices: []string{"AWSSecurityToken", "Certificate", "LDAP", "GCPIdentityToken", "AzureIdentityToken", "OIDC", "SAML", "A3SIdentityToken"},
+		ConvertedName:  "Source",
+		Description: `The authentication source. This will define how to verify
+credentials from internal or external source of authentication.`,
+		Exposed:  true,
+		Name:     "source",
+		Required: true,
+		Type:     "enum",
+	},
+	"Token": {
+		AllowedChoices: []string{},
+		Autogenerated:  true,
+		ConvertedName:  "Token",
+		Description:    `Issued token.`,
+		Exposed:        true,
+		Name:           "token",
+		ReadOnly:       true,
+		Type:           "string",
+	},
+	"Validity": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Validity",
+		DefaultValue:   "24h",
+		Description: `Configures the maximum length of validity for a token, using
+[Golang duration syntax](https://golang.org/pkg/time/#example_Duration). If it
+is bigger than the configured max validity, it will be capped. Default: ` + "`" + `24h` + "`" + `.`,
+		Exposed:   true,
+		Name:      "validity",
+		Orderable: true,
+		Type:      "string",
+	},
+}
+
+// IssueLowerCaseAttributesMap represents the map of attribute for Issue.
+var IssueLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
+	"metadata": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Metadata",
+		Description:    `Contains various additional information. Meaning depends on the ` + "`" + `source` + "`" + `.`,
+		Exposed:        true,
+		Name:           "metadata",
+		Orderable:      true,
+		SubType:        "map[string]interface{}",
+		Type:           "external",
+	},
+	"opaque": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Opaque",
+		Description:    `Opaque data that will be included in the issued token.`,
+		Exposed:        true,
+		Name:           "opaque",
+		SubType:        "map[string]string",
+		Type:           "external",
+	},
+	"restrictednamespace": {
+		AllowedChoices: []string{},
+		ConvertedName:  "RestrictedNamespace",
+		Description: `Restricts the namespace where the token can be used.
+
+For instance, if you have have access to ` + "`" + `/namespace` + "`" + ` and below, you can
+tell the policy engine that it should restrict further more to
+` + "`" + `/namespace/child` + "`" + `.
+
+Restricting to a namespace you don't have initially access according to the
+policy engine has no effect and may end up making the token unusable.`,
+		Exposed: true,
+		Name:    "restrictedNamespace",
+		Type:    "string",
+	},
+	"restrictednetworks": {
+		AllowedChoices: []string{},
+		ConvertedName:  "RestrictedNetworks",
+		Description: `Restricts the networks from where the token can be used. This will reduce the
+existing set of authorized networks that normally apply to the token according
+to the policy engine.
+
+For instance, If you have authorized access from ` + "`" + `0.0.0.0/0` + "`" + ` (by default) or
+from
+` + "`" + `10.0.0.0/8` + "`" + `, you can ask for a token that will only be valid if used from
+` + "`" + `10.1.0.0/16` + "`" + `.
+
+Restricting to a network that is not initially authorized by the policy
+engine has no effect and may end up making the token unusable.`,
+		Exposed: true,
+		Name:    "restrictedNetworks",
+		SubType: "string",
+		Type:    "list",
+	},
+	"restrictedpermissions": {
+		AllowedChoices: []string{},
+		ConvertedName:  "RestrictedPermissions",
+		Description: `Restricts the permissions of token. This will reduce the existing permissions
+that normally apply to the token according to the policy engine.
+
+For instance, if you have administrative role, you can ask for a token that will
+tell the policy engine to reduce the permission it would have granted to what is
+given defined in the token.
+
+Restricting to some permissions you don't initially have according to the policy
+engine has no effect and may end up making the token unusable.`,
+		Exposed: true,
+		Name:    "restrictedPermissions",
+		SubType: "string",
+		Type:    "list",
+	},
+	"source": {
+		AllowedChoices: []string{"AWSSecurityToken", "Certificate", "LDAP", "GCPIdentityToken", "AzureIdentityToken", "OIDC", "SAML", "A3SIdentityToken"},
+		ConvertedName:  "Source",
+		Description: `The authentication source. This will define how to verify
+credentials from internal or external source of authentication.`,
+		Exposed:  true,
+		Name:     "source",
+		Required: true,
+		Type:     "enum",
+	},
+	"token": {
+		AllowedChoices: []string{},
+		Autogenerated:  true,
+		ConvertedName:  "Token",
+		Description:    `Issued token.`,
+		Exposed:        true,
+		Name:           "token",
+		ReadOnly:       true,
+		Type:           "string",
+	},
+	"validity": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Validity",
+		DefaultValue:   "24h",
+		Description: `Configures the maximum length of validity for a token, using
+[Golang duration syntax](https://golang.org/pkg/time/#example_Duration). If it
+is bigger than the configured max validity, it will be capped. Default: ` + "`" + `24h` + "`" + `.`,
+		Exposed:   true,
+		Name:      "validity",
+		Orderable: true,
+		Type:      "string",
+	},
+}
+
+// SparseIssuesList represents a list of SparseIssues
+type SparseIssuesList []*SparseIssue
+
+// Identity returns the identity of the objects in the list.
+func (o SparseIssuesList) Identity() elemental.Identity {
+
+	return IssueIdentity
+}
+
+// Copy returns a pointer to a copy the SparseIssuesList.
+func (o SparseIssuesList) Copy() elemental.Identifiables {
+
+	copy := append(SparseIssuesList{}, o...)
+	return &copy
+}
+
+// Append appends the objects to the a new copy of the SparseIssuesList.
+func (o SparseIssuesList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
+
+	out := append(SparseIssuesList{}, o...)
+	for _, obj := range objects {
+		out = append(out, obj.(*SparseIssue))
+	}
+
+	return out
+}
+
+// List converts the object to an elemental.IdentifiablesList.
+func (o SparseIssuesList) List() elemental.IdentifiablesList {
+
+	out := make(elemental.IdentifiablesList, len(o))
+	for i := 0; i < len(o); i++ {
+		out[i] = o[i]
+	}
+
+	return out
+}
+
+// DefaultOrder returns the default ordering fields of the content.
+func (o SparseIssuesList) DefaultOrder() []string {
+
+	return []string{}
+}
+
+// ToPlain returns the SparseIssuesList converted to IssuesList.
+func (o SparseIssuesList) ToPlain() elemental.IdentifiablesList {
+
+	out := make(elemental.IdentifiablesList, len(o))
+	for i := 0; i < len(o); i++ {
+		out[i] = o[i].ToPlain()
+	}
+
+	return out
+}
+
+// Version returns the version of the content.
+func (o SparseIssuesList) Version() int {
+
+	return 1
+}
+
+// SparseIssue represents the sparse version of a issue.
+type SparseIssue struct {
+	// Contains various additional information. Meaning depends on the `source`.
+	Metadata *map[string]interface{} `json:"metadata,omitempty" msgpack:"metadata,omitempty" bson:"-" mapstructure:"metadata,omitempty"`
+
+	// Opaque data that will be included in the issued token.
+	Opaque *map[string]string `json:"opaque,omitempty" msgpack:"opaque,omitempty" bson:"-" mapstructure:"opaque,omitempty"`
+
+	// Restricts the namespace where the token can be used.
+	//
+	// For instance, if you have have access to `/namespace` and below, you can
+	// tell the policy engine that it should restrict further more to
+	// `/namespace/child`.
+	//
+	// Restricting to a namespace you don't have initially access according to the
+	// policy engine has no effect and may end up making the token unusable.
+	RestrictedNamespace *string `json:"restrictedNamespace,omitempty" msgpack:"restrictedNamespace,omitempty" bson:"-" mapstructure:"restrictedNamespace,omitempty"`
+
+	// Restricts the networks from where the token can be used. This will reduce the
+	// existing set of authorized networks that normally apply to the token according
+	// to the policy engine.
+	//
+	// For instance, If you have authorized access from `0.0.0.0/0` (by default) or
+	// from
+	// `10.0.0.0/8`, you can ask for a token that will only be valid if used from
+	// `10.1.0.0/16`.
+	//
+	// Restricting to a network that is not initially authorized by the policy
+	// engine has no effect and may end up making the token unusable.
+	RestrictedNetworks *[]string `json:"restrictedNetworks,omitempty" msgpack:"restrictedNetworks,omitempty" bson:"-" mapstructure:"restrictedNetworks,omitempty"`
+
+	// Restricts the permissions of token. This will reduce the existing permissions
+	// that normally apply to the token according to the policy engine.
+	//
+	// For instance, if you have administrative role, you can ask for a token that will
+	// tell the policy engine to reduce the permission it would have granted to what is
+	// given defined in the token.
+	//
+	// Restricting to some permissions you don't initially have according to the policy
+	// engine has no effect and may end up making the token unusable.
+	RestrictedPermissions *[]string `json:"restrictedPermissions,omitempty" msgpack:"restrictedPermissions,omitempty" bson:"-" mapstructure:"restrictedPermissions,omitempty"`
+
+	// The authentication source. This will define how to verify
+	// credentials from internal or external source of authentication.
+	Source *IssueSourceValue `json:"source,omitempty" msgpack:"source,omitempty" bson:"-" mapstructure:"source,omitempty"`
+
+	// Issued token.
+	Token *string `json:"token,omitempty" msgpack:"token,omitempty" bson:"-" mapstructure:"token,omitempty"`
+
+	// Configures the maximum length of validity for a token, using
+	// [Golang duration syntax](https://golang.org/pkg/time/#example_Duration). If it
+	// is bigger than the configured max validity, it will be capped. Default: `24h`.
+	Validity *string `json:"validity,omitempty" msgpack:"validity,omitempty" bson:"-" mapstructure:"validity,omitempty"`
+
+	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
+}
+
+// NewSparseIssue returns a new  SparseIssue.
+func NewSparseIssue() *SparseIssue {
+	return &SparseIssue{}
+}
+
+// Identity returns the Identity of the sparse object.
+func (o *SparseIssue) Identity() elemental.Identity {
+
+	return IssueIdentity
+}
+
+// Identifier returns the value of the sparse object's unique identifier.
+func (o *SparseIssue) Identifier() string {
+
+	return ""
+}
+
+// SetIdentifier sets the value of the sparse object's unique identifier.
+func (o *SparseIssue) SetIdentifier(id string) {
+
+}
+
+// GetBSON implements the bson marshaling interface.
+// This is used to transparently convert ID to MongoDBID as ObectID.
+func (o *SparseIssue) GetBSON() (interface{}, error) {
+
+	if o == nil {
+		return nil, nil
+	}
+
+	s := &mongoAttributesSparseIssue{}
+
+	return s, nil
+}
+
+// SetBSON implements the bson marshaling interface.
+// This is used to transparently convert ID to MongoDBID as ObectID.
+func (o *SparseIssue) SetBSON(raw bson.Raw) error {
+
+	if o == nil {
+		return nil
+	}
+
+	s := &mongoAttributesSparseIssue{}
+	if err := raw.Unmarshal(s); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// Version returns the hardcoded version of the model.
+func (o *SparseIssue) Version() int {
+
+	return 1
+}
+
+// ToPlain returns the plain version of the sparse model.
+func (o *SparseIssue) ToPlain() elemental.PlainIdentifiable {
+
+	out := NewIssue()
+	if o.Metadata != nil {
+		out.Metadata = *o.Metadata
+	}
+	if o.Opaque != nil {
+		out.Opaque = *o.Opaque
+	}
+	if o.RestrictedNamespace != nil {
+		out.RestrictedNamespace = *o.RestrictedNamespace
+	}
+	if o.RestrictedNetworks != nil {
+		out.RestrictedNetworks = *o.RestrictedNetworks
+	}
+	if o.RestrictedPermissions != nil {
+		out.RestrictedPermissions = *o.RestrictedPermissions
+	}
+	if o.Source != nil {
+		out.Source = *o.Source
+	}
+	if o.Token != nil {
+		out.Token = *o.Token
+	}
+	if o.Validity != nil {
+		out.Validity = *o.Validity
+	}
+
+	return out
+}
+
+// DeepCopy returns a deep copy if the SparseIssue.
+func (o *SparseIssue) DeepCopy() *SparseIssue {
+
+	if o == nil {
+		return nil
+	}
+
+	out := &SparseIssue{}
+	o.DeepCopyInto(out)
+
+	return out
+}
+
+// DeepCopyInto copies the receiver into the given *SparseIssue.
+func (o *SparseIssue) DeepCopyInto(out *SparseIssue) {
+
+	target, err := copystructure.Copy(o)
+	if err != nil {
+		panic(fmt.Sprintf("Unable to deepcopy SparseIssue: %s", err))
+	}
+
+	*out = *target.(*SparseIssue)
+}
+
+type mongoAttributesIssue struct {
+}
+type mongoAttributesSparseIssue struct {
+}

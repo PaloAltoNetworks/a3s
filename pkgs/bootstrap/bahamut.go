@@ -1,0 +1,141 @@
+package bootstrap
+
+import (
+	"context"
+	"crypto/tls"
+	"errors"
+	"net/http"
+
+	"github.com/fatih/structs"
+	"github.com/opentracing/opentracing-go"
+	"go.aporeto.io/a3s/internal/conf"
+	"go.aporeto.io/a3s/pkgs/api"
+	"go.aporeto.io/bahamut"
+	"go.aporeto.io/elemental"
+	"go.aporeto.io/manipulate"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
+)
+
+// ConfigureBahamut returns a list of bahamut.Option based on provided configuration.
+func ConfigureBahamut(
+	ctx context.Context,
+	cfg interface{},
+	pubsub bahamut.PubSubClient,
+	healthHandler bahamut.HealthServerFunc,
+	requestAuthenticators []bahamut.RequestAuthenticator,
+	sessionAuthenticators []bahamut.SessionAuthenticator,
+	authorizers []bahamut.Authorizer,
+) (opts []bahamut.Option) {
+
+	modelManagers := map[int]elemental.ModelManager{0: api.Manager(), 1: api.Manager()}
+
+	l, err := zap.NewStdLogAt(zap.L(), zapcore.DebugLevel)
+	if err != nil {
+		zap.L().Fatal("Unable to create logger for bahamut HTTP server", zap.Error(err))
+	}
+
+	// Default options.
+	opts = []bahamut.Option{
+		// bahamut.OptServiceInfo(serviceName, serviceVersion, subversions),
+		bahamut.OptModel(modelManagers),
+		bahamut.OptAuthenticators(requestAuthenticators, sessionAuthenticators),
+		bahamut.OptAuthorizers(authorizers),
+		bahamut.OptOpentracingTracer(opentracing.GlobalTracer()),
+		bahamut.OptDisableCompression(),
+		bahamut.OptHTTPLogger(l),
+		bahamut.OptErrorTransformer(ErrorTransformer),
+	}
+
+	cs := structs.New(cfg)
+
+	if f, ok := cs.FieldOk(structs.Name(conf.APIServerConf{})); ok {
+		c := f.Value().(conf.APIServerConf)
+		opts = append(
+			opts,
+			bahamut.OptRestServer(c.ListenAddress),
+			bahamut.OptMaxConnection(c.MaxConnections),
+		)
+
+		zap.L().Info("Max TCP connections", zap.Int("max", c.MaxConnections))
+
+		tlscfg, err := c.TLSConfig()
+		if err != nil {
+			zap.L().Fatal("Unable to configure tls: %w", zap.Error(err))
+		}
+
+		if tlscfg != nil {
+
+			opts = append(opts,
+				bahamut.OptTLS(tlscfg.Certificates, nil),
+				bahamut.OptTLSNextProtos([]string{"h2"}), // enable http2 support.
+			)
+
+			if clientCA := tlscfg.ClientCAs; clientCA != nil {
+				opts = append(opts, bahamut.OptMTLS(clientCA, tls.RequireAndVerifyClientCert))
+			}
+		}
+	}
+
+	if f, ok := cs.FieldOk(structs.Name(conf.HealthConfiguration{})); ok {
+		c := f.Value().(conf.HealthConfiguration)
+		if c.EnableHealth {
+			opts = append(
+				opts,
+				bahamut.OptHealthServer(c.HealthListenAddress, healthHandler),
+				bahamut.OptHealthServerMetricsManager(bahamut.NewPrometheusMetricsManager()),
+			)
+		}
+	}
+
+	if f, ok := cs.FieldOk(structs.Name(conf.ProfilingConf{})); ok {
+		c := f.Value().(conf.ProfilingConf)
+		if c.ProfilingEnabled {
+			opts = append(opts, bahamut.OptProfilingLocal(c.ProfilingListenAddress))
+		}
+	}
+
+	if f, ok := cs.FieldOk(structs.Name(conf.RateLimitingConf{})); ok {
+		c := f.Value().(conf.RateLimitingConf)
+		if c.RateLimitingEnabled {
+			opts = append(opts, bahamut.OptRateLimiting(float64(c.RateLimitingRPS), c.RateLimitingBurst))
+			zap.L().Info("Rate limit configured",
+				zap.Int("rps", c.RateLimitingRPS),
+				zap.Int("burst", c.RateLimitingBurst),
+			)
+		}
+	}
+
+	if f, ok := cs.FieldOk(structs.Name(conf.HTTPTimeoutsConf{})); ok {
+		c := f.Value().(conf.HTTPTimeoutsConf)
+		opts = append(opts, bahamut.OptTimeouts(c.TimeoutRead, c.TimeoutWrite, c.TimeoutIdle))
+
+		zap.L().Debug("Timeouts configured",
+			zap.Duration("read", c.TimeoutRead),
+			zap.Duration("write", c.TimeoutWrite),
+			zap.Duration("idle", c.TimeoutIdle),
+		)
+	}
+
+	if f, ok := cs.FieldOk(structs.Name(conf.NATSPublisherConf{})); ok {
+		c := f.Value().(conf.NATSPublisherConf)
+		opts = append(opts,
+			bahamut.OptPushServer(pubsub, c.NATSPublishTopic),
+			bahamut.OptPushServerEnableSubjectHierarchies(),
+		)
+	}
+
+	return opts
+}
+
+// ErrorTransformer transforms a disconnected error into an not acceptable.
+// This avoid 500 errors due to clients being disconnected.
+func ErrorTransformer(err error) error {
+
+	switch {
+	case manipulate.IsDisconnectedError(err), errors.As(err, &manipulate.ErrDisconnected{}), errors.Is(err, context.Canceled):
+		return elemental.NewError("Client Disconnected", err.Error(), "bahamut", http.StatusNotAcceptable)
+	default:
+		return nil
+	}
+}
