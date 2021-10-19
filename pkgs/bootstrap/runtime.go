@@ -7,6 +7,8 @@ import (
 	"go.uber.org/zap"
 )
 
+// ConfigureMaxProc configures the program's GOMAXPROCS to the given
+// value if not 0. If 0, the default GOMAXPROCS will be used.
 func ConfigureMaxProc(overrideMax int) {
 
 	if overrideMax == 0 {

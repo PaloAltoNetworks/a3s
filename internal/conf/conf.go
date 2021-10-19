@@ -166,7 +166,7 @@ type NATSConf struct {
 	NATSUser           string `mapstructure:"nats-user"         desc:"User name to use to connect to Nats"            secret:"true" file:"true"`
 }
 
-// TLSConfig returns the configured TLS configuraton as *tls.Config.
+// TLSConfig returns the configured TLS configuration as *tls.Config.
 func (c *NATSConf) TLSConfig() (*tls.Config, error) {
 
 	if c.NATSTLSDisable {

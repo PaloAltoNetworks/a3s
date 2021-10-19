@@ -8,6 +8,7 @@ import (
 	"go.aporeto.io/addedeffect/lombric"
 )
 
+// Conf holds the main configuration flags.
 type Conf struct {
 	AuthNConf authn.Conf `mapstructure:",squash"`
 

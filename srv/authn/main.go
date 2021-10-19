@@ -12,7 +12,7 @@ import (
 	"golang.org/x/net/context"
 )
 
-// Start starts the service.
+// Init initializes the module.
 func Init(
 	ctx context.Context,
 	cfg Conf,
@@ -41,8 +41,7 @@ func Init(
 	cookieDomain := cfg.CookieDomain
 	zap.L().Info("Cookie domain set", zap.String("domain", cookieDomain))
 
-	cookieSameSitePolicy := http.SameSiteDefaultMode
-
+	var cookieSameSitePolicy http.SameSite
 	switch cfg.CookieSameSitePolicy {
 	case "strict":
 		cookieSameSitePolicy = http.SameSiteStrictMode
@@ -50,6 +49,8 @@ func Init(
 		cookieSameSitePolicy = http.SameSiteLaxMode
 	case "none":
 		cookieSameSitePolicy = http.SameSiteNoneMode
+	case "default":
+		cookieSameSitePolicy = http.SameSiteDefaultMode
 	default:
 		return fmt.Errorf("unknown SameSite policy '%s'", cfg.CookieSameSitePolicy)
 	}

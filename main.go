@@ -6,6 +6,8 @@ import (
 	"go.aporeto.io/a3s/pkgs/bootstrap"
 	"go.aporeto.io/a3s/srv/authn"
 	"go.aporeto.io/bahamut"
+	"go.aporeto.io/elemental"
+	"go.uber.org/zap"
 )
 
 func main() {
@@ -25,7 +27,7 @@ func main() {
 	// db.Bootstrap(manipulator, serviceName)
 
 	pubsub := bootstrap.MakeNATSClient(cfg.NATSConf)
-	defer pubsub.Disconnect()
+	defer pubsub.Disconnect() // nolint: errcheck
 
 	server := bahamut.New(
 		append(
@@ -38,14 +40,16 @@ func main() {
 				nil,
 				nil,
 			),
-			// bahamut.OptUnmarshallers(map[elemental.Identity]bahamut.CustomUmarshaller{
-			// 	gaia.IssueIdentity: unmarshallers.FormData,
-			// }),
+			bahamut.OptUnmarshallers(map[elemental.Identity]bahamut.CustomUmarshaller{
+				// 	gaia.IssueIdentity: unmarshallers.FormData,
+			}),
 			// bahamut.OptTraceCleaner(tracecleaner.Clean),
 		)...,
 	)
 
-	authn.Init(ctx, cfg.AuthNConf, server, manipulator, pubsub)
+	if err := authn.Init(ctx, cfg.AuthNConf, server, manipulator, pubsub); err != nil {
+		zap.L().Fatal("Unable to initialize authn module", zap.Error(err))
+	}
 
 	server.Run(ctx)
 }
