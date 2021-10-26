@@ -6,9 +6,9 @@ import (
 	"time"
 
 	"go.aporeto.io/a3s/internal/conf"
+	"go.aporeto.io/a3s/pkgs/api"
 	"go.aporeto.io/bahamut"
 	"go.aporeto.io/elemental"
-	"go.aporeto.io/gaia"
 	"go.aporeto.io/manipulate"
 	"go.aporeto.io/manipulate/manipmongo"
 	"go.uber.org/zap"
@@ -74,7 +74,7 @@ func MakeMongoManipulator(cfg conf.MongoConf, additionalOptions ...manipmongo.Op
 			manipmongo.OptionCredentials(cfg.MongoUser, cfg.MongoPassword, cfg.MongoAuthDB),
 			manipmongo.OptionConnectionPoolLimit(cfg.MongoPoolSize),
 			manipmongo.OptionDefaultReadConsistencyMode(consistency),
-			manipmongo.OptionTranslateKeysFromModelManager(gaia.Manager()),
+			manipmongo.OptionTranslateKeysFromModelManager(api.Manager()),
 			// manipmongo.OptionSharder(sharding.NewSharder()),
 			manipmongo.OptionDefaultRetryFunc(func(i manipulate.RetryInfo) error {
 				info := i.(manipmongo.RetryInfo)
