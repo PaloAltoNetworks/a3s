@@ -21,7 +21,7 @@ func init() {
 		},
 	}
 
-	relationshipsRegistry[NamespacesIdentity] = &elemental.Relationship{
+	relationshipsRegistry[NamespaceIdentity] = &elemental.Relationship{
 		Create: map[string]*elemental.RelationshipInfo{
 			"root": {},
 		},

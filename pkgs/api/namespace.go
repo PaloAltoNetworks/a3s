@@ -8,8 +8,8 @@ import (
 	"go.aporeto.io/elemental"
 )
 
-// NamespacesIdentity represents the Identity of the object.
-var NamespacesIdentity = elemental.Identity{
+// NamespaceIdentity represents the Identity of the object.
+var NamespaceIdentity = elemental.Identity{
 	Name:     "namespace",
 	Category: "namespaces",
 	Package:  "policy",
@@ -17,12 +17,12 @@ var NamespacesIdentity = elemental.Identity{
 }
 
 // NamespacesList represents a list of Namespaces
-type NamespacesList []*Namespaces
+type NamespacesList []*Namespace
 
 // Identity returns the identity of the objects in the list.
 func (o NamespacesList) Identity() elemental.Identity {
 
-	return NamespacesIdentity
+	return NamespaceIdentity
 }
 
 // Copy returns a pointer to a copy the NamespacesList.
@@ -37,7 +37,7 @@ func (o NamespacesList) Append(objects ...elemental.Identifiable) elemental.Iden
 
 	out := append(NamespacesList{}, o...)
 	for _, obj := range objects {
-		out = append(out, obj.(*Namespaces))
+		out = append(out, obj.(*Namespace))
 	}
 
 	return out
@@ -66,7 +66,7 @@ func (o NamespacesList) ToSparse(fields ...string) elemental.Identifiables {
 
 	out := make(SparseNamespacesList, len(o))
 	for i := 0; i < len(o); i++ {
-		out[i] = o[i].ToSparse(fields...).(*SparseNamespaces)
+		out[i] = o[i].ToSparse(fields...).(*SparseNamespace)
 	}
 
 	return out
@@ -78,10 +78,13 @@ func (o NamespacesList) Version() int {
 	return 1
 }
 
-// Namespaces represents the model of a namespace
-type Namespaces struct {
+// Namespace represents the model of a namespace
+type Namespace struct {
 	// ID is the identifier of the object.
 	ID string `json:"ID" msgpack:"ID" bson:"-" mapstructure:"ID,omitempty"`
+
+	// The description of the object.
+	Description string `json:"description" msgpack:"description" bson:"description" mapstructure:"description,omitempty"`
 
 	// The name of the namespace. When you create a namespace, only put its bare name,
 	// not its full path.
@@ -93,45 +96,46 @@ type Namespaces struct {
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
 }
 
-// NewNamespaces returns a new *Namespaces
-func NewNamespaces() *Namespaces {
+// NewNamespace returns a new *Namespace
+func NewNamespace() *Namespace {
 
-	return &Namespaces{
+	return &Namespace{
 		ModelVersion: 1,
 	}
 }
 
 // Identity returns the Identity of the object.
-func (o *Namespaces) Identity() elemental.Identity {
+func (o *Namespace) Identity() elemental.Identity {
 
-	return NamespacesIdentity
+	return NamespaceIdentity
 }
 
 // Identifier returns the value of the object's unique identifier.
-func (o *Namespaces) Identifier() string {
+func (o *Namespace) Identifier() string {
 
 	return o.ID
 }
 
 // SetIdentifier sets the value of the object's unique identifier.
-func (o *Namespaces) SetIdentifier(id string) {
+func (o *Namespace) SetIdentifier(id string) {
 
 	o.ID = id
 }
 
 // GetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *Namespaces) GetBSON() (interface{}, error) {
+func (o *Namespace) GetBSON() (interface{}, error) {
 
 	if o == nil {
 		return nil, nil
 	}
 
-	s := &mongoAttributesNamespaces{}
+	s := &mongoAttributesNamespace{}
 
 	if o.ID != "" {
 		s.ID = bson.ObjectIdHex(o.ID)
 	}
+	s.Description = o.Description
 	s.Name = o.Name
 	s.Namespace = o.Namespace
 
@@ -140,18 +144,19 @@ func (o *Namespaces) GetBSON() (interface{}, error) {
 
 // SetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *Namespaces) SetBSON(raw bson.Raw) error {
+func (o *Namespace) SetBSON(raw bson.Raw) error {
 
 	if o == nil {
 		return nil
 	}
 
-	s := &mongoAttributesNamespaces{}
+	s := &mongoAttributesNamespace{}
 	if err := raw.Unmarshal(s); err != nil {
 		return err
 	}
 
 	o.ID = s.ID.Hex()
+	o.Description = s.Description
 	o.Name = s.Name
 	o.Namespace = s.Namespace
 
@@ -159,89 +164,92 @@ func (o *Namespaces) SetBSON(raw bson.Raw) error {
 }
 
 // Version returns the hardcoded version of the model.
-func (o *Namespaces) Version() int {
+func (o *Namespace) Version() int {
 
 	return 1
 }
 
 // BleveType implements the bleve.Classifier Interface.
-func (o *Namespaces) BleveType() string {
+func (o *Namespace) BleveType() string {
 
 	return "namespace"
 }
 
 // DefaultOrder returns the list of default ordering fields.
-func (o *Namespaces) DefaultOrder() []string {
+func (o *Namespace) DefaultOrder() []string {
 
 	return []string{}
 }
 
 // Doc returns the documentation for the object
-func (o *Namespaces) Doc() string {
+func (o *Namespace) Doc() string {
 
 	return `A namespace is grouping object. Every object is part of a namespace, and every
 request is made against a namespace. Namespaces form a tree hierarchy.`
 }
 
-func (o *Namespaces) String() string {
+func (o *Namespace) String() string {
 
 	return fmt.Sprintf("<%s:%s>", o.Identity().Name, o.Identifier())
 }
 
 // GetID returns the ID of the receiver.
-func (o *Namespaces) GetID() string {
+func (o *Namespace) GetID() string {
 
 	return o.ID
 }
 
 // SetID sets the property ID of the receiver using the given value.
-func (o *Namespaces) SetID(ID string) {
+func (o *Namespace) SetID(ID string) {
 
 	o.ID = ID
 }
 
 // GetName returns the Name of the receiver.
-func (o *Namespaces) GetName() string {
+func (o *Namespace) GetName() string {
 
 	return o.Name
 }
 
 // SetName sets the property Name of the receiver using the given value.
-func (o *Namespaces) SetName(name string) {
+func (o *Namespace) SetName(name string) {
 
 	o.Name = name
 }
 
 // GetNamespace returns the Namespace of the receiver.
-func (o *Namespaces) GetNamespace() string {
+func (o *Namespace) GetNamespace() string {
 
 	return o.Namespace
 }
 
 // SetNamespace sets the property Namespace of the receiver using the given value.
-func (o *Namespaces) SetNamespace(namespace string) {
+func (o *Namespace) SetNamespace(namespace string) {
 
 	o.Namespace = namespace
 }
 
 // ToSparse returns the sparse version of the model.
 // The returned object will only contain the given fields. No field means entire field set.
-func (o *Namespaces) ToSparse(fields ...string) elemental.SparseIdentifiable {
+func (o *Namespace) ToSparse(fields ...string) elemental.SparseIdentifiable {
 
 	if len(fields) == 0 {
 		// nolint: goimports
-		return &SparseNamespaces{
-			ID:        &o.ID,
-			Name:      &o.Name,
-			Namespace: &o.Namespace,
+		return &SparseNamespace{
+			ID:          &o.ID,
+			Description: &o.Description,
+			Name:        &o.Name,
+			Namespace:   &o.Namespace,
 		}
 	}
 
-	sp := &SparseNamespaces{}
+	sp := &SparseNamespace{}
 	for _, f := range fields {
 		switch f {
 		case "ID":
 			sp.ID = &(o.ID)
+		case "description":
+			sp.Description = &(o.Description)
 		case "name":
 			sp.Name = &(o.Name)
 		case "namespace":
@@ -252,15 +260,18 @@ func (o *Namespaces) ToSparse(fields ...string) elemental.SparseIdentifiable {
 	return sp
 }
 
-// Patch apply the non nil value of a *SparseNamespaces to the object.
-func (o *Namespaces) Patch(sparse elemental.SparseIdentifiable) {
+// Patch apply the non nil value of a *SparseNamespace to the object.
+func (o *Namespace) Patch(sparse elemental.SparseIdentifiable) {
 	if !sparse.Identity().IsEqual(o.Identity()) {
 		panic("cannot patch from a parse with different identity")
 	}
 
-	so := sparse.(*SparseNamespaces)
+	so := sparse.(*SparseNamespace)
 	if so.ID != nil {
 		o.ID = *so.ID
+	}
+	if so.Description != nil {
+		o.Description = *so.Description
 	}
 	if so.Name != nil {
 		o.Name = *so.Name
@@ -270,32 +281,32 @@ func (o *Namespaces) Patch(sparse elemental.SparseIdentifiable) {
 	}
 }
 
-// DeepCopy returns a deep copy if the Namespaces.
-func (o *Namespaces) DeepCopy() *Namespaces {
+// DeepCopy returns a deep copy if the Namespace.
+func (o *Namespace) DeepCopy() *Namespace {
 
 	if o == nil {
 		return nil
 	}
 
-	out := &Namespaces{}
+	out := &Namespace{}
 	o.DeepCopyInto(out)
 
 	return out
 }
 
-// DeepCopyInto copies the receiver into the given *Namespaces.
-func (o *Namespaces) DeepCopyInto(out *Namespaces) {
+// DeepCopyInto copies the receiver into the given *Namespace.
+func (o *Namespace) DeepCopyInto(out *Namespace) {
 
 	target, err := copystructure.Copy(o)
 	if err != nil {
-		panic(fmt.Sprintf("Unable to deepcopy Namespaces: %s", err))
+		panic(fmt.Sprintf("Unable to deepcopy Namespace: %s", err))
 	}
 
-	*out = *target.(*Namespaces)
+	*out = *target.(*Namespace)
 }
 
 // Validate valides the current information stored into the structure.
-func (o *Namespaces) Validate() error {
+func (o *Namespace) Validate() error {
 
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
@@ -320,30 +331,32 @@ func (o *Namespaces) Validate() error {
 }
 
 // SpecificationForAttribute returns the AttributeSpecification for the given attribute name key.
-func (*Namespaces) SpecificationForAttribute(name string) elemental.AttributeSpecification {
+func (*Namespace) SpecificationForAttribute(name string) elemental.AttributeSpecification {
 
-	if v, ok := NamespacesAttributesMap[name]; ok {
+	if v, ok := NamespaceAttributesMap[name]; ok {
 		return v
 	}
 
 	// We could not find it, so let's check on the lower case indexed spec map
-	return NamespacesLowerCaseAttributesMap[name]
+	return NamespaceLowerCaseAttributesMap[name]
 }
 
 // AttributeSpecifications returns the full attribute specifications map.
-func (*Namespaces) AttributeSpecifications() map[string]elemental.AttributeSpecification {
+func (*Namespace) AttributeSpecifications() map[string]elemental.AttributeSpecification {
 
-	return NamespacesAttributesMap
+	return NamespaceAttributesMap
 }
 
 // ValueForAttribute returns the value for the given attribute.
 // This is a very advanced function that you should not need but in some
 // very specific use cases.
-func (o *Namespaces) ValueForAttribute(name string) interface{} {
+func (o *Namespace) ValueForAttribute(name string) interface{} {
 
 	switch name {
 	case "ID":
 		return o.ID
+	case "description":
+		return o.Description
 	case "name":
 		return o.Name
 	case "namespace":
@@ -353,8 +366,8 @@ func (o *Namespaces) ValueForAttribute(name string) interface{} {
 	return nil
 }
 
-// NamespacesAttributesMap represents the map of attribute for Namespaces.
-var NamespacesAttributesMap = map[string]elemental.AttributeSpecification{
+// NamespaceAttributesMap represents the map of attribute for Namespace.
+var NamespaceAttributesMap = map[string]elemental.AttributeSpecification{
 	"ID": {
 		AllowedChoices: []string{},
 		Autogenerated:  true,
@@ -368,6 +381,16 @@ var NamespacesAttributesMap = map[string]elemental.AttributeSpecification{
 		Orderable:      true,
 		ReadOnly:       true,
 		Setter:         true,
+		Stored:         true,
+		Type:           "string",
+	},
+	"Description": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "description",
+		ConvertedName:  "Description",
+		Description:    `The description of the object.`,
+		Exposed:        true,
+		Name:           "description",
 		Stored:         true,
 		Type:           "string",
 	},
@@ -404,8 +427,8 @@ not its full path.`,
 	},
 }
 
-// NamespacesLowerCaseAttributesMap represents the map of attribute for Namespaces.
-var NamespacesLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
+// NamespaceLowerCaseAttributesMap represents the map of attribute for Namespace.
+var NamespaceLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
 	"id": {
 		AllowedChoices: []string{},
 		Autogenerated:  true,
@@ -419,6 +442,16 @@ var NamespacesLowerCaseAttributesMap = map[string]elemental.AttributeSpecificati
 		Orderable:      true,
 		ReadOnly:       true,
 		Setter:         true,
+		Stored:         true,
+		Type:           "string",
+	},
+	"description": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "description",
+		ConvertedName:  "Description",
+		Description:    `The description of the object.`,
+		Exposed:        true,
+		Name:           "description",
 		Stored:         true,
 		Type:           "string",
 	},
@@ -456,12 +489,12 @@ not its full path.`,
 }
 
 // SparseNamespacesList represents a list of SparseNamespaces
-type SparseNamespacesList []*SparseNamespaces
+type SparseNamespacesList []*SparseNamespace
 
 // Identity returns the identity of the objects in the list.
 func (o SparseNamespacesList) Identity() elemental.Identity {
 
-	return NamespacesIdentity
+	return NamespaceIdentity
 }
 
 // Copy returns a pointer to a copy the SparseNamespacesList.
@@ -476,7 +509,7 @@ func (o SparseNamespacesList) Append(objects ...elemental.Identifiable) elementa
 
 	out := append(SparseNamespacesList{}, o...)
 	for _, obj := range objects {
-		out = append(out, obj.(*SparseNamespaces))
+		out = append(out, obj.(*SparseNamespace))
 	}
 
 	return out
@@ -516,10 +549,13 @@ func (o SparseNamespacesList) Version() int {
 	return 1
 }
 
-// SparseNamespaces represents the sparse version of a namespace.
-type SparseNamespaces struct {
+// SparseNamespace represents the sparse version of a namespace.
+type SparseNamespace struct {
 	// ID is the identifier of the object.
 	ID *string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
+
+	// The description of the object.
+	Description *string `json:"description,omitempty" msgpack:"description,omitempty" bson:"description,omitempty" mapstructure:"description,omitempty"`
 
 	// The name of the namespace. When you create a namespace, only put its bare name,
 	// not its full path.
@@ -531,19 +567,19 @@ type SparseNamespaces struct {
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
 }
 
-// NewSparseNamespaces returns a new  SparseNamespaces.
-func NewSparseNamespaces() *SparseNamespaces {
-	return &SparseNamespaces{}
+// NewSparseNamespace returns a new  SparseNamespace.
+func NewSparseNamespace() *SparseNamespace {
+	return &SparseNamespace{}
 }
 
 // Identity returns the Identity of the sparse object.
-func (o *SparseNamespaces) Identity() elemental.Identity {
+func (o *SparseNamespace) Identity() elemental.Identity {
 
-	return NamespacesIdentity
+	return NamespaceIdentity
 }
 
 // Identifier returns the value of the sparse object's unique identifier.
-func (o *SparseNamespaces) Identifier() string {
+func (o *SparseNamespace) Identifier() string {
 
 	if o.ID == nil {
 		return ""
@@ -552,7 +588,7 @@ func (o *SparseNamespaces) Identifier() string {
 }
 
 // SetIdentifier sets the value of the sparse object's unique identifier.
-func (o *SparseNamespaces) SetIdentifier(id string) {
+func (o *SparseNamespace) SetIdentifier(id string) {
 
 	if id != "" {
 		o.ID = &id
@@ -563,16 +599,19 @@ func (o *SparseNamespaces) SetIdentifier(id string) {
 
 // GetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *SparseNamespaces) GetBSON() (interface{}, error) {
+func (o *SparseNamespace) GetBSON() (interface{}, error) {
 
 	if o == nil {
 		return nil, nil
 	}
 
-	s := &mongoAttributesSparseNamespaces{}
+	s := &mongoAttributesSparseNamespace{}
 
 	if o.ID != nil {
 		s.ID = bson.ObjectIdHex(*o.ID)
+	}
+	if o.Description != nil {
+		s.Description = o.Description
 	}
 	if o.Name != nil {
 		s.Name = o.Name
@@ -586,19 +625,22 @@ func (o *SparseNamespaces) GetBSON() (interface{}, error) {
 
 // SetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *SparseNamespaces) SetBSON(raw bson.Raw) error {
+func (o *SparseNamespace) SetBSON(raw bson.Raw) error {
 
 	if o == nil {
 		return nil
 	}
 
-	s := &mongoAttributesSparseNamespaces{}
+	s := &mongoAttributesSparseNamespace{}
 	if err := raw.Unmarshal(s); err != nil {
 		return err
 	}
 
 	id := s.ID.Hex()
 	o.ID = &id
+	if s.Description != nil {
+		o.Description = s.Description
+	}
 	if s.Name != nil {
 		o.Name = s.Name
 	}
@@ -610,17 +652,20 @@ func (o *SparseNamespaces) SetBSON(raw bson.Raw) error {
 }
 
 // Version returns the hardcoded version of the model.
-func (o *SparseNamespaces) Version() int {
+func (o *SparseNamespace) Version() int {
 
 	return 1
 }
 
 // ToPlain returns the plain version of the sparse model.
-func (o *SparseNamespaces) ToPlain() elemental.PlainIdentifiable {
+func (o *SparseNamespace) ToPlain() elemental.PlainIdentifiable {
 
-	out := NewNamespaces()
+	out := NewNamespace()
 	if o.ID != nil {
 		out.ID = *o.ID
+	}
+	if o.Description != nil {
+		out.Description = *o.Description
 	}
 	if o.Name != nil {
 		out.Name = *o.Name
@@ -633,7 +678,7 @@ func (o *SparseNamespaces) ToPlain() elemental.PlainIdentifiable {
 }
 
 // GetID returns the ID of the receiver.
-func (o *SparseNamespaces) GetID() (out string) {
+func (o *SparseNamespace) GetID() (out string) {
 
 	if o.ID == nil {
 		return
@@ -643,13 +688,13 @@ func (o *SparseNamespaces) GetID() (out string) {
 }
 
 // SetID sets the property ID of the receiver using the address of the given value.
-func (o *SparseNamespaces) SetID(ID string) {
+func (o *SparseNamespace) SetID(ID string) {
 
 	o.ID = &ID
 }
 
 // GetName returns the Name of the receiver.
-func (o *SparseNamespaces) GetName() (out string) {
+func (o *SparseNamespace) GetName() (out string) {
 
 	if o.Name == nil {
 		return
@@ -659,13 +704,13 @@ func (o *SparseNamespaces) GetName() (out string) {
 }
 
 // SetName sets the property Name of the receiver using the address of the given value.
-func (o *SparseNamespaces) SetName(name string) {
+func (o *SparseNamespace) SetName(name string) {
 
 	o.Name = &name
 }
 
 // GetNamespace returns the Namespace of the receiver.
-func (o *SparseNamespaces) GetNamespace() (out string) {
+func (o *SparseNamespace) GetNamespace() (out string) {
 
 	if o.Namespace == nil {
 		return
@@ -675,42 +720,44 @@ func (o *SparseNamespaces) GetNamespace() (out string) {
 }
 
 // SetNamespace sets the property Namespace of the receiver using the address of the given value.
-func (o *SparseNamespaces) SetNamespace(namespace string) {
+func (o *SparseNamespace) SetNamespace(namespace string) {
 
 	o.Namespace = &namespace
 }
 
-// DeepCopy returns a deep copy if the SparseNamespaces.
-func (o *SparseNamespaces) DeepCopy() *SparseNamespaces {
+// DeepCopy returns a deep copy if the SparseNamespace.
+func (o *SparseNamespace) DeepCopy() *SparseNamespace {
 
 	if o == nil {
 		return nil
 	}
 
-	out := &SparseNamespaces{}
+	out := &SparseNamespace{}
 	o.DeepCopyInto(out)
 
 	return out
 }
 
-// DeepCopyInto copies the receiver into the given *SparseNamespaces.
-func (o *SparseNamespaces) DeepCopyInto(out *SparseNamespaces) {
+// DeepCopyInto copies the receiver into the given *SparseNamespace.
+func (o *SparseNamespace) DeepCopyInto(out *SparseNamespace) {
 
 	target, err := copystructure.Copy(o)
 	if err != nil {
-		panic(fmt.Sprintf("Unable to deepcopy SparseNamespaces: %s", err))
+		panic(fmt.Sprintf("Unable to deepcopy SparseNamespace: %s", err))
 	}
 
-	*out = *target.(*SparseNamespaces)
+	*out = *target.(*SparseNamespace)
 }
 
-type mongoAttributesNamespaces struct {
-	ID        bson.ObjectId `bson:"_id,omitempty"`
-	Name      string        `bson:"name"`
-	Namespace string        `bson:"namespace"`
+type mongoAttributesNamespace struct {
+	ID          bson.ObjectId `bson:"_id,omitempty"`
+	Description string        `bson:"description"`
+	Name        string        `bson:"name"`
+	Namespace   string        `bson:"namespace"`
 }
-type mongoAttributesSparseNamespaces struct {
-	ID        bson.ObjectId `bson:"_id,omitempty"`
-	Name      *string       `bson:"name,omitempty"`
-	Namespace *string       `bson:"namespace,omitempty"`
+type mongoAttributesSparseNamespace struct {
+	ID          bson.ObjectId `bson:"_id,omitempty"`
+	Description *string       `bson:"description,omitempty"`
+	Name        *string       `bson:"name,omitempty"`
+	Namespace   *string       `bson:"namespace,omitempty"`
 }

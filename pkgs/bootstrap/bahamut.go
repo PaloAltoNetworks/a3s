@@ -139,3 +139,21 @@ func ErrorTransformer(err error) error {
 		return nil
 	}
 }
+
+// MakeIdentifiableRetriever returns a bahamut.IdentifiableRetriever to handle patches as classic update.
+func MakeIdentifiableRetriever(manipulator manipulate.Manipulator) bahamut.IdentifiableRetriever {
+
+	return func(req *elemental.Request) (elemental.Identifiable, error) {
+
+		identity := req.Identity
+
+		obj := api.Manager().Identifiable(identity)
+		obj.SetIdentifier(req.ObjectID)
+
+		if err := manipulator.Retrieve(nil, obj); err != nil {
+			return nil, err
+		}
+
+		return obj, nil
+	}
+}

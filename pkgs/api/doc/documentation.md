@@ -121,7 +121,7 @@ Default value:
 "24h"
 ```
 
-### Namespaces
+### Namespace
 
 A namespace is grouping object. Every object is part of a namespace, and every
 request is made against a namespace. Namespaces form a tree hierarchy.
@@ -163,6 +163,12 @@ Update a particular namespace object.
 Type: `string`
 
 ID is the identifier of the object.
+
+##### `description`
+
+Type: `string`
+
+The description of the object.
 
 ##### `name` [`required`,`creation_only`,`format=^[a-zA-Z0-9_/]+$`]
 

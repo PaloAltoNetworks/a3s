@@ -2,7 +2,7 @@
 model:
   rest_name: namespace
   resource_name: namespaces
-  entity_name: Namespaces
+  entity_name: Namespace
   package: policy
   group: core
   description: |-
@@ -26,6 +26,12 @@ indexes:
 # Attributes
 attributes:
   v1:
+  - name: description
+    description: The description of the object.
+    type: string
+    exposed: true
+    stored: true
+
   - name: name
     description: |-
       The name of the namespace. When you create a namespace, only put its bare name,

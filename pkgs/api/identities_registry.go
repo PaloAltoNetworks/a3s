@@ -5,13 +5,13 @@ import "go.aporeto.io/elemental"
 var (
 	identityNamesMap = map[string]elemental.Identity{
 		"issue":     IssueIdentity,
-		"namespace": NamespacesIdentity,
+		"namespace": NamespaceIdentity,
 		"root":      RootIdentity,
 	}
 
 	identitycategoriesMap = map[string]elemental.Identity{
 		"issue":      IssueIdentity,
-		"namespaces": NamespacesIdentity,
+		"namespaces": NamespaceIdentity,
 		"root":       RootIdentity,
 	}
 
@@ -68,8 +68,8 @@ func (f modelManager) Identifiable(identity elemental.Identity) elemental.Identi
 
 	case IssueIdentity:
 		return NewIssue()
-	case NamespacesIdentity:
-		return NewNamespaces()
+	case NamespaceIdentity:
+		return NewNamespace()
 	case RootIdentity:
 		return NewRoot()
 	default:
@@ -83,8 +83,8 @@ func (f modelManager) SparseIdentifiable(identity elemental.Identity) elemental.
 
 	case IssueIdentity:
 		return NewSparseIssue()
-	case NamespacesIdentity:
-		return NewSparseNamespaces()
+	case NamespaceIdentity:
+		return NewSparseNamespace()
 	default:
 		return nil
 	}
@@ -106,7 +106,7 @@ func (f modelManager) Identifiables(identity elemental.Identity) elemental.Ident
 
 	case IssueIdentity:
 		return &IssuesList{}
-	case NamespacesIdentity:
+	case NamespaceIdentity:
 		return &NamespacesList{}
 	default:
 		return nil
@@ -119,7 +119,7 @@ func (f modelManager) SparseIdentifiables(identity elemental.Identity) elemental
 
 	case IssueIdentity:
 		return &SparseIssuesList{}
-	case NamespacesIdentity:
+	case NamespaceIdentity:
 		return &SparseNamespacesList{}
 	default:
 		return nil
@@ -150,7 +150,7 @@ func AllIdentities() []elemental.Identity {
 
 	return []elemental.Identity{
 		IssueIdentity,
-		NamespacesIdentity,
+		NamespaceIdentity,
 		RootIdentity,
 	}
 }
@@ -161,7 +161,7 @@ func AliasesForIdentity(identity elemental.Identity) []string {
 	switch identity {
 	case IssueIdentity:
 		return []string{}
-	case NamespacesIdentity:
+	case NamespaceIdentity:
 		return []string{}
 	case RootIdentity:
 		return []string{}
