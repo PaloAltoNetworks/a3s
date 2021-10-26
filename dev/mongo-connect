@@ -1,0 +1,16 @@
+#!/bin/bash
+
+# mongo \
+#     --ssl \
+#     --sslCAFile "$CERTS_FOLDER/ca-chain-system.pem"  \
+#     --sslPEMKeyFile "$CERTS_FOLDER/system-full.pem" \
+#     --sslPEMKeyPassword "aporeto" \
+#     -u root \
+#     -p root \
+#     --authenticationDatabase admin
+
+mongo \
+	-u root \
+	-p root \
+	--port 37017 \
+	--authenticationDatabase admin

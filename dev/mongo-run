@@ -1,0 +1,19 @@
+#!/bin/bash
+clear
+
+DATA_PATH=".data/mongo"
+mkdir -p "$DATA_PATH"
+
+KEYFILE="$(mktemp -t mongo-keyfile-XXX)"
+openssl rand -base64 756 >"$KEYFILE"
+chmod 400 "$KEYFILE"
+
+[[ $(uname) == "Linux" ]] && ulimit -n 65000
+
+mongod \
+	--dbpath "$DATA_PATH" \
+	--auth \
+	--bind_ip 0.0.0.0 \
+	--port 37017 \
+	--replSet 0 \
+	--keyFile "$KEYFILE"

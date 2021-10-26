@@ -1,0 +1,73 @@
+#!/bin/bash
+
+function run {
+	# mongo \
+	#     --quiet \
+	#     --ssl \
+	#     --sslCAFile "$CERTS_FOLDER/ca-chain-system.pem" \
+	#     --sslPEMKeyPassword aporeto \
+	#     --sslPEMKeyFile "$CERTS_FOLDER/system-full.pem" admin \
+	#     --eval "$1"
+
+	mongo --quiet --port 37017 --eval "$1"
+}
+
+run 'rs.initiate(
+   {
+      _id: "0",
+      version: 1,
+      members: [
+         { _id: 0, host : "localhost:37017" }
+      ]
+   }
+)'
+
+sleep 5
+
+run 'db.getSiblingDB("admin").createUser({
+    user: "root",
+    pwd: "root",
+    roles: [
+        "root",
+    ]
+});'
+
+run 'db.getSiblingDB("admin").auth("root", "root");
+db.getSiblingDB("admin").createRole({
+     role: "dbLister",
+     privileges: [
+        { resource: { cluster: true }, actions: [ "listDatabases"] },
+     ],
+     roles: []
+});'
+
+run 'db.getSiblingDB("admin").auth("root", "root");
+rs.initiate()'
+
+run 'db.getSiblingDB("admin").auth("root", "root");
+db.getSiblingDB("admin").createUser({
+    user: "a3s",
+    pwd: "a3s",
+    roles: [],
+});'
+
+run 'db.getSiblingDB("admin").auth("root", "root");
+db.getSiblingDB("admin").grantRolesToUser("a3s",
+    [{ role: "dbLister", db: "admin" }]
+);'
+
+run 'db.getSiblingDB("admin").auth("root", "root");
+db.getSiblingDB("admin").grantRolesToUser("a3s",
+    [
+        { role: "dbOwner", db: "a3s" },
+    ]
+);'
+
+run 'db.getSiblingDB("admin").auth("root", "root");
+db.adminCommand({
+    setFeatureCompatibilityVersion: "4.4"
+});'
+
+run 'db.getSiblingDB("admin").auth("root", "root");
+db.disableFreeMonitoring();
+'

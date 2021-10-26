@@ -1,0 +1,7 @@
+#!/bin/bash
+clear
+nats-server \
+	--user nats-user \
+	--pass nats-password \
+	--port 4223 \
+	-m 9222
