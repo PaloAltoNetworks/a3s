@@ -2,11 +2,14 @@ package main
 
 import (
 	"context"
+	"errors"
+	"net/http"
 
 	"go.aporeto.io/a3s/pkgs/bootstrap"
-	"go.aporeto.io/a3s/srv/authn"
+	"go.aporeto.io/a3s/srv/policy"
 	"go.aporeto.io/bahamut"
 	"go.aporeto.io/elemental"
+	"go.aporeto.io/manipulate"
 	"go.uber.org/zap"
 )
 
@@ -40,16 +43,31 @@ func main() {
 				nil,
 				nil,
 			),
-			bahamut.OptUnmarshallers(map[elemental.Identity]bahamut.CustomUmarshaller{
-				// 	gaia.IssueIdentity: unmarshallers.FormData,
-			}),
-			// bahamut.OptTraceCleaner(tracecleaner.Clean),
+			bahamut.OptErrorTransformer(errorTransformer),
+			bahamut.OptIdentifiableRetriever(bootstrap.MakeIdentifiableRetriever(manipulator)),
 		)...,
 	)
 
-	if err := authn.Init(ctx, cfg.AuthNConf, server, manipulator, pubsub); err != nil {
-		zap.L().Fatal("Unable to initialize authn module", zap.Error(err))
+	// if err := authn.Init(ctx, cfg.AuthNConf, server, manipulator, pubsub); err != nil {
+	// 	zap.L().Fatal("Unable to initialize authn module", zap.Error(err))
+	// }
+
+	if err := policy.Init(ctx, cfg.PolicyCOnf, server, manipulator, pubsub); err != nil {
+		zap.L().Fatal("Unable to initialize policy module", zap.Error(err))
 	}
 
 	server.Run(ctx)
+}
+
+func errorTransformer(err error) error {
+
+	if errors.As(err, &manipulate.ErrObjectNotFound{}) {
+		return elemental.NewError("Not Found", err.Error(), "a3s", http.StatusNotFound)
+	}
+
+	if errors.As(err, &manipulate.ErrCannotCommunicate{}) {
+		return elemental.NewError("Communication Error", err.Error(), "a3s", http.StatusServiceUnavailable)
+	}
+
+	return err
 }
