@@ -12,7 +12,7 @@ import (
 // Conf holds the main configuration flags.
 type Conf struct {
 	AuthNConf  authn.Conf  `mapstructure:",squash"`
-	PolicyCOnf policy.Conf `mapstructure:",squash"`
+	PolicyConf policy.Conf `mapstructure:",squash"`
 
 	conf.APIServerConf       `mapstructure:",squash"`
 	conf.HealthConfiguration `mapstructure:",squash"`

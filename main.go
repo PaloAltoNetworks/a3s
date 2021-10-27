@@ -52,7 +52,7 @@ func main() {
 	// 	zap.L().Fatal("Unable to initialize authn module", zap.Error(err))
 	// }
 
-	if err := policy.Init(ctx, cfg.PolicyCOnf, server, manipulator, pubsub); err != nil {
+	if err := policy.Init(ctx, cfg.PolicyConf, server, manipulator, pubsub); err != nil {
 		zap.L().Fatal("Unable to initialize policy module", zap.Error(err))
 	}
 

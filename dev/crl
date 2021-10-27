@@ -1,0 +1,3 @@
+#!/bin/bash
+
+curl -sSl -H "Content-Type: application/json" "http://127.0.0.1:44443/$1" "${@:2}" | jq
