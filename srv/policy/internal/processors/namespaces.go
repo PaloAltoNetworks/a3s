@@ -4,8 +4,8 @@ import (
 	"net/http"
 	"strings"
 
-	"go.aporeto.io/a3s/internal/crud"
 	"go.aporeto.io/a3s/pkgs/api"
+	"go.aporeto.io/a3s/pkgs/crud"
 	"go.aporeto.io/bahamut"
 	"go.aporeto.io/elemental"
 	"go.aporeto.io/manipulate"
