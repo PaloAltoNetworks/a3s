@@ -3,8 +3,8 @@ model:
   rest_name: namespace
   resource_name: namespaces
   entity_name: Namespace
-  package: policy
-  group: core
+  package: a3s
+  group: policy
   description: |-
     A namespace is grouping object. Every object is part of a namespace, and every
     request is made against a namespace. Namespaces form a tree hierarchy.

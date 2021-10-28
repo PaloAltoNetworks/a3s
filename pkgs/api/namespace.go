@@ -12,7 +12,7 @@ import (
 var NamespaceIdentity = elemental.Identity{
 	Name:     "namespace",
 	Category: "namespaces",
-	Package:  "policy",
+	Package:  "a3s",
 	Private:  false,
 }
 

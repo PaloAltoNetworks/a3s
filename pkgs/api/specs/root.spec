@@ -24,3 +24,9 @@ relations:
     description: Retrieves the list of namespaces.
   create:
     description: Creates a new namespace.
+
+- rest_name: authorization
+  get:
+    description: Retrieves the list of authorization.
+  create:
+    description: Creates a new authorization.

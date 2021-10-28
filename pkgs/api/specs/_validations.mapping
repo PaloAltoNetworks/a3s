@@ -9,3 +9,13 @@ $cidr_list_optional:
 $duration:
   elemental:
     name: ValidateTimeDuration
+
+
+$tags_expression:
+  elemental:
+    name: ValidateTagsExpression
+
+
+$authorization_subject:
+  elemental:
+    name: ValidateAuthorizationSubject

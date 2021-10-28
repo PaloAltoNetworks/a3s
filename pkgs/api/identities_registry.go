@@ -4,20 +4,28 @@ import "go.aporeto.io/elemental"
 
 var (
 	identityNamesMap = map[string]elemental.Identity{
-		"issue":     IssueIdentity,
-		"namespace": NamespaceIdentity,
-		"root":      RootIdentity,
+		"authorization": AuthorizationIdentity,
+		"issue":         IssueIdentity,
+		"namespace":     NamespaceIdentity,
+		"root":          RootIdentity,
 	}
 
 	identitycategoriesMap = map[string]elemental.Identity{
-		"issue":      IssueIdentity,
-		"namespaces": NamespaceIdentity,
-		"root":       RootIdentity,
+		"authorizations": AuthorizationIdentity,
+		"issue":          IssueIdentity,
+		"namespaces":     NamespaceIdentity,
+		"root":           RootIdentity,
 	}
 
 	aliasesMap = map[string]elemental.Identity{}
 
 	indexesMap = map[string][][]string{
+		"authorization": {
+			{"namespace", "flattenedSubject", "disabled"},
+			{"namespace", "flattenedSubject", "propagate"},
+			{"namespace"},
+			{"namespace", "ID"},
+		},
 		"issue": nil,
 		"namespace": {
 			{"namespace", "name"},
@@ -66,6 +74,8 @@ func (f modelManager) Identifiable(identity elemental.Identity) elemental.Identi
 
 	switch identity {
 
+	case AuthorizationIdentity:
+		return NewAuthorization()
 	case IssueIdentity:
 		return NewIssue()
 	case NamespaceIdentity:
@@ -81,6 +91,8 @@ func (f modelManager) SparseIdentifiable(identity elemental.Identity) elemental.
 
 	switch identity {
 
+	case AuthorizationIdentity:
+		return NewSparseAuthorization()
 	case IssueIdentity:
 		return NewSparseIssue()
 	case NamespaceIdentity:
@@ -104,6 +116,8 @@ func (f modelManager) Identifiables(identity elemental.Identity) elemental.Ident
 
 	switch identity {
 
+	case AuthorizationIdentity:
+		return &AuthorizationsList{}
 	case IssueIdentity:
 		return &IssuesList{}
 	case NamespaceIdentity:
@@ -117,6 +131,8 @@ func (f modelManager) SparseIdentifiables(identity elemental.Identity) elemental
 
 	switch identity {
 
+	case AuthorizationIdentity:
+		return &SparseAuthorizationsList{}
 	case IssueIdentity:
 		return &SparseIssuesList{}
 	case NamespaceIdentity:
@@ -149,6 +165,7 @@ func Manager() elemental.ModelManager { return manager }
 func AllIdentities() []elemental.Identity {
 
 	return []elemental.Identity{
+		AuthorizationIdentity,
 		IssueIdentity,
 		NamespaceIdentity,
 		RootIdentity,
@@ -159,6 +176,8 @@ func AllIdentities() []elemental.Identity {
 func AliasesForIdentity(identity elemental.Identity) []string {
 
 	switch identity {
+	case AuthorizationIdentity:
+		return []string{}
 	case IssueIdentity:
 		return []string{}
 	case NamespaceIdentity:
