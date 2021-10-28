@@ -3,35 +3,121 @@ package crud
 import (
 	"net/http"
 
+	"go.aporeto.io/a3s/pkgs/api"
 	"go.aporeto.io/bahamut"
 	"go.aporeto.io/elemental"
 	"go.aporeto.io/manipulate"
 )
 
-// TranslateContext translates the given bahamut.Context to a manipulate.Context
-// It handles, namespace, recursive, propagate and the `q` parameter.
-// If your code needs to apply another filter, it will override the filter
-// created from the query parameter.
-func TranslateContext(bctx bahamut.Context) (manipulate.Context, error) {
+func Create(bctx bahamut.Context, m manipulate.Manipulator, obj elemental.Identifiable) error {
 
-	opts := []manipulate.ContextOption{
-		manipulate.ContextOptionNamespace(bctx.Request().Namespace),
-		manipulate.ContextOptionRecursive(bctx.Request().Recursive),
-		manipulate.ContextOptionPropagated(bctx.Request().Propagated),
+	if n, ok := obj.(elemental.Namespaceable); ok {
+		n.SetNamespace(bctx.Request().Namespace)
 	}
 
-	qfilter, err := manipulate.NewFiltersFromQueryParameters(bctx.Request().Parameters)
+	return m.Create(manipulate.NewContext(bctx.Context()), obj)
+}
+
+func RetrieveMany(bctx bahamut.Context, m manipulate.Manipulator, objs elemental.Identifiables) error {
+
+	mctx, err := TranslateContext(bctx)
 	if err != nil {
-		return nil, elemental.NewError(
-			"Bad Request",
-			err.Error(),
+		return err
+	}
+
+	if err := m.RetrieveMany(mctx, objs); err != nil {
+		return err
+	}
+
+	bctx.SetOutputData(objs)
+
+	return nil
+}
+
+func Retrieve(bctx bahamut.Context, m manipulate.Manipulator, obj elemental.Identifiable) error {
+
+	mctx, err := TranslateContext(bctx)
+	if err != nil {
+		return err
+	}
+
+	obj.SetIdentifier(bctx.Request().ObjectID)
+	if err := m.Retrieve(mctx, obj); err != nil {
+		return err
+	}
+
+	bctx.SetOutputData(obj)
+
+	return nil
+}
+
+func Update(bctx bahamut.Context, m manipulate.Manipulator, obj elemental.Identifiable) error {
+
+	obj.SetIdentifier(bctx.Request().ObjectID)
+
+	mctx, err := TranslateContext(bctx)
+	if err != nil {
+		return err
+	}
+
+	eobj := api.Manager().Identifiable(obj.Identity())
+	eobj.SetIdentifier(obj.Identifier())
+
+	if err := m.Retrieve(mctx, eobj); err != nil {
+		return elemental.NewError(
+			"Not Found",
+			"Object not found",
 			"a3s:policy",
-			http.StatusBadRequest,
+			http.StatusNotFound,
 		)
 	}
-	if qfilter != nil {
-		opts = append(opts, manipulate.ContextOptionFilter(qfilter))
+
+	if a, ok := obj.(elemental.AttributeSpecifiable); ok {
+		elemental.BackportUnexposedFields(
+			eobj.(elemental.AttributeSpecifiable),
+			a,
+		)
 	}
 
-	return manipulate.NewContext(bctx.Context(), opts...), err
+	if err := m.Update(mctx, obj); err != nil {
+		return err
+	}
+
+	bctx.SetOutputData(obj)
+
+	return nil
+}
+
+func Delete(bctx bahamut.Context, m manipulate.Manipulator, obj elemental.Identifiable) error {
+
+	mctx, err := TranslateContext(bctx)
+	if err != nil {
+		return err
+	}
+
+	obj.SetIdentifier(bctx.Request().ObjectID)
+	if err := m.Retrieve(mctx, obj); err != nil {
+		return err
+	}
+
+	bctx.SetOutputData(obj)
+
+	return m.Delete(mctx, obj)
+}
+
+func Info(bctx bahamut.Context, m manipulate.Manipulator, identity elemental.Identity) error {
+
+	mctx, err := TranslateContext(bctx)
+	if err != nil {
+		return err
+	}
+
+	c, err := m.Count(mctx, identity)
+	if err != nil {
+		return err
+	}
+
+	bctx.SetCount(c)
+
+	return nil
 }

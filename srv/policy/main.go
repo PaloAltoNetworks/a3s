@@ -18,6 +18,7 @@ func Init(
 ) error {
 
 	bahamut.RegisterProcessorOrDie(server, processors.NewNamespacesProcessor(m), api.NamespaceIdentity)
+	bahamut.RegisterProcessorOrDie(server, processors.NewAuthorizationProcessor(m), api.AuthorizationIdentity)
 
 	return nil
 }

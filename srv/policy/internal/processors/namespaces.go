@@ -1,13 +1,9 @@
 package processors
 
 import (
-	"net/http"
-	"strings"
-
 	"go.aporeto.io/a3s/pkgs/api"
 	"go.aporeto.io/a3s/pkgs/crud"
 	"go.aporeto.io/bahamut"
-	"go.aporeto.io/elemental"
 	"go.aporeto.io/manipulate"
 )
 
@@ -18,130 +14,37 @@ type NamespacesProcessor struct {
 
 // NewNamespacesProcessor returns a new NamespacesProcessor.
 func NewNamespacesProcessor(manipulator manipulate.Manipulator) *NamespacesProcessor {
-
 	return &NamespacesProcessor{
 		manipulator: manipulator,
 	}
 }
 
 // ProcessCreate handles the creates requests for Namespaces.
-func (p *NamespacesProcessor) ProcessCreate(ctx bahamut.Context) error {
-
-	ns := ctx.InputData().(*api.Namespace)
-
-	if strings.Contains(ns.Name, "/") {
-		return elemental.NewError("Validation Error", "Namespace name must not contain any / when created", "a3s:policy", http.StatusUnprocessableEntity)
-	}
-
-	ns.Namespace = ctx.Request().Namespace
-	ns.Name = strings.Join([]string{ns.Namespace, ns.Name}, "/")
-
-	return p.manipulator.Create(manipulate.NewContext(ctx.Context()), ns)
+func (p *NamespacesProcessor) ProcessCreate(bctx bahamut.Context) error {
+	return crud.Create(bctx, p.manipulator, bctx.InputData().(*api.Namespace))
 }
 
 // ProcessRetrieveMany handles the retrieve many requests for Namespaces.
-func (p *NamespacesProcessor) ProcessRetrieveMany(ctx bahamut.Context) error {
-
-	mctx, err := crud.TranslateContext(ctx)
-	if err != nil {
-		return err
-	}
-
-	nss := api.NamespacesList{}
-	if err := p.manipulator.RetrieveMany(mctx, &nss); err != nil {
-		return err
-	}
-
-	ctx.SetOutputData(nss)
-
-	return nil
+func (p *NamespacesProcessor) ProcessRetrieveMany(bctx bahamut.Context) error {
+	return crud.RetrieveMany(bctx, p.manipulator, &api.NamespacesList{})
 }
 
 // ProcessRetrieve handles the retrieve requests for Namespaces.
-func (p *NamespacesProcessor) ProcessRetrieve(ctx bahamut.Context) error {
-
-	mctx, err := crud.TranslateContext(ctx)
-	if err != nil {
-		return err
-	}
-
-	ns := api.NewNamespace()
-	ns.ID = ctx.Request().ObjectID
-	if err := p.manipulator.Retrieve(mctx, ns); err != nil {
-		return err
-	}
-
-	ctx.SetOutputData(ns)
-
-	return nil
+func (p *NamespacesProcessor) ProcessRetrieve(bctx bahamut.Context) error {
+	return crud.Retrieve(bctx, p.manipulator, api.NewNamespace())
 }
 
 // ProcessUpdate handles the update requests for Namespaces.
-func (p *NamespacesProcessor) ProcessUpdate(ctx bahamut.Context) error {
-
-	ns := ctx.InputData().(*api.Namespace)
-	ns.ID = ctx.Request().ObjectID
-
-	mctx, err := crud.TranslateContext(ctx)
-	if err != nil {
-		return err
-	}
-
-	ens := api.NewNamespace()
-	ens.ID = ns.ID
-	if err := p.manipulator.Retrieve(mctx, ens); err != nil {
-		return elemental.NewError(
-			"Not Found",
-			"Object not found",
-			"a3s:policy",
-			http.StatusNotFound,
-		)
-	}
-
-	elemental.BackportUnexposedFields(ens, ns)
-
-	if err := p.manipulator.Update(mctx, ns); err != nil {
-		return err
-	}
-
-	ctx.SetOutputData(ns)
-
-	return nil
+func (p *NamespacesProcessor) ProcessUpdate(bctx bahamut.Context) error {
+	return crud.Update(bctx, p.manipulator, bctx.InputData().(*api.Namespace))
 }
 
 // ProcessDelete handles the delete requests for Namespaces.
-func (p *NamespacesProcessor) ProcessDelete(ctx bahamut.Context) error {
-
-	mctx, err := crud.TranslateContext(ctx)
-	if err != nil {
-		return err
-	}
-
-	ns := api.NewNamespace()
-	ns.ID = ctx.Request().ObjectID
-	if err := p.manipulator.Retrieve(mctx, ns); err != nil {
-		return err
-	}
-
-	ctx.SetOutputData(ns)
-
-	return p.manipulator.Delete(mctx, ns)
+func (p *NamespacesProcessor) ProcessDelete(bctx bahamut.Context) error {
+	return crud.Delete(bctx, p.manipulator, api.NewNamespace())
 }
 
 // ProcessInfo handles the info request for Namespaces.
-func (p *NamespacesProcessor) ProcessInfo(ctx bahamut.Context) error {
-
-	mctx, err := crud.TranslateContext(ctx)
-	if err != nil {
-		return err
-	}
-
-	c, err := p.manipulator.Count(mctx, api.NamespaceIdentity)
-	if err != nil {
-		return err
-	}
-
-	ctx.SetCount(c)
-
-	return nil
+func (p *NamespacesProcessor) ProcessInfo(bctx bahamut.Context) error {
+	return crud.Info(bctx, p.manipulator, api.NamespaceIdentity)
 }
