@@ -7,7 +7,6 @@ var (
 		"authorization": AuthorizationIdentity,
 		"issue":         IssueIdentity,
 		"namespace":     NamespaceIdentity,
-		"role":          RoleIdentity,
 		"root":          RootIdentity,
 	}
 
@@ -15,7 +14,6 @@ var (
 		"authorizations": AuthorizationIdentity,
 		"issue":          IssueIdentity,
 		"namespaces":     NamespaceIdentity,
-		"roles":          RoleIdentity,
 		"root":           RootIdentity,
 	}
 
@@ -35,7 +33,6 @@ var (
 			{"namespace", "ID"},
 			{"name"},
 		},
-		"role": nil,
 		"root": nil,
 	}
 )
@@ -83,8 +80,6 @@ func (f modelManager) Identifiable(identity elemental.Identity) elemental.Identi
 		return NewIssue()
 	case NamespaceIdentity:
 		return NewNamespace()
-	case RoleIdentity:
-		return NewRole()
 	case RootIdentity:
 		return NewRoot()
 	default:
@@ -102,8 +97,6 @@ func (f modelManager) SparseIdentifiable(identity elemental.Identity) elemental.
 		return NewSparseIssue()
 	case NamespaceIdentity:
 		return NewSparseNamespace()
-	case RoleIdentity:
-		return NewSparseRole()
 	default:
 		return nil
 	}
@@ -129,8 +122,6 @@ func (f modelManager) Identifiables(identity elemental.Identity) elemental.Ident
 		return &IssuesList{}
 	case NamespaceIdentity:
 		return &NamespacesList{}
-	case RoleIdentity:
-		return &RolesList{}
 	default:
 		return nil
 	}
@@ -146,8 +137,6 @@ func (f modelManager) SparseIdentifiables(identity elemental.Identity) elemental
 		return &SparseIssuesList{}
 	case NamespaceIdentity:
 		return &SparseNamespacesList{}
-	case RoleIdentity:
-		return &SparseRolesList{}
 	default:
 		return nil
 	}
@@ -179,7 +168,6 @@ func AllIdentities() []elemental.Identity {
 		AuthorizationIdentity,
 		IssueIdentity,
 		NamespaceIdentity,
-		RoleIdentity,
 		RootIdentity,
 	}
 }
@@ -193,8 +181,6 @@ func AliasesForIdentity(identity elemental.Identity) []string {
 	case IssueIdentity:
 		return []string{}
 	case NamespaceIdentity:
-		return []string{}
-	case RoleIdentity:
 		return []string{}
 	case RootIdentity:
 		return []string{}

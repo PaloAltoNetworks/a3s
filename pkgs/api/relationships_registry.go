@@ -76,8 +76,6 @@ func init() {
 		},
 	}
 
-	relationshipsRegistry[RoleIdentity] = &elemental.Relationship{}
-
 	relationshipsRegistry[RootIdentity] = &elemental.Relationship{}
 
 }
