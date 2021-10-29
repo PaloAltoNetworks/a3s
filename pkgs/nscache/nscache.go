@@ -11,26 +11,23 @@ import (
 
 // Constants for notification topics.
 const (
-	NotificationNamespaceChanges     = "notifications.changes.namespace"
-	NotificationAuthorizationChanges = "notifications.changes.authorization"
+	NotificationNamespaceChanges = "notifications.changes.namespace"
 )
 
 // A NamespacedCache is used to cache namespaced information.
 // The cache will invalidate all items when their namespace is
 // deleted or updated.
 type NamespacedCache struct {
-	pubsub           bahamut.PubSubClient
-	cache            *ccache.Cache
-	invalidateOnAuth bool
+	pubsub bahamut.PubSubClient
+	cache  *ccache.Cache
 }
 
 // New returns a new namespace cache.
-func New(pubsub bahamut.PubSubClient, maxSize int64, invalidateOnAuthChange bool) *NamespacedCache {
+func New(pubsub bahamut.PubSubClient, maxSize int64) *NamespacedCache {
 
 	return &NamespacedCache{
-		pubsub:           pubsub,
-		invalidateOnAuth: invalidateOnAuthChange,
-		cache:            ccache.New(ccache.Configure().MaxSize(maxSize)),
+		pubsub: pubsub,
+		cache:  ccache.New(ccache.Configure().MaxSize(maxSize)),
 	}
 }
 
@@ -59,17 +56,6 @@ func (c *NamespacedCache) Start(ctx context.Context) {
 			c.cleanupCacheForNamespace(msg.Data.(string))
 		},
 	)
-
-	if c.invalidateOnAuth {
-		notification.Subscribe(
-			ctx,
-			c.pubsub,
-			NotificationAuthorizationChanges,
-			func(msg *notification.Message) {
-				c.cleanupCacheForNamespace(msg.Data.(string))
-			},
-		)
-	}
 }
 
 func (c *NamespacedCache) cleanupCacheForNamespace(ns string) {
