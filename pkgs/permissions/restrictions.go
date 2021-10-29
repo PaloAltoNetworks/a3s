@@ -9,7 +9,6 @@ import (
 
 	"github.com/apparentlymart/go-cidr/cidr"
 	"github.com/golang-jwt/jwt"
-	"go.aporeto.io/a3s/pkgs/api"
 	"go.aporeto.io/elemental"
 )
 
@@ -100,8 +99,8 @@ func (r Restrictions) ComputePermissionsRestrictions(requested []string) ([]stri
 	}
 
 	if !Contains(
-		ResolveRestrictions(nil, Restrictions{Permissions: r.Permissions}),
-		ResolveRestrictions(nil, Restrictions{Permissions: requested}),
+		ResolveRestrictions(Restrictions{Permissions: r.Permissions}),
+		ResolveRestrictions(Restrictions{Permissions: requested}),
 	) {
 		return nil, fmt.Errorf("the new permissions restrictions must not be broader than the existing ones")
 	}
@@ -126,43 +125,20 @@ func GetRestrictions(token string) (Restrictions, error) {
 }
 
 // ResolveRestrictions resolves the given restrictions into a standard permission map.
-func ResolveRestrictions(roles map[string]*api.Role, restrictions Restrictions) map[string]map[string]bool {
-
-	const rolePrefix = "@auth:role="
+func ResolveRestrictions(restrictions Restrictions) map[string]map[string]bool {
 
 	resolved := map[string]map[string]bool{}
 
 	for _, perm := range restrictions.Permissions {
 
-		switch {
+		parts := strings.Split(perm, ",")
 
-		case strings.HasPrefix(perm, rolePrefix):
+		if _, ok := resolved[parts[0]]; !ok {
+			resolved[parts[0]] = map[string]bool{}
+		}
 
-			if role, ok := roles[strings.TrimPrefix(perm, rolePrefix)]; ok {
-
-				for identity, decorators := range role.Permissions {
-
-					if _, ok := resolved[identity]; !ok {
-						resolved[identity] = map[string]bool{}
-					}
-
-					for _, r := range decorators {
-						resolved[identity][r] = true
-					}
-				}
-			}
-
-		default:
-
-			parts := strings.Split(perm, ",")
-
-			if _, ok := resolved[parts[0]]; !ok {
-				resolved[parts[0]] = map[string]bool{}
-			}
-
-			for _, r := range parts[1:] {
-				resolved[parts[0]][r] = true
-			}
+		for _, r := range parts[1:] {
+			resolved[parts[0]][r] = true
 		}
 	}
 

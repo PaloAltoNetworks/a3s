@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	. "github.com/smartystreets/goconvey/convey"
-	"go.aporeto.io/a3s/pkgs/api"
 )
 
 func TestGetRestrictions(t *testing.T) {
@@ -59,7 +58,6 @@ func TestGetRestrictions(t *testing.T) {
 
 func TestResolveRestrictions(t *testing.T) {
 	type args struct {
-		roles        map[string]*api.Role
 		restrictions Restrictions
 	}
 	tests := []struct {
@@ -67,138 +65,10 @@ func TestResolveRestrictions(t *testing.T) {
 		args args
 		want map[string]map[string]bool
 	}{
-		{
-			"simple unique role",
-			args{
-				map[string]*api.Role{
-					"a": {
-						Permissions: map[string][]string{
-							"api1": {"get", "post"},
-						},
-					},
-				},
-				Restrictions{
-					Permissions: []string{
-						"@auth:role=a",
-					},
-				},
-			},
-			map[string]map[string]bool{
-				"api1": {"get": true, "post": true},
-			},
-		},
-
-		{
-			"simple double role",
-			args{
-				map[string]*api.Role{
-					"a": {
-						Permissions: map[string][]string{
-							"api1": {"get", "post"},
-						},
-					},
-					"b": {
-						Permissions: map[string][]string{
-							"api2": {"get"},
-						},
-					},
-				},
-				Restrictions{
-					Permissions: []string{
-						"@auth:role=a",
-						"@auth:role=b",
-					},
-				},
-			},
-			map[string]map[string]bool{
-				"api1": {"get": true, "post": true},
-				"api2": {"get": true},
-			},
-		},
-
-		{
-			"simple overlapping role",
-			args{
-				map[string]*api.Role{
-					"a": {
-						Permissions: map[string][]string{
-							"api1": {"get", "post"},
-						},
-					},
-					"b": {
-						Permissions: map[string][]string{
-							"api1": {"delete"},
-						},
-					},
-				},
-				Restrictions{
-					Permissions: []string{
-						"@auth:role=a",
-						"@auth:role=b",
-					},
-				},
-			},
-			map[string]map[string]bool{
-				"api1": {"get": true, "post": true, "delete": true},
-			},
-		},
-
-		{
-			"simple overlapping permissins",
-			args{
-				map[string]*api.Role{
-					"a": {
-						Permissions: map[string][]string{
-							"api1": {"get", "post"},
-						},
-					},
-					"b": {
-						Permissions: map[string][]string{
-							"api1": {"delete"},
-						},
-					},
-				},
-				Restrictions{
-					Permissions: []string{
-						"api1,get",
-					},
-				},
-			},
-			map[string]map[string]bool{
-				"api1": {"get": true},
-			},
-		},
-
-		{
-			"not existing role",
-			args{
-				map[string]*api.Role{
-					"a": {
-						Permissions: map[string][]string{
-							"api1": {"get", "post"},
-						},
-					},
-					"b": {
-						Permissions: map[string][]string{
-							"api1": {"delete"},
-						},
-					},
-				},
-				Restrictions{
-					Permissions: []string{
-						"@auth:role=c",
-					},
-				},
-			},
-			map[string]map[string]bool{},
-		},
-
-		/// ----
 
 		{
 			"simple unique permission",
 			args{
-				nil,
 				Restrictions{
 					Permissions: []string{
 						"api1,get,post",
@@ -213,7 +83,6 @@ func TestResolveRestrictions(t *testing.T) {
 		{
 			"simple double permissions",
 			args{
-				nil,
 				Restrictions{
 					Permissions: []string{
 						"api1,get,post",
@@ -230,7 +99,6 @@ func TestResolveRestrictions(t *testing.T) {
 		{
 			"simple overlapping permissions",
 			args{
-				nil,
 				Restrictions{
 					Permissions: []string{
 						"api1,get,post",
@@ -245,7 +113,7 @@ func TestResolveRestrictions(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := ResolveRestrictions(tt.args.roles, tt.args.restrictions); !reflect.DeepEqual(got, tt.want) {
+			if got := ResolveRestrictions(tt.args.restrictions); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("ResolveRestrictions() = %v, want %v", got, tt.want)
 			}
 		})

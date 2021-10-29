@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"strings"
 
-	"go.aporeto.io/bahamut"
 	"go.aporeto.io/elemental"
 )
 
@@ -204,30 +203,4 @@ func OperationToMethod(op elemental.Operation) (string, error) {
 	}
 
 	return strings.ToLower(method), nil
-}
-
-// GetToken returns the token from the elemental.Request.
-// It will first look for a cookie named x-aporeto-token
-// otherise it will look for req.Password.
-func GetToken(req *elemental.Request) string {
-
-	if hreq := req.HTTPRequest(); hreq != nil {
-		if cookie, err := hreq.Cookie("x-aporeto-token"); err == nil {
-			return cookie.Value
-		}
-	}
-
-	return req.Password
-}
-
-// GetSessionToken returns the token from the bahamut.PushSession.
-// It will first look for a cookie named x-aporeto-token
-// otherise it will look for session.Token.
-func GetSessionToken(session bahamut.Session) string {
-
-	if cookie, err := session.Cookie("x-aporeto-token"); err == nil {
-		return cookie.Value
-	}
-
-	return session.Token()
 }

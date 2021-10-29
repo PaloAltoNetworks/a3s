@@ -2,13 +2,11 @@ package permissions
 
 import (
 	"net/http"
-	"net/url"
 	"reflect"
 	"strings"
 	"testing"
 
 	. "github.com/smartystreets/goconvey/convey"
-	"go.aporeto.io/a3s/pkgs/api"
 	"go.aporeto.io/elemental"
 )
 
@@ -671,105 +669,6 @@ func TestIsAllowed(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := IsAllowed(tt.args.perms, tt.args.operation, tt.args.identity); got != tt.want {
 				t.Errorf("IsAllowed() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
-func TestGetToken(t *testing.T) {
-
-	u, err := url.Parse("http://server.com/namespaces")
-	if err != nil {
-		panic(err)
-	}
-
-	req1, err := elemental.NewRequestFromHTTPRequest(
-		&http.Request{
-			URL:    u,
-			Header: http.Header{"Authorization": []string{"Bearer toto"}},
-		},
-		api.Manager(),
-	)
-	if err != nil {
-		panic(err)
-	}
-
-	req2, err := elemental.NewRequestFromHTTPRequest(
-		&http.Request{
-			URL:    u,
-			Header: http.Header{"Cookie": []string{"x-aporeto-token=titi"}},
-		},
-		api.Manager(),
-	)
-	if err != nil {
-		panic(err)
-	}
-
-	req3, err := elemental.NewRequestFromHTTPRequest(
-		&http.Request{
-			URL: u,
-			Header: http.Header{
-				"Authorization": []string{"Bearer toto"},
-				"Cookie":        []string{"x-aporeto-token=titi"}},
-		},
-		api.Manager(),
-	)
-	if err != nil {
-		panic(err)
-	}
-
-	type args struct {
-		req *elemental.Request
-	}
-	tests := []struct {
-		name string
-		args args
-		want string
-	}{
-		{
-			"header",
-			args{
-				req1,
-			},
-			"toto",
-		},
-		{
-			"cookie",
-			args{
-				req2,
-			},
-			"titi",
-		},
-		{
-			"both",
-			args{
-				req3,
-			},
-			"titi",
-		},
-		{
-			"nil httpreq no password",
-			args{
-				elemental.NewRequest(),
-			},
-			"",
-		},
-		{
-			"nil httpreq with password",
-			args{
-				func() *elemental.Request {
-					req := elemental.NewRequest()
-					req.Password = "hello"
-					return req
-				}(),
-			},
-			"hello",
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := GetToken(tt.args.req); got != tt.want {
-				t.Errorf("GetToken() = %v, want %v", got, tt.want)
 			}
 		})
 	}
