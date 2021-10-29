@@ -4,8 +4,8 @@ import (
 	"fmt"
 
 	"go.aporeto.io/a3s/internal/conf"
-	"go.aporeto.io/a3s/srv/authn"
-	"go.aporeto.io/a3s/srv/policy"
+	"go.aporeto.io/a3s/internal/srv/authn"
+	"go.aporeto.io/a3s/internal/srv/policy"
 	"go.aporeto.io/addedeffect/lombric"
 )
 

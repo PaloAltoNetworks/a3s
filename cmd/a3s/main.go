@@ -5,8 +5,8 @@ import (
 	"errors"
 	"net/http"
 
+	"go.aporeto.io/a3s/internal/srv/policy"
 	"go.aporeto.io/a3s/pkgs/bootstrap"
-	"go.aporeto.io/a3s/srv/policy"
 	"go.aporeto.io/bahamut"
 	"go.aporeto.io/elemental"
 	"go.aporeto.io/manipulate"

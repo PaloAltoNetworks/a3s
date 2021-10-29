@@ -1,8 +1,8 @@
 package policy
 
 import (
+	"go.aporeto.io/a3s/internal/srv/policy/internal/processors"
 	"go.aporeto.io/a3s/pkgs/api"
-	"go.aporeto.io/a3s/srv/policy/internal/processors"
 	"go.aporeto.io/bahamut"
 	"go.aporeto.io/manipulate"
 	"golang.org/x/net/context"
