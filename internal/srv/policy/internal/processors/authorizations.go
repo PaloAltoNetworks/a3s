@@ -12,7 +12,7 @@ type AuthorizationsProcessor struct {
 	manipulator manipulate.Manipulator
 }
 
-// NewNamespacesProcessor returns a new AuthorizationsProcessor.
+// NewAuthorizationProcessor returns a new AuthorizationsProcessor.
 func NewAuthorizationProcessor(manipulator manipulate.Manipulator) *AuthorizationsProcessor {
 	return &AuthorizationsProcessor{
 		manipulator: manipulator,

@@ -7,6 +7,7 @@ import (
 	"go.aporeto.io/manipulate"
 )
 
+// Create performs the basic create operation.
 func Create(bctx bahamut.Context, m manipulate.Manipulator, obj elemental.Identifiable) error {
 
 	if n, ok := obj.(elemental.Namespaceable); ok {
@@ -16,6 +17,7 @@ func Create(bctx bahamut.Context, m manipulate.Manipulator, obj elemental.Identi
 	return m.Create(manipulate.NewContext(bctx.Context()), obj)
 }
 
+// RetrieveMany performs the basic retrieve many operation.
 func RetrieveMany(bctx bahamut.Context, m manipulate.Manipulator, objs elemental.Identifiables) error {
 
 	mctx, err := TranslateContext(bctx)
@@ -32,6 +34,7 @@ func RetrieveMany(bctx bahamut.Context, m manipulate.Manipulator, objs elemental
 	return nil
 }
 
+// Retrieve performs the basic retrieve operation.
 func Retrieve(bctx bahamut.Context, m manipulate.Manipulator, obj elemental.Identifiable) error {
 
 	mctx, err := TranslateContext(bctx)
@@ -49,6 +52,7 @@ func Retrieve(bctx bahamut.Context, m manipulate.Manipulator, obj elemental.Iden
 	return nil
 }
 
+// Update performs the basic update operation.
 func Update(bctx bahamut.Context, m manipulate.Manipulator, obj elemental.Identifiable) error {
 
 	obj.SetIdentifier(bctx.Request().ObjectID)
@@ -81,6 +85,7 @@ func Update(bctx bahamut.Context, m manipulate.Manipulator, obj elemental.Identi
 	return nil
 }
 
+// Delete performs the basic delete operation.
 func Delete(bctx bahamut.Context, m manipulate.Manipulator, obj elemental.Identifiable) error {
 
 	mctx, err := TranslateContext(bctx)
@@ -98,6 +103,7 @@ func Delete(bctx bahamut.Context, m manipulate.Manipulator, obj elemental.Identi
 	return m.Delete(mctx, obj)
 }
 
+// Info performs the basic info operation.
 func Info(bctx bahamut.Context, m manipulate.Manipulator, identity elemental.Identity) error {
 
 	mctx, err := TranslateContext(bctx)

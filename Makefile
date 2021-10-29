@@ -6,7 +6,6 @@ export GO111MODULE = on
 default: lint test
 
 lint:
-	# --enable=unparam
 	golangci-lint run \
 		--disable-all \
 		--exclude-use-default=false \
@@ -24,6 +23,7 @@ lint:
 		--enable=prealloc \
 		--enable=nakedret \
 		--enable=typecheck \
+		--enable=nilerr \
 		./...
 
 test:
@@ -34,3 +34,6 @@ test:
 
 sec:
 	gosec -quiet ./...
+
+codegen:
+	cd pkgs/api && make codegen
