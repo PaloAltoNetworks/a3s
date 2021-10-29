@@ -13,6 +13,44 @@
           }
         }
       }
+  openapi3:
+    type: |-
+      {
+        "type": "array",
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+
+map[string][]string:
+  elemental:
+    type: map[string][]string
+    init: map[string][]string{}
+  jsonschema:
+    type: |-
+      {
+        "type": "object",
+        "additionalProperties": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+  openapi3:
+    type: |-
+      {
+        "type": "object",
+        "additionalProperties": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
 
 map[string]interface{}:
   elemental:
