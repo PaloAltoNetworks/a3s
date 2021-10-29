@@ -19,7 +19,7 @@ type Message struct {
 type Handler func(msg *Message)
 
 // Subscribe registers a notification handler for the given topic.
-func Subscribe(ctx context.Context, pubsub bahamut.PubSubClient, topic string, handler Handler) func() {
+func Subscribe(ctx context.Context, pubsub bahamut.PubSubClient, topic string, handler Handler) {
 
 	pubs := make(chan *bahamut.Publication, 1024)
 	errors := make(chan error, 16)
@@ -45,12 +45,11 @@ func Subscribe(ctx context.Context, pubsub bahamut.PubSubClient, topic string, h
 				zap.L().Error("Received error from nats in notification", zap.Error(err))
 
 			case <-ctx.Done():
+				d()
 				return
 			}
 		}
 	}()
-
-	return d
 }
 
 // Publish sends a notification message using the given pubsub server.
