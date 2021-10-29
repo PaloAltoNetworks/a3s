@@ -1,7 +1,7 @@
 #!/bin/bash
 clear
 
-cd "$(dirname ${BASH_SOURCE[0]})"
+cd "$(dirname "${BASH_SOURCE[0]}")" || exit
 
 DATA_PATH=".data/mongo"
 mkdir -p "$DATA_PATH"
