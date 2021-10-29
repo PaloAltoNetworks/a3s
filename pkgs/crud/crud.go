@@ -8,17 +8,36 @@ import (
 )
 
 // Create performs the basic create operation.
-func Create(bctx bahamut.Context, m manipulate.Manipulator, obj elemental.Identifiable) error {
+func Create(bctx bahamut.Context, m manipulate.Manipulator, obj elemental.Identifiable, opts ...Option) error {
+
+	cfg := cfg{}
+	for _, o := range opts {
+		o(&cfg)
+	}
 
 	if n, ok := obj.(elemental.Namespaceable); ok {
 		n.SetNamespace(bctx.Request().Namespace)
 	}
 
-	return m.Create(manipulate.NewContext(bctx.Context()), obj)
+	if cfg.preHook != nil {
+		if err := cfg.preHook(obj, nil); err != nil {
+			return ErrPreWriteHook{Err: err}
+		}
+	}
+
+	if err := m.Create(manipulate.NewContext(bctx.Context()), obj); err != nil {
+		return err
+	}
+
+	if cfg.postHook != nil {
+		cfg.postHook(obj)
+	}
+
+	return nil
 }
 
 // RetrieveMany performs the basic retrieve many operation.
-func RetrieveMany(bctx bahamut.Context, m manipulate.Manipulator, objs elemental.Identifiables) error {
+func RetrieveMany(bctx bahamut.Context, m manipulate.Manipulator, objs elemental.Identifiables, opts ...Option) error {
 
 	mctx, err := TranslateContext(bctx)
 	if err != nil {
@@ -53,7 +72,12 @@ func Retrieve(bctx bahamut.Context, m manipulate.Manipulator, obj elemental.Iden
 }
 
 // Update performs the basic update operation.
-func Update(bctx bahamut.Context, m manipulate.Manipulator, obj elemental.Identifiable) error {
+func Update(bctx bahamut.Context, m manipulate.Manipulator, obj elemental.Identifiable, opts ...Option) error {
+
+	cfg := cfg{}
+	for _, o := range opts {
+		o(&cfg)
+	}
 
 	obj.SetIdentifier(bctx.Request().ObjectID)
 
@@ -76,8 +100,18 @@ func Update(bctx bahamut.Context, m manipulate.Manipulator, obj elemental.Identi
 		)
 	}
 
+	if cfg.preHook != nil {
+		if err := cfg.preHook(obj, eobj); err != nil {
+			return ErrPreWriteHook{Err: err}
+		}
+	}
+
 	if err := m.Update(mctx, obj); err != nil {
 		return err
+	}
+
+	if cfg.postHook != nil {
+		cfg.postHook(obj)
 	}
 
 	bctx.SetOutputData(obj)
@@ -86,7 +120,12 @@ func Update(bctx bahamut.Context, m manipulate.Manipulator, obj elemental.Identi
 }
 
 // Delete performs the basic delete operation.
-func Delete(bctx bahamut.Context, m manipulate.Manipulator, obj elemental.Identifiable) error {
+func Delete(bctx bahamut.Context, m manipulate.Manipulator, obj elemental.Identifiable, opts ...Option) error {
+
+	cfg := cfg{}
+	for _, o := range opts {
+		o(&cfg)
+	}
 
 	mctx, err := TranslateContext(bctx)
 	if err != nil {
@@ -100,7 +139,21 @@ func Delete(bctx bahamut.Context, m manipulate.Manipulator, obj elemental.Identi
 
 	bctx.SetOutputData(obj)
 
-	return m.Delete(mctx, obj)
+	if cfg.preHook != nil {
+		if err := cfg.preHook(obj, nil); err != nil {
+			return ErrPreWriteHook{Err: err}
+		}
+	}
+
+	if err := m.Delete(mctx, obj); err != nil {
+		return err
+	}
+
+	if cfg.postHook != nil {
+		cfg.postHook(obj)
+	}
+
+	return nil
 }
 
 // Info performs the basic info operation.

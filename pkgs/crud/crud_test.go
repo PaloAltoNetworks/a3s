@@ -2,6 +2,7 @@ package crud
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"testing"
 
@@ -36,6 +37,73 @@ func TestCreate(t *testing.T) {
 
 			So(err, ShouldBeNil)
 			So(obj.Namespace, ShouldEqual, "/hello")
+		})
+
+		Convey("When manipulate fails", func() {
+
+			obj := api.NewNamespace()
+			bctx.MockRequest = &elemental.Request{Namespace: "/hello"}
+
+			m.MockCreate(t, func(mctx manipulate.Context, object elemental.Identifiable) error {
+				return fmt.Errorf("boom")
+			})
+
+			err := Create(bctx, m, obj)
+
+			So(err, ShouldNotBeNil)
+			So(err.Error(), ShouldEqual, "boom")
+		})
+
+		Convey("When I use hooks that work", func() {
+
+			obj := api.NewNamespace()
+			bctx.MockRequest = &elemental.Request{Namespace: "/hello"}
+
+			var preWriteHookCalled bool
+			var preWriteObj elemental.Identifiable
+			var preWriteOrig elemental.Identifiable
+			preWrite := func(obj elemental.Identifiable, eobj elemental.Identifiable) error {
+				preWriteHookCalled = true
+				preWriteObj = obj
+				preWriteOrig = eobj
+				return nil
+			}
+
+			var postWriteHookCalled bool
+			var postWriteObj elemental.Identifiable
+			postWrite := func(obj elemental.Identifiable) {
+				postWriteHookCalled = true
+				postWriteObj = obj
+			}
+			err := Create(bctx, m, obj,
+				OptionPreWriteHook(preWrite),
+				OptionPostWriteHook(postWrite),
+			)
+
+			So(err, ShouldBeNil)
+			So(preWriteHookCalled, ShouldBeTrue)
+			So(preWriteObj, ShouldNotBeNil)
+			So(preWriteOrig, ShouldBeNil)
+			So(postWriteHookCalled, ShouldBeTrue)
+			So(postWriteObj, ShouldNotBeNil)
+		})
+
+		Convey("When I use hooks that fails", func() {
+
+			obj := api.NewNamespace()
+			bctx.MockRequest = &elemental.Request{Namespace: "/hello"}
+
+			preWrite := func(obj elemental.Identifiable, eobj elemental.Identifiable) error {
+				return fmt.Errorf("boom")
+			}
+
+			err := Create(bctx, m, obj,
+				OptionPreWriteHook(preWrite),
+			)
+
+			So(err, ShouldNotBeNil)
+			So(err.Error(), ShouldEqual, "unable to run pre-write hook: boom")
+			So(errors.As(err, &ErrPreWriteHook{}), ShouldBeTrue)
 		})
 	})
 }
@@ -179,6 +247,58 @@ func TestUpdate(t *testing.T) {
 			So(err, ShouldNotBeNil)
 			So(err.Error(), ShouldEqual, "boom")
 		})
+
+		Convey("When I use hooks that work", func() {
+
+			obj := api.NewNamespace()
+			bctx.MockRequest = &elemental.Request{Namespace: "/hello"}
+
+			var preWriteHookCalled bool
+			var preWriteObj elemental.Identifiable
+			var preWriteOrig elemental.Identifiable
+			preWrite := func(obj elemental.Identifiable, eobj elemental.Identifiable) error {
+				preWriteHookCalled = true
+				preWriteObj = obj
+				preWriteOrig = eobj
+				return nil
+			}
+
+			var postWriteHookCalled bool
+			var postWriteObj elemental.Identifiable
+			postWrite := func(obj elemental.Identifiable) {
+				postWriteHookCalled = true
+				postWriteObj = obj
+			}
+			err := Update(bctx, m, obj,
+				OptionPreWriteHook(preWrite),
+				OptionPostWriteHook(postWrite),
+			)
+
+			So(err, ShouldBeNil)
+			So(preWriteHookCalled, ShouldBeTrue)
+			So(preWriteObj, ShouldNotBeNil)
+			So(preWriteOrig, ShouldNotBeNil)
+			So(postWriteHookCalled, ShouldBeTrue)
+			So(postWriteObj, ShouldNotBeNil)
+		})
+
+		Convey("When I use hooks that fails", func() {
+
+			obj := api.NewNamespace()
+			bctx.MockRequest = &elemental.Request{Namespace: "/hello"}
+
+			preWrite := func(obj elemental.Identifiable, eobj elemental.Identifiable) error {
+				return fmt.Errorf("boom")
+			}
+
+			err := Update(bctx, m, obj,
+				OptionPreWriteHook(preWrite),
+			)
+
+			So(err, ShouldNotBeNil)
+			So(err.Error(), ShouldEqual, "unable to run pre-write hook: boom")
+			So(errors.As(err, &ErrPreWriteHook{}), ShouldBeTrue)
+		})
 	})
 }
 
@@ -321,6 +441,58 @@ func TestDelete(t *testing.T) {
 
 			So(err, ShouldNotBeNil)
 			So(err.Error(), ShouldEqual, "boom")
+		})
+
+		Convey("When I use hooks that work", func() {
+
+			obj := api.NewNamespace()
+			bctx.MockRequest = &elemental.Request{Namespace: "/hello"}
+
+			var preWriteHookCalled bool
+			var preWriteObj elemental.Identifiable
+			var preWriteOrig elemental.Identifiable
+			preWrite := func(obj elemental.Identifiable, eobj elemental.Identifiable) error {
+				preWriteHookCalled = true
+				preWriteObj = obj
+				preWriteOrig = eobj
+				return nil
+			}
+
+			var postWriteHookCalled bool
+			var postWriteObj elemental.Identifiable
+			postWrite := func(obj elemental.Identifiable) {
+				postWriteHookCalled = true
+				postWriteObj = obj
+			}
+			err := Delete(bctx, m, obj,
+				OptionPreWriteHook(preWrite),
+				OptionPostWriteHook(postWrite),
+			)
+
+			So(err, ShouldBeNil)
+			So(preWriteHookCalled, ShouldBeTrue)
+			So(preWriteObj, ShouldNotBeNil)
+			So(preWriteOrig, ShouldBeNil)
+			So(postWriteHookCalled, ShouldBeTrue)
+			So(postWriteObj, ShouldNotBeNil)
+		})
+
+		Convey("When I use hooks that fails", func() {
+
+			obj := api.NewNamespace()
+			bctx.MockRequest = &elemental.Request{Namespace: "/hello"}
+
+			preWrite := func(obj elemental.Identifiable, eobj elemental.Identifiable) error {
+				return fmt.Errorf("boom")
+			}
+
+			err := Delete(bctx, m, obj,
+				OptionPreWriteHook(preWrite),
+			)
+
+			So(err, ShouldNotBeNil)
+			So(err.Error(), ShouldEqual, "unable to run pre-write hook: boom")
+			So(errors.As(err, &ErrPreWriteHook{}), ShouldBeTrue)
 		})
 	})
 }
