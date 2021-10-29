@@ -115,10 +115,10 @@ func TestContains(t *testing.T) {
 			true,
 		},
 		{
-			"base contains *,any",
+			"base contains *,*",
 			args{
 				map[string]map[string]bool{
-					"*": {"any": true},
+					"*": {"*": true},
 				},
 				map[string]map[string]bool{
 					"r1": {"get": true, "post": true},
@@ -128,13 +128,13 @@ func TestContains(t *testing.T) {
 			true,
 		},
 		{
-			"base contains * other contains any",
+			"base contains * other contains *",
 			args{
 				map[string]map[string]bool{
 					"r1": {"get": true, "post": true, "put": true, "delete": true},
 				},
 				map[string]map[string]bool{
-					"r1": {"any": true},
+					"r1": {"*": true},
 				},
 			},
 			false,
@@ -176,10 +176,10 @@ func TestContains(t *testing.T) {
 			false,
 		},
 		{
-			"missing any in matching before star",
+			"missing * in matching before star",
 			args{
 				map[string]map[string]bool{
-					"*":  {"any": true},
+					"*":  {"*": true},
 					"r1": {"post": true},
 				},
 				map[string]map[string]bool{
@@ -244,14 +244,14 @@ func TestIntersect(t *testing.T) {
 		},
 
 		{
-			"intersection of api1:get,post,put,delete and api2:get,post,put,delete to api2:any",
+			"intersection of api1:get,post,put,delete and api2:get,post,put,delete to api2:*",
 			args{
 				map[string]map[string]bool{
 					"api1": {"get": true, "post": true, "put": true, "delete": true},
 					"api2": {"get": true, "post": true, "put": true, "delete": true},
 				},
 				map[string]map[string]bool{
-					"api2": {"any": true},
+					"api2": {"*": true},
 				},
 			},
 			map[string]map[string]bool{
@@ -260,11 +260,11 @@ func TestIntersect(t *testing.T) {
 		},
 
 		{
-			"intersection of api1:get,post,put,delete and api2:any to api2:get,post",
+			"intersection of api1:get,post,put,delete and api2:* to api2:get,post",
 			args{
 				map[string]map[string]bool{
 					"api1": {"get": true, "post": true, "put": true, "delete": true},
-					"api2": {"any": true},
+					"api2": {"*": true},
 				},
 				map[string]map[string]bool{
 					"api2": {"get": true, "post": true},
@@ -276,35 +276,35 @@ func TestIntersect(t *testing.T) {
 		},
 
 		{
-			"intersection of api1:get,post,put,delete and api2:any to api2:any",
+			"intersection of api1:get,post,put,delete and api2:* to api2:*",
 			args{
 				map[string]map[string]bool{
 					"api1": {"get": true, "post": true, "put": true, "delete": true},
-					"api2": {"any": true},
+					"api2": {"*": true},
 				},
 				map[string]map[string]bool{
-					"api2": {"any": true},
+					"api2": {"*": true},
 				},
 			},
 			map[string]map[string]bool{
-				"api2": {"any": true},
+				"api2": {"*": true},
 			},
 		},
 
 		{
-			"intersection of api1:get,post,put,delete and api2:any to *:any",
+			"intersection of api1:get,post,put,delete and api2:* to *:*",
 			args{
 				map[string]map[string]bool{
 					"api1": {"get": true, "post": true, "put": true, "delete": true},
-					"api2": {"any": true},
+					"api2": {"*": true},
 				},
 				map[string]map[string]bool{
-					"*": {"any": true},
+					"*": {"*": true},
 				},
 			},
 			map[string]map[string]bool{
 				"api1": {"get": true, "post": true, "put": true, "delete": true},
-				"api2": {"any": true},
+				"api2": {"*": true},
 			},
 		},
 
@@ -326,25 +326,25 @@ func TestIntersect(t *testing.T) {
 		},
 
 		{
-			"intersection of *:any to a1:any",
+			"intersection of *:* to a1:*",
 			args{
 				map[string]map[string]bool{
-					"*": {"any": true},
+					"*": {"*": true},
 				},
 				map[string]map[string]bool{
-					"a1": {"any": true},
+					"a1": {"*": true},
 				},
 			},
 			map[string]map[string]bool{
-				"a1": {"any": true},
+				"a1": {"*": true},
 			},
 		},
 
 		{
-			"intersection of *:any to a1:get,put",
+			"intersection of *:* to a1:get,put",
 			args{
 				map[string]map[string]bool{
-					"*": {"any": true},
+					"*": {"*": true},
 				},
 				map[string]map[string]bool{
 					"a1": {"get": true, "put": true},
@@ -371,7 +371,7 @@ func TestIntersect(t *testing.T) {
 		},
 
 		{
-			"intersection of a1:get,put to non permitted a2:any",
+			"intersection of a1:get,put to non permitted a2:*",
 			args{
 				map[string]map[string]bool{
 					"a1": {"get": true, "put": true},
@@ -565,11 +565,11 @@ func TestIsAllowed(t *testing.T) {
 		want bool
 	}{
 		{
-			"identity: any, perm: any -> create",
+			"identity: *, perm: * -> create",
 			args{
 				map[string]map[string]bool{
 					"*": {
-						"any": true,
+						"*": true,
 					},
 				},
 				elemental.OperationCreate,
@@ -578,11 +578,11 @@ func TestIsAllowed(t *testing.T) {
 			true,
 		},
 		{
-			"identity: any, perm: any -> update",
+			"identity: *, perm: * -> update",
 			args{
 				map[string]map[string]bool{
 					"*": {
-						"any": true,
+						"*": true,
 					},
 				},
 				elemental.OperationUpdate,
@@ -617,7 +617,7 @@ func TestIsAllowed(t *testing.T) {
 			false,
 		},
 		{
-			"identity: any,targeted, perm: post,get -> create",
+			"identity: *,targeted, perm: post,get -> create",
 			args{
 				map[string]map[string]bool{
 					"*": {
@@ -633,7 +633,7 @@ func TestIsAllowed(t *testing.T) {
 			true,
 		},
 		{
-			"identity: any,targeted, perm: post,get -> get",
+			"identity: *,targeted, perm: post,get -> get",
 			args{
 				map[string]map[string]bool{
 					"*": {
@@ -649,7 +649,7 @@ func TestIsAllowed(t *testing.T) {
 			true,
 		},
 		{
-			"identity: any,targeted, perm: post,get -> update",
+			"identity: *,targeted, perm: post,get -> update",
 			args{
 				map[string]map[string]bool{
 					"*": {

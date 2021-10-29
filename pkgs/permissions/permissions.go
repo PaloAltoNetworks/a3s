@@ -40,8 +40,8 @@ func Contains(perms map[string]map[string]bool, other map[string]map[string]bool
 
 		for decorator := range decorators {
 			if !perms[identity][decorator] && !star[decorator] {
-				ok1 := perms[identity]["any"]
-				ok2 := star["any"]
+				ok1 := perms[identity]["*"]
+				ok2 := star["*"]
 				if !ok1 && !ok2 {
 					return false
 				}
@@ -120,10 +120,10 @@ func Intersect(base map[string]map[string]bool, other map[string]map[string]bool
 		}
 
 		// We now check if the candidate permissions of the
-		// current identity is any. If it is,
+		// current identity is *. If it is,
 		// then we simply apply the other permissions.
 		// and we continue
-		if allowed, ok := perms["any"]; ok && allowed {
+		if allowed, ok := perms["*"]; ok && allowed {
 			candidate[identity] = rperms
 			continue
 		}
@@ -132,9 +132,9 @@ func Intersect(base map[string]map[string]bool, other map[string]map[string]bool
 		for perm := range perms {
 
 			// If the restricted permissions are not here and there is
-			// no any declared, we remove the permission from the candidate.
+			// no * declared, we remove the permission from the candidate.
 			allowed, ok := rperms[perm]
-			allowedAny, okAny := rperms["any"]
+			allowedAny, okAny := rperms["*"]
 			if (!ok || !allowed) && (!okAny || !allowedAny) {
 				delete(perms, perm)
 			}
@@ -154,7 +154,7 @@ func IsAllowed(perms map[string]map[string]bool, operation elemental.Operation, 
 	}
 
 	allowed := func(p map[string]bool, m string) bool {
-		if authorized := p["any"]; authorized {
+		if authorized := p["*"]; authorized {
 			if authorized {
 				return true
 			}
