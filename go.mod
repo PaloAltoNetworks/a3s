@@ -4,7 +4,7 @@ go 1.17
 
 require (
 	go.aporeto.io/addedeffect v1.77.1-0.20210930200419-5082b3192403
-	go.aporeto.io/bahamut v1.112.1-0.20210916180319-bf0b9e9d8497
+	go.aporeto.io/bahamut v1.112.1-0.20211029010409-3b024d164724
 	go.aporeto.io/elemental v1.100.1-0.20211029010343-e264f153acc2
 	go.aporeto.io/manipulate v1.121.1-0.20211026222548-61cab81ae328
 	go.aporeto.io/tg v1.34.1-0.20210528201128-159c302ba155
