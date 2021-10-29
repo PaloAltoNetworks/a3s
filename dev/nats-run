@@ -1,5 +1,8 @@
 #!/bin/bash
 clear
+
+cd "$(dirname "${BASH_SOURCE[0]}")" || exit
+
 nats-server \
 	--user nats-user \
 	--pass nats-password \

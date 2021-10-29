@@ -5,7 +5,7 @@ go 1.17
 require (
 	go.aporeto.io/addedeffect v1.77.1-0.20210930200419-5082b3192403
 	go.aporeto.io/bahamut v1.112.1-0.20210916180319-bf0b9e9d8497
-	go.aporeto.io/elemental v1.100.1-0.20211026222823-d45505848695
+	go.aporeto.io/elemental v1.100.1-0.20211029010343-e264f153acc2
 	go.aporeto.io/manipulate v1.121.1-0.20211026222548-61cab81ae328
 	go.aporeto.io/tg v1.34.1-0.20210528201128-159c302ba155
 	go.aporeto.io/wsc v1.36.1-0.20210528201141-2af38def4959 // indirect
@@ -51,7 +51,7 @@ require (
 	github.com/subosito/gotenv v1.2.0 // indirect
 	github.com/uber/jaeger-client-go v2.22.1+incompatible // indirect
 	github.com/uber/jaeger-lib v2.2.0+incompatible // indirect
-	github.com/ugorji/go/codec v1.2.6 // indirect
+	github.com/ugorji/go/codec v1.2.6
 	github.com/valyala/tcplisten v0.0.0-20161114210144-ceec8f93295a // indirect
 	go.uber.org/atomic v1.7.0 // indirect
 	go.uber.org/automaxprocs v1.4.0
@@ -66,3 +66,5 @@ require (
 	gopkg.in/ini.v1 v1.57.0 // indirect
 	gopkg.in/yaml.v2 v2.3.0 // indirect
 )
+
+require github.com/karlseguin/ccache/v2 v2.0.6
