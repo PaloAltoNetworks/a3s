@@ -1,8 +1,6 @@
 package crud
 
 import (
-	"net/http"
-
 	"go.aporeto.io/a3s/pkgs/api"
 	"go.aporeto.io/bahamut"
 	"go.aporeto.io/elemental"
@@ -64,12 +62,7 @@ func Update(bctx bahamut.Context, m manipulate.Manipulator, obj elemental.Identi
 	eobj.SetIdentifier(obj.Identifier())
 
 	if err := m.Retrieve(mctx, eobj); err != nil {
-		return elemental.NewError(
-			"Not Found",
-			"Object not found",
-			"a3s:policy",
-			http.StatusNotFound,
-		)
+		return err
 	}
 
 	if a, ok := obj.(elemental.AttributeSpecifiable); ok {

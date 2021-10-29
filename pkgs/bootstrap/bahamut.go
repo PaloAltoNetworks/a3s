@@ -133,8 +133,27 @@ func ConfigureBahamut(
 func ErrorTransformer(err error) error {
 
 	switch {
-	case manipulate.IsDisconnectedError(err), errors.As(err, &manipulate.ErrDisconnected{}), errors.Is(err, context.Canceled):
-		return elemental.NewError("Client Disconnected", err.Error(), "bahamut", http.StatusNotAcceptable)
+
+	case errors.As(err, &manipulate.ErrDisconnected{}),
+		errors.As(err, &manipulate.ErrDisconnected{}),
+		errors.Is(err, context.Canceled):
+
+		return elemental.NewError(
+			"Client Disconnected",
+			err.Error(),
+			"a3s",
+			http.StatusNotAcceptable,
+		)
+
+	case manipulate.IsObjectNotFoundError(err):
+
+		return elemental.NewError(
+			"Not Found",
+			err.Error(),
+			"a3s",
+			http.StatusNotFound,
+		)
+
 	default:
 		return nil
 	}

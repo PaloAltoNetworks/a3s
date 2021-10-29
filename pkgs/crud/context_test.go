@@ -70,9 +70,9 @@ func TestTranslateContext(t *testing.T) {
 			"request with namespace propapated and recursive",
 			func(t *testing.T) args {
 				req := &elemental.Request{
-					Recursive: true,
-					Namespace: "/test",
-					Propagate: true,
+					Recursive:  true,
+					Namespace:  "/test",
+					Propagated: true,
 				}
 				bctx := bahamut.NewContext(context.Background(), req)
 				return args{bctx}
@@ -81,7 +81,7 @@ func TestTranslateContext(t *testing.T) {
 				context.Background(),
 				manipulate.ContextOptionNamespace("/test"),
 				manipulate.ContextOptionRecursive(true),
-				manipulate.ContextOptionPropagate(true),
+				manipulate.ContextOptionPropagated(true),
 			),
 			false,
 			nil,
@@ -90,9 +90,9 @@ func TestTranslateContext(t *testing.T) {
 			"request with namespace propapated and recursive and valid filter",
 			func(t *testing.T) args {
 				req := &elemental.Request{
-					Recursive: true,
-					Namespace: "/test",
-					Propagate: true,
+					Recursive:  true,
+					Namespace:  "/test",
+					Propagated: true,
 					Parameters: elemental.Parameters{
 						"q": elemental.NewParameter(elemental.ParameterTypeString, `name == "blah"`),
 					},
@@ -104,7 +104,7 @@ func TestTranslateContext(t *testing.T) {
 				context.Background(),
 				manipulate.ContextOptionNamespace("/test"),
 				manipulate.ContextOptionRecursive(true),
-				manipulate.ContextOptionPropagate(true),
+				manipulate.ContextOptionPropagated(true),
 				manipulate.ContextOptionFilter(
 					elemental.NewFilterComposer().WithKey("name").Equals("blah").Done(),
 				),
