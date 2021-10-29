@@ -41,6 +41,46 @@ func TestGetRestrictions(t *testing.T) {
 			Restrictions{Namespace: "", Permissions: nil},
 			true,
 		},
+		{
+			"token with invalid namespace type",
+			args{
+				`eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyZWFsbSI6IlZpbmNlIiwiZGF0YSI6eyJhY2NvdW50IjoiYXBvbXV4IiwiZW1haWwiOiJhZG1pbkBhcG9tdXguY29tIiwiaWQiOiI1ZTFjZjNlZmEzNzAwMzhmYWY3Zjg3NzciLCJvcmdhbml6YXRpb24iOiJhcG9tdXgiLCJyZWFsbSI6InZpbmNlIiwic3ViamVjdCI6ImFwb211eCJ9LCJyZXN0cmljdGlvbnMiOnsicGVybXMiOlsiQGF1dGg6cm9sZT10ZXN0Il0sIm5hbWVzcGFjZSI6NDIsIm5ldHdvcmtzIjpbIjEyNy4wLjAuMS8zMiJdfSwiZXhwIjoxNTkwMDQyOTk4LCJpYXQiOjE1ODk5NTI5OTgsImlzcyI6Imh0dHBzOi8vbG9jYWxob3N0OjQ0NDMiLCJzdWIiOiJhcG9tdXgifQ.FsYFkIzR5XXoiujjaAiYLyhIW1j0bQHuEhX8eEgIb-M`,
+			},
+			Restrictions{Namespace: "", Permissions: nil},
+			true,
+		},
+		{
+			"token with invalid perms type",
+			args{
+				`eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyZWFsbSI6IlZpbmNlIiwiZGF0YSI6eyJhY2NvdW50IjoiYXBvbXV4IiwiZW1haWwiOiJhZG1pbkBhcG9tdXguY29tIiwiaWQiOiI1ZTFjZjNlZmEzNzAwMzhmYWY3Zjg3NzciLCJvcmdhbml6YXRpb24iOiJhcG9tdXgiLCJyZWFsbSI6InZpbmNlIiwic3ViamVjdCI6ImFwb211eCJ9LCJyZXN0cmljdGlvbnMiOnsicGVybXMiOjQyLCJuYW1lc3BhY2UiOiIvYXBvbXV4L2NoaWxkIiwibmV0d29ya3MiOlsiMTI3LjAuMC4xLzMyIl19LCJleHAiOjE1OTAwNDI5OTgsImlhdCI6MTU4OTk1Mjk5OCwiaXNzIjoiaHR0cHM6Ly9sb2NhbGhvc3Q6NDQ0MyIsInN1YiI6ImFwb211eCJ9.CXF5OH5nsutTDKceZELYxjTJi1MxRrBSatt2WdqUia4`,
+			},
+			Restrictions{Namespace: "", Permissions: nil},
+			true,
+		},
+		{
+			"token with invalid perms content type",
+			args{
+				`eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyZWFsbSI6IlZpbmNlIiwiZGF0YSI6eyJhY2NvdW50IjoiYXBvbXV4IiwiZW1haWwiOiJhZG1pbkBhcG9tdXguY29tIiwiaWQiOiI1ZTFjZjNlZmEzNzAwMzhmYWY3Zjg3NzciLCJvcmdhbml6YXRpb24iOiJhcG9tdXgiLCJyZWFsbSI6InZpbmNlIiwic3ViamVjdCI6ImFwb211eCJ9LCJyZXN0cmljdGlvbnMiOnsicGVybXMiOls0Ml0sIm5hbWVzcGFjZSI6Ii9hcG9tdXgvY2hpbGQiLCJuZXR3b3JrcyI6WyIxMjcuMC4wLjEvMzIiXX0sImV4cCI6MTU5MDA0Mjk5OCwiaWF0IjoxNTg5OTUyOTk4LCJpc3MiOiJodHRwczovL2xvY2FsaG9zdDo0NDQzIiwic3ViIjoiYXBvbXV4In0.JIg_iFiiWnpqkvWejomrofR3R_YY5h3r3SQFmmriR7g`,
+			},
+			Restrictions{Namespace: "", Permissions: nil},
+			true,
+		},
+		{
+			"token with invalid networks type",
+			args{
+				`eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyZWFsbSI6IlZpbmNlIiwiZGF0YSI6eyJhY2NvdW50IjoiYXBvbXV4IiwiZW1haWwiOiJhZG1pbkBhcG9tdXguY29tIiwiaWQiOiI1ZTFjZjNlZmEzNzAwMzhmYWY3Zjg3NzciLCJvcmdhbml6YXRpb24iOiJhcG9tdXgiLCJyZWFsbSI6InZpbmNlIiwic3ViamVjdCI6ImFwb211eCJ9LCJyZXN0cmljdGlvbnMiOnsicGVybXMiOlsiQGF1dGg6cm9sZT10ZXN0Il0sIm5hbWVzcGFjZSI6Ii9hcG9tdXgvY2hpbGQiLCJuZXR3b3JrcyI6NDJ9LCJleHAiOjE1OTAwNDI5OTgsImlhdCI6MTU4OTk1Mjk5OCwiaXNzIjoiaHR0cHM6Ly9sb2NhbGhvc3Q6NDQ0MyIsInN1YiI6ImFwb211eCJ9.RffIbk1AJOxOPz_Gr1SAnqdanNDnOnNtGuEAIPU5Hk4`,
+			},
+			Restrictions{Namespace: "", Permissions: nil},
+			true,
+		},
+		{
+			"token with invalid networks content type",
+			args{
+				`eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyZWFsbSI6IlZpbmNlIiwiZGF0YSI6eyJhY2NvdW50IjoiYXBvbXV4IiwiZW1haWwiOiJhZG1pbkBhcG9tdXguY29tIiwiaWQiOiI1ZTFjZjNlZmEzNzAwMzhmYWY3Zjg3NzciLCJvcmdhbml6YXRpb24iOiJhcG9tdXgiLCJyZWFsbSI6InZpbmNlIiwic3ViamVjdCI6ImFwb211eCJ9LCJyZXN0cmljdGlvbnMiOnsicGVybXMiOlsiQGF1dGg6cm9sZT10ZXN0Il0sIm5hbWVzcGFjZSI6Ii9hcG9tdXgvY2hpbGQiLCJuZXR3b3JrcyI6WzQyXX0sImV4cCI6MTU5MDA0Mjk5OCwiaWF0IjoxNTg5OTUyOTk4LCJpc3MiOiJodHRwczovL2xvY2FsaG9zdDo0NDQzIiwic3ViIjoiYXBvbXV4In0.zJJzHJsQu6dsIDhvtp3O-zDb6W1LeLgA76_1BBX8enE`,
+			},
+			Restrictions{Namespace: "", Permissions: nil},
+			true,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
