@@ -1,20 +1,18 @@
 package permissions
 
-import (
-	"fmt"
-	"net/http"
-	"strings"
+// Permissions represents a parsed permission string.
+type Permissions map[string]bool
 
-	"go.aporeto.io/elemental"
-)
+// A PermissionMap represents a map of resource to Permissions
+type PermissionMap map[string]Permissions
 
 // Copy returns a copy of the perms
-func Copy(perms map[string]map[string]bool) map[string]map[string]bool {
+func Copy(perms PermissionMap) PermissionMap {
 
-	var copy = make(map[string]map[string]bool, len(perms))
+	var copy = make(PermissionMap, len(perms))
 
 	for i, m := range perms {
-		copy[i] = make(map[string]bool, len(m))
+		copy[i] = make(Permissions, len(m))
 		for k, v := range m {
 			copy[i][k] = v
 		}
@@ -24,7 +22,7 @@ func Copy(perms map[string]map[string]bool) map[string]map[string]bool {
 
 // Contains returns true if the given Authorization is equal or lesser
 // than the receiver.
-func Contains(perms map[string]map[string]bool, other map[string]map[string]bool) bool {
+func Contains(perms PermissionMap, other PermissionMap) bool {
 
 	if len(perms) == 0 {
 		return false
@@ -53,18 +51,18 @@ func Contains(perms map[string]map[string]bool, other map[string]map[string]bool
 }
 
 // Intersect returns the intersection between first set and second set.
-func Intersect(base map[string]map[string]bool, other map[string]map[string]bool) map[string]map[string]bool {
+func Intersect(base PermissionMap, other PermissionMap) PermissionMap {
 
 	// If one or the other are empty, the intersection is nil.
 	if len(base) == 0 || len(other) == 0 {
-		return map[string]map[string]bool{}
+		return PermissionMap{}
 	}
 
 	// first we copy the base, since we are going to
 	// modify it.
-	candidate := map[string]map[string]bool{}
+	candidate := PermissionMap{}
 	for k, v := range base {
-		candidate[k] = map[string]bool{}
+		candidate[k] = Permissions{}
 		for kk, vv := range v {
 			candidate[k][kk] = vv
 		}
@@ -77,7 +75,7 @@ func Intersect(base map[string]map[string]bool, other map[string]map[string]bool
 		delete(candidate, "*")
 		for k, v := range other {
 			if _, ok := candidate[k]; !ok {
-				candidate[k] = map[string]bool{}
+				candidate[k] = Permissions{}
 				for kk, vv := range v {
 					candidate[k][kk] = vv
 				}
@@ -108,7 +106,7 @@ func Intersect(base map[string]map[string]bool, other map[string]map[string]bool
 		// of no identity, but global permissions
 		// so we eventually initialize the map.
 		if rperms == nil {
-			rperms = map[string]bool{}
+			rperms = Permissions{}
 		}
 
 		// If we have some global perms we backport them
@@ -146,14 +144,9 @@ func Intersect(base map[string]map[string]bool, other map[string]map[string]bool
 
 // IsAllowed returns true if the given operation on the given identity is allowed in the
 // given perms.
-func IsAllowed(perms map[string]map[string]bool, operation elemental.Operation, identity elemental.Identity) bool {
+func IsAllowed(perms PermissionMap, operation string, resource string) bool {
 
-	method, err := OperationToMethod(operation)
-	if err != nil {
-		panic(err)
-	}
-
-	allowed := func(p map[string]bool, m string) bool {
+	allowed := func(p Permissions, m string) bool {
 		if authorized := p["*"]; authorized {
 			if authorized {
 				return true
@@ -168,39 +161,19 @@ func IsAllowed(perms map[string]map[string]bool, operation elemental.Operation, 
 	}
 
 	if p, ok := perms["*"]; ok {
-		if allowed(p, method) {
+		if allowed(p, operation) {
 			return true
 		}
 	}
 
 	for i, p := range perms {
-		if identity.Name != i {
+		if resource != i {
 			continue
 		}
-		if allowed(p, method) {
+		if allowed(p, operation) {
 			return true
 		}
 	}
 
 	return false
-}
-
-// OperationToMethod is a helper that returns the HTTP method associated with a given elemental.Operation
-func OperationToMethod(op elemental.Operation) (string, error) {
-	var method string
-
-	switch op {
-	case elemental.OperationCreate:
-		method = http.MethodPost
-	case elemental.OperationDelete:
-		method = http.MethodDelete
-	case elemental.OperationUpdate, elemental.OperationPatch:
-		method = http.MethodPut
-	case elemental.OperationRetrieve, elemental.OperationRetrieveMany, elemental.OperationInfo:
-		method = http.MethodGet
-	default:
-		return "", fmt.Errorf("unsupported operation: %s", op)
-	}
-
-	return strings.ToLower(method), nil
 }

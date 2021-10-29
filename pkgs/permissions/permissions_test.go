@@ -1,20 +1,15 @@
 package permissions
 
 import (
-	"net/http"
 	"reflect"
-	"strings"
 	"testing"
-
-	. "github.com/smartystreets/goconvey/convey"
-	"go.aporeto.io/elemental"
 )
 
 func TestContains(t *testing.T) {
 
 	type args struct {
-		perms map[string]map[string]bool
-		other map[string]map[string]bool
+		perms PermissionMap
+		other PermissionMap
 	}
 	tests := []struct {
 		name string
@@ -24,8 +19,8 @@ func TestContains(t *testing.T) {
 		{
 			"empty",
 			args{
-				map[string]map[string]bool{},
-				map[string]map[string]bool{
+				PermissionMap{},
+				PermissionMap{
 					"r1": {"get": true, "post": true},
 					"r2": {"delete": true, "put": true},
 				},
@@ -35,11 +30,11 @@ func TestContains(t *testing.T) {
 		{
 			"equals",
 			args{
-				map[string]map[string]bool{
+				PermissionMap{
 					"r1": {"get": true, "post": true},
 					"r2": {"delete": true, "put": true},
 				},
-				map[string]map[string]bool{
+				PermissionMap{
 					"r1": {"get": true, "post": true},
 					"r2": {"delete": true, "put": true},
 				},
@@ -49,11 +44,11 @@ func TestContains(t *testing.T) {
 		{
 			"less identities",
 			args{
-				map[string]map[string]bool{
+				PermissionMap{
 					"r1": {"get": true, "post": true},
 					"r2": {"delete": true, "put": true},
 				},
-				map[string]map[string]bool{
+				PermissionMap{
 					"r1": {"get": true, "post": true},
 				},
 			},
@@ -62,11 +57,11 @@ func TestContains(t *testing.T) {
 		{
 			"less permissions",
 			args{
-				map[string]map[string]bool{
+				PermissionMap{
 					"r1": {"get": true, "post": true},
 					"r2": {"delete": true, "put": true},
 				},
-				map[string]map[string]bool{
+				PermissionMap{
 					"r1": {"get": true},
 					"r2": {"put": true},
 				},
@@ -76,11 +71,11 @@ func TestContains(t *testing.T) {
 		{
 			"more identities",
 			args{
-				map[string]map[string]bool{
+				PermissionMap{
 					"r1": {"get": true, "post": true},
 					"r2": {"delete": true, "put": true},
 				},
-				map[string]map[string]bool{
+				PermissionMap{
 					"r3": {"put": true},
 				},
 			},
@@ -89,11 +84,11 @@ func TestContains(t *testing.T) {
 		{
 			"more permissions",
 			args{
-				map[string]map[string]bool{
+				PermissionMap{
 					"r1": {"get": true, "post": true},
 					"r2": {"delete": true, "put": true},
 				},
-				map[string]map[string]bool{
+				PermissionMap{
 					"r1": {"get": true, "post": true, "delete": true},
 					"r2": {"delete": true, "put": true},
 				},
@@ -104,10 +99,10 @@ func TestContains(t *testing.T) {
 		{
 			"base contains *",
 			args{
-				map[string]map[string]bool{
+				PermissionMap{
 					"*": {"get": true, "post": true},
 				},
-				map[string]map[string]bool{
+				PermissionMap{
 					"r1": {"get": true, "post": true},
 					"r2": {"get": true, "post": true},
 				},
@@ -117,10 +112,10 @@ func TestContains(t *testing.T) {
 		{
 			"base contains *,*",
 			args{
-				map[string]map[string]bool{
+				PermissionMap{
 					"*": {"*": true},
 				},
-				map[string]map[string]bool{
+				PermissionMap{
 					"r1": {"get": true, "post": true},
 					"r2": {"get": true, "post": true},
 				},
@@ -130,10 +125,10 @@ func TestContains(t *testing.T) {
 		{
 			"base contains * other contains *",
 			args{
-				map[string]map[string]bool{
+				PermissionMap{
 					"r1": {"get": true, "post": true, "put": true, "delete": true},
 				},
-				map[string]map[string]bool{
+				PermissionMap{
 					"r1": {"*": true},
 				},
 			},
@@ -142,10 +137,10 @@ func TestContains(t *testing.T) {
 		{
 			"base and other contains matching *",
 			args{
-				map[string]map[string]bool{
+				PermissionMap{
 					"*": {"get": true, "post": true},
 				},
-				map[string]map[string]bool{
+				PermissionMap{
 					"*": {"get": true, "post": true},
 				},
 			},
@@ -154,10 +149,10 @@ func TestContains(t *testing.T) {
 		{
 			"base and other contains * with base containing other's decorators",
 			args{
-				map[string]map[string]bool{
+				PermissionMap{
 					"*": {"get": true, "post": true},
 				},
-				map[string]map[string]bool{
+				PermissionMap{
 					"*": {"get": true},
 				},
 			},
@@ -166,10 +161,10 @@ func TestContains(t *testing.T) {
 		{
 			"base and other contains * with other have more decorators",
 			args{
-				map[string]map[string]bool{
+				PermissionMap{
 					"*": {"get": true, "post": true},
 				},
-				map[string]map[string]bool{
+				PermissionMap{
 					"*": {"get": true, "delete": true},
 				},
 			},
@@ -178,11 +173,11 @@ func TestContains(t *testing.T) {
 		{
 			"missing * in matching before star",
 			args{
-				map[string]map[string]bool{
+				PermissionMap{
 					"*":  {"*": true},
 					"r1": {"post": true},
 				},
-				map[string]map[string]bool{
+				PermissionMap{
 					"r1": {"get": true},
 				},
 			},
@@ -200,27 +195,27 @@ func TestContains(t *testing.T) {
 
 func TestIntersect(t *testing.T) {
 	type args struct {
-		permissions  map[string]map[string]bool
-		restrictions map[string]map[string]bool
+		permissions  PermissionMap
+		restrictions PermissionMap
 	}
 	tests := []struct {
 		name string
 		args args
-		want map[string]map[string]bool
+		want PermissionMap
 	}{
 
 		{
 			"intersection of api1:get,post,put,delete and api2:get,post,put,delete to api2:get,post",
 			args{
-				map[string]map[string]bool{
+				PermissionMap{
 					"api1": {"get": true, "post": true, "put": true, "delete": true},
 					"api2": {"get": true, "post": true, "put": true, "delete": true},
 				},
-				map[string]map[string]bool{
+				PermissionMap{
 					"api2": {"get": true, "post": true},
 				},
 			},
-			map[string]map[string]bool{
+			PermissionMap{
 				"api2": {"get": true, "post": true},
 			},
 		},
@@ -228,16 +223,16 @@ func TestIntersect(t *testing.T) {
 		{
 			"intersection of api1:get,post,put,delete and api2:get,post,put,delete to api1:get and api2:delete",
 			args{
-				map[string]map[string]bool{
+				PermissionMap{
 					"api1": {"get": true, "post": true, "put": true, "delete": true},
 					"api2": {"get": true, "post": true, "put": true, "delete": true},
 				},
-				map[string]map[string]bool{
+				PermissionMap{
 					"api1": {"get": true},
 					"api2": {"delete": true},
 				},
 			},
-			map[string]map[string]bool{
+			PermissionMap{
 				"api1": {"get": true},
 				"api2": {"delete": true},
 			},
@@ -246,15 +241,15 @@ func TestIntersect(t *testing.T) {
 		{
 			"intersection of api1:get,post,put,delete and api2:get,post,put,delete to api2:*",
 			args{
-				map[string]map[string]bool{
+				PermissionMap{
 					"api1": {"get": true, "post": true, "put": true, "delete": true},
 					"api2": {"get": true, "post": true, "put": true, "delete": true},
 				},
-				map[string]map[string]bool{
+				PermissionMap{
 					"api2": {"*": true},
 				},
 			},
-			map[string]map[string]bool{
+			PermissionMap{
 				"api2": {"get": true, "post": true, "put": true, "delete": true},
 			},
 		},
@@ -262,15 +257,15 @@ func TestIntersect(t *testing.T) {
 		{
 			"intersection of api1:get,post,put,delete and api2:* to api2:get,post",
 			args{
-				map[string]map[string]bool{
+				PermissionMap{
 					"api1": {"get": true, "post": true, "put": true, "delete": true},
 					"api2": {"*": true},
 				},
-				map[string]map[string]bool{
+				PermissionMap{
 					"api2": {"get": true, "post": true},
 				},
 			},
-			map[string]map[string]bool{
+			PermissionMap{
 				"api2": {"get": true, "post": true},
 			},
 		},
@@ -278,15 +273,15 @@ func TestIntersect(t *testing.T) {
 		{
 			"intersection of api1:get,post,put,delete and api2:* to api2:*",
 			args{
-				map[string]map[string]bool{
+				PermissionMap{
 					"api1": {"get": true, "post": true, "put": true, "delete": true},
 					"api2": {"*": true},
 				},
-				map[string]map[string]bool{
+				PermissionMap{
 					"api2": {"*": true},
 				},
 			},
-			map[string]map[string]bool{
+			PermissionMap{
 				"api2": {"*": true},
 			},
 		},
@@ -294,15 +289,15 @@ func TestIntersect(t *testing.T) {
 		{
 			"intersection of api1:get,post,put,delete and api2:* to *:*",
 			args{
-				map[string]map[string]bool{
+				PermissionMap{
 					"api1": {"get": true, "post": true, "put": true, "delete": true},
 					"api2": {"*": true},
 				},
-				map[string]map[string]bool{
+				PermissionMap{
 					"*": {"*": true},
 				},
 			},
-			map[string]map[string]bool{
+			PermissionMap{
 				"api1": {"get": true, "post": true, "put": true, "delete": true},
 				"api2": {"*": true},
 			},
@@ -311,15 +306,15 @@ func TestIntersect(t *testing.T) {
 		{
 			"intersection of api1:get,post,put,delete and api2:get to *:get",
 			args{
-				map[string]map[string]bool{
+				PermissionMap{
 					"api1": {"get": true, "post": true, "put": true, "delete": true},
 					"api2": {"get": true},
 				},
-				map[string]map[string]bool{
+				PermissionMap{
 					"*": {"get": true},
 				},
 			},
-			map[string]map[string]bool{
+			PermissionMap{
 				"api1": {"get": true},
 				"api2": {"get": true},
 			},
@@ -328,14 +323,14 @@ func TestIntersect(t *testing.T) {
 		{
 			"intersection of *:* to a1:*",
 			args{
-				map[string]map[string]bool{
+				PermissionMap{
 					"*": {"*": true},
 				},
-				map[string]map[string]bool{
+				PermissionMap{
 					"a1": {"*": true},
 				},
 			},
-			map[string]map[string]bool{
+			PermissionMap{
 				"a1": {"*": true},
 			},
 		},
@@ -343,14 +338,14 @@ func TestIntersect(t *testing.T) {
 		{
 			"intersection of *:* to a1:get,put",
 			args{
-				map[string]map[string]bool{
+				PermissionMap{
 					"*": {"*": true},
 				},
-				map[string]map[string]bool{
+				PermissionMap{
 					"a1": {"get": true, "put": true},
 				},
 			},
-			map[string]map[string]bool{
+			PermissionMap{
 				"a1": {"get": true, "put": true},
 			},
 		},
@@ -358,14 +353,14 @@ func TestIntersect(t *testing.T) {
 		{
 			"intersection of *:get,put to *:get",
 			args{
-				map[string]map[string]bool{
+				PermissionMap{
 					"*": {"get": true, "put": true},
 				},
-				map[string]map[string]bool{
+				PermissionMap{
 					"*": {"get": true},
 				},
 			},
-			map[string]map[string]bool{
+			PermissionMap{
 				"*": {"get": true},
 			},
 		},
@@ -373,30 +368,30 @@ func TestIntersect(t *testing.T) {
 		{
 			"intersection of a1:get,put to non permitted a2:*",
 			args{
-				map[string]map[string]bool{
+				PermissionMap{
 					"a1": {"get": true, "put": true},
 				},
-				map[string]map[string]bool{
+				PermissionMap{
 					"a2": {"get": true},
 				},
 			},
-			map[string]map[string]bool{},
+			PermissionMap{},
 		},
 
 		{
 			"intersection of a1:get,put a2:delete to *:get and a1:post and a2:delete",
 			args{
-				map[string]map[string]bool{
+				PermissionMap{
 					"a1": {"get": true, "put": true},
 					"a2": {"delete": true},
 				},
-				map[string]map[string]bool{
+				PermissionMap{
 					"*":  {"get": true},
 					"a1": {"post": true},
 					"a2": {"delete": true},
 				},
 			},
-			map[string]map[string]bool{
+			PermissionMap{
 				"a1": {"get": true},
 				"a2": {"delete": true},
 			},
@@ -405,17 +400,17 @@ func TestIntersect(t *testing.T) {
 		{
 			"intersection of a1:get,put a2:delete to *:get and a1:post and a2:delete",
 			args{
-				map[string]map[string]bool{
+				PermissionMap{
 					"a1": {"get": true, "put": true},
 					"a2": {"get": true, "post": true},
 				},
-				map[string]map[string]bool{
+				PermissionMap{
 					"*":  {"get": true},
 					"a1": {"put": true},
 					"a2": {"post": true},
 				},
 			},
-			map[string]map[string]bool{
+			PermissionMap{
 				"a1": {"get": true, "put": true},
 				"a2": {"get": true, "post": true},
 			},
@@ -425,22 +420,22 @@ func TestIntersect(t *testing.T) {
 			"nil base",
 			args{
 				nil,
-				map[string]map[string]bool{
+				PermissionMap{
 					"a2": {"get": true},
 				},
 			},
-			map[string]map[string]bool{},
+			PermissionMap{},
 		},
 
 		{
 			"nil other",
 			args{
-				map[string]map[string]bool{
+				PermissionMap{
 					"a2": {"get": true},
 				},
 				nil,
 			},
-			map[string]map[string]bool{},
+			PermissionMap{},
 		},
 
 		{
@@ -449,38 +444,38 @@ func TestIntersect(t *testing.T) {
 				nil,
 				nil,
 			},
-			map[string]map[string]bool{},
+			PermissionMap{},
 		},
 
 		{
 			"empty base",
 			args{
-				map[string]map[string]bool{},
-				map[string]map[string]bool{
+				PermissionMap{},
+				PermissionMap{
 					"a2": {"get": true},
 				},
 			},
-			map[string]map[string]bool{},
+			PermissionMap{},
 		},
 
 		{
 			"empty other",
 			args{
-				map[string]map[string]bool{
+				PermissionMap{
 					"a2": {"get": true},
 				},
-				map[string]map[string]bool{},
+				PermissionMap{},
 			},
-			map[string]map[string]bool{},
+			PermissionMap{},
 		},
 
 		{
 			"both empty",
 			args{
-				map[string]map[string]bool{},
-				map[string]map[string]bool{},
+				PermissionMap{},
+				PermissionMap{},
 			},
-			map[string]map[string]bool{},
+			PermissionMap{},
 		},
 	}
 	for _, tt := range tests {
@@ -492,72 +487,12 @@ func TestIntersect(t *testing.T) {
 	}
 }
 
-func TestOperationToMethod(t *testing.T) {
-
-	tests := map[string]struct {
-		operation      elemental.Operation
-		expectedMethod string
-		expectedError  bool
-	}{
-		"should be able to handle elemental.OperationCreate": {
-			operation:      elemental.OperationCreate,
-			expectedMethod: strings.ToLower(http.MethodPost),
-			expectedError:  false,
-		},
-		"should be able to handle elemental.OperationDelete": {
-			operation:      elemental.OperationDelete,
-			expectedMethod: strings.ToLower(http.MethodDelete),
-			expectedError:  false,
-		},
-		"should be able to handle elemental.OperationUpdate": {
-			operation:      elemental.OperationUpdate,
-			expectedMethod: strings.ToLower(http.MethodPut),
-			expectedError:  false,
-		},
-		"should be able to handle elemental.OperationRetrieve": {
-			operation:      elemental.OperationRetrieve,
-			expectedMethod: strings.ToLower(http.MethodGet),
-			expectedError:  false,
-		},
-		"should be able to handle elemental.OperationRetrieveMany": {
-			operation:      elemental.OperationRetrieveMany,
-			expectedMethod: strings.ToLower(http.MethodGet),
-			expectedError:  false,
-		},
-		"should be able to handle elemental.OperationInfo": {
-			operation:      elemental.OperationInfo,
-			expectedMethod: strings.ToLower(http.MethodGet),
-			expectedError:  false,
-		},
-		"should be able to handle elemental.OperationPatch": {
-			operation:      elemental.OperationPatch,
-			expectedMethod: strings.ToLower(http.MethodPut),
-			expectedError:  false,
-		},
-		"should return error for unsupported operation": {
-			operation:      elemental.Operation("unsupported_operation"),
-			expectedMethod: "",
-			expectedError:  true,
-		},
-	}
-
-	Convey("OperationToMethod", t, FailureHalts, func() {
-		for scenario, testCase := range tests {
-			Convey(scenario, func() {
-				method, err := OperationToMethod(testCase.operation)
-				So(err != nil, ShouldEqual, testCase.expectedError)
-				So(method, ShouldEqual, testCase.expectedMethod)
-			})
-		}
-	})
-}
-
 func TestIsAllowed(t *testing.T) {
 
 	type args struct {
-		perms     map[string]map[string]bool
-		operation elemental.Operation
-		identity  elemental.Identity
+		perms     PermissionMap
+		operation string
+		resource  string
 	}
 	tests := []struct {
 		name string
@@ -567,59 +502,59 @@ func TestIsAllowed(t *testing.T) {
 		{
 			"identity: *, perm: * -> create",
 			args{
-				map[string]map[string]bool{
+				PermissionMap{
 					"*": {
 						"*": true,
 					},
 				},
-				elemental.OperationCreate,
-				elemental.MakeIdentity("toto", "totos"),
+				"create",
+				"toto",
 			},
 			true,
 		},
 		{
 			"identity: *, perm: * -> update",
 			args{
-				map[string]map[string]bool{
+				PermissionMap{
 					"*": {
 						"*": true,
 					},
 				},
-				elemental.OperationUpdate,
-				elemental.MakeIdentity("toto", "totos"),
+				"update",
+				"toto",
 			},
 			true,
 		},
 		{
 			"identity: targeted, perm: post -> create",
 			args{
-				map[string]map[string]bool{
+				PermissionMap{
 					"toto": {
 						"post": true,
 					},
 				},
-				elemental.OperationCreate,
-				elemental.MakeIdentity("toto", "totos"),
+				"post",
+				"toto",
 			},
 			true,
 		},
 		{
 			"identity: targeted, perm: post -> update",
 			args{
-				map[string]map[string]bool{
+				PermissionMap{
 					"toto": {
-						"post": true,
+						"put": true,
 					},
 				},
-				elemental.OperationUpdate,
-				elemental.MakeIdentity("toto", "totos"),
+				"sleep",
+				"toto",
 			},
 			false,
 		},
 		{
 			"identity: *,targeted, perm: post,get -> create",
 			args{
-				map[string]map[string]bool{
+				PermissionMap{
 					"*": {
 						"post": true,
 					},
@@ -627,15 +562,15 @@ func TestIsAllowed(t *testing.T) {
 						"get": true,
 					},
 				},
-				elemental.OperationCreate,
-				elemental.MakeIdentity("toto", "totos"),
+				"post",
+				"toto",
 			},
 			true,
 		},
 		{
 			"identity: *,targeted, perm: post,get -> get",
 			args{
-				map[string]map[string]bool{
+				PermissionMap{
 					"*": {
 						"post": true,
 					},
@@ -643,15 +578,15 @@ func TestIsAllowed(t *testing.T) {
 						"get": true,
 					},
 				},
-				elemental.OperationRetrieve,
-				elemental.MakeIdentity("toto", "totos"),
+				"get",
+				"toto",
 			},
 			true,
 		},
 		{
 			"identity: *,targeted, perm: post,get -> update",
 			args{
-				map[string]map[string]bool{
+				PermissionMap{
 					"*": {
 						"post": true,
 					},
@@ -659,15 +594,15 @@ func TestIsAllowed(t *testing.T) {
 						"get": true,
 					},
 				},
-				elemental.OperationUpdate,
-				elemental.MakeIdentity("toto", "totos"),
+				"eat",
+				"toto",
 			},
 			false,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := IsAllowed(tt.args.perms, tt.args.operation, tt.args.identity); got != tt.want {
+			if got := IsAllowed(tt.args.perms, tt.args.operation, tt.args.resource); got != tt.want {
 				t.Errorf("IsAllowed() = %v, want %v", got, tt.want)
 			}
 		})
@@ -676,17 +611,17 @@ func TestIsAllowed(t *testing.T) {
 
 func TestCopy(t *testing.T) {
 	type args struct {
-		perms map[string]map[string]bool
+		perms PermissionMap
 	}
 	tests := []struct {
 		name string
 		args args
-		want map[string]map[string]bool
+		want PermissionMap
 	}{
 		{
 			"valid case",
 			args{
-				perms: map[string]map[string]bool{
+				perms: PermissionMap{
 					"forwarded": {
 						"delete": true,
 					},
@@ -695,7 +630,7 @@ func TestCopy(t *testing.T) {
 					},
 				},
 			},
-			map[string]map[string]bool{
+			PermissionMap{
 				"forwarded": {
 					"delete": true,
 				},
@@ -707,9 +642,9 @@ func TestCopy(t *testing.T) {
 		{
 			"empty case",
 			args{
-				perms: map[string]map[string]bool{},
+				perms: PermissionMap{},
 			},
-			map[string]map[string]bool{},
+			PermissionMap{},
 		},
 	}
 	for _, tt := range tests {

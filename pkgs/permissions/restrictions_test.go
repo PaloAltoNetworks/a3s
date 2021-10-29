@@ -63,7 +63,7 @@ func TestResolveRestrictions(t *testing.T) {
 	tests := []struct {
 		name string
 		args args
-		want map[string]map[string]bool
+		want PermissionMap
 	}{
 
 		{
@@ -75,7 +75,7 @@ func TestResolveRestrictions(t *testing.T) {
 					},
 				},
 			},
-			map[string]map[string]bool{
+			PermissionMap{
 				"api1": {"get": true, "post": true},
 			},
 		},
@@ -90,7 +90,7 @@ func TestResolveRestrictions(t *testing.T) {
 					},
 				},
 			},
-			map[string]map[string]bool{
+			PermissionMap{
 				"api1": {"get": true, "post": true},
 				"api2": {"get": true},
 			},
@@ -106,7 +106,7 @@ func TestResolveRestrictions(t *testing.T) {
 					},
 				},
 			},
-			map[string]map[string]bool{
+			PermissionMap{
 				"api1": {"get": true, "post": true, "delete": true},
 			},
 		},

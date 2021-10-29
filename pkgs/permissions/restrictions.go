@@ -125,16 +125,16 @@ func GetRestrictions(token string) (Restrictions, error) {
 }
 
 // ResolveRestrictions resolves the given restrictions into a standard permission map.
-func ResolveRestrictions(restrictions Restrictions) map[string]map[string]bool {
+func ResolveRestrictions(restrictions Restrictions) PermissionMap {
 
-	resolved := map[string]map[string]bool{}
+	resolved := PermissionMap{}
 
 	for _, perm := range restrictions.Permissions {
 
 		parts := strings.Split(perm, ",")
 
 		if _, ok := resolved[parts[0]]; !ok {
-			resolved[parts[0]] = map[string]bool{}
+			resolved[parts[0]] = Permissions{}
 		}
 
 		for _, r := range parts[1:] {
