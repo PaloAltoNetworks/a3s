@@ -27,15 +27,7 @@ func NewAuthorizationProcessor(manipulator manipulate.Manipulator, pubsub bahamu
 // ProcessCreate handles the creates requests for Authorizations.
 func (p *AuthorizationsProcessor) ProcessCreate(bctx bahamut.Context) error {
 	return crud.Create(bctx, p.manipulator, bctx.InputData().(*api.Authorization),
-		crud.OptionPostWriteHook(func(obj elemental.Identifiable) {
-			notification.Publish(
-				p.pubsub,
-				nscache.NotificationAuthorizationChanges,
-				&notification.Message{
-					Data: obj.(*api.Namespace).Name,
-				},
-			)
-		}),
+		crud.OptionPostWriteHook(p.makeNotify()),
 	)
 }
 
@@ -52,34 +44,30 @@ func (p *AuthorizationsProcessor) ProcessRetrieve(bctx bahamut.Context) error {
 // ProcessUpdate handles the update requests for Authorizations.
 func (p *AuthorizationsProcessor) ProcessUpdate(bctx bahamut.Context) error {
 	return crud.Update(bctx, p.manipulator, bctx.InputData().(*api.Authorization),
-		crud.OptionPostWriteHook(func(obj elemental.Identifiable) {
-			notification.Publish(
-				p.pubsub,
-				nscache.NotificationAuthorizationChanges,
-				&notification.Message{
-					Data: obj.(*api.Namespace).Name,
-				},
-			)
-		}),
+		crud.OptionPostWriteHook(p.makeNotify()),
 	)
 }
 
 // ProcessDelete handles the delete requests for Authorizations.
 func (p *AuthorizationsProcessor) ProcessDelete(bctx bahamut.Context) error {
 	return crud.Delete(bctx, p.manipulator, api.NewAuthorization(),
-		crud.OptionPostWriteHook(func(obj elemental.Identifiable) {
-			notification.Publish(
-				p.pubsub,
-				nscache.NotificationAuthorizationChanges,
-				&notification.Message{
-					Data: obj.(*api.Namespace).Name,
-				},
-			)
-		}),
+		crud.OptionPostWriteHook(p.makeNotify()),
 	)
 }
 
 // ProcessInfo handles the info request for Authorizations.
 func (p *AuthorizationsProcessor) ProcessInfo(bctx bahamut.Context) error {
 	return crud.Info(bctx, p.manipulator, api.AuthorizationIdentity)
+}
+
+func (p *AuthorizationsProcessor) makeNotify() crud.PostWriteHook {
+	return func(obj elemental.Identifiable) {
+		notification.Publish(
+			p.pubsub,
+			nscache.NotificationNamespaceChanges,
+			&notification.Message{
+				Data: obj.(*api.Authorization).Namespace,
+			},
+		)
+	}
 }
