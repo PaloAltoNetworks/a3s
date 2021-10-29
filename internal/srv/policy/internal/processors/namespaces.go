@@ -6,6 +6,8 @@ import (
 
 	"go.aporeto.io/a3s/pkgs/api"
 	"go.aporeto.io/a3s/pkgs/crud"
+	"go.aporeto.io/a3s/pkgs/notification"
+	"go.aporeto.io/a3s/pkgs/nscache"
 	"go.aporeto.io/bahamut"
 	"go.aporeto.io/elemental"
 	"go.aporeto.io/manipulate"
@@ -14,12 +16,14 @@ import (
 // A NamespacesProcessor is a bahamut processor for Namespaces.
 type NamespacesProcessor struct {
 	manipulator manipulate.Manipulator
+	pubsub      bahamut.PubSubClient
 }
 
 // NewNamespacesProcessor returns a new NamespacesProcessor.
-func NewNamespacesProcessor(manipulator manipulate.Manipulator) *NamespacesProcessor {
+func NewNamespacesProcessor(manipulator manipulate.Manipulator, pubsub bahamut.PubSubClient) *NamespacesProcessor {
 	return &NamespacesProcessor{
 		manipulator: manipulator,
+		pubsub:      pubsub,
 	}
 }
 
@@ -37,7 +41,19 @@ func (p *NamespacesProcessor) ProcessCreate(bctx bahamut.Context) error {
 		)
 	}
 
-	return crud.Create(bctx, p.manipulator, ns)
+	ns.Name = strings.Join([]string{bctx.Request().Namespace, ns.Name}, "/")
+
+	return crud.Create(bctx, p.manipulator, ns,
+		crud.OptionPostWriteHook(func(elemental.Identifiable) {
+			notification.Publish(
+				p.pubsub,
+				nscache.NotificationNamespaceChanges,
+				&notification.Message{
+					Data: ns.Name,
+				},
+			)
+		}),
+	)
 }
 
 // ProcessRetrieveMany handles the retrieve many requests for Namespaces.
@@ -52,12 +68,32 @@ func (p *NamespacesProcessor) ProcessRetrieve(bctx bahamut.Context) error {
 
 // ProcessUpdate handles the update requests for Namespaces.
 func (p *NamespacesProcessor) ProcessUpdate(bctx bahamut.Context) error {
-	return crud.Update(bctx, p.manipulator, bctx.InputData().(*api.Namespace))
+	return crud.Update(bctx, p.manipulator, bctx.InputData().(*api.Namespace),
+		crud.OptionPostWriteHook(func(obj elemental.Identifiable) {
+			notification.Publish(
+				p.pubsub,
+				nscache.NotificationNamespaceChanges,
+				&notification.Message{
+					Data: obj.(*api.Namespace).Name,
+				},
+			)
+		}),
+	)
 }
 
 // ProcessDelete handles the delete requests for Namespaces.
 func (p *NamespacesProcessor) ProcessDelete(bctx bahamut.Context) error {
-	return crud.Delete(bctx, p.manipulator, api.NewNamespace())
+	return crud.Delete(bctx, p.manipulator, api.NewNamespace(),
+		crud.OptionPostWriteHook(func(obj elemental.Identifiable) {
+			notification.Publish(
+				p.pubsub,
+				nscache.NotificationNamespaceChanges,
+				&notification.Message{
+					Data: obj.(*api.Namespace).Name,
+				},
+			)
+		}),
+	)
 }
 
 // ProcessInfo handles the info request for Namespaces.

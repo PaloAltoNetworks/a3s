@@ -3,25 +3,40 @@ package processors
 import (
 	"go.aporeto.io/a3s/pkgs/api"
 	"go.aporeto.io/a3s/pkgs/crud"
+	"go.aporeto.io/a3s/pkgs/notification"
+	"go.aporeto.io/a3s/pkgs/nscache"
 	"go.aporeto.io/bahamut"
+	"go.aporeto.io/elemental"
 	"go.aporeto.io/manipulate"
 )
 
 // A AuthorizationsProcessor is a bahamut processor for Authorizations.
 type AuthorizationsProcessor struct {
 	manipulator manipulate.Manipulator
+	pubsub      bahamut.PubSubClient
 }
 
 // NewAuthorizationProcessor returns a new AuthorizationsProcessor.
-func NewAuthorizationProcessor(manipulator manipulate.Manipulator) *AuthorizationsProcessor {
+func NewAuthorizationProcessor(manipulator manipulate.Manipulator, pubsub bahamut.PubSubClient) *AuthorizationsProcessor {
 	return &AuthorizationsProcessor{
 		manipulator: manipulator,
+		pubsub:      pubsub,
 	}
 }
 
 // ProcessCreate handles the creates requests for Authorizations.
 func (p *AuthorizationsProcessor) ProcessCreate(bctx bahamut.Context) error {
-	return crud.Create(bctx, p.manipulator, bctx.InputData().(*api.Authorization))
+	return crud.Create(bctx, p.manipulator, bctx.InputData().(*api.Authorization),
+		crud.OptionPostWriteHook(func(obj elemental.Identifiable) {
+			notification.Publish(
+				p.pubsub,
+				nscache.NotificationAuthorizationChanges,
+				&notification.Message{
+					Data: obj.(*api.Namespace).Name,
+				},
+			)
+		}),
+	)
 }
 
 // ProcessRetrieveMany handles the retrieve many requests for Authorizations.
@@ -36,12 +51,32 @@ func (p *AuthorizationsProcessor) ProcessRetrieve(bctx bahamut.Context) error {
 
 // ProcessUpdate handles the update requests for Authorizations.
 func (p *AuthorizationsProcessor) ProcessUpdate(bctx bahamut.Context) error {
-	return crud.Update(bctx, p.manipulator, bctx.InputData().(*api.Authorization))
+	return crud.Update(bctx, p.manipulator, bctx.InputData().(*api.Authorization),
+		crud.OptionPostWriteHook(func(obj elemental.Identifiable) {
+			notification.Publish(
+				p.pubsub,
+				nscache.NotificationAuthorizationChanges,
+				&notification.Message{
+					Data: obj.(*api.Namespace).Name,
+				},
+			)
+		}),
+	)
 }
 
 // ProcessDelete handles the delete requests for Authorizations.
 func (p *AuthorizationsProcessor) ProcessDelete(bctx bahamut.Context) error {
-	return crud.Delete(bctx, p.manipulator, api.NewAuthorization())
+	return crud.Delete(bctx, p.manipulator, api.NewAuthorization(),
+		crud.OptionPostWriteHook(func(obj elemental.Identifiable) {
+			notification.Publish(
+				p.pubsub,
+				nscache.NotificationAuthorizationChanges,
+				&notification.Message{
+					Data: obj.(*api.Namespace).Name,
+				},
+			)
+		}),
+	)
 }
 
 // ProcessInfo handles the info request for Authorizations.

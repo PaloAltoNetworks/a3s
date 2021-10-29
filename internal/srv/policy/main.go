@@ -17,8 +17,8 @@ func Init(
 	pubsub bahamut.PubSubClient,
 ) error {
 
-	bahamut.RegisterProcessorOrDie(server, processors.NewNamespacesProcessor(m), api.NamespaceIdentity)
-	bahamut.RegisterProcessorOrDie(server, processors.NewAuthorizationProcessor(m), api.AuthorizationIdentity)
+	bahamut.RegisterProcessorOrDie(server, processors.NewNamespacesProcessor(m, pubsub), api.NamespaceIdentity)
+	bahamut.RegisterProcessorOrDie(server, processors.NewAuthorizationProcessor(m, pubsub), api.AuthorizationIdentity)
 
 	return nil
 }
