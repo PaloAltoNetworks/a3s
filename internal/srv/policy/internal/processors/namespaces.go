@@ -1,9 +1,13 @@
 package processors
 
 import (
+	"net/http"
+	"strings"
+
 	"go.aporeto.io/a3s/pkgs/api"
 	"go.aporeto.io/a3s/pkgs/crud"
 	"go.aporeto.io/bahamut"
+	"go.aporeto.io/elemental"
 	"go.aporeto.io/manipulate"
 )
 
@@ -21,7 +25,19 @@ func NewNamespacesProcessor(manipulator manipulate.Manipulator) *NamespacesProce
 
 // ProcessCreate handles the creates requests for Namespaces.
 func (p *NamespacesProcessor) ProcessCreate(bctx bahamut.Context) error {
-	return crud.Create(bctx, p.manipulator, bctx.InputData().(*api.Namespace))
+
+	ns := bctx.InputData().(*api.Namespace)
+
+	if strings.Contains(ns.Name, "/") {
+		return elemental.NewError(
+			"Validation Error",
+			"Name must not contain any '/' during creation",
+			"a3s",
+			http.StatusUnprocessableEntity,
+		)
+	}
+
+	return crud.Create(bctx, p.manipulator, ns)
 }
 
 // ProcessRetrieveMany handles the retrieve many requests for Namespaces.
