@@ -20,9 +20,9 @@ func TestGetRestrictions(t *testing.T) {
 		{
 			"token with restrictions",
 			args{
-				`eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJyZWFsbSI6IlZpbmNlIiwiZGF0YSI6eyJhY2NvdW50IjoiYXBvbXV4IiwiZW1haWwiOiJhZG1pbkBhcG9tdXguY29tIiwiaWQiOiI1ZTFjZjNlZmEzNzAwMzhmYWY3Zjg3NzciLCJvcmdhbml6YXRpb24iOiJhcG9tdXgiLCJyZWFsbSI6InZpbmNlIiwic3ViamVjdCI6ImFwb211eCJ9LCJyZXN0cmljdGlvbnMiOnsicGVybXMiOlsiQGF1dGg6cm9sZT10ZXN0Il0sIm5hbWVzcGFjZSI6Ii9hcG9tdXgvY2hpbGQiLCJuZXR3b3JrcyI6WyIxMjcuMC4wLjEvMzIiXX0sImV4cCI6MTU5MDA0Mjk5OCwiaWF0IjoxNTg5OTUyOTk4LCJpc3MiOiJodHRwczovL2xvY2FsaG9zdDo0NDQzIiwic3ViIjoiYXBvbXV4In0.JQcljRWeraT2Ma2u9DpeO0ub0SLNj5jDjKMVppibsm17YH6CyNKO5pyf-Kg6SldxuJau1nf0W_V7K3sQFmqj0g`,
+				`eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyZWFsbSI6IlZpbmNlIiwicmVzdHJpY3Rpb25zIjp7InBlcm1zIjpbInIxLGdldCxwb3N0Il0sIm5hbWVzcGFjZSI6Ii9hcG9tdXgvY2hpbGQiLCJuZXR3b3JrcyI6WyIxMjcuMC4wLjEvMzIiXX0sImV4cCI6MTU5MDA0Mjk5OCwiaWF0IjoxNTg5OTUyOTk4LCJpc3MiOiJodHRwczovL2xvY2FsaG9zdDo0NDQzIiwic3ViIjoiYXBvbXV4In0.8q9wEwRAj2JHqGUhrlKrkymf_xF6rIQkvKXu4YcyI-Q`,
 			},
-			Restrictions{Namespace: "/apomux/child", Permissions: []string{"@auth:role=test"}, Networks: []string{"127.0.0.1/32"}},
+			Restrictions{Namespace: "/apomux/child", Permissions: []string{"r1,get,post"}, Networks: []string{"127.0.0.1/32"}},
 			false,
 		},
 		{
