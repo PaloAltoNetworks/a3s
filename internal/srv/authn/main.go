@@ -5,6 +5,8 @@ import (
 	"io/ioutil"
 	"net/http"
 
+	"go.aporeto.io/a3s/internal/srv/authn/processors"
+	"go.aporeto.io/a3s/pkgs/api"
 	"go.aporeto.io/bahamut"
 	"go.aporeto.io/manipulate"
 	"go.aporeto.io/tg/tglib"
@@ -58,7 +60,9 @@ func Init(
 	zap.L().Info("Cookie policy set", zap.String("mode", cfg.CookieSameSitePolicy))
 
 	// Let the police do the job
-	_, _, _, _ = cookieSameSitePolicy, cookieDomain, jwtCert, jwtKey
+	_, _ = cookieSameSitePolicy, cookieDomain
+
+	bahamut.RegisterProcessorOrDie(server, processors.NewIssueProcessor(m, jwtCert, jwtKey), api.IssueIdentity)
 
 	return nil
 }

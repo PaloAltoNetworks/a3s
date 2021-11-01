@@ -1,0 +1,51 @@
+#!/bin/bash
+
+cd "$(dirname "${BASH_SOURCE[0]}")" || exit
+
+export TLSGEN_OUT=".data/certificates"
+export TLSGEN_FORCE="false"
+
+mkdir -p "$TLSGEN_OUT"
+
+## Root CA
+tg cert --name "ca-root" \
+	--is-ca \
+	--pass "password" \
+	--common-name "A3S Root CA"
+
+## Intermediate CA
+tg cert \
+	--name "ca-intermediate" \
+	--is-ca \
+	--pass "password" \
+	--common-name "A3S Intermediate CA" \
+	--signing-cert "$TLSGEN_OUT/ca-root-cert.pem" \
+	--signing-cert-key "$TLSGEN_OUT/ca-root-key.pem" \
+	--signing-cert-key-pass "password"
+
+cat \
+	"$TLSGEN_OUT/ca-intermediate-cert.pem" \
+	"$TLSGEN_OUT/ca-root-cert.pem" \
+	>"$TLSGEN_OUT/ca-chain.pem"
+
+## Service https cert
+tg cert \
+	--name "jwt" \
+	--pass "password" \
+	--common-name "jwt" \
+	--dns "localhost" \
+	--ip "127.0.0.1" \
+	--signing-cert "$TLSGEN_OUT/ca-intermediate-cert.pem" \
+	--signing-cert-key "$TLSGEN_OUT/ca-intermediate-key.pem" \
+	--signing-cert-key-pass "password"
+
+## Service https cert
+tg cert \
+	--name "a3s" \
+	--pass "password" \
+	--common-name "a3s" \
+	--dns "localhost" \
+	--ip "127.0.0.1" \
+	--signing-cert "$TLSGEN_OUT/ca-intermediate-cert.pem" \
+	--signing-cert-key "$TLSGEN_OUT/ca-intermediate-key.pem" \
+	--signing-cert-key-pass "password"

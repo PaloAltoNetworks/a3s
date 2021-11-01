@@ -5,6 +5,7 @@ import (
 	"errors"
 	"net/http"
 
+	"go.aporeto.io/a3s/internal/srv/authn"
 	"go.aporeto.io/a3s/internal/srv/policy"
 	"go.aporeto.io/a3s/pkgs/bootstrap"
 	"go.aporeto.io/bahamut"
@@ -48,9 +49,9 @@ func main() {
 		)...,
 	)
 
-	// if err := authn.Init(ctx, cfg.AuthNConf, server, manipulator, pubsub); err != nil {
-	// 	zap.L().Fatal("Unable to initialize authn module", zap.Error(err))
-	// }
+	if err := authn.Init(ctx, cfg.AuthNConf, server, manipulator, pubsub); err != nil {
+		zap.L().Fatal("Unable to initialize authn module", zap.Error(err))
+	}
 
 	if err := policy.Init(ctx, cfg.PolicyConf, server, manipulator, pubsub); err != nil {
 		zap.L().Fatal("Unable to initialize policy module", zap.Error(err))
