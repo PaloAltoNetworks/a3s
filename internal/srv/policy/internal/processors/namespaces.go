@@ -77,7 +77,7 @@ func (p *NamespacesProcessor) ProcessInfo(bctx bahamut.Context) error {
 
 func (p *NamespacesProcessor) makeNotify() crud.PostWriteHook {
 	return func(obj elemental.Identifiable) {
-		notification.Publish(
+		_ = notification.Publish(
 			p.pubsub,
 			nscache.NotificationNamespaceChanges,
 			&notification.Message{

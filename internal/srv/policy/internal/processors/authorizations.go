@@ -62,7 +62,7 @@ func (p *AuthorizationsProcessor) ProcessInfo(bctx bahamut.Context) error {
 
 func (p *AuthorizationsProcessor) makeNotify() crud.PostWriteHook {
 	return func(obj elemental.Identifiable) {
-		notification.Publish(
+		_ = notification.Publish(
 			p.pubsub,
 			nscache.NotificationNamespaceChanges,
 			&notification.Message{
