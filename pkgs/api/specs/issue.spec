@@ -76,7 +76,18 @@ attributes:
     example_value:
     - dogs,post
 
-  - name: source
+  - name: sourceNamespace
+    description: The namespace of the source to use.
+    type: string
+    exposed: true
+    example_value: /my/ns
+
+  - name: sourceName
+    description: The name of the source to use.
+    type: string
+    exposed: true
+    example_value: /my/ns
+  - name: sourceType
     description: |-
       The authentication source. This will define how to verify
       credentials from internal or external source of authentication.

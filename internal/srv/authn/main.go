@@ -5,7 +5,7 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"go.aporeto.io/a3s/internal/srv/authn/processors"
+	"go.aporeto.io/a3s/internal/srv/authn/internal/processors"
 	"go.aporeto.io/a3s/pkgs/api"
 	"go.aporeto.io/bahamut"
 	"go.aporeto.io/manipulate"

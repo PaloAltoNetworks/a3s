@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"crypto/tls"
 	"errors"
 	"net/http"
 
@@ -44,6 +45,7 @@ func main() {
 				nil,
 				nil,
 			),
+			bahamut.OptMTLS(nil, tls.RequestClientCert),
 			bahamut.OptErrorTransformer(errorTransformer),
 			bahamut.OptIdentifiableRetriever(bootstrap.MakeIdentifiableRetriever(manipulator)),
 		)...,

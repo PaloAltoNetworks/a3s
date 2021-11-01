@@ -22,7 +22,9 @@ Issues a new a normalized token using various authentication sources.
   "restrictedPermissions": [
     "dogs,post"
   ],
-  "source": "OIDC",
+  "sourceName": "/my/ns",
+  "sourceNamespace": "/my/ns",
+  "sourceType": "OIDC",
   "validity": "24h"
 }
 ```
@@ -94,7 +96,19 @@ given defined in the token.
 Restricting to some permissions you don't initially have according to the policy
 engine has no effect and may end up making the token unusable.
 
-##### `source` [`required`]
+##### `sourceName`
+
+Type: `string`
+
+The name of the source to use.
+
+##### `sourceNamespace`
+
+Type: `string`
+
+The namespace of the source to use.
+
+##### `sourceType` [`required`]
 
 Type: `enum(AWSSecurityToken | Certificate | LDAP | GCPIdentityToken | AzureIdentityToken | OIDC | SAML | A3SIdentityToken)`
 

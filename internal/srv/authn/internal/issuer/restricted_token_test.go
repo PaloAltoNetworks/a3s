@@ -1,4 +1,4 @@
-package claims
+package issuer
 
 import (
 	"crypto/x509/pkix"

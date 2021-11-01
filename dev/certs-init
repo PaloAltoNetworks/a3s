@@ -30,22 +30,34 @@ cat \
 
 ## Service https cert
 tg cert \
-	--name "jwt" \
+	--name "a3s" \
 	--pass "password" \
-	--common-name "jwt" \
+	--auth-server \
+	--common-name "a3s" \
 	--dns "localhost" \
 	--ip "127.0.0.1" \
 	--signing-cert "$TLSGEN_OUT/ca-intermediate-cert.pem" \
 	--signing-cert-key "$TLSGEN_OUT/ca-intermediate-key.pem" \
 	--signing-cert-key-pass "password"
 
-## Service https cert
+## JWT signing cert
 tg cert \
-	--name "a3s" \
+	--name "jwt" \
 	--pass "password" \
-	--common-name "a3s" \
-	--dns "localhost" \
-	--ip "127.0.0.1" \
+	--common-name "jwt" \
 	--signing-cert "$TLSGEN_OUT/ca-intermediate-cert.pem" \
 	--signing-cert-key "$TLSGEN_OUT/ca-intermediate-key.pem" \
+	--signing-cert-key-pass "password"
+
+## Test User Cert CA and Cert
+tg cert --name "ca-acme" \
+	--is-ca \
+	--pass "password" \
+	--common-name "ACME CA"
+tg cert \
+	--name "user" \
+	--auth-client \
+	--common-name "Jean-Michel" \
+	--signing-cert "$TLSGEN_OUT/ca-acme-cert.pem" \
+	--signing-cert-key "$TLSGEN_OUT/ca-acme-key.pem" \
 	--signing-cert-key-pass "password"

@@ -8,33 +8,33 @@ import (
 	"go.aporeto.io/elemental"
 )
 
-// IssueSourceValue represents the possible values for attribute "source".
-type IssueSourceValue string
+// IssueSourceTypeValue represents the possible values for attribute "sourceType".
+type IssueSourceTypeValue string
 
 const (
-	// IssueSourceA3SIdentityToken represents the value A3SIdentityToken.
-	IssueSourceA3SIdentityToken IssueSourceValue = "A3SIdentityToken"
+	// IssueSourceTypeA3SIdentityToken represents the value A3SIdentityToken.
+	IssueSourceTypeA3SIdentityToken IssueSourceTypeValue = "A3SIdentityToken"
 
-	// IssueSourceAWSSecurityToken represents the value AWSSecurityToken.
-	IssueSourceAWSSecurityToken IssueSourceValue = "AWSSecurityToken"
+	// IssueSourceTypeAWSSecurityToken represents the value AWSSecurityToken.
+	IssueSourceTypeAWSSecurityToken IssueSourceTypeValue = "AWSSecurityToken"
 
-	// IssueSourceAzureIdentityToken represents the value AzureIdentityToken.
-	IssueSourceAzureIdentityToken IssueSourceValue = "AzureIdentityToken"
+	// IssueSourceTypeAzureIdentityToken represents the value AzureIdentityToken.
+	IssueSourceTypeAzureIdentityToken IssueSourceTypeValue = "AzureIdentityToken"
 
-	// IssueSourceCertificate represents the value Certificate.
-	IssueSourceCertificate IssueSourceValue = "Certificate"
+	// IssueSourceTypeCertificate represents the value Certificate.
+	IssueSourceTypeCertificate IssueSourceTypeValue = "Certificate"
 
-	// IssueSourceGCPIdentityToken represents the value GCPIdentityToken.
-	IssueSourceGCPIdentityToken IssueSourceValue = "GCPIdentityToken"
+	// IssueSourceTypeGCPIdentityToken represents the value GCPIdentityToken.
+	IssueSourceTypeGCPIdentityToken IssueSourceTypeValue = "GCPIdentityToken"
 
-	// IssueSourceLDAP represents the value LDAP.
-	IssueSourceLDAP IssueSourceValue = "LDAP"
+	// IssueSourceTypeLDAP represents the value LDAP.
+	IssueSourceTypeLDAP IssueSourceTypeValue = "LDAP"
 
-	// IssueSourceOIDC represents the value OIDC.
-	IssueSourceOIDC IssueSourceValue = "OIDC"
+	// IssueSourceTypeOIDC represents the value OIDC.
+	IssueSourceTypeOIDC IssueSourceTypeValue = "OIDC"
 
-	// IssueSourceSAML represents the value SAML.
-	IssueSourceSAML IssueSourceValue = "SAML"
+	// IssueSourceTypeSAML represents the value SAML.
+	IssueSourceTypeSAML IssueSourceTypeValue = "SAML"
 )
 
 // IssueIdentity represents the Identity of the object.
@@ -149,9 +149,15 @@ type Issue struct {
 	// engine has no effect and may end up making the token unusable.
 	RestrictedPermissions []string `json:"restrictedPermissions" msgpack:"restrictedPermissions" bson:"-" mapstructure:"restrictedPermissions,omitempty"`
 
+	// The name of the source to use.
+	SourceName string `json:"sourceName" msgpack:"sourceName" bson:"-" mapstructure:"sourceName,omitempty"`
+
+	// The namespace of the source to use.
+	SourceNamespace string `json:"sourceNamespace" msgpack:"sourceNamespace" bson:"-" mapstructure:"sourceNamespace,omitempty"`
+
 	// The authentication source. This will define how to verify
 	// credentials from internal or external source of authentication.
-	Source IssueSourceValue `json:"source" msgpack:"source" bson:"-" mapstructure:"source,omitempty"`
+	SourceType IssueSourceTypeValue `json:"sourceType" msgpack:"sourceType" bson:"-" mapstructure:"sourceType,omitempty"`
 
 	// Issued token.
 	Token string `json:"token,omitempty" msgpack:"token,omitempty" bson:"-" mapstructure:"token,omitempty"`
@@ -264,7 +270,9 @@ func (o *Issue) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			RestrictedNamespace:   &o.RestrictedNamespace,
 			RestrictedNetworks:    &o.RestrictedNetworks,
 			RestrictedPermissions: &o.RestrictedPermissions,
-			Source:                &o.Source,
+			SourceName:            &o.SourceName,
+			SourceNamespace:       &o.SourceNamespace,
+			SourceType:            &o.SourceType,
 			Token:                 &o.Token,
 			Validity:              &o.Validity,
 		}
@@ -283,8 +291,12 @@ func (o *Issue) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.RestrictedNetworks = &(o.RestrictedNetworks)
 		case "restrictedPermissions":
 			sp.RestrictedPermissions = &(o.RestrictedPermissions)
-		case "source":
-			sp.Source = &(o.Source)
+		case "sourceName":
+			sp.SourceName = &(o.SourceName)
+		case "sourceNamespace":
+			sp.SourceNamespace = &(o.SourceNamespace)
+		case "sourceType":
+			sp.SourceType = &(o.SourceType)
 		case "token":
 			sp.Token = &(o.Token)
 		case "validity":
@@ -317,8 +329,14 @@ func (o *Issue) Patch(sparse elemental.SparseIdentifiable) {
 	if so.RestrictedPermissions != nil {
 		o.RestrictedPermissions = *so.RestrictedPermissions
 	}
-	if so.Source != nil {
-		o.Source = *so.Source
+	if so.SourceName != nil {
+		o.SourceName = *so.SourceName
+	}
+	if so.SourceNamespace != nil {
+		o.SourceNamespace = *so.SourceNamespace
+	}
+	if so.SourceType != nil {
+		o.SourceType = *so.SourceType
 	}
 	if so.Token != nil {
 		o.Token = *so.Token
@@ -358,11 +376,11 @@ func (o *Issue) Validate() error {
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
-	if err := elemental.ValidateRequiredString("source", string(o.Source)); err != nil {
+	if err := elemental.ValidateRequiredString("sourceType", string(o.SourceType)); err != nil {
 		requiredErrors = requiredErrors.Append(err)
 	}
 
-	if err := elemental.ValidateStringInList("source", string(o.Source), []string{"AWSSecurityToken", "Certificate", "LDAP", "GCPIdentityToken", "AzureIdentityToken", "OIDC", "SAML", "A3SIdentityToken"}, false); err != nil {
+	if err := elemental.ValidateStringInList("sourceType", string(o.SourceType), []string{"AWSSecurityToken", "Certificate", "LDAP", "GCPIdentityToken", "AzureIdentityToken", "OIDC", "SAML", "A3SIdentityToken"}, false); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -410,8 +428,12 @@ func (o *Issue) ValueForAttribute(name string) interface{} {
 		return o.RestrictedNetworks
 	case "restrictedPermissions":
 		return o.RestrictedPermissions
-	case "source":
-		return o.Source
+	case "sourceName":
+		return o.SourceName
+	case "sourceNamespace":
+		return o.SourceNamespace
+	case "sourceType":
+		return o.SourceType
 	case "token":
 		return o.Token
 	case "validity":
@@ -493,13 +515,29 @@ engine has no effect and may end up making the token unusable.`,
 		SubType: "string",
 		Type:    "list",
 	},
-	"Source": {
+	"SourceName": {
+		AllowedChoices: []string{},
+		ConvertedName:  "SourceName",
+		Description:    `The name of the source to use.`,
+		Exposed:        true,
+		Name:           "sourceName",
+		Type:           "string",
+	},
+	"SourceNamespace": {
+		AllowedChoices: []string{},
+		ConvertedName:  "SourceNamespace",
+		Description:    `The namespace of the source to use.`,
+		Exposed:        true,
+		Name:           "sourceNamespace",
+		Type:           "string",
+	},
+	"SourceType": {
 		AllowedChoices: []string{"AWSSecurityToken", "Certificate", "LDAP", "GCPIdentityToken", "AzureIdentityToken", "OIDC", "SAML", "A3SIdentityToken"},
-		ConvertedName:  "Source",
+		ConvertedName:  "SourceType",
 		Description: `The authentication source. This will define how to verify
 credentials from internal or external source of authentication.`,
 		Exposed:  true,
-		Name:     "source",
+		Name:     "sourceType",
 		Required: true,
 		Type:     "enum",
 	},
@@ -599,13 +637,29 @@ engine has no effect and may end up making the token unusable.`,
 		SubType: "string",
 		Type:    "list",
 	},
-	"source": {
+	"sourcename": {
+		AllowedChoices: []string{},
+		ConvertedName:  "SourceName",
+		Description:    `The name of the source to use.`,
+		Exposed:        true,
+		Name:           "sourceName",
+		Type:           "string",
+	},
+	"sourcenamespace": {
+		AllowedChoices: []string{},
+		ConvertedName:  "SourceNamespace",
+		Description:    `The namespace of the source to use.`,
+		Exposed:        true,
+		Name:           "sourceNamespace",
+		Type:           "string",
+	},
+	"sourcetype": {
 		AllowedChoices: []string{"AWSSecurityToken", "Certificate", "LDAP", "GCPIdentityToken", "AzureIdentityToken", "OIDC", "SAML", "A3SIdentityToken"},
-		ConvertedName:  "Source",
+		ConvertedName:  "SourceType",
 		Description: `The authentication source. This will define how to verify
 credentials from internal or external source of authentication.`,
 		Exposed:  true,
-		Name:     "source",
+		Name:     "sourceType",
 		Required: true,
 		Type:     "enum",
 	},
@@ -736,9 +790,15 @@ type SparseIssue struct {
 	// engine has no effect and may end up making the token unusable.
 	RestrictedPermissions *[]string `json:"restrictedPermissions,omitempty" msgpack:"restrictedPermissions,omitempty" bson:"-" mapstructure:"restrictedPermissions,omitempty"`
 
+	// The name of the source to use.
+	SourceName *string `json:"sourceName,omitempty" msgpack:"sourceName,omitempty" bson:"-" mapstructure:"sourceName,omitempty"`
+
+	// The namespace of the source to use.
+	SourceNamespace *string `json:"sourceNamespace,omitempty" msgpack:"sourceNamespace,omitempty" bson:"-" mapstructure:"sourceNamespace,omitempty"`
+
 	// The authentication source. This will define how to verify
 	// credentials from internal or external source of authentication.
-	Source *IssueSourceValue `json:"source,omitempty" msgpack:"source,omitempty" bson:"-" mapstructure:"source,omitempty"`
+	SourceType *IssueSourceTypeValue `json:"sourceType,omitempty" msgpack:"sourceType,omitempty" bson:"-" mapstructure:"sourceType,omitempty"`
 
 	// Issued token.
 	Token *string `json:"token,omitempty" msgpack:"token,omitempty" bson:"-" mapstructure:"token,omitempty"`
@@ -827,8 +887,14 @@ func (o *SparseIssue) ToPlain() elemental.PlainIdentifiable {
 	if o.RestrictedPermissions != nil {
 		out.RestrictedPermissions = *o.RestrictedPermissions
 	}
-	if o.Source != nil {
-		out.Source = *o.Source
+	if o.SourceName != nil {
+		out.SourceName = *o.SourceName
+	}
+	if o.SourceNamespace != nil {
+		out.SourceNamespace = *o.SourceNamespace
+	}
+	if o.SourceType != nil {
+		out.SourceType = *o.SourceType
 	}
 	if o.Token != nil {
 		out.Token = *o.Token
