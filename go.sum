@@ -406,8 +406,9 @@ go.aporeto.io/manipulate v1.121.1-0.20210923215151-405f83f82534/go.mod h1:ntkrA2
 go.aporeto.io/manipulate v1.121.1-0.20211026222548-61cab81ae328 h1:BCPfpKPLNRIWaDy/VMLwBnSy9k1cTRtmBOyEGnfWXqs=
 go.aporeto.io/manipulate v1.121.1-0.20211026222548-61cab81ae328/go.mod h1:ntkrA2H2dpjrImjHKHnOL/b4L4jDQ/lE2X9lcWazvPU=
 go.aporeto.io/regolithe v1.50.1-0.20210528201106-653300479f97/go.mod h1:St1liiK+bGvmDNkVSfOP7iAlQmDkShfEcDZMXmFbyKk=
-go.aporeto.io/tg v1.34.1-0.20210528201128-159c302ba155 h1:/kTGNNFJzNRFpAJ+9ykVXW/lCnBKcMUGSMPWvXXjMJg=
 go.aporeto.io/tg v1.34.1-0.20210528201128-159c302ba155/go.mod h1:Hgsce79sVOYB4LMv/RA/vzJyftp7FhZbJT6SB8OJlso=
+go.aporeto.io/tg v1.34.1-0.20211101201333-f818ba4bc2b5 h1:KY2tIEGtJL5SYtxio2EXaDrBKZhhWLcjuki3q6rv5aI=
+go.aporeto.io/tg v1.34.1-0.20211101201333-f818ba4bc2b5/go.mod h1:Hgsce79sVOYB4LMv/RA/vzJyftp7FhZbJT6SB8OJlso=
 go.aporeto.io/wsc v1.36.1-0.20210528201141-2af38def4959 h1:zlmfOlEAq7COKW4yW52q+GnJ/p44H04TCo7F8P+Fbs4=
 go.aporeto.io/wsc v1.36.1-0.20210528201141-2af38def4959/go.mod h1:HM/FZMooSnzMT8nMe7XSNA1NnSVtPNdgZ9PUWS4SxOM=
 go.etcd.io/bbolt v1.3.2/go.mod h1:IbVyRI1SCnLcuJnV2u8VeU0CEYM7e686BmAb1XKL+uU=

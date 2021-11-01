@@ -7,7 +7,7 @@ require (
 	go.aporeto.io/bahamut v1.112.1-0.20211029010409-3b024d164724
 	go.aporeto.io/elemental v1.100.1-0.20211029010343-e264f153acc2
 	go.aporeto.io/manipulate v1.121.1-0.20211026222548-61cab81ae328
-	go.aporeto.io/tg v1.34.1-0.20210528201128-159c302ba155
+	go.aporeto.io/tg v1.34.1-0.20211101201333-f818ba4bc2b5
 	go.aporeto.io/wsc v1.36.1-0.20210528201141-2af38def4959 // indirect
 )
 
@@ -21,9 +21,8 @@ require (
 	github.com/fsnotify/fsnotify v1.4.7 // indirect
 	github.com/globalsign/mgo v0.0.0-20181015135952-eeefdecb41b8
 	github.com/go-zoo/bone v1.3.0 // indirect
-	github.com/gofrs/uuid v4.0.0+incompatible // indirect
-
-	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
+	github.com/gofrs/uuid v4.0.0+incompatible
+	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/gopherjs/gopherjs v0.0.0-20200217142428-fce0ec30dd00 // indirect
 	github.com/gorilla/websocket v1.4.2 // indirect
