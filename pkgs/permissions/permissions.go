@@ -88,17 +88,17 @@ func Intersect(base PermissionMap, other PermissionMap) PermissionMap {
 	rstartperms, rstartok := other["*"]
 
 	// now we loop on all the permission of the out candidate
-	for identity, perms := range candidate {
+	for resource, perms := range candidate {
 
 		// Otherwise we check check if the other
 		// has the identity declared.
-		rperms, ok := other[identity]
+		rperms, ok := other[resource]
 
 		// If it does not, and we have no * declared
 		// we remove the identity from the candidate
 		// and continue
 		if !ok && !rstartok {
-			delete(candidate, identity)
+			delete(candidate, resource)
 			continue
 		}
 
@@ -122,7 +122,7 @@ func Intersect(base PermissionMap, other PermissionMap) PermissionMap {
 		// then we simply apply the other permissions.
 		// and we continue
 		if allowed, ok := perms["*"]; ok && allowed {
-			candidate[identity] = rperms
+			candidate[resource] = rperms
 			continue
 		}
 
