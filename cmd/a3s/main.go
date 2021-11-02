@@ -8,6 +8,8 @@ import (
 
 	"go.aporeto.io/a3s/internal/srv/authn"
 	"go.aporeto.io/a3s/internal/srv/policy"
+	"go.aporeto.io/a3s/pkgs/api"
+	"go.aporeto.io/a3s/pkgs/authenticator"
 	"go.aporeto.io/a3s/pkgs/bootstrap"
 	"go.aporeto.io/bahamut"
 	"go.aporeto.io/elemental"
@@ -31,6 +33,11 @@ func main() {
 	manipulator := bootstrap.MakeMongoManipulator(cfg.MongoConf)
 	// db.Bootstrap(manipulator, serviceName)
 
+	jwtCert, _, err := cfg.AuthNConf.JWTCertificate()
+	if err != nil {
+		zap.L().Fatal("Unable to get JWT certificate", zap.Error(err))
+	}
+
 	pubsub := bootstrap.MakeNATSClient(cfg.NATSConf)
 	defer pubsub.Disconnect() // nolint: errcheck
 
@@ -41,7 +48,10 @@ func main() {
 				cfg,
 				pubsub,
 				nil,
-				nil,
+				[]bahamut.RequestAuthenticator{
+					authenticator.NewPublicAuthenticator(api.IssueIdentity.Name),
+					authenticator.NewPrivateAuthenticator(jwtCert),
+				},
 				nil,
 				nil,
 			),
