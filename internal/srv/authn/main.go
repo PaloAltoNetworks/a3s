@@ -62,7 +62,7 @@ func Init(
 	// Let the police do the job
 	_, _ = cookieSameSitePolicy, cookieDomain
 
-	bahamut.RegisterProcessorOrDie(server, processors.NewIssueProcessor(m, jwtCert, jwtKey), api.IssueIdentity)
+	bahamut.RegisterProcessorOrDie(server, processors.NewIssueProcessor(m, jwtCert, jwtKey, cfg.JWTMaxValidity), api.IssueIdentity)
 
 	return nil
 }

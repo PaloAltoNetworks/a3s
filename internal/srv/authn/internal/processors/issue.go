@@ -20,26 +20,31 @@ type IssueProcessor struct {
 	manipulator manipulate.Manipulator
 	jwtKey      crypto.PrivateKey
 	jwtCert     *x509.Certificate
+	maxValidity time.Duration
 }
 
-// NewIssueProcessor returns a new IssuessProcessor.
-func NewIssueProcessor(manipulator manipulate.Manipulator, cert *x509.Certificate, key crypto.PrivateKey) *IssueProcessor {
+// NewIssueProcessor returns a new IssueProcessor.
+func NewIssueProcessor(manipulator manipulate.Manipulator, cert *x509.Certificate, key crypto.PrivateKey, maxValidity time.Duration) *IssueProcessor {
 
 	return &IssueProcessor{
 		manipulator: manipulator,
 		jwtCert:     cert,
 		jwtKey:      key,
+		maxValidity: maxValidity,
 	}
 }
 
-// ProcessCreate handles the creates requests for Issuess.
+// ProcessCreate handles the creates requests for Issue.
 func (p *IssueProcessor) ProcessCreate(bctx bahamut.Context) (err error) {
 
 	req := bctx.InputData().(*api.Issue)
+	validity, _ := time.ParseDuration(req.Validity) // elemental already validated this
 
 	switch req.SourceType {
+
 	case api.IssueSourceTypeCertificate:
-		if err := p.handleCertificateIssue(req, bctx.Request().TLSConnectionState); err != nil {
+		tlsState := bctx.Request().TLSConnectionState
+		if err := p.handleCertificateIssue(req, tlsState, validity); err != nil {
 			return err
 		}
 	}
@@ -49,7 +54,7 @@ func (p *IssueProcessor) ProcessCreate(bctx bahamut.Context) (err error) {
 	return nil
 }
 
-func (p *IssueProcessor) handleCertificateIssue(req *api.Issue, tlsState *tls.ConnectionState) (err error) {
+func (p *IssueProcessor) handleCertificateIssue(req *api.Issue, tlsState *tls.ConnectionState, validity time.Duration) (err error) {
 
 	if tlsState == nil || len(tlsState.PeerCertificates) == 0 {
 		return elemental.NewError("Bad Request", "No client certificates", "a3s", http.StatusBadRequest)
@@ -66,7 +71,7 @@ func (p *IssueProcessor) handleCertificateIssue(req *api.Issue, tlsState *tls.Co
 
 	idt := iss.Issue()
 
-	req.Token, err = idt.JWT(p.jwtKey, time.Now().Add(10*time.Minute))
+	req.Token, err = idt.JWT(p.jwtKey, time.Now().Add(validity))
 	if err != nil {
 		return err
 	}
