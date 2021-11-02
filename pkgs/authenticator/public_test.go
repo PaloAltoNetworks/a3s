@@ -13,7 +13,7 @@ func TestNewPublicAuthenticator(t *testing.T) {
 
 	Convey("Calling NewPublicAuthenticator with public resources should work", t, func() {
 
-		a := NewPublicAuthenticator("r1", "r2")
+		a := NewPublic("r1", "r2")
 		So(a, ShouldNotBeNil)
 		So(len(a.publicResources), ShouldEqual, 2)
 		So(a.publicResources, ShouldContainKey, "r1")
@@ -22,7 +22,7 @@ func TestNewPublicAuthenticator(t *testing.T) {
 
 	Convey("Calling NewPublicAuthenticator without public resources should work", t, func() {
 
-		a := NewPublicAuthenticator()
+		a := NewPublic()
 		So(a, ShouldNotBeNil)
 		So(len(a.publicResources), ShouldEqual, 0)
 	})
@@ -32,7 +32,7 @@ func TestPublicAuthenticateSession(t *testing.T) {
 
 	Convey("Given I have a Public Authenticator ", t, func() {
 
-		a := NewPublicAuthenticator("r1", "r2")
+		a := NewPublic("r1", "r2")
 
 		Convey("Calling AuthenticateSession should always work", func() {
 
@@ -48,7 +48,7 @@ func TestPublicAuthenticateRequest(t *testing.T) {
 
 	Convey("Given I have a Public Authenticator ", t, func() {
 
-		a := NewPublicAuthenticator("r1", "r2")
+		a := NewPublic("r1", "r2")
 
 		Convey("Calling AuthenticateSession on public resource should work", func() {
 

@@ -49,8 +49,8 @@ func main() {
 				pubsub,
 				nil,
 				[]bahamut.RequestAuthenticator{
-					authenticator.NewPublicAuthenticator(api.IssueIdentity.Name),
-					authenticator.NewPrivateAuthenticator(jwtCert),
+					authenticator.NewPublic(api.IssueIdentity.Name),
+					authenticator.NewPrivate(jwtCert),
 				},
 				nil,
 				nil,

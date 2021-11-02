@@ -10,21 +10,21 @@ import (
 	"go.aporeto.io/elemental"
 )
 
-// A PrivateAuthenticator is a bahamut.PrivateAuthenticator compliant structure to authentify
+// A Private is a bahamut.Private compliant structure to authentify
 // requests using a a3s token.
-type PrivateAuthenticator struct {
+type Private struct {
 	jwtCert *x509.Certificate
 }
 
-// NewPrivateAuthenticator returns a new *Authenticator that will make a call
-func NewPrivateAuthenticator(cert *x509.Certificate) *PrivateAuthenticator {
-	return &PrivateAuthenticator{
+// NewPrivate returns a new *Authenticator that will make a call
+func NewPrivate(cert *x509.Certificate) *Private {
+	return &Private{
 		jwtCert: cert,
 	}
 }
 
 // AuthenticateSession authenticates the given session.
-func (a *PrivateAuthenticator) AuthenticateSession(session bahamut.Session) (bahamut.AuthAction, error) {
+func (a *Private) AuthenticateSession(session bahamut.Session) (bahamut.AuthAction, error) {
 
 	action, claims, err := a.commonAuth(getSessionToken(session))
 	if err != nil {
@@ -37,7 +37,7 @@ func (a *PrivateAuthenticator) AuthenticateSession(session bahamut.Session) (bah
 }
 
 // AuthenticateRequest authenticates the request from the given bahamut.Context.
-func (a *PrivateAuthenticator) AuthenticateRequest(bctx bahamut.Context) (bahamut.AuthAction, error) {
+func (a *Private) AuthenticateRequest(bctx bahamut.Context) (bahamut.AuthAction, error) {
 
 	token := getToken(bctx.Request())
 
@@ -51,7 +51,7 @@ func (a *PrivateAuthenticator) AuthenticateRequest(bctx bahamut.Context) (bahamu
 	return action, nil
 }
 
-func (a *PrivateAuthenticator) commonAuth(tokenString string) (bahamut.AuthAction, []string, error) {
+func (a *Private) commonAuth(tokenString string) (bahamut.AuthAction, []string, error) {
 
 	if tokenString == "" {
 		return bahamut.AuthActionKO, nil, elemental.NewError(

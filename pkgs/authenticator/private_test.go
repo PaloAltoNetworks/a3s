@@ -78,7 +78,7 @@ func TestNewAuthenticator(t *testing.T) {
 	Convey("Given I create a new Authenticator", t, func() {
 
 		c, _ := getECCert()
-		a := NewPrivateAuthenticator(c)
+		a := NewPrivate(c)
 
 		Convey("Then a should be correct", func() {
 			So(a.jwtCert, ShouldEqual, c)
@@ -92,7 +92,7 @@ func TestCommonAuth(t *testing.T) {
 
 		c, k := getECCert()
 		_, k2 := getECCert()
-		a := NewPrivateAuthenticator(c)
+		a := NewPrivate(c)
 
 		Convey("Calling commonAuth on a token signed by the signer should work", func() {
 
@@ -157,7 +157,7 @@ func TestAuthenticateSession(t *testing.T) {
 
 		c, k := getECCert()
 		_, k2 := getECCert()
-		a := NewPrivateAuthenticator(c)
+		a := NewPrivate(c)
 
 		Convey("Calling AuthenticateSession on a session that has a valid token should work", func() {
 
@@ -221,7 +221,7 @@ func TestAuthenticateRequest(t *testing.T) {
 
 		c, k := getECCert()
 		_, k2 := getECCert()
-		a := NewPrivateAuthenticator(c)
+		a := NewPrivate(c)
 
 		Convey("Call AuthenticateSession with a valid token should work", func() {
 
