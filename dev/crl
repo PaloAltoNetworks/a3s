@@ -1,3 +1,7 @@
 #!/bin/bash
 
-curl -sSl -k -H "Content-Type: application/json" "https://127.0.0.1:44443/$1" "${@:2}" | jq
+if [[ "$A3S_TOKEN" != "" ]]; then
+	curl -sSl -k -H "Content-Type: application/json" -H "Authorization: Bearer $A3S_TOKEN" "https://127.0.0.1:44443/$1" "${@:2}" | jq
+else
+	curl -sSl -k -H "Content-Type: application/json" "https://127.0.0.1:44443/$1" "${@:2}" | jq
+fi
