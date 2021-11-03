@@ -1,0 +1,14 @@
+name: a3s 
+windows:
+  - a3s:
+      layout: tiled
+      panes:
+        - mongo:
+            - ./mongo-run 
+        - nats:
+            - ./nats-run
+        - term:
+            - cd ..
+            - clear
+        - a3s:
+            - ./a3s-run

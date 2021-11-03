@@ -3,7 +3,8 @@
 cd "$(dirname "${BASH_SOURCE[0]}")" || exit
 
 source ./env
-cd ../cmd/a3s/ && go build
+cd ../cmd/a3s/ && go build || exit 1
 cd - || exit 1
 cd .. || exit 0
+clear
 cmd/a3s/a3s

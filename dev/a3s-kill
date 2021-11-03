@@ -1,0 +1,9 @@
+#!/bin/bash
+
+cd "$(dirname "${BASH_SOURCE[0]}")" || exit
+
+tmux kill-session -t a3s
+
+pkill mongod
+pkill nats-server
+pkill a3s
