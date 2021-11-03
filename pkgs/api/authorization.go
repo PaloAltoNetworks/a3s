@@ -92,6 +92,9 @@ type Authorization struct {
 	// Hides the policies in children namespaces.
 	Hidden bool `json:"hidden" msgpack:"hidden" bson:"hidden" mapstructure:"hidden,omitempty"`
 
+	// The name of the Authorization.
+	Name string `json:"name" msgpack:"name" bson:"name" mapstructure:"name,omitempty"`
+
 	// The namespace of the object.
 	Namespace string `json:"namespace" msgpack:"namespace" bson:"namespace" mapstructure:"namespace,omitempty"`
 
@@ -168,6 +171,7 @@ func (o *Authorization) GetBSON() (interface{}, error) {
 	s.Disabled = o.Disabled
 	s.FlattenedSubject = o.FlattenedSubject
 	s.Hidden = o.Hidden
+	s.Name = o.Name
 	s.Namespace = o.Namespace
 	s.Permissions = o.Permissions
 	s.Propagate = o.Propagate
@@ -197,6 +201,7 @@ func (o *Authorization) SetBSON(raw bson.Raw) error {
 	o.Disabled = s.Disabled
 	o.FlattenedSubject = s.FlattenedSubject
 	o.Hidden = s.Hidden
+	o.Name = s.Name
 	o.Namespace = s.Namespace
 	o.Permissions = s.Permissions
 	o.Propagate = s.Propagate
@@ -309,6 +314,7 @@ func (o *Authorization) ToSparse(fields ...string) elemental.SparseIdentifiable 
 			Disabled:         &o.Disabled,
 			FlattenedSubject: &o.FlattenedSubject,
 			Hidden:           &o.Hidden,
+			Name:             &o.Name,
 			Namespace:        &o.Namespace,
 			Permissions:      &o.Permissions,
 			Propagate:        &o.Propagate,
@@ -331,6 +337,8 @@ func (o *Authorization) ToSparse(fields ...string) elemental.SparseIdentifiable 
 			sp.FlattenedSubject = &(o.FlattenedSubject)
 		case "hidden":
 			sp.Hidden = &(o.Hidden)
+		case "name":
+			sp.Name = &(o.Name)
 		case "namespace":
 			sp.Namespace = &(o.Namespace)
 		case "permissions":
@@ -371,6 +379,9 @@ func (o *Authorization) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.Hidden != nil {
 		o.Hidden = *so.Hidden
+	}
+	if so.Name != nil {
+		o.Name = *so.Name
 	}
 	if so.Namespace != nil {
 		o.Namespace = *so.Namespace
@@ -428,6 +439,10 @@ func (o *Authorization) Validate() error {
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
+	if err := elemental.ValidateRequiredString("name", o.Name); err != nil {
+		requiredErrors = requiredErrors.Append(err)
+	}
+
 	if err := elemental.ValidateRequiredExternal("permissions", o.Permissions); err != nil {
 		requiredErrors = requiredErrors.Append(err)
 	}
@@ -478,6 +493,8 @@ func (o *Authorization) ValueForAttribute(name string) interface{} {
 		return o.FlattenedSubject
 	case "hidden":
 		return o.Hidden
+	case "name":
+		return o.Name
 	case "namespace":
 		return o.Namespace
 	case "permissions":
@@ -546,6 +563,17 @@ var AuthorizationAttributesMap = map[string]elemental.AttributeSpecification{
 		Name:           "hidden",
 		Stored:         true,
 		Type:           "boolean",
+	},
+	"Name": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "name",
+		ConvertedName:  "Name",
+		Description:    `The name of the Authorization.`,
+		Exposed:        true,
+		Name:           "name",
+		Required:       true,
+		Stored:         true,
+		Type:           "string",
 	},
 	"Namespace": {
 		AllowedChoices: []string{},
@@ -698,6 +726,17 @@ var AuthorizationLowerCaseAttributesMap = map[string]elemental.AttributeSpecific
 		Name:           "hidden",
 		Stored:         true,
 		Type:           "boolean",
+	},
+	"name": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "name",
+		ConvertedName:  "Name",
+		Description:    `The name of the Authorization.`,
+		Exposed:        true,
+		Name:           "name",
+		Required:       true,
+		Stored:         true,
+		Type:           "string",
 	},
 	"namespace": {
 		AllowedChoices: []string{},
@@ -878,6 +917,9 @@ type SparseAuthorization struct {
 	// Hides the policies in children namespaces.
 	Hidden *bool `json:"hidden,omitempty" msgpack:"hidden,omitempty" bson:"hidden,omitempty" mapstructure:"hidden,omitempty"`
 
+	// The name of the Authorization.
+	Name *string `json:"name,omitempty" msgpack:"name,omitempty" bson:"name,omitempty" mapstructure:"name,omitempty"`
+
 	// The namespace of the object.
 	Namespace *string `json:"namespace,omitempty" msgpack:"namespace,omitempty" bson:"namespace,omitempty" mapstructure:"namespace,omitempty"`
 
@@ -959,6 +1001,9 @@ func (o *SparseAuthorization) GetBSON() (interface{}, error) {
 	if o.Hidden != nil {
 		s.Hidden = o.Hidden
 	}
+	if o.Name != nil {
+		s.Name = o.Name
+	}
 	if o.Namespace != nil {
 		s.Namespace = o.Namespace
 	}
@@ -1011,6 +1056,9 @@ func (o *SparseAuthorization) SetBSON(raw bson.Raw) error {
 	if s.Hidden != nil {
 		o.Hidden = s.Hidden
 	}
+	if s.Name != nil {
+		o.Name = s.Name
+	}
 	if s.Namespace != nil {
 		o.Namespace = s.Namespace
 	}
@@ -1060,6 +1108,9 @@ func (o *SparseAuthorization) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.Hidden != nil {
 		out.Hidden = *o.Hidden
+	}
+	if o.Name != nil {
+		out.Name = *o.Name
 	}
 	if o.Namespace != nil {
 		out.Namespace = *o.Namespace
@@ -1198,6 +1249,7 @@ type mongoAttributesAuthorization struct {
 	Disabled         bool          `bson:"disabled"`
 	FlattenedSubject []string      `bson:"flattenedsubject"`
 	Hidden           bool          `bson:"hidden"`
+	Name             string        `bson:"name"`
 	Namespace        string        `bson:"namespace"`
 	Permissions      []string      `bson:"permissions"`
 	Propagate        bool          `bson:"propagate"`
@@ -1212,6 +1264,7 @@ type mongoAttributesSparseAuthorization struct {
 	Disabled         *bool         `bson:"disabled,omitempty"`
 	FlattenedSubject *[]string     `bson:"flattenedsubject,omitempty"`
 	Hidden           *bool         `bson:"hidden,omitempty"`
+	Name             *string       `bson:"name,omitempty"`
 	Namespace        *string       `bson:"namespace,omitempty"`
 	Permissions      *[]string     `bson:"permissions,omitempty"`
 	Propagate        *bool         `bson:"propagate,omitempty"`

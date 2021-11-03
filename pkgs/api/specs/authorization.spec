@@ -48,6 +48,14 @@ attributes:
     exposed: true
     stored: true
 
+  - name: name
+    description: The name of the Authorization.
+    type: string
+    exposed: true
+    stored: true
+    required: true
+    example_value: my authorization
+
   - name: permissions
     description: A list of permissions.
     type: list
