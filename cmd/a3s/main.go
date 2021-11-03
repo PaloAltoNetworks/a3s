@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/tls"
 	"errors"
+	"fmt"
 	"net/http"
 
 	"go.aporeto.io/a3s/internal/srv/authn"
@@ -11,6 +12,7 @@ import (
 	"go.aporeto.io/a3s/pkgs/api"
 	"go.aporeto.io/a3s/pkgs/authenticator"
 	"go.aporeto.io/a3s/pkgs/bootstrap"
+	"go.aporeto.io/a3s/pkgs/indexes"
 	"go.aporeto.io/bahamut"
 	"go.aporeto.io/elemental"
 	"go.aporeto.io/manipulate"
@@ -31,7 +33,12 @@ func main() {
 	}
 
 	manipulator := bootstrap.MakeMongoManipulator(cfg.MongoConf)
-	// db.Bootstrap(manipulator, serviceName)
+	if err := indexes.Ensure(manipulator, api.Manager(), "a3s"); err != nil {
+		zap.L().Fatal("Unable to ensure indexes", zap.Error(err))
+	}
+	if err := createRootNamespaceIfNeeded(manipulator); err != nil {
+		zap.L().Fatal("Unable to handle root namespace", zap.Error(err))
+	}
 
 	jwtCert, _, err := cfg.AuthNConf.JWTCertificate()
 	if err != nil {
@@ -78,9 +85,47 @@ func errorTransformer(err error) error {
 		return elemental.NewError("Not Found", err.Error(), "a3s", http.StatusNotFound)
 	}
 
+	if errors.As(err, &manipulate.ErrConstraintViolation{}) {
+		return elemental.NewError("Constraint Violation", err.Error(), "a3s", http.StatusUnprocessableEntity)
+	}
+
 	if errors.As(err, &manipulate.ErrCannotCommunicate{}) {
 		return elemental.NewError("Communication Error", err.Error(), "a3s", http.StatusServiceUnavailable)
 	}
 
 	return err
+}
+
+func createRootNamespaceIfNeeded(m manipulate.Manipulator) error {
+
+	mctx := manipulate.NewContext(context.Background(),
+		manipulate.ContextOptionFilter(
+			elemental.NewFilterComposer().
+				WithKey("name").Equals("/").
+				Done(),
+		),
+	)
+
+	c, err := m.Count(mctx, api.NamespaceIdentity)
+	if err != nil {
+		return fmt.Errorf("unable to check if root namespace exists: %w", err)
+	}
+
+	if c == 1 {
+		return nil
+	}
+
+	if c > 1 {
+		panic("more than one namespace / found")
+	}
+
+	ns := api.NewNamespace()
+	ns.Name = "/"
+	ns.Namespace = "root"
+
+	if err := m.Create(nil, ns); err != nil {
+		return fmt.Errorf("unable to create root namespace: %w", err)
+	}
+
+	return nil
 }
