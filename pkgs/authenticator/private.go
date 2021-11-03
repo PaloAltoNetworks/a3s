@@ -10,7 +10,7 @@ import (
 	"go.aporeto.io/elemental"
 )
 
-// A Private is a bahamut.Private compliant structure to authentify
+// A Private is a bahamut.Authenticator compliant structure to authentify
 // requests using a a3s token.
 type Private struct {
 	jwtCert *x509.Certificate
