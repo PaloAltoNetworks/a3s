@@ -41,7 +41,12 @@ func (p *NamespacesProcessor) ProcessCreate(bctx bahamut.Context) error {
 		)
 	}
 
-	ns.Name = strings.Join([]string{bctx.Request().Namespace, ns.Name}, "/")
+	rns := bctx.Request().Namespace
+	if rns == "/" {
+		rns = ""
+	}
+
+	ns.Name = strings.Join([]string{rns, ns.Name}, "/")
 
 	return crud.Create(bctx, p.manipulator, ns, crud.OptionPostWriteHook(p.makeNotify()))
 }

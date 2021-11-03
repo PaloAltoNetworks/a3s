@@ -17,7 +17,7 @@ func Ensure(m manipulate.Manipulator, model elemental.ModelManager, packageName 
 
 	for ident, mIndexes := range indexes {
 		if err = manipmongo.EnsureIndex(m, ident, mIndexes...); err != nil {
-			zap.L().Warn("Unable to create index", zap.Error(err))
+			zap.L().Warn("Unable to ensure index", zap.Error(err))
 		}
 	}
 
