@@ -26,7 +26,7 @@ func NewPrivate(cert *x509.Certificate) *Private {
 // AuthenticateSession authenticates the given session.
 func (a *Private) AuthenticateSession(session bahamut.Session) (bahamut.AuthAction, error) {
 
-	action, claims, err := a.commonAuth(getSessionToken(session))
+	action, claims, err := a.commonAuth(token.FromSession(session))
 	if err != nil {
 		return bahamut.AuthActionKO, err
 	}
@@ -39,7 +39,7 @@ func (a *Private) AuthenticateSession(session bahamut.Session) (bahamut.AuthActi
 // AuthenticateRequest authenticates the request from the given bahamut.Context.
 func (a *Private) AuthenticateRequest(bctx bahamut.Context) (bahamut.AuthAction, error) {
 
-	token := getToken(bctx.Request())
+	token := token.FromRequest(bctx.Request())
 
 	action, claims, err := a.commonAuth(token)
 	if err != nil {
@@ -73,20 +73,4 @@ func (a *Private) commonAuth(tokenString string) (bahamut.AuthAction, []string, 
 	}
 
 	return bahamut.AuthActionContinue, mc.Identity, nil
-}
-
-func getToken(req *elemental.Request) string {
-	if hreq := req.HTTPRequest(); hreq != nil {
-		if cookie, err := hreq.Cookie("x-a3s-token"); err == nil {
-			return cookie.Value
-		}
-	}
-	return req.Password
-}
-
-func getSessionToken(session bahamut.Session) string {
-	if cookie, err := session.Cookie("x-a3s-token"); err == nil {
-		return cookie.Value
-	}
-	return session.Token()
 }

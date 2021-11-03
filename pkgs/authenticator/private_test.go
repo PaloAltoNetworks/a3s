@@ -3,7 +3,6 @@ package authenticator
 import (
 	"context"
 	"crypto"
-	"crypto/tls"
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"encoding/pem"
@@ -47,31 +46,6 @@ func makeToken(claims *token.IdentityToken, signMethod jwt.SigningMethod, key cr
 	}
 	return t
 }
-
-type mockSession struct {
-	token   string
-	cookies map[string]*http.Cookie
-}
-
-func (s *mockSession) Cookie(c string) (*http.Cookie, error) {
-	if s.cookies == nil {
-		return nil, http.ErrNoCookie
-	}
-	return s.cookies[c], nil
-}
-func (s *mockSession) Identifier() string                       { return "" }
-func (s *mockSession) Parameter(string) string                  { return "" }
-func (s *mockSession) Header(string) string                     { return "" }
-func (s *mockSession) PushConfig() *elemental.PushConfig        { return nil }
-func (s *mockSession) SetClaims([]string)                       {}
-func (s *mockSession) Claims() []string                         { return nil }
-func (s *mockSession) ClaimsMap() map[string]string             { return nil }
-func (s *mockSession) Token() string                            { return s.token }
-func (s *mockSession) TLSConnectionState() *tls.ConnectionState { return nil }
-func (s *mockSession) Metadata() interface{}                    { return nil }
-func (s *mockSession) SetMetadata(interface{})                  {}
-func (s *mockSession) Context() context.Context                 { return context.Background() }
-func (s *mockSession) ClientIP() string                         { return "" }
 
 func TestNewAuthenticator(t *testing.T) {
 
@@ -161,13 +135,12 @@ func TestAuthenticateSession(t *testing.T) {
 
 		Convey("Calling AuthenticateSession on a session that has a valid token should work", func() {
 
-			session := &mockSession{
-				token: makeToken(
-					&token.IdentityToken{Identity: []string{"color=blue"}},
-					jwt.SigningMethodES256,
-					k,
-				),
-			}
+			session := bahamut.NewMockSession()
+			session.MockToken = makeToken(
+				&token.IdentityToken{Identity: []string{"color=blue"}},
+				jwt.SigningMethodES256,
+				k,
+			)
 
 			action, err := a.AuthenticateSession(session)
 
@@ -177,16 +150,15 @@ func TestAuthenticateSession(t *testing.T) {
 
 		Convey("Call AuthenticateSession with a valid token in cookies should work", func() {
 
-			session := &mockSession{
-				cookies: map[string]*http.Cookie{
-					"x-a3s-token": {
-						Name: "x-a3s-token",
-						Value: makeToken(
-							&token.IdentityToken{Identity: []string{"color=blue"}},
-							jwt.SigningMethodES256,
-							k,
-						),
-					},
+			session := bahamut.NewMockSession()
+			session.MockCookies = map[string]*http.Cookie{
+				"x-a3s-token": {
+					Name: "x-a3s-token",
+					Value: makeToken(
+						&token.IdentityToken{Identity: []string{"color=blue"}},
+						jwt.SigningMethodES256,
+						k,
+					),
 				},
 			}
 
@@ -198,13 +170,12 @@ func TestAuthenticateSession(t *testing.T) {
 
 		Convey("Calling AuthenticateSession on a session that has a invalid token should fail", func() {
 
-			session := &mockSession{
-				token: makeToken(
-					&token.IdentityToken{Identity: []string{"color=blue"}},
-					jwt.SigningMethodES256,
-					k2,
-				),
-			}
+			session := bahamut.NewMockSession()
+			session.MockToken = makeToken(
+				&token.IdentityToken{Identity: []string{"color=blue"}},
+				jwt.SigningMethodES256,
+				k2,
+			)
 
 			action, err := a.AuthenticateSession(session)
 

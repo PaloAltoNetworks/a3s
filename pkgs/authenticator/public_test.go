@@ -36,7 +36,7 @@ func TestPublicAuthenticateSession(t *testing.T) {
 
 		Convey("Calling AuthenticateSession should always work", func() {
 
-			session := &mockSession{}
+			session := bahamut.NewMockSession()
 			action, err := a.AuthenticateSession(session)
 			So(err, ShouldBeNil)
 			So(action, ShouldEqual, bahamut.AuthActionContinue)
