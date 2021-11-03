@@ -1,5 +1,9 @@
 package permissions
 
+import (
+	"strings"
+)
+
 // Permissions represents a parsed permission string.
 type Permissions map[string]bool
 
@@ -176,4 +180,58 @@ func IsAllowed(perms PermissionMap, operation string, resource string) bool {
 	}
 
 	return false
+}
+
+// Parse parses the given list of permission string in the form
+// resource,action1,action2:targetID1,targetID2 and returns the
+// PermissionMap.
+func Parse(authStrings []string, targetID string) PermissionMap {
+
+	auths := PermissionMap{}
+
+	for _, item := range authStrings {
+
+		if strings.Contains(item, ":") {
+			// Format identity,get,post:id
+
+			// We did not receive any targetID, so this rule does not apply.
+			if targetID == "" {
+				continue
+			}
+
+			var tids []string
+			if parts := strings.SplitN(item, ":", 2); len(parts) == 2 {
+				tids = strings.Split(parts[1], ",")
+				item = parts[0]
+			}
+
+			accept := false
+			for _, tid := range tids {
+				if tid == targetID {
+					accept = true
+				}
+			}
+
+			if !accept {
+				continue
+			}
+		}
+
+		// item is now of form: identity,get,post...
+
+		parts := strings.Split(item, ",")
+		if len(parts) < 2 {
+			continue
+		}
+
+		if _, ok := auths[parts[0]]; !ok {
+			auths[parts[0]] = map[string]bool{}
+		}
+
+		for _, decorator := range parts[1:] {
+			auths[parts[0]][decorator] = true
+		}
+	}
+
+	return auths
 }

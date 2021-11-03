@@ -655,3 +655,115 @@ func TestCopy(t *testing.T) {
 		})
 	}
 }
+
+func TestParse(t *testing.T) {
+	type args struct {
+		perms    []string
+		targetID string
+	}
+	tests := []struct {
+		name string
+		args args
+		want PermissionMap
+	}{
+
+		{
+			"simple unique permission",
+			args{
+				[]string{
+					"api1,get,post",
+				},
+				"",
+			},
+			PermissionMap{
+				"api1": {"get": true, "post": true},
+			},
+		},
+		{
+			"simple double permissions",
+			args{
+				[]string{
+					"api1,get,post",
+					"api2,get",
+				},
+				"",
+			},
+			PermissionMap{
+				"api1": {"get": true, "post": true},
+				"api2": {"get": true},
+			},
+		},
+		{
+			"simple overlapping permissions",
+			args{
+				[]string{
+					"api1,get,post",
+					"api1,delete",
+				},
+				"",
+			},
+			PermissionMap{
+				"api1": {"get": true, "post": true, "delete": true},
+			},
+		},
+		{
+			"check with empty targetID",
+			args{
+				[]string{
+					"api1,get,post:",
+					"api1,delete",
+				},
+				"",
+			},
+			PermissionMap{
+				"api1": {"delete": true},
+			},
+		},
+		{
+			"check with matching targetID",
+			args{
+				[]string{
+					"api1,get,post:xxx",
+					"api1,delete",
+				},
+				"xxx",
+			},
+			PermissionMap{
+				"api1": {"get": true, "post": true, "delete": true},
+			},
+		},
+		{
+			"check with on matching targetID and one not matching",
+			args{
+				[]string{
+					"api1,get,post:yyy,xxx",
+					"api1,delete",
+				},
+				"xxx",
+			},
+			PermissionMap{
+				"api1": {"get": true, "post": true, "delete": true},
+			},
+		},
+		{
+			"check with not matching targetID",
+			args{
+				[]string{
+					"api1,get,post:xxx",
+					"api1,delete",
+				},
+				"zzz",
+			},
+			PermissionMap{
+				"api1": {"delete": true},
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := Parse(tt.args.perms, tt.args.targetID); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("ResolveRestrictions() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

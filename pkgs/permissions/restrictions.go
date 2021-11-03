@@ -98,10 +98,7 @@ func (r Restrictions) ComputePermissionsRestrictions(requested []string) ([]stri
 		return requested, nil
 	}
 
-	if !Contains(
-		ResolveRestrictions(Restrictions{Permissions: r.Permissions}),
-		ResolveRestrictions(Restrictions{Permissions: requested}),
-	) {
+	if !Contains(Parse(r.Permissions, ""), Parse(requested, "")) {
 		return nil, fmt.Errorf("the new permissions restrictions must not be broader than the existing ones")
 	}
 
@@ -122,27 +119,6 @@ func GetRestrictions(token string) (Restrictions, error) {
 		Permissions: perms,
 		Networks:    networks,
 	}, nil
-}
-
-// ResolveRestrictions resolves the given restrictions into a standard permission map.
-func ResolveRestrictions(restrictions Restrictions) PermissionMap {
-
-	resolved := PermissionMap{}
-
-	for _, perm := range restrictions.Permissions {
-
-		parts := strings.Split(perm, ",")
-
-		if _, ok := resolved[parts[0]]; !ok {
-			resolved[parts[0]] = Permissions{}
-		}
-
-		for _, r := range parts[1:] {
-			resolved[parts[0]][r] = true
-		}
-	}
-
-	return resolved
 }
 
 // ExtractRestrictions extracts the eventual authz restrictions embded in the token.
