@@ -7,6 +7,7 @@ import (
 
 	"go.aporeto.io/a3s/internal/conf"
 	"go.aporeto.io/a3s/pkgs/api"
+	"go.aporeto.io/a3s/pkgs/sharder"
 	"go.aporeto.io/bahamut"
 	"go.aporeto.io/elemental"
 	"go.aporeto.io/manipulate"
@@ -75,7 +76,7 @@ func MakeMongoManipulator(cfg conf.MongoConf, additionalOptions ...manipmongo.Op
 			manipmongo.OptionConnectionPoolLimit(cfg.MongoPoolSize),
 			manipmongo.OptionDefaultReadConsistencyMode(consistency),
 			manipmongo.OptionTranslateKeysFromModelManager(api.Manager()),
-			// manipmongo.OptionSharder(sharding.NewSharder()),
+			manipmongo.OptionSharder(sharder.New()),
 			manipmongo.OptionDefaultRetryFunc(func(i manipulate.RetryInfo) error {
 				info := i.(manipmongo.RetryInfo)
 				zap.L().Debug("mongo manipulator retry",
