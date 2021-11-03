@@ -15,6 +15,7 @@ model:
   delete:
     description: Delete a particular namespace object.
   extends:
+  - '@sharded'
   - '@identifiable'
 
 # Indexes

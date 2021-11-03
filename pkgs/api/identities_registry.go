@@ -23,12 +23,14 @@ var (
 		"authorization": {
 			{"namespace", "flattenedSubject", "disabled"},
 			{"namespace", "flattenedSubject", "propagate"},
+			{":shard", ":unique", "zone", "zHash"},
 			{"namespace"},
 			{"namespace", "ID"},
 		},
 		"issue": nil,
 		"namespace": {
 			{"namespace", "name"},
+			{":shard", ":unique", "zone", "zHash"},
 			{"namespace"},
 			{"namespace", "ID"},
 			{"name"},

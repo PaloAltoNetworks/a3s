@@ -15,6 +15,7 @@ model:
     global_parameters:
     - $queryable
   extends:
+  - '@sharded'
   - '@identifiable'
 
 # Indexes
