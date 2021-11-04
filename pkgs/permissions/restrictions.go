@@ -16,9 +16,9 @@ import (
 // that the policy engine should apply for authz based
 // on the token
 type Restrictions struct {
-	Namespace   string
-	Permissions []string
-	Networks    []string
+	Namespace   string   `json:"namespace"`
+	Permissions []string `json:"perms"`
+	Networks    []string `json:"networks"`
 }
 
 // ComputeNamespaceRestriction will return the namespace to use based on the
