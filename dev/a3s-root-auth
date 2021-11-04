@@ -1,0 +1,13 @@
+#!/bin/bash
+
+cd "$(dirname "${BASH_SOURCE[0]}")" || exit
+
+./crl issue \
+	-X POST \
+	-d '{
+		"sourceType": "MTLS",
+		"sourceNamespace": "/",
+		"sourceName": "root"
+	}' \
+	--cert .data/certificates/user-cert.pem \
+	--key .data/certificates/user-key.pem

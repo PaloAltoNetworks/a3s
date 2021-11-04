@@ -54,6 +54,12 @@ folder, you can reinitialize the environment.
 
 All of a3s configuration is defined as env variables from `dev/env`
 
+Finally, you must initialize the root permissions. a3s has no exception or
+hardscoded credentials, so we must add an auth source and an authorization. To
+do so, you can run:
+
+    dev/a3s-run --init --init-root-ca dev/.data/certificates/ca-acme-cert.pem
+
 ### Start everything
 
 Once initialized, go to the `dev` folder and run:
