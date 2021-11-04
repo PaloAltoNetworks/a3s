@@ -1,21 +1,24 @@
 package issuer
 
 import (
+	"crypto/sha1"
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"fmt"
+	"strings"
 
 	"go.aporeto.io/a3s/pkgs/token"
 )
 
 // MTLSIssuer issues IdentityToken from a TLS certificate.
 type MTLSIssuer struct {
-	subject        pkix.Name
-	serialNumber   string
-	emailAddresses []string
-	dnsNames       []string
-	token          *token.IdentityToken
-	caPool         *x509.CertPool
+	subject            pkix.Name
+	serialNumber       string
+	emailAddresses     []string
+	dnsNames           []string
+	token              *token.IdentityToken
+	caPool             *x509.CertPool
+	signerFingerprints []string
 }
 
 // NewMTLSIssuer returns a new MTLSIssuer.
@@ -34,11 +37,21 @@ func NewMTLSIssuer(pool *x509.CertPool, sourceNamespace string, sourceName strin
 // FromCertificate prepares the issuer according to the provided x509.Certificate.
 func (c *MTLSIssuer) FromCertificate(certificate *x509.Certificate) error {
 
-	if _, err := certificate.Verify(x509.VerifyOptions{
+	chains, err := certificate.Verify(x509.VerifyOptions{
 		Roots:     c.caPool,
 		KeyUsages: []x509.ExtKeyUsage{x509.ExtKeyUsageClientAuth},
-	}); err != nil {
+	})
+	if err != nil {
 		return fmt.Errorf("unable Verify certificate: %w", err)
+	}
+
+	for _, chain := range chains {
+		for _, cert := range chain {
+			c.signerFingerprints = append(
+				c.signerFingerprints,
+				fmt.Sprintf("%02X", sha1.Sum(cert.Raw)),
+			)
+		}
 	}
 
 	c.subject = certificate.Subject
@@ -120,6 +133,12 @@ func (c *MTLSIssuer) Issue() *token.IdentityToken {
 		for _, v := range vs {
 			c.token.Identity = append(c.token.Identity, fmt.Sprintf("dnsname=%s", v))
 		}
+	}
+
+	if len(c.signerFingerprints) > 0 {
+		// if > 0 it is guaranteed to have at least 2 items.
+		c.token.Identity = append(c.token.Identity, fmt.Sprintf("fingerprint=%s", c.signerFingerprints[0]))
+		c.token.Identity = append(c.token.Identity, fmt.Sprintf("issuerchain=%s", strings.Join(c.signerFingerprints[1:], ",")))
 	}
 
 	return c.token

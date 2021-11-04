@@ -2,9 +2,11 @@ package issuer
 
 import (
 	"crypto"
+	"crypto/sha1"
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"encoding/pem"
+	"fmt"
 	"math/big"
 	"testing"
 
@@ -93,7 +95,7 @@ func TestMTLSIssuer(t *testing.T) {
 				Convey("Calling Issue should work", func() {
 
 					idt := iss.Issue()
-					So(len(idt.Identity), ShouldEqual, 19)
+					So(len(idt.Identity), ShouldEqual, 21)
 					So(idt.Identity, ShouldContain, "commonname=jean-mich")
 					So(idt.Identity, ShouldContain, "country=US")
 					So(idt.Identity, ShouldContain, "country=France")
@@ -111,6 +113,8 @@ func TestMTLSIssuer(t *testing.T) {
 					So(idt.Identity, ShouldContain, "streetaddress=13 Rue de Mogador")
 					So(idt.Identity, ShouldContain, "email=me@me.com")
 					So(idt.Identity, ShouldContain, "serialnumber=42")
+					So(idt.Identity, ShouldContain, fmt.Sprintf("fingerprint=%02X", sha1.Sum(usercert1.Raw)))
+					So(idt.Identity, ShouldContain, fmt.Sprintf("issuerchain=%02X", sha1.Sum(cacert1.Raw)))
 				})
 			})
 
