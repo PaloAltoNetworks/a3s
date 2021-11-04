@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	"go.aporeto.io/a3s/internal/srv/authn"
+	"go.aporeto.io/a3s/internal/srv/authz"
 	"go.aporeto.io/a3s/internal/srv/policy"
 	"go.aporeto.io/a3s/pkgs/api"
 	"go.aporeto.io/a3s/pkgs/authenticator"
@@ -23,6 +24,13 @@ import (
 	"go.aporeto.io/manipulate"
 	"go.aporeto.io/tg/tglib"
 	"go.uber.org/zap"
+)
+
+var (
+	publicResources = []string{
+		api.IssueIdentity.Category,
+		api.AuthzIdentity.Category,
+	}
 )
 
 func main() {
@@ -67,13 +75,11 @@ func main() {
 
 	pauthn := authenticator.NewPrivate(jwtCert)
 	retriever := permissions.NewRetriever(manipulator)
-	authz := authorizer.New(
+	pauthz := authorizer.New(
 		ctx,
 		retriever,
 		pubsub,
-		authorizer.OptionIgnoredResources(
-			api.IssueIdentity.Category,
-		),
+		authorizer.OptionIgnoredResources(publicResources...),
 	)
 
 	server := bahamut.New(
@@ -84,14 +90,14 @@ func main() {
 				pubsub,
 				nil,
 				[]bahamut.RequestAuthenticator{
-					authenticator.NewPublic(api.IssueIdentity.Name),
+					authenticator.NewPublic(publicResources...),
 					pauthn,
 				},
 				[]bahamut.SessionAuthenticator{
 					pauthn,
 				},
 				[]bahamut.Authorizer{
-					authz,
+					pauthz,
 				},
 			),
 			bahamut.OptMTLS(nil, tls.RequestClientCert),
@@ -105,6 +111,10 @@ func main() {
 	}
 
 	if err := policy.Init(ctx, cfg.PolicyConf, server, manipulator, retriever, pubsub); err != nil {
+		zap.L().Fatal("Unable to initialize policy module", zap.Error(err))
+	}
+
+	if err := authz.Init(ctx, server, manipulator, retriever); err != nil {
 		zap.L().Fatal("Unable to initialize policy module", zap.Error(err))
 	}
 

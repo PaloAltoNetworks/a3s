@@ -36,3 +36,7 @@ relations:
     description: Retrieves the list of namespaces.
   create:
     description: Creates a new namespace.
+
+- rest_name: authz
+  create:
+    description: Sends a authz request.
