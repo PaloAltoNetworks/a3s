@@ -2,6 +2,7 @@ package sharder
 
 import (
 	"context"
+	"fmt"
 	"reflect"
 	"testing"
 
@@ -57,6 +58,22 @@ func TestShard(t *testing.T) {
 			So(s.Shard(nil, nil, so), ShouldBeNil)
 			So(*so.Zone, ShouldEqual, 0)
 			So(*so.ZHash, ShouldEqual, hash(aString))
+		})
+
+		Convey("Then sharding an MTLSSource should work", func() {
+			o := api.NewMTLSSource()
+			o.Namespace = aString
+			o.Name = aString
+			So(s.Shard(nil, nil, o), ShouldBeNil)
+			So(o.Zone, ShouldEqual, 0)
+			So(o.ZHash, ShouldEqual, hash(fmt.Sprintf("%s:%s", aString, aString)))
+
+			so := api.NewSparseMTLSSource()
+			so.Namespace = &aString
+			so.Name = &aString
+			So(s.Shard(nil, nil, so), ShouldBeNil)
+			So(*so.Zone, ShouldEqual, 0)
+			So(o.ZHash, ShouldEqual, hash(fmt.Sprintf("%s:%s", aString, aString)))
 		})
 	})
 }

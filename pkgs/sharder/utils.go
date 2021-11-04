@@ -2,6 +2,7 @@ package sharder
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/spaolacci/murmur3"
 	"go.aporeto.io/a3s/pkgs/api"
@@ -45,6 +46,11 @@ func ApplyZoning(o elemental.Identifiable) error {
 		z.SetZHash(hash(oo.Name))
 	case *api.SparseNamespace:
 		z.SetZHash(hash(*oo.Name))
+
+	case *api.MTLSSource:
+		z.SetZHash(hash(fmt.Sprintf("%s:%s", oo.Namespace, oo.Name)))
+	case *api.SparseMTLSSource:
+		z.SetZHash(hash(fmt.Sprintf("%s:%s", *oo.Namespace, *oo.Name)))
 
 	default:
 		z.SetZHash(hash(oo.Identifier()))
