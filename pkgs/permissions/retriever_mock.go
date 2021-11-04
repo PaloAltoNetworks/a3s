@@ -23,7 +23,7 @@ type mockRetriever struct {
 	sync.Mutex
 }
 
-// MewMockRetriever returns a MockRetriever.
+// NewMockRetriever returns a MockRetriever.
 func NewMockRetriever() MockRetriever {
 	return &mockRetriever{
 		mocks: map[*testing.T]*mockedMethods{},

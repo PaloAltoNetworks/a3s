@@ -6,6 +6,7 @@ type config struct {
 	restrictions Restrictions
 }
 
+// A RetrieverOption represents an option of the retriver.
 type RetrieverOption func(*config)
 
 // OptionRetrieverID sets the ID to use to compute permissions.
