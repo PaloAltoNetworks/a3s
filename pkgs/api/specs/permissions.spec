@@ -1,11 +1,11 @@
 # Model
 model:
-  rest_name: authz
-  resource_name: authz
-  entity_name: Authz
+  rest_name: permissions
+  resource_name: permissions
+  entity_name: Permissions
   package: a3s
   group: authz
-  description: API to retrieve the permissions from a token.
+  description: API to retrieve the permissions from a user identity.
 
 # Attributes
 attributes:

@@ -5,19 +5,19 @@ import "go.aporeto.io/elemental"
 var (
 	identityNamesMap = map[string]elemental.Identity{
 		"authorization": AuthorizationIdentity,
-		"authz":         AuthzIdentity,
 		"issue":         IssueIdentity,
 		"mtlssource":    MTLSSourceIdentity,
 		"namespace":     NamespaceIdentity,
+		"permissions":   PermissionsIdentity,
 		"root":          RootIdentity,
 	}
 
 	identitycategoriesMap = map[string]elemental.Identity{
 		"authorizations": AuthorizationIdentity,
-		"authz":          AuthzIdentity,
 		"issue":          IssueIdentity,
 		"mtlssources":    MTLSSourceIdentity,
 		"namespaces":     NamespaceIdentity,
+		"permissions":    PermissionsIdentity,
 		"root":           RootIdentity,
 	}
 
@@ -31,7 +31,6 @@ var (
 			{"namespace"},
 			{"namespace", "ID"},
 		},
-		"authz": nil,
 		"issue": nil,
 		"mtlssource": {
 			{"namespace", "name"},
@@ -46,7 +45,8 @@ var (
 			{"namespace", "ID"},
 			{"name"},
 		},
-		"root": nil,
+		"permissions": nil,
+		"root":        nil,
 	}
 )
 
@@ -89,14 +89,14 @@ func (f modelManager) Identifiable(identity elemental.Identity) elemental.Identi
 
 	case AuthorizationIdentity:
 		return NewAuthorization()
-	case AuthzIdentity:
-		return NewAuthz()
 	case IssueIdentity:
 		return NewIssue()
 	case MTLSSourceIdentity:
 		return NewMTLSSource()
 	case NamespaceIdentity:
 		return NewNamespace()
+	case PermissionsIdentity:
+		return NewPermissions()
 	case RootIdentity:
 		return NewRoot()
 	default:
@@ -110,14 +110,14 @@ func (f modelManager) SparseIdentifiable(identity elemental.Identity) elemental.
 
 	case AuthorizationIdentity:
 		return NewSparseAuthorization()
-	case AuthzIdentity:
-		return NewSparseAuthz()
 	case IssueIdentity:
 		return NewSparseIssue()
 	case MTLSSourceIdentity:
 		return NewSparseMTLSSource()
 	case NamespaceIdentity:
 		return NewSparseNamespace()
+	case PermissionsIdentity:
+		return NewSparsePermissions()
 	default:
 		return nil
 	}
@@ -139,14 +139,14 @@ func (f modelManager) Identifiables(identity elemental.Identity) elemental.Ident
 
 	case AuthorizationIdentity:
 		return &AuthorizationsList{}
-	case AuthzIdentity:
-		return &AuthzsList{}
 	case IssueIdentity:
 		return &IssuesList{}
 	case MTLSSourceIdentity:
 		return &MTLSSourcesList{}
 	case NamespaceIdentity:
 		return &NamespacesList{}
+	case PermissionsIdentity:
+		return &PermissionsList{}
 	default:
 		return nil
 	}
@@ -158,14 +158,14 @@ func (f modelManager) SparseIdentifiables(identity elemental.Identity) elemental
 
 	case AuthorizationIdentity:
 		return &SparseAuthorizationsList{}
-	case AuthzIdentity:
-		return &SparseAuthzsList{}
 	case IssueIdentity:
 		return &SparseIssuesList{}
 	case MTLSSourceIdentity:
 		return &SparseMTLSSourcesList{}
 	case NamespaceIdentity:
 		return &SparseNamespacesList{}
+	case PermissionsIdentity:
+		return &SparsePermissionsList{}
 	default:
 		return nil
 	}
@@ -195,10 +195,10 @@ func AllIdentities() []elemental.Identity {
 
 	return []elemental.Identity{
 		AuthorizationIdentity,
-		AuthzIdentity,
 		IssueIdentity,
 		MTLSSourceIdentity,
 		NamespaceIdentity,
+		PermissionsIdentity,
 		RootIdentity,
 	}
 }
@@ -209,13 +209,13 @@ func AliasesForIdentity(identity elemental.Identity) []string {
 	switch identity {
 	case AuthorizationIdentity:
 		return []string{}
-	case AuthzIdentity:
-		return []string{}
 	case IssueIdentity:
 		return []string{}
 	case MTLSSourceIdentity:
 		return []string{}
 	case NamespaceIdentity:
+		return []string{}
+	case PermissionsIdentity:
 		return []string{}
 	case RootIdentity:
 		return []string{}

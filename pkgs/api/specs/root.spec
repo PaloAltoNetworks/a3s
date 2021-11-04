@@ -37,6 +37,6 @@ relations:
   create:
     description: Creates a new namespace.
 
-- rest_name: authz
+- rest_name: permissions
   create:
-    description: Sends a authz request.
+    description: Sends a permissions request.

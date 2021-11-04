@@ -84,9 +84,9 @@ The namespace of the object.
 
 ## authz
 
-### Authz
+### Permissions
 
-API to retrieve the permissions from a token.
+API to retrieve the permissions from a user identity.
 
 #### Example
 
@@ -112,9 +112,9 @@ API to retrieve the permissions from a token.
 
 #### Relations
 
-##### `POST /authz`
+##### `POST /permissions`
 
-Sends a authz request.
+Sends a permissions request.
 
 #### Attributes
 

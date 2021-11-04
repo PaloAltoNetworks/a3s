@@ -29,7 +29,7 @@ import (
 var (
 	publicResources = []string{
 		api.IssueIdentity.Category,
-		api.AuthzIdentity.Category,
+		api.PermissionsIdentity.Category,
 	}
 )
 

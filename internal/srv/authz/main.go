@@ -23,7 +23,7 @@ func Init(
 	// 	return err
 	// }
 
-	bahamut.RegisterProcessorOrDie(server, processors.NewAuthzProcessor(retriever), api.AuthzIdentity)
+	bahamut.RegisterProcessorOrDie(server, processors.NewPermissionsProcessor(retriever), api.PermissionsIdentity)
 
 	return nil
 }

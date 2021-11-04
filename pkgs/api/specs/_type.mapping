@@ -71,27 +71,6 @@ map[string]interface{}:
         }
       }
 
-map[string]string:
-  elemental:
-    type: map[string]string
-    init: map[string]string{}
-  jsonschema:
-    type: |-
-      {
-        "type": "object",
-        "additionalProperties": {
-          "type": "string"
-        }
-      }
-  openapi3:
-    type: |-
-      {
-        "type": "object",
-        "additionalProperties": {
-          "type": "string"
-        }
-      }
-
 map[string]map[string]bool:
   elemental:
     type: map[string]map[string]bool
@@ -116,5 +95,26 @@ map[string]map[string]bool:
           "additionalProperties": {
             "type": "boolean"
           }
+        }
+      }
+
+map[string]string:
+  elemental:
+    type: map[string]string
+    init: map[string]string{}
+  jsonschema:
+    type: |-
+      {
+        "type": "object",
+        "additionalProperties": {
+          "type": "string"
+        }
+      }
+  openapi3:
+    type: |-
+      {
+        "type": "object",
+        "additionalProperties": {
+          "type": "string"
         }
       }

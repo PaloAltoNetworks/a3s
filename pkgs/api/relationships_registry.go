@@ -39,12 +39,6 @@ func init() {
 		},
 	}
 
-	relationshipsRegistry[AuthzIdentity] = &elemental.Relationship{
-		Create: map[string]*elemental.RelationshipInfo{
-			"root": {},
-		},
-	}
-
 	relationshipsRegistry[IssueIdentity] = &elemental.Relationship{
 		Create: map[string]*elemental.RelationshipInfo{
 			"root": {
@@ -102,6 +96,12 @@ func init() {
 			"root": {},
 		},
 		Info: map[string]*elemental.RelationshipInfo{
+			"root": {},
+		},
+	}
+
+	relationshipsRegistry[PermissionsIdentity] = &elemental.Relationship{
+		Create: map[string]*elemental.RelationshipInfo{
 			"root": {},
 		},
 	}

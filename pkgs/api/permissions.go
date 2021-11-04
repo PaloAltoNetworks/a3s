@@ -8,43 +8,43 @@ import (
 	"go.aporeto.io/elemental"
 )
 
-// AuthzIdentity represents the Identity of the object.
-var AuthzIdentity = elemental.Identity{
-	Name:     "authz",
-	Category: "authz",
+// PermissionsIdentity represents the Identity of the object.
+var PermissionsIdentity = elemental.Identity{
+	Name:     "permissions",
+	Category: "permissions",
 	Package:  "a3s",
 	Private:  false,
 }
 
-// AuthzsList represents a list of Authzs
-type AuthzsList []*Authz
+// PermissionsList represents a list of Permissions
+type PermissionsList []*Permissions
 
 // Identity returns the identity of the objects in the list.
-func (o AuthzsList) Identity() elemental.Identity {
+func (o PermissionsList) Identity() elemental.Identity {
 
-	return AuthzIdentity
+	return PermissionsIdentity
 }
 
-// Copy returns a pointer to a copy the AuthzsList.
-func (o AuthzsList) Copy() elemental.Identifiables {
+// Copy returns a pointer to a copy the PermissionsList.
+func (o PermissionsList) Copy() elemental.Identifiables {
 
-	copy := append(AuthzsList{}, o...)
+	copy := append(PermissionsList{}, o...)
 	return &copy
 }
 
-// Append appends the objects to the a new copy of the AuthzsList.
-func (o AuthzsList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
+// Append appends the objects to the a new copy of the PermissionsList.
+func (o PermissionsList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(AuthzsList{}, o...)
+	out := append(PermissionsList{}, o...)
 	for _, obj := range objects {
-		out = append(out, obj.(*Authz))
+		out = append(out, obj.(*Permissions))
 	}
 
 	return out
 }
 
 // List converts the object to an elemental.IdentifiablesList.
-func (o AuthzsList) List() elemental.IdentifiablesList {
+func (o PermissionsList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
 	for i := 0; i < len(o); i++ {
@@ -55,31 +55,31 @@ func (o AuthzsList) List() elemental.IdentifiablesList {
 }
 
 // DefaultOrder returns the default ordering fields of the content.
-func (o AuthzsList) DefaultOrder() []string {
+func (o PermissionsList) DefaultOrder() []string {
 
 	return []string{}
 }
 
-// ToSparse returns the AuthzsList converted to SparseAuthzsList.
+// ToSparse returns the PermissionsList converted to SparsePermissionsList.
 // Objects in the list will only contain the given fields. No field means entire field set.
-func (o AuthzsList) ToSparse(fields ...string) elemental.Identifiables {
+func (o PermissionsList) ToSparse(fields ...string) elemental.Identifiables {
 
-	out := make(SparseAuthzsList, len(o))
+	out := make(SparsePermissionsList, len(o))
 	for i := 0; i < len(o); i++ {
-		out[i] = o[i].ToSparse(fields...).(*SparseAuthz)
+		out[i] = o[i].ToSparse(fields...).(*SparsePermissions)
 	}
 
 	return out
 }
 
 // Version returns the version of the content.
-func (o AuthzsList) Version() int {
+func (o PermissionsList) Version() int {
 
 	return 1
 }
 
-// Authz represents the model of a authz
-type Authz struct {
+// Permissions represents the model of a permissions
+type Permissions struct {
 	// The list of claims.
 	Claims []string `json:"claims" msgpack:"claims" bson:"-" mapstructure:"claims,omitempty"`
 
@@ -110,10 +110,10 @@ type Authz struct {
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
 }
 
-// NewAuthz returns a new *Authz
-func NewAuthz() *Authz {
+// NewPermissions returns a new *Permissions
+func NewPermissions() *Permissions {
 
-	return &Authz{
+	return &Permissions{
 		ModelVersion:          1,
 		Claims:                []string{},
 		Permissions:           map[string]map[string]bool{},
@@ -123,44 +123,44 @@ func NewAuthz() *Authz {
 }
 
 // Identity returns the Identity of the object.
-func (o *Authz) Identity() elemental.Identity {
+func (o *Permissions) Identity() elemental.Identity {
 
-	return AuthzIdentity
+	return PermissionsIdentity
 }
 
 // Identifier returns the value of the object's unique identifier.
-func (o *Authz) Identifier() string {
+func (o *Permissions) Identifier() string {
 
 	return ""
 }
 
 // SetIdentifier sets the value of the object's unique identifier.
-func (o *Authz) SetIdentifier(id string) {
+func (o *Permissions) SetIdentifier(id string) {
 
 }
 
 // GetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *Authz) GetBSON() (interface{}, error) {
+func (o *Permissions) GetBSON() (interface{}, error) {
 
 	if o == nil {
 		return nil, nil
 	}
 
-	s := &mongoAttributesAuthz{}
+	s := &mongoAttributesPermissions{}
 
 	return s, nil
 }
 
 // SetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *Authz) SetBSON(raw bson.Raw) error {
+func (o *Permissions) SetBSON(raw bson.Raw) error {
 
 	if o == nil {
 		return nil
 	}
 
-	s := &mongoAttributesAuthz{}
+	s := &mongoAttributesPermissions{}
 	if err := raw.Unmarshal(s); err != nil {
 		return err
 	}
@@ -169,41 +169,41 @@ func (o *Authz) SetBSON(raw bson.Raw) error {
 }
 
 // Version returns the hardcoded version of the model.
-func (o *Authz) Version() int {
+func (o *Permissions) Version() int {
 
 	return 1
 }
 
 // BleveType implements the bleve.Classifier Interface.
-func (o *Authz) BleveType() string {
+func (o *Permissions) BleveType() string {
 
-	return "authz"
+	return "permissions"
 }
 
 // DefaultOrder returns the list of default ordering fields.
-func (o *Authz) DefaultOrder() []string {
+func (o *Permissions) DefaultOrder() []string {
 
 	return []string{}
 }
 
 // Doc returns the documentation for the object
-func (o *Authz) Doc() string {
+func (o *Permissions) Doc() string {
 
-	return `API to retrieve the permissions from a token.`
+	return `API to retrieve the permissions from a user identity.`
 }
 
-func (o *Authz) String() string {
+func (o *Permissions) String() string {
 
 	return fmt.Sprintf("<%s:%s>", o.Identity().Name, o.Identifier())
 }
 
 // ToSparse returns the sparse version of the model.
 // The returned object will only contain the given fields. No field means entire field set.
-func (o *Authz) ToSparse(fields ...string) elemental.SparseIdentifiable {
+func (o *Permissions) ToSparse(fields ...string) elemental.SparseIdentifiable {
 
 	if len(fields) == 0 {
 		// nolint: goimports
-		return &SparseAuthz{
+		return &SparsePermissions{
 			Claims:                &o.Claims,
 			ClientIP:              &o.ClientIP,
 			Error:                 &o.Error,
@@ -216,7 +216,7 @@ func (o *Authz) ToSparse(fields ...string) elemental.SparseIdentifiable {
 		}
 	}
 
-	sp := &SparseAuthz{}
+	sp := &SparsePermissions{}
 	for _, f := range fields {
 		switch f {
 		case "claims":
@@ -243,13 +243,13 @@ func (o *Authz) ToSparse(fields ...string) elemental.SparseIdentifiable {
 	return sp
 }
 
-// Patch apply the non nil value of a *SparseAuthz to the object.
-func (o *Authz) Patch(sparse elemental.SparseIdentifiable) {
+// Patch apply the non nil value of a *SparsePermissions to the object.
+func (o *Permissions) Patch(sparse elemental.SparseIdentifiable) {
 	if !sparse.Identity().IsEqual(o.Identity()) {
 		panic("cannot patch from a parse with different identity")
 	}
 
-	so := sparse.(*SparseAuthz)
+	so := sparse.(*SparsePermissions)
 	if so.Claims != nil {
 		o.Claims = *so.Claims
 	}
@@ -279,32 +279,32 @@ func (o *Authz) Patch(sparse elemental.SparseIdentifiable) {
 	}
 }
 
-// DeepCopy returns a deep copy if the Authz.
-func (o *Authz) DeepCopy() *Authz {
+// DeepCopy returns a deep copy if the Permissions.
+func (o *Permissions) DeepCopy() *Permissions {
 
 	if o == nil {
 		return nil
 	}
 
-	out := &Authz{}
+	out := &Permissions{}
 	o.DeepCopyInto(out)
 
 	return out
 }
 
-// DeepCopyInto copies the receiver into the given *Authz.
-func (o *Authz) DeepCopyInto(out *Authz) {
+// DeepCopyInto copies the receiver into the given *Permissions.
+func (o *Permissions) DeepCopyInto(out *Permissions) {
 
 	target, err := copystructure.Copy(o)
 	if err != nil {
-		panic(fmt.Sprintf("Unable to deepcopy Authz: %s", err))
+		panic(fmt.Sprintf("Unable to deepcopy Permissions: %s", err))
 	}
 
-	*out = *target.(*Authz)
+	*out = *target.(*Permissions)
 }
 
 // Validate valides the current information stored into the structure.
-func (o *Authz) Validate() error {
+func (o *Permissions) Validate() error {
 
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
@@ -329,26 +329,26 @@ func (o *Authz) Validate() error {
 }
 
 // SpecificationForAttribute returns the AttributeSpecification for the given attribute name key.
-func (*Authz) SpecificationForAttribute(name string) elemental.AttributeSpecification {
+func (*Permissions) SpecificationForAttribute(name string) elemental.AttributeSpecification {
 
-	if v, ok := AuthzAttributesMap[name]; ok {
+	if v, ok := PermissionsAttributesMap[name]; ok {
 		return v
 	}
 
 	// We could not find it, so let's check on the lower case indexed spec map
-	return AuthzLowerCaseAttributesMap[name]
+	return PermissionsLowerCaseAttributesMap[name]
 }
 
 // AttributeSpecifications returns the full attribute specifications map.
-func (*Authz) AttributeSpecifications() map[string]elemental.AttributeSpecification {
+func (*Permissions) AttributeSpecifications() map[string]elemental.AttributeSpecification {
 
-	return AuthzAttributesMap
+	return PermissionsAttributesMap
 }
 
 // ValueForAttribute returns the value for the given attribute.
 // This is a very advanced function that you should not need but in some
 // very specific use cases.
-func (o *Authz) ValueForAttribute(name string) interface{} {
+func (o *Permissions) ValueForAttribute(name string) interface{} {
 
 	switch name {
 	case "claims":
@@ -374,8 +374,8 @@ func (o *Authz) ValueForAttribute(name string) interface{} {
 	return nil
 }
 
-// AuthzAttributesMap represents the map of attribute for Authz.
-var AuthzAttributesMap = map[string]elemental.AttributeSpecification{
+// PermissionsAttributesMap represents the map of attribute for Permissions.
+var PermissionsAttributesMap = map[string]elemental.AttributeSpecification{
 	"Claims": {
 		AllowedChoices: []string{},
 		ConvertedName:  "Claims",
@@ -460,8 +460,8 @@ var AuthzAttributesMap = map[string]elemental.AttributeSpecification{
 	},
 }
 
-// AuthzLowerCaseAttributesMap represents the map of attribute for Authz.
-var AuthzLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
+// PermissionsLowerCaseAttributesMap represents the map of attribute for Permissions.
+var PermissionsLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
 	"claims": {
 		AllowedChoices: []string{},
 		ConvertedName:  "Claims",
@@ -546,35 +546,35 @@ var AuthzLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
 	},
 }
 
-// SparseAuthzsList represents a list of SparseAuthzs
-type SparseAuthzsList []*SparseAuthz
+// SparsePermissionsList represents a list of SparsePermissions
+type SparsePermissionsList []*SparsePermissions
 
 // Identity returns the identity of the objects in the list.
-func (o SparseAuthzsList) Identity() elemental.Identity {
+func (o SparsePermissionsList) Identity() elemental.Identity {
 
-	return AuthzIdentity
+	return PermissionsIdentity
 }
 
-// Copy returns a pointer to a copy the SparseAuthzsList.
-func (o SparseAuthzsList) Copy() elemental.Identifiables {
+// Copy returns a pointer to a copy the SparsePermissionsList.
+func (o SparsePermissionsList) Copy() elemental.Identifiables {
 
-	copy := append(SparseAuthzsList{}, o...)
+	copy := append(SparsePermissionsList{}, o...)
 	return &copy
 }
 
-// Append appends the objects to the a new copy of the SparseAuthzsList.
-func (o SparseAuthzsList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
+// Append appends the objects to the a new copy of the SparsePermissionsList.
+func (o SparsePermissionsList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(SparseAuthzsList{}, o...)
+	out := append(SparsePermissionsList{}, o...)
 	for _, obj := range objects {
-		out = append(out, obj.(*SparseAuthz))
+		out = append(out, obj.(*SparsePermissions))
 	}
 
 	return out
 }
 
 // List converts the object to an elemental.IdentifiablesList.
-func (o SparseAuthzsList) List() elemental.IdentifiablesList {
+func (o SparsePermissionsList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
 	for i := 0; i < len(o); i++ {
@@ -585,13 +585,13 @@ func (o SparseAuthzsList) List() elemental.IdentifiablesList {
 }
 
 // DefaultOrder returns the default ordering fields of the content.
-func (o SparseAuthzsList) DefaultOrder() []string {
+func (o SparsePermissionsList) DefaultOrder() []string {
 
 	return []string{}
 }
 
-// ToPlain returns the SparseAuthzsList converted to AuthzsList.
-func (o SparseAuthzsList) ToPlain() elemental.IdentifiablesList {
+// ToPlain returns the SparsePermissionsList converted to PermissionsList.
+func (o SparsePermissionsList) ToPlain() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
 	for i := 0; i < len(o); i++ {
@@ -602,13 +602,13 @@ func (o SparseAuthzsList) ToPlain() elemental.IdentifiablesList {
 }
 
 // Version returns the version of the content.
-func (o SparseAuthzsList) Version() int {
+func (o SparsePermissionsList) Version() int {
 
 	return 1
 }
 
-// SparseAuthz represents the sparse version of a authz.
-type SparseAuthz struct {
+// SparsePermissions represents the sparse version of a permissions.
+type SparsePermissions struct {
 	// The list of claims.
 	Claims *[]string `json:"claims,omitempty" msgpack:"claims,omitempty" bson:"-" mapstructure:"claims,omitempty"`
 
@@ -639,50 +639,50 @@ type SparseAuthz struct {
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
 }
 
-// NewSparseAuthz returns a new  SparseAuthz.
-func NewSparseAuthz() *SparseAuthz {
-	return &SparseAuthz{}
+// NewSparsePermissions returns a new  SparsePermissions.
+func NewSparsePermissions() *SparsePermissions {
+	return &SparsePermissions{}
 }
 
 // Identity returns the Identity of the sparse object.
-func (o *SparseAuthz) Identity() elemental.Identity {
+func (o *SparsePermissions) Identity() elemental.Identity {
 
-	return AuthzIdentity
+	return PermissionsIdentity
 }
 
 // Identifier returns the value of the sparse object's unique identifier.
-func (o *SparseAuthz) Identifier() string {
+func (o *SparsePermissions) Identifier() string {
 
 	return ""
 }
 
 // SetIdentifier sets the value of the sparse object's unique identifier.
-func (o *SparseAuthz) SetIdentifier(id string) {
+func (o *SparsePermissions) SetIdentifier(id string) {
 
 }
 
 // GetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *SparseAuthz) GetBSON() (interface{}, error) {
+func (o *SparsePermissions) GetBSON() (interface{}, error) {
 
 	if o == nil {
 		return nil, nil
 	}
 
-	s := &mongoAttributesSparseAuthz{}
+	s := &mongoAttributesSparsePermissions{}
 
 	return s, nil
 }
 
 // SetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *SparseAuthz) SetBSON(raw bson.Raw) error {
+func (o *SparsePermissions) SetBSON(raw bson.Raw) error {
 
 	if o == nil {
 		return nil
 	}
 
-	s := &mongoAttributesSparseAuthz{}
+	s := &mongoAttributesSparsePermissions{}
 	if err := raw.Unmarshal(s); err != nil {
 		return err
 	}
@@ -691,15 +691,15 @@ func (o *SparseAuthz) SetBSON(raw bson.Raw) error {
 }
 
 // Version returns the hardcoded version of the model.
-func (o *SparseAuthz) Version() int {
+func (o *SparsePermissions) Version() int {
 
 	return 1
 }
 
 // ToPlain returns the plain version of the sparse model.
-func (o *SparseAuthz) ToPlain() elemental.PlainIdentifiable {
+func (o *SparsePermissions) ToPlain() elemental.PlainIdentifiable {
 
-	out := NewAuthz()
+	out := NewPermissions()
 	if o.Claims != nil {
 		out.Claims = *o.Claims
 	}
@@ -731,31 +731,31 @@ func (o *SparseAuthz) ToPlain() elemental.PlainIdentifiable {
 	return out
 }
 
-// DeepCopy returns a deep copy if the SparseAuthz.
-func (o *SparseAuthz) DeepCopy() *SparseAuthz {
+// DeepCopy returns a deep copy if the SparsePermissions.
+func (o *SparsePermissions) DeepCopy() *SparsePermissions {
 
 	if o == nil {
 		return nil
 	}
 
-	out := &SparseAuthz{}
+	out := &SparsePermissions{}
 	o.DeepCopyInto(out)
 
 	return out
 }
 
-// DeepCopyInto copies the receiver into the given *SparseAuthz.
-func (o *SparseAuthz) DeepCopyInto(out *SparseAuthz) {
+// DeepCopyInto copies the receiver into the given *SparsePermissions.
+func (o *SparsePermissions) DeepCopyInto(out *SparsePermissions) {
 
 	target, err := copystructure.Copy(o)
 	if err != nil {
-		panic(fmt.Sprintf("Unable to deepcopy SparseAuthz: %s", err))
+		panic(fmt.Sprintf("Unable to deepcopy SparsePermissions: %s", err))
 	}
 
-	*out = *target.(*SparseAuthz)
+	*out = *target.(*SparsePermissions)
 }
 
-type mongoAttributesAuthz struct {
+type mongoAttributesPermissions struct {
 }
-type mongoAttributesSparseAuthz struct {
+type mongoAttributesSparsePermissions struct {
 }

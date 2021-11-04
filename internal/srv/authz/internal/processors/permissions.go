@@ -6,22 +6,22 @@ import (
 	"go.aporeto.io/bahamut"
 )
 
-// A AuthzProcessor is a bahamut processor for Authzs.
-type AuthzProcessor struct {
+// A PermissionsProcessor is a bahamut processor for Permissionss.
+type PermissionsProcessor struct {
 	retriever permissions.Retriever
 }
 
-// NewAuthzProcessor returns a new AuthzProcessor.
-func NewAuthzProcessor(retriever permissions.Retriever) *AuthzProcessor {
-	return &AuthzProcessor{
+// NewPermissionsProcessor returns a new PermissionsProcessor.
+func NewPermissionsProcessor(retriever permissions.Retriever) *PermissionsProcessor {
+	return &PermissionsProcessor{
 		retriever: retriever,
 	}
 }
 
-// ProcessCreate handles the creates requests for Authzs.
-func (p *AuthzProcessor) ProcessCreate(bctx bahamut.Context) error {
+// ProcessCreate handles the creates requests for Permissionss.
+func (p *PermissionsProcessor) ProcessCreate(bctx bahamut.Context) error {
 
-	req := bctx.InputData().(*api.Authz)
+	req := bctx.InputData().(*api.Permissions)
 
 	restrictions := permissions.Restrictions{
 		Namespace:   req.RestrictedNamespace,
