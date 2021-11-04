@@ -2,10 +2,13 @@ package main
 
 import (
 	"context"
+	"crypto/sha1"
 	"crypto/tls"
 	"errors"
 	"fmt"
 	"net/http"
+	"os"
+	"strings"
 
 	"go.aporeto.io/a3s/internal/srv/authn"
 	"go.aporeto.io/a3s/internal/srv/policy"
@@ -18,6 +21,7 @@ import (
 	"go.aporeto.io/bahamut"
 	"go.aporeto.io/elemental"
 	"go.aporeto.io/manipulate"
+	"go.aporeto.io/tg/tglib"
 	"go.uber.org/zap"
 )
 
@@ -38,8 +42,19 @@ func main() {
 	if err := indexes.Ensure(manipulator, api.Manager(), "a3s"); err != nil {
 		zap.L().Fatal("Unable to ensure indexes", zap.Error(err))
 	}
+
 	if err := createRootNamespaceIfNeeded(manipulator); err != nil {
 		zap.L().Fatal("Unable to handle root namespace", zap.Error(err))
+	}
+
+	if cfg.Init {
+		if err := initRootPermissions(ctx, manipulator, cfg.InitRootUserCAPath); err != nil {
+			zap.L().Fatal("unable to initialize root permissions", zap.Error(err))
+			return
+		}
+
+		zap.L().Info("Root permissions initialized")
+		return
 	}
 
 	jwtCert, _, err := cfg.AuthNConf.JWTCertificate()
@@ -50,6 +65,7 @@ func main() {
 	pubsub := bootstrap.MakeNATSClient(cfg.NATSConf)
 	defer pubsub.Disconnect() // nolint: errcheck
 
+	pauthn := authenticator.NewPrivate(jwtCert)
 	retriever := permissions.NewRetriever(manipulator)
 	authz := authorizer.New(
 		ctx,
@@ -57,7 +73,6 @@ func main() {
 		pubsub,
 		authorizer.OptionIgnoredResources(
 			api.IssueIdentity.Category,
-			// api.AuthorizationIdentity.Category,
 		),
 	)
 
@@ -70,10 +85,10 @@ func main() {
 				nil,
 				[]bahamut.RequestAuthenticator{
 					authenticator.NewPublic(api.IssueIdentity.Name),
-					authenticator.NewPrivate(jwtCert),
+					pauthn,
 				},
 				[]bahamut.SessionAuthenticator{
-					authenticator.NewPrivate(jwtCert),
+					pauthn,
 				},
 				[]bahamut.Authorizer{
 					authz,
@@ -142,6 +157,56 @@ func createRootNamespaceIfNeeded(m manipulate.Manipulator) error {
 
 	if err := m.Create(nil, ns); err != nil {
 		return fmt.Errorf("unable to create root namespace: %w", err)
+	}
+
+	return nil
+}
+
+func initRootPermissions(ctx context.Context, m manipulate.Manipulator, caPath string) error {
+
+	caData, err := os.ReadFile(caPath)
+	if err != nil {
+		return fmt.Errorf("unable to read root user ca: %w", err)
+	}
+
+	caCerts, err := tglib.ParseCertificates(caData)
+	if err != nil {
+		return fmt.Errorf("unable to parse root user ca: %w", err)
+	}
+
+	chain := make([]string, len(caCerts))
+	for i, cert := range caCerts {
+		chain[i] = fmt.Sprintf("%02X", sha1.Sum(cert.Raw))
+	}
+
+	source := api.NewMTLSSource()
+	source.Namespace = "/"
+	source.Name = "root"
+	source.Description = "Root auth source used to bootstrap permissions."
+	source.CertificateAuthority = string(caData)
+	if err := m.Create(manipulate.NewContext(ctx), source); err != nil {
+		return fmt.Errorf("unable to create root mtls auth source: %w", err)
+	}
+
+	auth := api.NewAuthorization()
+	auth.Namespace = "/"
+	auth.Name = "root-mtls-authorization"
+	auth.Description = "Root authorization for certificates issued from the CA declared  in the root auth mtls source."
+	auth.Subject = [][]string{
+		{
+			"@sourcetype=mtls",
+			"@sourcename=root",
+			"@sourcenamespace=/",
+			fmt.Sprintf("issuerchain=%s", strings.Join(chain, ",")),
+		},
+	}
+	auth.FlattenedSubject = auth.Subject[0]
+	auth.Permissions = []string{"*,*"}
+	auth.TargetNamespace = "/"
+	auth.Hidden = true
+
+	if err := m.Create(manipulate.NewContext(ctx), auth); err != nil {
+		return fmt.Errorf("unable to create root auth: %w", err)
 	}
 
 	return nil

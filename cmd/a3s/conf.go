@@ -14,6 +14,9 @@ type Conf struct {
 	AuthNConf  authn.Conf  `mapstructure:",squash"`
 	PolicyConf policy.Conf `mapstructure:",squash"`
 
+	Init               bool   `mapstructure:"init-root-permissions"  desc:"If set, initialize the root permissions usingf the CA passed in --init-root-ca and exit"`
+	InitRootUserCAPath string `mapstructure:"init-root-ca"           desc:"Path to the root CA to use to initialize root permissions"`
+
 	conf.APIServerConf       `mapstructure:",squash"`
 	conf.HealthConfiguration `mapstructure:",squash"`
 	conf.HTTPTimeoutsConf    `mapstructure:",squash"`
