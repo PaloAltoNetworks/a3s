@@ -22,14 +22,8 @@ func Init(
 		return err
 	}
 
-	bahamut.RegisterProcessorOrDie(
-		server,
-		processors.NewIssueProcessor(m,
-			jwtCert,
-			jwtKey,
-			cfg.JWTMaxValidity),
-		api.IssueIdentity,
-	)
+	bahamut.RegisterProcessorOrDie(server, processors.NewIssueProcessor(m, jwtCert, jwtKey, cfg.JWTMaxValidity), api.IssueIdentity)
+	bahamut.RegisterProcessorOrDie(server, processors.NewMTLSSourcesProcessor(m), api.MTLSSourceIdentity)
 
 	return nil
 }

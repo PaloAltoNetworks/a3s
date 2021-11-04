@@ -1,11 +1,12 @@
 package processors
 
 import (
+	"context"
 	"crypto"
 	"crypto/tls"
 	"crypto/x509"
+	"fmt"
 	"net/http"
-	"os"
 	"time"
 
 	"go.aporeto.io/a3s/internal/srv/authn/internal/issuer"
@@ -42,9 +43,9 @@ func (p *IssueProcessor) ProcessCreate(bctx bahamut.Context) (err error) {
 
 	switch req.SourceType {
 
-	case api.IssueSourceTypeCertificate:
+	case api.IssueSourceTypeMTLS:
 		tlsState := bctx.Request().TLSConnectionState
-		if err := p.handleCertificateIssue(req, tlsState, validity); err != nil {
+		if err := p.handleCertificateIssue(bctx.Context(), req, tlsState, validity); err != nil {
 			return err
 		}
 	}
@@ -54,16 +55,22 @@ func (p *IssueProcessor) ProcessCreate(bctx bahamut.Context) (err error) {
 	return nil
 }
 
-func (p *IssueProcessor) handleCertificateIssue(req *api.Issue, tlsState *tls.ConnectionState, validity time.Duration) (err error) {
+func (p *IssueProcessor) handleCertificateIssue(ctx context.Context, req *api.Issue, tlsState *tls.ConnectionState, validity time.Duration) (err error) {
 
 	if tlsState == nil || len(tlsState.PeerCertificates) == 0 {
 		return elemental.NewError("Bad Request", "No client certificates", "a3s", http.StatusBadRequest)
 	}
 
+	out, err := retrieveSource(ctx, p.manipulator, req.SourceNamespace, req.SourceName, api.MTLSSourceIdentity)
+	if err != nil {
+		return err
+	}
+	src := out.(*api.MTLSSource)
+
+	pool := x509.NewCertPool()
+	pool.AppendCertsFromPEM([]byte(src.CertificateAuthority))
+
 	userCert := tlsState.PeerCertificates[0]
-
-	pool := getDevPool()
-
 	iss := issuer.NewMTLSIssuer(pool, req.SourceNamespace, req.SourceName)
 	if err := iss.FromCertificate(userCert); err != nil {
 		return err
@@ -75,17 +82,56 @@ func (p *IssueProcessor) handleCertificateIssue(req *api.Issue, tlsState *tls.Co
 	if err != nil {
 		return err
 	}
+
 	return nil
 }
 
-func getDevPool() *x509.CertPool {
-	pool := x509.NewCertPool()
-	cadata, err := os.ReadFile("dev/.data/certificates/ca-acme-cert.pem")
-	if err != nil {
-		panic(err)
+func retrieveSource(ctx context.Context, m manipulate.Manipulator, namespace string, name string, identity elemental.Identity) (elemental.Identifiable, error) {
+
+	if namespace == "" {
+		return nil, elemental.NewError(
+			"Bad Request",
+			"You must set sourceNamespace and sourceName",
+			"a3s:auth",
+			http.StatusBadRequest,
+		)
 	}
 
-	pool.AppendCertsFromPEM(cadata)
+	if name == "" {
+		return nil, elemental.NewError(
+			"Bad Request",
+			"You must set sourceNamespace and sourceName",
+			"a3s:auth",
+			http.StatusBadRequest,
+		)
+	}
 
-	return pool
+	mctx := manipulate.NewContext(ctx,
+		manipulate.ContextOptionNamespace(namespace),
+		manipulate.ContextOptionFilter(
+			elemental.NewFilterComposer().WithKey("name").Equals(name).
+				Done(),
+		),
+	)
+
+	identifiables := api.Manager().IdentifiablesFromString(identity.Name)
+	if err := m.RetrieveMany(mctx, identifiables); err != nil {
+		return nil, err
+	}
+
+	lst := identifiables.List()
+	switch len(lst) {
+	case 0:
+		return nil, elemental.NewError(
+			"Not Found",
+			"Unable to find the request auth source",
+			"a3s:authn",
+			http.StatusNotFound,
+		)
+	case 1:
+	default:
+		return nil, fmt.Errorf("more than one auth source found")
+	}
+
+	return lst[0], nil
 }
