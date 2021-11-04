@@ -1,6 +1,7 @@
 package api
 
 import (
+	"encoding/pem"
 	"fmt"
 	"net"
 	"net/http"
@@ -133,6 +134,31 @@ func ValidateAuthorizationSubject(attribute string, subject [][]string) error {
 	}
 
 	return nil
+}
+
+// ValidatePEM validates a string contains a PEM.
+func ValidatePEM(attribute string, pemdata string) error {
+
+	if pemdata == "" {
+		return nil
+	}
+
+	var i int
+	var block *pem.Block
+	rest := []byte(pemdata)
+
+	for {
+		block, rest = pem.Decode(rest)
+
+		if block == nil {
+			return makeErr(attribute, fmt.Sprintf("Unable to decode PEM number %d", i))
+		}
+
+		if len(rest) == 0 {
+			return nil
+		}
+		i++
+	}
 }
 
 func makeErr(attribute string, message string) elemental.Error {

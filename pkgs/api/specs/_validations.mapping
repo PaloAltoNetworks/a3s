@@ -19,3 +19,7 @@ $tags_expression:
 $authorization_subject:
   elemental:
     name: ValidateAuthorizationSubject
+
+$pem:
+  elemental:
+    name: ValidatePEM

@@ -76,17 +76,18 @@ attributes:
     example_value:
     - dogs,post
 
+  - name: sourceName
+    description: The name of the source to use.
+    type: string
+    exposed: true
+    example_value: /my/ns
+
   - name: sourceNamespace
     description: The namespace of the source to use.
     type: string
     exposed: true
     example_value: /my/ns
 
-  - name: sourceName
-    description: The name of the source to use.
-    type: string
-    exposed: true
-    example_value: /my/ns
   - name: sourceType
     description: |-
       The authentication source. This will define how to verify
@@ -96,7 +97,7 @@ attributes:
     required: true
     allowed_choices:
     - AWSSecurityToken
-    - Certificate
+    - MTLS
     - LDAP
     - GCPIdentityToken
     - AzureIdentityToken

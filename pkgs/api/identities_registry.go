@@ -6,6 +6,7 @@ var (
 	identityNamesMap = map[string]elemental.Identity{
 		"authorization": AuthorizationIdentity,
 		"issue":         IssueIdentity,
+		"mtlssource":    MTLSSourceIdentity,
 		"namespace":     NamespaceIdentity,
 		"root":          RootIdentity,
 	}
@@ -13,6 +14,7 @@ var (
 	identitycategoriesMap = map[string]elemental.Identity{
 		"authorizations": AuthorizationIdentity,
 		"issue":          IssueIdentity,
+		"mtlssources":    MTLSSourceIdentity,
 		"namespaces":     NamespaceIdentity,
 		"root":           RootIdentity,
 	}
@@ -28,6 +30,12 @@ var (
 			{"namespace", "ID"},
 		},
 		"issue": nil,
+		"mtlssource": {
+			{"namespace", "name"},
+			{":shard", ":unique", "zone", "zHash"},
+			{"namespace"},
+			{"namespace", "ID"},
+		},
 		"namespace": {
 			{"namespace", "name"},
 			{":shard", ":unique", "zone", "zHash"},
@@ -80,6 +88,8 @@ func (f modelManager) Identifiable(identity elemental.Identity) elemental.Identi
 		return NewAuthorization()
 	case IssueIdentity:
 		return NewIssue()
+	case MTLSSourceIdentity:
+		return NewMTLSSource()
 	case NamespaceIdentity:
 		return NewNamespace()
 	case RootIdentity:
@@ -97,6 +107,8 @@ func (f modelManager) SparseIdentifiable(identity elemental.Identity) elemental.
 		return NewSparseAuthorization()
 	case IssueIdentity:
 		return NewSparseIssue()
+	case MTLSSourceIdentity:
+		return NewSparseMTLSSource()
 	case NamespaceIdentity:
 		return NewSparseNamespace()
 	default:
@@ -122,6 +134,8 @@ func (f modelManager) Identifiables(identity elemental.Identity) elemental.Ident
 		return &AuthorizationsList{}
 	case IssueIdentity:
 		return &IssuesList{}
+	case MTLSSourceIdentity:
+		return &MTLSSourcesList{}
 	case NamespaceIdentity:
 		return &NamespacesList{}
 	default:
@@ -137,6 +151,8 @@ func (f modelManager) SparseIdentifiables(identity elemental.Identity) elemental
 		return &SparseAuthorizationsList{}
 	case IssueIdentity:
 		return &SparseIssuesList{}
+	case MTLSSourceIdentity:
+		return &SparseMTLSSourcesList{}
 	case NamespaceIdentity:
 		return &SparseNamespacesList{}
 	default:
@@ -169,6 +185,7 @@ func AllIdentities() []elemental.Identity {
 	return []elemental.Identity{
 		AuthorizationIdentity,
 		IssueIdentity,
+		MTLSSourceIdentity,
 		NamespaceIdentity,
 		RootIdentity,
 	}
@@ -181,6 +198,8 @@ func AliasesForIdentity(identity elemental.Identity) []string {
 	case AuthorizationIdentity:
 		return []string{}
 	case IssueIdentity:
+		return []string{}
+	case MTLSSourceIdentity:
 		return []string{}
 	case NamespaceIdentity:
 		return []string{}

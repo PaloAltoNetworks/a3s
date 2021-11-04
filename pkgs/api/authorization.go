@@ -83,6 +83,9 @@ type Authorization struct {
 	// ID is the identifier of the object.
 	ID string `json:"ID" msgpack:"ID" bson:"-" mapstructure:"ID,omitempty"`
 
+	// Description of the Authorization.
+	Description string `json:"description" msgpack:"description" bson:"description" mapstructure:"description,omitempty"`
+
 	// Set the authorization to be disabled.
 	Disabled bool `json:"disabled" msgpack:"disabled" bson:"disabled" mapstructure:"disabled,omitempty"`
 
@@ -168,6 +171,7 @@ func (o *Authorization) GetBSON() (interface{}, error) {
 	if o.ID != "" {
 		s.ID = bson.ObjectIdHex(o.ID)
 	}
+	s.Description = o.Description
 	s.Disabled = o.Disabled
 	s.FlattenedSubject = o.FlattenedSubject
 	s.Hidden = o.Hidden
@@ -198,6 +202,7 @@ func (o *Authorization) SetBSON(raw bson.Raw) error {
 	}
 
 	o.ID = s.ID.Hex()
+	o.Description = s.Description
 	o.Disabled = s.Disabled
 	o.FlattenedSubject = s.FlattenedSubject
 	o.Hidden = s.Hidden
@@ -311,6 +316,7 @@ func (o *Authorization) ToSparse(fields ...string) elemental.SparseIdentifiable 
 		// nolint: goimports
 		return &SparseAuthorization{
 			ID:               &o.ID,
+			Description:      &o.Description,
 			Disabled:         &o.Disabled,
 			FlattenedSubject: &o.FlattenedSubject,
 			Hidden:           &o.Hidden,
@@ -331,6 +337,8 @@ func (o *Authorization) ToSparse(fields ...string) elemental.SparseIdentifiable 
 		switch f {
 		case "ID":
 			sp.ID = &(o.ID)
+		case "description":
+			sp.Description = &(o.Description)
 		case "disabled":
 			sp.Disabled = &(o.Disabled)
 		case "flattenedSubject":
@@ -370,6 +378,9 @@ func (o *Authorization) Patch(sparse elemental.SparseIdentifiable) {
 	so := sparse.(*SparseAuthorization)
 	if so.ID != nil {
 		o.ID = *so.ID
+	}
+	if so.Description != nil {
+		o.Description = *so.Description
 	}
 	if so.Disabled != nil {
 		o.Disabled = *so.Disabled
@@ -487,6 +498,8 @@ func (o *Authorization) ValueForAttribute(name string) interface{} {
 	switch name {
 	case "ID":
 		return o.ID
+	case "description":
+		return o.Description
 	case "disabled":
 		return o.Disabled
 	case "flattenedSubject":
@@ -531,6 +544,16 @@ var AuthorizationAttributesMap = map[string]elemental.AttributeSpecification{
 		Orderable:      true,
 		ReadOnly:       true,
 		Setter:         true,
+		Stored:         true,
+		Type:           "string",
+	},
+	"Description": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "description",
+		ConvertedName:  "Description",
+		Description:    `Description of the Authorization.`,
+		Exposed:        true,
+		Name:           "description",
 		Stored:         true,
 		Type:           "string",
 	},
@@ -694,6 +717,16 @@ var AuthorizationLowerCaseAttributesMap = map[string]elemental.AttributeSpecific
 		Orderable:      true,
 		ReadOnly:       true,
 		Setter:         true,
+		Stored:         true,
+		Type:           "string",
+	},
+	"description": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "description",
+		ConvertedName:  "Description",
+		Description:    `Description of the Authorization.`,
+		Exposed:        true,
+		Name:           "description",
 		Stored:         true,
 		Type:           "string",
 	},
@@ -908,6 +941,9 @@ type SparseAuthorization struct {
 	// ID is the identifier of the object.
 	ID *string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
 
+	// Description of the Authorization.
+	Description *string `json:"description,omitempty" msgpack:"description,omitempty" bson:"description,omitempty" mapstructure:"description,omitempty"`
+
 	// Set the authorization to be disabled.
 	Disabled *bool `json:"disabled,omitempty" msgpack:"disabled,omitempty" bson:"disabled,omitempty" mapstructure:"disabled,omitempty"`
 
@@ -992,6 +1028,9 @@ func (o *SparseAuthorization) GetBSON() (interface{}, error) {
 	if o.ID != nil {
 		s.ID = bson.ObjectIdHex(*o.ID)
 	}
+	if o.Description != nil {
+		s.Description = o.Description
+	}
 	if o.Disabled != nil {
 		s.Disabled = o.Disabled
 	}
@@ -1047,6 +1086,9 @@ func (o *SparseAuthorization) SetBSON(raw bson.Raw) error {
 
 	id := s.ID.Hex()
 	o.ID = &id
+	if s.Description != nil {
+		o.Description = s.Description
+	}
 	if s.Disabled != nil {
 		o.Disabled = s.Disabled
 	}
@@ -1099,6 +1141,9 @@ func (o *SparseAuthorization) ToPlain() elemental.PlainIdentifiable {
 	out := NewAuthorization()
 	if o.ID != nil {
 		out.ID = *o.ID
+	}
+	if o.Description != nil {
+		out.Description = *o.Description
 	}
 	if o.Disabled != nil {
 		out.Disabled = *o.Disabled
@@ -1246,6 +1291,7 @@ func (o *SparseAuthorization) DeepCopyInto(out *SparseAuthorization) {
 
 type mongoAttributesAuthorization struct {
 	ID               bson.ObjectId `bson:"_id,omitempty"`
+	Description      string        `bson:"description"`
 	Disabled         bool          `bson:"disabled"`
 	FlattenedSubject []string      `bson:"flattenedsubject"`
 	Hidden           bool          `bson:"hidden"`
@@ -1261,6 +1307,7 @@ type mongoAttributesAuthorization struct {
 }
 type mongoAttributesSparseAuthorization struct {
 	ID               bson.ObjectId `bson:"_id,omitempty"`
+	Description      *string       `bson:"description,omitempty"`
 	Disabled         *bool         `bson:"disabled,omitempty"`
 	FlattenedSubject *[]string     `bson:"flattenedsubject,omitempty"`
 	Hidden           *bool         `bson:"hidden,omitempty"`

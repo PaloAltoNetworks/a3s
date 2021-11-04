@@ -21,14 +21,14 @@ const (
 	// IssueSourceTypeAzureIdentityToken represents the value AzureIdentityToken.
 	IssueSourceTypeAzureIdentityToken IssueSourceTypeValue = "AzureIdentityToken"
 
-	// IssueSourceTypeCertificate represents the value Certificate.
-	IssueSourceTypeCertificate IssueSourceTypeValue = "Certificate"
-
 	// IssueSourceTypeGCPIdentityToken represents the value GCPIdentityToken.
 	IssueSourceTypeGCPIdentityToken IssueSourceTypeValue = "GCPIdentityToken"
 
 	// IssueSourceTypeLDAP represents the value LDAP.
 	IssueSourceTypeLDAP IssueSourceTypeValue = "LDAP"
+
+	// IssueSourceTypeMTLS represents the value MTLS.
+	IssueSourceTypeMTLS IssueSourceTypeValue = "MTLS"
 
 	// IssueSourceTypeOIDC represents the value OIDC.
 	IssueSourceTypeOIDC IssueSourceTypeValue = "OIDC"
@@ -380,7 +380,7 @@ func (o *Issue) Validate() error {
 		requiredErrors = requiredErrors.Append(err)
 	}
 
-	if err := elemental.ValidateStringInList("sourceType", string(o.SourceType), []string{"AWSSecurityToken", "Certificate", "LDAP", "GCPIdentityToken", "AzureIdentityToken", "OIDC", "SAML", "A3SIdentityToken"}, false); err != nil {
+	if err := elemental.ValidateStringInList("sourceType", string(o.SourceType), []string{"AWSSecurityToken", "MTLS", "LDAP", "GCPIdentityToken", "AzureIdentityToken", "OIDC", "SAML", "A3SIdentityToken"}, false); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -532,7 +532,7 @@ engine has no effect and may end up making the token unusable.`,
 		Type:           "string",
 	},
 	"SourceType": {
-		AllowedChoices: []string{"AWSSecurityToken", "Certificate", "LDAP", "GCPIdentityToken", "AzureIdentityToken", "OIDC", "SAML", "A3SIdentityToken"},
+		AllowedChoices: []string{"AWSSecurityToken", "MTLS", "LDAP", "GCPIdentityToken", "AzureIdentityToken", "OIDC", "SAML", "A3SIdentityToken"},
 		ConvertedName:  "SourceType",
 		Description: `The authentication source. This will define how to verify
 credentials from internal or external source of authentication.`,
@@ -654,7 +654,7 @@ engine has no effect and may end up making the token unusable.`,
 		Type:           "string",
 	},
 	"sourcetype": {
-		AllowedChoices: []string{"AWSSecurityToken", "Certificate", "LDAP", "GCPIdentityToken", "AzureIdentityToken", "OIDC", "SAML", "A3SIdentityToken"},
+		AllowedChoices: []string{"AWSSecurityToken", "MTLS", "LDAP", "GCPIdentityToken", "AzureIdentityToken", "OIDC", "SAML", "A3SIdentityToken"},
 		ConvertedName:  "SourceType",
 		Description: `The authentication source. This will define how to verify
 credentials from internal or external source of authentication.`,
