@@ -7,13 +7,14 @@ import (
 	"fmt"
 	"net/http"
 
-	"go.aporeto.io/a3s/internal/authorizer"
 	"go.aporeto.io/a3s/internal/srv/authn"
 	"go.aporeto.io/a3s/internal/srv/policy"
 	"go.aporeto.io/a3s/pkgs/api"
 	"go.aporeto.io/a3s/pkgs/authenticator"
+	"go.aporeto.io/a3s/pkgs/authorizer"
 	"go.aporeto.io/a3s/pkgs/bootstrap"
 	"go.aporeto.io/a3s/pkgs/indexes"
+	"go.aporeto.io/a3s/pkgs/permissions"
 	"go.aporeto.io/bahamut"
 	"go.aporeto.io/elemental"
 	"go.aporeto.io/manipulate"
@@ -49,7 +50,16 @@ func main() {
 	pubsub := bootstrap.MakeNATSClient(cfg.NATSConf)
 	defer pubsub.Disconnect() // nolint: errcheck
 
-	authz := authorizer.NewLocalAuthorizer(manipulator)
+	retriever := permissions.NewRetriever(manipulator)
+	authz := authorizer.New(
+		ctx,
+		retriever,
+		pubsub,
+		authorizer.OptionIgnoredResources(
+			api.IssueIdentity.Category,
+			// api.AuthorizationIdentity.Category,
+		),
+	)
 
 	server := bahamut.New(
 		append(
@@ -65,10 +75,9 @@ func main() {
 				[]bahamut.SessionAuthenticator{
 					authenticator.NewPrivate(jwtCert),
 				},
-				nil,
-				// []bahamut.Authorizer{
-				// 	authz,
-				// },
+				[]bahamut.Authorizer{
+					authz,
+				},
 			),
 			bahamut.OptMTLS(nil, tls.RequestClientCert),
 			bahamut.OptErrorTransformer(errorTransformer),
@@ -80,7 +89,7 @@ func main() {
 		zap.L().Fatal("Unable to initialize authn module", zap.Error(err))
 	}
 
-	if err := policy.Init(ctx, cfg.PolicyConf, server, manipulator, authz, pubsub); err != nil {
+	if err := policy.Init(ctx, cfg.PolicyConf, server, manipulator, retriever, pubsub); err != nil {
 		zap.L().Fatal("Unable to initialize policy module", zap.Error(err))
 	}
 
