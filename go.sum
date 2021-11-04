@@ -66,6 +66,8 @@ github.com/creack/pty v1.1.9/go.mod h1:oKZEueFk5CKHvIhNR5MUki03XCEU+Q6VDXinZuGJ3
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
+github.com/deckarep/golang-set v1.7.1 h1:SCQV0S6gTtp6itiFrTqI+pfmJ4LN85S1YzhDf9rTHJQ=
+github.com/deckarep/golang-set v1.7.1/go.mod h1:93vsz/8Wt4joVM7c2AVqh+YRMiUSc14yDtF28KmMOgQ=
 github.com/dgrijalva/jwt-go v3.2.0+incompatible/go.mod h1:E3ru+11k8xSBh+hMPgOLZmtrrCbhqsmaPHjLKYnJCaQ=
 github.com/dgryski/go-sip13 v0.0.0-20181026042036-e10d5fee7954/go.mod h1:vAd38F8PWV+bWy6jNmig1y/TA+kYO4g3RSRF0IAv0no=
 github.com/emirpasic/gods v1.12.0/go.mod h1:YfzfFFoVP/catgzJb4IKIqXjX78Ha8FMSDh3ymbK86o=
@@ -396,8 +398,8 @@ github.com/yl2chen/cidranger v1.0.2/go.mod h1:9U1yz7WPYDwf0vpNWFaeRh0bjwz5RVgRy/
 github.com/yuin/goldmark v1.3.5/go.mod h1:mwnBkeHKe2W/ZEtQ+71ViKU8L12m81fl3OWwC1Zlc8k=
 go.aporeto.io/addedeffect v1.77.1-0.20210930200419-5082b3192403 h1:oKmMXJXoaO5IqDsJqoaARGog4TblYXqK+EtM6SoFA8Y=
 go.aporeto.io/addedeffect v1.77.1-0.20210930200419-5082b3192403/go.mod h1:YlGk/U5OdpLMNHxPJWunbhCZxJXlMCxo+N6J42jgNlU=
-go.aporeto.io/bahamut v1.112.1-0.20211029010409-3b024d164724 h1:YyLaKMgkBUuD7OhWDhzsPrAOipS4V29Wq9+FTkGrQvk=
-go.aporeto.io/bahamut v1.112.1-0.20211029010409-3b024d164724/go.mod h1:h3FZp+4gLfuGQ9AWe3T4zsrOzDLnEa6yfxG3jOpurhI=
+go.aporeto.io/bahamut v1.112.1-0.20211103215415-5fc491973a94 h1:vjDO6VraOWBiXCki3tmwCeLPkwuolus8UA9b3tQHKsY=
+go.aporeto.io/bahamut v1.112.1-0.20211103215415-5fc491973a94/go.mod h1:h3FZp+4gLfuGQ9AWe3T4zsrOzDLnEa6yfxG3jOpurhI=
 go.aporeto.io/elemental v1.100.1-0.20210910205400-851949ed821f/go.mod h1:1WRCDolBBhyTFah5tpf9DNVHaJefug7lV9V9UzPNDAE=
 go.aporeto.io/elemental v1.100.1-0.20211007231947-44c1aabe7914/go.mod h1:1WRCDolBBhyTFah5tpf9DNVHaJefug7lV9V9UzPNDAE=
 go.aporeto.io/elemental v1.100.1-0.20211029010343-e264f153acc2 h1:8pdxeWS8/DCDjWg7QBQZF7agBrApfj19P1zYcmuOX3o=

@@ -1,6 +1,7 @@
 package authn
 
 import (
+	"go.aporeto.io/a3s/internal/authorizer"
 	"go.aporeto.io/a3s/internal/srv/authn/internal/processors"
 	"go.aporeto.io/a3s/pkgs/api"
 	"go.aporeto.io/bahamut"
@@ -14,6 +15,7 @@ func Init(
 	cfg Conf,
 	server bahamut.Server,
 	m manipulate.Manipulator,
+	auth authorizer.Authorizer,
 	pubsub bahamut.PubSubClient,
 ) error {
 

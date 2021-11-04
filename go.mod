@@ -4,7 +4,7 @@ go 1.17
 
 require (
 	go.aporeto.io/addedeffect v1.77.1-0.20210930200419-5082b3192403
-	go.aporeto.io/bahamut v1.112.1-0.20211029010409-3b024d164724
+	go.aporeto.io/bahamut v1.112.1-0.20211103215415-5fc491973a94
 	go.aporeto.io/elemental v1.100.1-0.20211029010343-e264f153acc2
 	go.aporeto.io/manipulate v1.121.1-0.20211026222548-61cab81ae328
 	go.aporeto.io/tg v1.34.1-0.20211101201333-f818ba4bc2b5
@@ -17,6 +17,7 @@ require (
 	github.com/araddon/dateparse v0.0.0-20210429162001-6b43995a97de // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cespare/xxhash/v2 v2.1.1 // indirect
+	github.com/deckarep/golang-set v1.7.1
 	github.com/fatih/structs v1.1.0
 	github.com/fsnotify/fsnotify v1.4.7 // indirect
 	github.com/globalsign/mgo v0.0.0-20181015135952-eeefdecb41b8

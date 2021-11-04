@@ -1,6 +1,7 @@
 package policy
 
 import (
+	"go.aporeto.io/a3s/internal/authorizer"
 	"go.aporeto.io/a3s/internal/srv/policy/internal/processors"
 	"go.aporeto.io/a3s/pkgs/api"
 	"go.aporeto.io/bahamut"
@@ -14,11 +15,12 @@ func Init(
 	cfg Conf,
 	server bahamut.Server,
 	m manipulate.Manipulator,
+	auth authorizer.Authorizer,
 	pubsub bahamut.PubSubClient,
 ) error {
 
 	bahamut.RegisterProcessorOrDie(server, processors.NewNamespacesProcessor(m, pubsub), api.NamespaceIdentity)
-	bahamut.RegisterProcessorOrDie(server, processors.NewAuthorizationProcessor(m, pubsub), api.AuthorizationIdentity)
+	bahamut.RegisterProcessorOrDie(server, processors.NewAuthorizationProcessor(m, pubsub, auth), api.AuthorizationIdentity)
 
 	return nil
 }
