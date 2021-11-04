@@ -16,7 +16,7 @@ func TestRetrieverOptions(t *testing.T) {
 
 	Convey("OptionRetrievedSourceIP should work", t, func() {
 		cfg := &config{}
-		OptionRetrieverIPAddr("1.2.3.4")(cfg)
+		OptionRetrieverSourceIP("1.2.3.4")(cfg)
 		So(cfg.addr, ShouldEqual, "1.2.3.4")
 	})
 

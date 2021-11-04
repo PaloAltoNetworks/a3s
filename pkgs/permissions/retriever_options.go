@@ -15,8 +15,8 @@ func OptionRetrieverID(id string) RetrieverOption {
 	}
 }
 
-// OptionRetrieverIPAddr sets the source IP to use to compute permissions.
-func OptionRetrieverIPAddr(ip string) RetrieverOption {
+// OptionRetrieverSourceIP sets the source IP to use to compute permissions.
+func OptionRetrieverSourceIP(ip string) RetrieverOption {
 	return func(c *config) {
 		c.addr = ip
 	}

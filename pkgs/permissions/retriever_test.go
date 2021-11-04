@@ -274,7 +274,7 @@ func TestIsAuthorizedWithToken(t *testing.T) {
 			})
 
 			perms, err := r.Permissions(ctx, []string{"color=blue"}, "/a",
-				OptionRetrieverIPAddr("11.2.2.2"),
+				OptionRetrieverSourceIP("11.2.2.2"),
 			)
 
 			So(err, ShouldBeNil)
@@ -292,7 +292,7 @@ func TestIsAuthorizedWithToken(t *testing.T) {
 			})
 
 			perms, err := r.Permissions(ctx, []string{"color=blue"}, "/a",
-				OptionRetrieverIPAddr("13.2.2.2"),
+				OptionRetrieverSourceIP("13.2.2.2"),
 			)
 
 			So(err, ShouldBeNil)
@@ -310,7 +310,7 @@ func TestIsAuthorizedWithToken(t *testing.T) {
 			})
 
 			perms, err := r.Permissions(ctx, []string{"color=blue"}, "/a",
-				OptionRetrieverIPAddr(".2.2.2"),
+				OptionRetrieverSourceIP(".2.2.2"),
 			)
 
 			So(err, ShouldNotBeNil)
@@ -329,7 +329,7 @@ func TestIsAuthorizedWithToken(t *testing.T) {
 			})
 
 			perms, err := r.Permissions(ctx, []string{"color=blue"}, "/a",
-				OptionRetrieverIPAddr("2.2.2.2"),
+				OptionRetrieverSourceIP("2.2.2.2"),
 			)
 
 			So(err, ShouldNotBeNil)
@@ -475,7 +475,7 @@ func TestIsAuthorizedWithToken(t *testing.T) {
 			Convey("When I the networks are correct", func() {
 
 				perms, err := r.Permissions(ctx, []string{"color=blue"}, "/a",
-					OptionRetrieverIPAddr("127.0.0.1"),
+					OptionRetrieverSourceIP("127.0.0.1"),
 					OptionRetrieverRestrictions(Restrictions{Networks: []string{"10.0.0.0/8"}}),
 				)
 
@@ -486,7 +486,7 @@ func TestIsAuthorizedWithToken(t *testing.T) {
 			Convey("When I the networks are incorrect", func() {
 
 				perms, err := r.Permissions(ctx, []string{"color=blue"}, "/a",
-					OptionRetrieverIPAddr("1.1.1.1"),
+					OptionRetrieverSourceIP("1.1.1.1"),
 					OptionRetrieverRestrictions(Restrictions{Networks: []string{"how-come?"}}),
 				)
 
