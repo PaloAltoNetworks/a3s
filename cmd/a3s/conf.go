@@ -42,7 +42,7 @@ func newConf() Conf {
 	return c
 }
 
-// Conf holds the service configuration.
+// JWTConf holds the configuration related to jwt management.
 type JWTConf struct {
 	JWTCertPath    string        `mapstructure:"jwt-cert"             desc:"Secret to use to sign the JWT"                         secret:"true" file:"true"`
 	JWTKeyPass     string        `mapstructure:"jwt-key-pass"         desc:"JWT certificate key password"                          secret:"true" file:"true"`
