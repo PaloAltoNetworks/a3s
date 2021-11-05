@@ -1,7 +1,6 @@
 package processors
 
 import (
-	"crypto/x509"
 	"net/http"
 
 	"go.aporeto.io/a3s/pkgs/api"
@@ -15,14 +14,14 @@ import (
 // A AuthzProcessor is a bahamut processor for Authzs.
 type AuthzProcessor struct {
 	authorizer authorizer.Authorizer
-	jwtCert    *x509.Certificate
+	jwks       *token.JWKS
 }
 
 // NewAuthzProcessor returns a new AuthzProcessor.
-func NewAuthzProcessor(authorizer authorizer.Authorizer, jwtCert *x509.Certificate) *AuthzProcessor {
+func NewAuthzProcessor(authorizer authorizer.Authorizer, jwks *token.JWKS) *AuthzProcessor {
 	return &AuthzProcessor{
 		authorizer: authorizer,
-		jwtCert:    jwtCert,
+		jwks:       jwks,
 	}
 }
 
@@ -31,8 +30,8 @@ func (p *AuthzProcessor) ProcessCreate(bctx bahamut.Context) error {
 
 	req := bctx.InputData().(*api.Authz)
 
-	idt, err := token.Verify(req.Token, p.jwtCert)
-	if err != nil {
+	idt := &token.IdentityToken{}
+	if err := idt.Parse(req.Token, p.jwks, "", ""); err != nil {
 		return elemental.NewError(
 			"Bad Request",
 			err.Error(),

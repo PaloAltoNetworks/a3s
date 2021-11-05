@@ -1,7 +1,6 @@
 package issuer
 
 import (
-	"crypto/x509"
 	"fmt"
 	"time"
 
@@ -49,7 +48,7 @@ func NewTokenIssuer() *TokenIssuer {
 // FromToken reads the claims from original token.
 func (c *TokenIssuer) FromToken(
 	tokenString string,
-	cert *x509.Certificate,
+	keychain *token.JWKS,
 	issuer string,
 	audience string,
 	validityStr string,
@@ -77,7 +76,7 @@ func (c *TokenIssuer) FromToken(
 	}
 
 	c.token = token.NewIdentityToken(token.Source{})
-	if err := c.token.Parse(tokenString, cert, issuer, audience); err != nil {
+	if err := c.token.Parse(tokenString, keychain, issuer, audience); err != nil {
 		return ErrInputToken{Err: err}
 	}
 

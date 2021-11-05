@@ -1,7 +1,6 @@
 package authenticator
 
 import (
-	"crypto/x509"
 	"fmt"
 	"net/http"
 
@@ -13,13 +12,13 @@ import (
 // A Private is a bahamut.Authenticator compliant structure to authentify
 // requests using a a3s token.
 type Private struct {
-	jwtCert *x509.Certificate
+	jwks *token.JWKS
 }
 
 // NewPrivate returns a new *Authenticator that will make a call
-func NewPrivate(cert *x509.Certificate) *Private {
+func NewPrivate(jwks *token.JWKS) *Private {
 	return &Private{
-		jwtCert: cert,
+		jwks: jwks,
 	}
 }
 
@@ -62,8 +61,8 @@ func (a *Private) commonAuth(tokenString string) (bahamut.AuthAction, []string, 
 		)
 	}
 
-	mc, err := token.Verify(tokenString, a.jwtCert)
-	if err != nil {
+	idt := &token.IdentityToken{}
+	if err := idt.Parse(tokenString, a.jwks, "", ""); err != nil {
 		return bahamut.AuthActionKO, nil, elemental.NewError(
 			"Unauthorized",
 			fmt.Sprintf("Authentication rejected with error: %s", err),
@@ -72,5 +71,5 @@ func (a *Private) commonAuth(tokenString string) (bahamut.AuthAction, []string, 
 		)
 	}
 
-	return bahamut.AuthActionContinue, mc.Identity, nil
+	return bahamut.AuthActionContinue, idt.Identity, nil
 }

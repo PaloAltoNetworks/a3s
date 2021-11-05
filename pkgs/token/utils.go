@@ -1,6 +1,9 @@
 package token
 
 import (
+	"fmt"
+
+	"github.com/golang-jwt/jwt/v4"
 	"go.aporeto.io/bahamut"
 	"go.aporeto.io/elemental"
 )
@@ -23,4 +26,26 @@ func FromSession(session bahamut.Session) string {
 		return cookie.Value
 	}
 	return session.Token()
+}
+
+func makeKeyFunc(keychain *JWKS) jwt.Keyfunc {
+
+	return func(token *jwt.Token) (interface{}, error) {
+
+		if _, ok := token.Method.(*jwt.SigningMethodECDSA); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %s", token.Header["alg"])
+		}
+
+		kid, ok := token.Header["kid"].(string)
+		if !ok || kid == "" {
+			return nil, fmt.Errorf("token has no KID in its header")
+		}
+
+		k, err := keychain.Get(kid)
+		if err != nil {
+			return nil, fmt.Errorf("unable to find kid '%s': %w", kid, err)
+		}
+
+		return k.PublicKey(), nil
+	}
 }

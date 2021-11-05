@@ -2,7 +2,6 @@ package processors
 
 import (
 	"context"
-	"crypto"
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
@@ -11,6 +10,7 @@ import (
 
 	"go.aporeto.io/a3s/internal/issuer"
 	"go.aporeto.io/a3s/pkgs/api"
+	"go.aporeto.io/a3s/pkgs/token"
 	"go.aporeto.io/bahamut"
 	"go.aporeto.io/elemental"
 	"go.aporeto.io/manipulate"
@@ -19,18 +19,16 @@ import (
 // A IssueProcessor is a bahamut processor for Issue.
 type IssueProcessor struct {
 	manipulator manipulate.Manipulator
-	jwtKey      crypto.PrivateKey
-	jwtCert     *x509.Certificate
+	jwks        *token.JWKS
 	maxValidity time.Duration
 }
 
 // NewIssueProcessor returns a new IssueProcessor.
-func NewIssueProcessor(manipulator manipulate.Manipulator, cert *x509.Certificate, key crypto.PrivateKey, maxValidity time.Duration) *IssueProcessor {
+func NewIssueProcessor(manipulator manipulate.Manipulator, jwks *token.JWKS, maxValidity time.Duration) *IssueProcessor {
 
 	return &IssueProcessor{
 		manipulator: manipulator,
-		jwtCert:     cert,
-		jwtKey:      key,
+		jwks:        jwks,
 		maxValidity: maxValidity,
 	}
 }
@@ -78,7 +76,7 @@ func (p *IssueProcessor) handleCertificateIssue(ctx context.Context, req *api.Is
 
 	idt := iss.Issue()
 
-	req.Token, err = idt.JWT(p.jwtKey, "kid-placeholder", time.Now().Add(validity))
+	req.Token, err = idt.JWT(p.jwks.GetLast().PrivateKey(), "kid-placeholder", time.Now().Add(validity))
 	if err != nil {
 		return err
 	}

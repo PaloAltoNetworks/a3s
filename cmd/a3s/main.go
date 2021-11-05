@@ -17,6 +17,7 @@ import (
 	"go.aporeto.io/a3s/pkgs/bootstrap"
 	"go.aporeto.io/a3s/pkgs/indexes"
 	"go.aporeto.io/a3s/pkgs/permissions"
+	"go.aporeto.io/a3s/pkgs/token"
 	"go.aporeto.io/bahamut"
 	"go.aporeto.io/elemental"
 	"go.aporeto.io/manipulate"
@@ -69,10 +70,15 @@ func main() {
 		zap.L().Fatal("Unable to get JWT certificate", zap.Error(err))
 	}
 
+	jwks := token.NewJWKS()
+	if err := jwks.AppendWithPrivate(jwtCert, jwtKey); err != nil {
+		zap.L().Fatal("unable to build JWKS", zap.Error(err))
+	}
+
 	pubsub := bootstrap.MakeNATSClient(cfg.NATSConf)
 	defer pubsub.Disconnect() // nolint: errcheck
 
-	pauthn := authenticator.NewPrivate(jwtCert)
+	pauthn := authenticator.NewPrivate(jwks)
 	retriever := permissions.NewRetriever(m)
 	pauthz := authorizer.New(
 		ctx,
@@ -105,10 +111,10 @@ func main() {
 		)...,
 	)
 
-	bahamut.RegisterProcessorOrDie(server, processors.NewIssueProcessor(m, jwtCert, jwtKey, cfg.JWT.JWTMaxValidity), api.IssueIdentity)
+	bahamut.RegisterProcessorOrDie(server, processors.NewIssueProcessor(m, jwks, cfg.JWT.JWTMaxValidity), api.IssueIdentity)
 	bahamut.RegisterProcessorOrDie(server, processors.NewMTLSSourcesProcessor(m), api.MTLSSourceIdentity)
 	bahamut.RegisterProcessorOrDie(server, processors.NewPermissionsProcessor(retriever), api.PermissionsIdentity)
-	bahamut.RegisterProcessorOrDie(server, processors.NewAuthzProcessor(pauthz, jwtCert), api.AuthzIdentity)
+	bahamut.RegisterProcessorOrDie(server, processors.NewAuthzProcessor(pauthz, jwks), api.AuthzIdentity)
 	bahamut.RegisterProcessorOrDie(server, processors.NewNamespacesProcessor(m, pubsub), api.NamespaceIdentity)
 	bahamut.RegisterProcessorOrDie(server, processors.NewAuthorizationProcessor(m, pubsub, retriever), api.AuthorizationIdentity)
 

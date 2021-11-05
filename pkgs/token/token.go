@@ -2,8 +2,6 @@ package token
 
 import (
 	"crypto"
-	"crypto/ecdsa"
-	"crypto/x509"
 	"fmt"
 	"time"
 
@@ -44,22 +42,16 @@ func NewIdentityToken(source Source) *IdentityToken {
 }
 
 // Parse returns a validated IdentityToken from the given token string.
-func (t *IdentityToken) Parse(tokenString string, cert *x509.Certificate, issuer string, audience string) error {
+func (t *IdentityToken) Parse(tokenString string, keychain *JWKS, issuer string, audience string) error {
 
-	token, err := jwt.ParseWithClaims(tokenString, t, func(token *jwt.Token) (interface{}, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodECDSA); ok {
-			return cert.PublicKey.(*ecdsa.PublicKey), nil
-		}
-		return nil, fmt.Errorf("unexpected signing method: %s", token.Header["alg"])
-	})
-
+	token, err := jwt.ParseWithClaims(tokenString, t, makeKeyFunc(keychain))
 	if err != nil {
 		return fmt.Errorf("unable to parse jwt: %w", err)
 	}
 
 	claims := token.Claims.(*IdentityToken)
 
-	if !claims.VerifyIssuer(issuer, true) {
+	if !claims.VerifyIssuer(issuer, false) {
 		return fmt.Errorf("issuer '%s' is not acceptable. want '%s'", claims.Issuer, issuer)
 	}
 

@@ -1,7 +1,9 @@
 package issuer
 
 import (
+	"crypto/sha1"
 	"crypto/x509/pkix"
+	"fmt"
 	"testing"
 	"time"
 
@@ -29,21 +31,24 @@ func TestIssue(t *testing.T) {
 func TestFromToken(t *testing.T) {
 
 	cert, key := getECCert(pkix.Name{})
+	keychain := token.NewJWKS()
+	_ = keychain.Append(cert)
+	kid := fmt.Sprintf("%02X", sha1.Sum(cert.Raw))
 
 	Convey("Using a token with an bad restrictions", t, func() {
 		token := `eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJyZWFsbSI6IlZpbmNlIiwiZGF0YSI6eyJhY2NvdW50IjoiYXBvbXV4IiwiZW1haWwiOiJhZG1pbkBhcG9tdXguY29tIiwiaWQiOiI1ZTFjZjNlZmEzNzAwMzhmYWY3Zjg3NzciLCJvcmdhbml6YXRpb24iOiJhcG9tdXgiLCJyZWFsbSI6InZpbmNlIiwic3ViamVjdCI6ImFwb211eCJ9LCJyZXN0cmljdGlvbnMiOnsibmV0d29ya3MiOiIxMjcuMC4wLjEvMzIifSwiZXhwIjoxNTkwMDQzMjA1LCJpYXQiOjE1ODk5NTMyMDUsImlzcyI6Imh0dHBzOi8vbG9jYWxob3N0OjQ0NDMiLCJzdWIiOiJhcG9tdXgifQ.dIsnGMSEy961FqXgJH-TBVw8_9VrzH_j4xcQJG4JY0--ekwNuMpLr0CyOJFj_XFuVsY-ZS8Lwj5yJCYHv7TS8Q`
 		c := NewTokenIssuer()
-		err := c.FromToken(token, cert, "", "", "", permissions.Restrictions{})
+		err := c.FromToken(token, keychain, "", "", "", permissions.Restrictions{})
 		So(err, ShouldNotBeNil)
 		So(err.Error(), ShouldEqual, `unable to compute restrictions: unable to compute authz restrictions from token: json: cannot unmarshal string into Go struct field Restrictions.restrictions.networks of type []string`)
 	})
 
-	Convey("Using a token that is not correctly signed", t, func() {
+	Convey("Using a token that is missing kid", t, func() {
 		token := `eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJyZWFsbSI6IlZpbmNlIiwiZGF0YSI6eyJhY2NvdW50IjoiYXBvbXV4IiwiZW1haWwiOiJhZG1pbkBhcG9tdXguY29tIiwiaWQiOiI1ZTFjZjNlZmEzNzAwMzhmYWY3Zjg3NzciLCJvcmdhbml6YXRpb24iOiJhcG9tdXgiLCJyZWFsbSI6InZpbmNlIiwic3ViamVjdCI6ImFwb211eCJ9LCJyZXN0cmljdGlvbnMiOnt9LCJleHAiOjE1OTAzMDQzNDgsImlhdCI6MTU5MDIxNDM0OCwiaXNzIjoiaHR0cHM6Ly9sb2NhbGhvc3Q6NDQ0MyIsInN1YiI6ImFwb211eCJ9.7TZEEG-M-Ed-pKTzEGVZnKKZ1fvG0P7kN-VIKnVn_4TkTR2PX0EaToNZViGgcIs6pYXm7SByzjMl63ZiriSYkg`
 		c := NewTokenIssuer()
-		err := c.FromToken(token, cert, "", "", "", permissions.Restrictions{})
+		err := c.FromToken(token, keychain, "", "", "", permissions.Restrictions{})
 		So(err, ShouldNotBeNil)
-		So(err.Error(), ShouldEqual, `unable to parse input token: unable to parse jwt: crypto/ecdsa: verification error`)
+		So(err.Error(), ShouldEqual, `unable to parse input token: unable to parse jwt: token has no KID in its header`)
 	})
 
 	Convey("Using a token that has no restrictions", t, func() {
@@ -52,9 +57,9 @@ func TestFromToken(t *testing.T) {
 		mc.ExpiresAt = time.Now().Add(time.Hour).Unix()
 		mc.Issuer = "iss"
 
-		token, _ := mc.JWT(key, "kid", time.Time{})
+		token, _ := mc.JWT(key, kid, time.Time{})
 		c := NewTokenIssuer()
-		err := c.FromToken(token, cert, "iss", "", "", permissions.Restrictions{})
+		err := c.FromToken(token, keychain, "iss", "", "", permissions.Restrictions{})
 
 		So(err, ShouldBeNil)
 		So(c.token.Restrictions, ShouldBeNil)
@@ -66,9 +71,9 @@ func TestFromToken(t *testing.T) {
 		mc.ExpiresAt = time.Now().Add(time.Hour).Unix()
 		mc.Issuer = "iss"
 
-		token, _ := mc.JWT(key, "kid", time.Time{})
+		token, _ := mc.JWT(key, kid, time.Time{})
 		c := NewTokenIssuer()
-		err := c.FromToken(token, cert, "iss", "", "chien", permissions.Restrictions{})
+		err := c.FromToken(token, keychain, "iss", "", "chien", permissions.Restrictions{})
 
 		So(err, ShouldNotBeNil)
 		So(err.Error(), ShouldEqual, `unable to compute restrictions: time: invalid duration "chien"`)
@@ -85,9 +90,9 @@ func TestFromToken(t *testing.T) {
 			Permissions: []string{"res,get,post"},
 		}
 
-		token, _ := mc.JWT(key, "kid", time.Time{})
+		token, _ := mc.JWT(key, kid, time.Time{})
 		c := NewTokenIssuer()
-		err := c.FromToken(token, cert, "iss", "", "", permissions.Restrictions{
+		err := c.FromToken(token, keychain, "iss", "", "", permissions.Restrictions{
 			Namespace:   "/a/b",
 			Networks:    []string{"1.1.0.0/16"},
 			Permissions: []string{"res,get"},
@@ -111,9 +116,9 @@ func TestFromToken(t *testing.T) {
 			Permissions: []string{"res,get,post"},
 		}
 
-		token, _ := mc.JWT(key, "kid", time.Time{})
+		token, _ := mc.JWT(key, kid, time.Time{})
 		c := NewTokenIssuer()
-		err := c.FromToken(token, cert, "iss", "", "", permissions.Restrictions{
+		err := c.FromToken(token, keychain, "iss", "", "", permissions.Restrictions{
 			Namespace:   "/",
 			Networks:    []string{"1.1.0.0/16"},
 			Permissions: []string{"res,post"},
@@ -134,9 +139,9 @@ func TestFromToken(t *testing.T) {
 			Permissions: []string{"res,get,post"},
 		}
 
-		token, _ := mc.JWT(key, "kid", time.Time{})
+		token, _ := mc.JWT(key, kid, time.Time{})
 		c := NewTokenIssuer()
-		err := c.FromToken(token, cert, "iss", "", "", permissions.Restrictions{
+		err := c.FromToken(token, keychain, "iss", "", "", permissions.Restrictions{
 			Namespace:   "/a",
 			Networks:    []string{"10.1.0.0/16"},
 			Permissions: []string{"res,get"},
@@ -157,9 +162,9 @@ func TestFromToken(t *testing.T) {
 			Permissions: []string{"@auth:role=enforcer"},
 		}
 
-		token, _ := mc.JWT(key, "kid", time.Time{})
+		token, _ := mc.JWT(key, kid, time.Time{})
 		c := NewTokenIssuer()
-		err := c.FromToken(token, cert, "issuer", "", "", permissions.Restrictions{
+		err := c.FromToken(token, keychain, "issuer", "", "", permissions.Restrictions{
 			Namespace:   "/a",
 			Networks:    []string{"1.1.0.0/16"},
 			Permissions: []string{"@auth:role=namespace.administrator"},

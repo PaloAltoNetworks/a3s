@@ -2,9 +2,11 @@ package token
 
 import (
 	"crypto"
+	"crypto/sha1"
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"encoding/pem"
+	"fmt"
 	"testing"
 	"time"
 
@@ -74,7 +76,12 @@ func TestParse(t *testing.T) {
 			"commonname=joe",
 		}
 
-		token, err := token1.JWT(key, "kid", time.Now().Add(10*time.Second))
+		keychain := NewJWKS()
+		_ = keychain.Append(cert)
+
+		kid := fmt.Sprintf("%02X", sha1.Sum(cert.Raw))
+
+		token, err := token1.JWT(key, kid, time.Now().Add(10*time.Second))
 		So(err, ShouldBeNil)
 
 		Convey("Calling JWT with a missing source type should fail", func() {
@@ -91,7 +98,7 @@ func TestParse(t *testing.T) {
 				Namespace: "/my/ns",
 				Name:      "mysource",
 			})
-			err = token2.Parse(token, cert, "https://a3s.com", "https://a3s.com")
+			err = token2.Parse(token, keychain, "https://a3s.com", "https://a3s.com")
 
 			So(err, ShouldBeNil)
 			So(token2.Source.Type, ShouldEqual, "certificate")
@@ -116,7 +123,7 @@ func TestParse(t *testing.T) {
 				Namespace: "/my/ns",
 				Name:      "mysource",
 			})
-			err = token2.Parse(token, cert, "https://not-a3s.com", "https://a3s.com")
+			err = token2.Parse(token, keychain, "https://not-a3s.com", "https://a3s.com")
 
 			So(err, ShouldNotBeNil)
 			So(err.Error(), ShouldEqual, "issuer 'https://a3s.com' is not acceptable. want 'https://not-a3s.com'")
@@ -129,7 +136,7 @@ func TestParse(t *testing.T) {
 				Namespace: "/my/ns",
 				Name:      "mysource",
 			})
-			err = token2.Parse(token, cert, "https://a3s.com", "https://not-a3s.com")
+			err = token2.Parse(token, keychain, "https://a3s.com", "https://not-a3s.com")
 
 			So(err, ShouldNotBeNil)
 			So(err.Error(), ShouldEqual, "audience 'https://a3s.com' is not acceptable. want 'https://not-a3s.com'")
@@ -138,15 +145,17 @@ func TestParse(t *testing.T) {
 		Convey("When I call Parse using the wrong signer certificate", func() {
 
 			cert2, _ := getECCert()
+			keychain2 := NewJWKS()
+			_ = keychain2.Append(cert2)
 			token2 := NewIdentityToken(Source{
 				Type:      "certificate",
 				Namespace: "/my/ns",
 				Name:      "mysource",
 			})
-			err = token2.Parse(token, cert2, "https://a3s.com", "https://a3s.com")
+			err = token2.Parse(token, keychain2, "https://a3s.com", "https://a3s.com")
 
 			So(err, ShouldNotBeNil)
-			So(err.Error(), ShouldEqual, "unable to parse jwt: crypto/ecdsa: verification error")
+			So(err.Error(), ShouldEqual, fmt.Sprintf("unable to parse jwt: unable to find kid '%s': kid not found in JWKS", kid))
 		})
 
 		Convey("When I call Parse using a wrong asigning method", func() {
@@ -157,7 +166,7 @@ func TestParse(t *testing.T) {
 				Namespace: "/my/ns",
 				Name:      "mysource",
 			})
-			err = token2.Parse(token, cert, "https://a3s.com", "https://a3s.com")
+			err = token2.Parse(token, keychain, "https://a3s.com", "https://a3s.com")
 
 			So(err, ShouldNotBeNil)
 			So(err.Error(), ShouldEqual, "unable to parse jwt: unexpected signing method: HS256")

@@ -3,9 +3,11 @@ package authenticator
 import (
 	"context"
 	"crypto"
+	"crypto/sha1"
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"encoding/pem"
+	"fmt"
 	"net/http"
 	"testing"
 
@@ -38,8 +40,9 @@ func getECCert() (*x509.Certificate, crypto.PrivateKey) {
 	return cert, key
 }
 
-func makeToken(claims *token.IdentityToken, signMethod jwt.SigningMethod, key crypto.PrivateKey) string {
+func makeToken(claims *token.IdentityToken, signMethod jwt.SigningMethod, key crypto.PrivateKey, kid string) string {
 	token := jwt.NewWithClaims(signMethod, claims)
+	token.Header["kid"] = kid
 	t, err := token.SignedString(key)
 	if err != nil {
 		panic(err)
@@ -52,10 +55,12 @@ func TestNewAuthenticator(t *testing.T) {
 	Convey("Given I create a new Authenticator", t, func() {
 
 		c, _ := getECCert()
-		a := NewPrivate(c)
+		jwks := token.NewJWKS()
+		_ = jwks.Append(c)
+		a := NewPrivate(jwks)
 
 		Convey("Then a should be correct", func() {
-			So(a.jwtCert, ShouldEqual, c)
+			So(a.jwks, ShouldEqual, jwks)
 		})
 	})
 }
@@ -66,7 +71,11 @@ func TestCommonAuth(t *testing.T) {
 
 		c, k := getECCert()
 		_, k2 := getECCert()
-		a := NewPrivate(c)
+		jwks := token.NewJWKS()
+		_ = jwks.Append(c)
+		a := NewPrivate(jwks)
+
+		kid1 := fmt.Sprintf("%02X", sha1.Sum(c.Raw))
 
 		Convey("Calling commonAuth on a token signed by the signer should work", func() {
 
@@ -74,6 +83,7 @@ func TestCommonAuth(t *testing.T) {
 				&token.IdentityToken{Identity: []string{"color=blue"}},
 				jwt.SigningMethodES256,
 				k,
+				kid1,
 			)
 
 			action, claims, err := a.commonAuth(token)
@@ -89,6 +99,7 @@ func TestCommonAuth(t *testing.T) {
 				&token.IdentityToken{Identity: []string{"color=blue"}},
 				jwt.SigningMethodES256,
 				k2,
+				kid1,
 			)
 
 			action, claims, err := a.commonAuth(token)
@@ -131,7 +142,11 @@ func TestAuthenticateSession(t *testing.T) {
 
 		c, k := getECCert()
 		_, k2 := getECCert()
-		a := NewPrivate(c)
+		jwks := token.NewJWKS()
+		_ = jwks.Append(c)
+		a := NewPrivate(jwks)
+
+		kid1 := fmt.Sprintf("%02X", sha1.Sum(c.Raw))
 
 		Convey("Calling AuthenticateSession on a session that has a valid token should work", func() {
 
@@ -140,6 +155,7 @@ func TestAuthenticateSession(t *testing.T) {
 				&token.IdentityToken{Identity: []string{"color=blue"}},
 				jwt.SigningMethodES256,
 				k,
+				kid1,
 			)
 
 			action, err := a.AuthenticateSession(session)
@@ -158,6 +174,7 @@ func TestAuthenticateSession(t *testing.T) {
 						&token.IdentityToken{Identity: []string{"color=blue"}},
 						jwt.SigningMethodES256,
 						k,
+						kid1,
 					),
 				},
 			}
@@ -175,6 +192,7 @@ func TestAuthenticateSession(t *testing.T) {
 				&token.IdentityToken{Identity: []string{"color=blue"}},
 				jwt.SigningMethodES256,
 				k2,
+				kid1,
 			)
 
 			action, err := a.AuthenticateSession(session)
@@ -192,7 +210,11 @@ func TestAuthenticateRequest(t *testing.T) {
 
 		c, k := getECCert()
 		_, k2 := getECCert()
-		a := NewPrivate(c)
+		jwks := token.NewJWKS()
+		_ = jwks.Append(c)
+		a := NewPrivate(jwks)
+
+		kid1 := fmt.Sprintf("%02X", sha1.Sum(c.Raw))
 
 		Convey("Call AuthenticateSession with a valid token should work", func() {
 
@@ -203,6 +225,7 @@ func TestAuthenticateRequest(t *testing.T) {
 				&token.IdentityToken{Identity: []string{"color=blue"}},
 				jwt.SigningMethodES256,
 				k,
+				kid1,
 			)
 
 			action, err := a.AuthenticateRequest(ctx)
@@ -220,6 +243,7 @@ func TestAuthenticateRequest(t *testing.T) {
 					&token.IdentityToken{Identity: []string{"color=blue"}},
 					jwt.SigningMethodES256,
 					k,
+					kid1,
 				),
 			})
 			ctx := bahamut.NewMockContext(context.Background())
@@ -239,6 +263,7 @@ func TestAuthenticateRequest(t *testing.T) {
 				&token.IdentityToken{Identity: []string{"color=blue"}},
 				jwt.SigningMethodES256,
 				k2,
+				kid1,
 			)
 
 			action, err := a.AuthenticateRequest(ctx)
