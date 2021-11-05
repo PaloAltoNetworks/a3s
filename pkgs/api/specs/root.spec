@@ -16,6 +16,10 @@ relations:
   create:
     description: Creates a new authorization.
 
+- rest_name: authz
+  create:
+    description: Sends a authz request.
+
 - rest_name: issue
   create:
     description: Ask to issue a new authentication token.

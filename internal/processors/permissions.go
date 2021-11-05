@@ -32,9 +32,9 @@ func (p *PermissionsProcessor) ProcessCreate(bctx bahamut.Context) error {
 	perms, err := p.retriever.Permissions(
 		bctx.Context(),
 		req.Claims,
-		req.TargetNamespace,
-		permissions.OptionRetrieverID(req.TargetID),
-		permissions.OptionRetrieverSourceIP(req.ClientIP),
+		req.Namespace,
+		permissions.OptionRetrieverID(req.ID),
+		permissions.OptionRetrieverSourceIP(req.IP),
 		permissions.OptionRetrieverRestrictions(restrictions),
 	)
 

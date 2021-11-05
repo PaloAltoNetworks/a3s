@@ -80,14 +80,20 @@ func (o PermissionsList) Version() int {
 
 // Permissions represents the model of a permissions
 type Permissions struct {
+	// The optional ID of the object to check permission for.
+	ID string `json:"ID" msgpack:"ID" bson:"-" mapstructure:"ID,omitempty"`
+
+	// IP of the client.
+	IP string `json:"IP" msgpack:"IP" bson:"-" mapstructure:"IP,omitempty"`
+
 	// The list of claims.
 	Claims []string `json:"claims" msgpack:"claims" bson:"-" mapstructure:"claims,omitempty"`
 
-	// IP of the client.
-	ClientIP string `json:"clientIP" msgpack:"clientIP" bson:"-" mapstructure:"clientIP,omitempty"`
-
 	// Return an eventual error.
 	Error string `json:"error,omitempty" msgpack:"error,omitempty" bson:"-" mapstructure:"error,omitempty"`
+
+	// The namespace where to check permission from.
+	Namespace string `json:"namespace" msgpack:"namespace" bson:"-" mapstructure:"namespace,omitempty"`
 
 	// The computed permissions.
 	Permissions map[string]map[string]bool `json:"permissions,omitempty" msgpack:"permissions,omitempty" bson:"-" mapstructure:"permissions,omitempty"`
@@ -100,12 +106,6 @@ type Permissions struct {
 
 	// Sets the permissions restrictions that should apply.
 	RestrictedPermissions []string `json:"restrictedPermissions" msgpack:"restrictedPermissions" bson:"-" mapstructure:"restrictedPermissions,omitempty"`
-
-	// The optional ID of the object to check permission for.
-	TargetID string `json:"targetID" msgpack:"targetID" bson:"-" mapstructure:"targetID,omitempty"`
-
-	// The namespace where to check permission from.
-	TargetNamespace string `json:"targetNamespace" msgpack:"targetNamespace" bson:"-" mapstructure:"targetNamespace,omitempty"`
 
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
 }
@@ -204,27 +204,31 @@ func (o *Permissions) ToSparse(fields ...string) elemental.SparseIdentifiable {
 	if len(fields) == 0 {
 		// nolint: goimports
 		return &SparsePermissions{
+			ID:                    &o.ID,
+			IP:                    &o.IP,
 			Claims:                &o.Claims,
-			ClientIP:              &o.ClientIP,
 			Error:                 &o.Error,
+			Namespace:             &o.Namespace,
 			Permissions:           &o.Permissions,
 			RestrictedNamespace:   &o.RestrictedNamespace,
 			RestrictedNetworks:    &o.RestrictedNetworks,
 			RestrictedPermissions: &o.RestrictedPermissions,
-			TargetID:              &o.TargetID,
-			TargetNamespace:       &o.TargetNamespace,
 		}
 	}
 
 	sp := &SparsePermissions{}
 	for _, f := range fields {
 		switch f {
+		case "ID":
+			sp.ID = &(o.ID)
+		case "IP":
+			sp.IP = &(o.IP)
 		case "claims":
 			sp.Claims = &(o.Claims)
-		case "clientIP":
-			sp.ClientIP = &(o.ClientIP)
 		case "error":
 			sp.Error = &(o.Error)
+		case "namespace":
+			sp.Namespace = &(o.Namespace)
 		case "permissions":
 			sp.Permissions = &(o.Permissions)
 		case "restrictedNamespace":
@@ -233,10 +237,6 @@ func (o *Permissions) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.RestrictedNetworks = &(o.RestrictedNetworks)
 		case "restrictedPermissions":
 			sp.RestrictedPermissions = &(o.RestrictedPermissions)
-		case "targetID":
-			sp.TargetID = &(o.TargetID)
-		case "targetNamespace":
-			sp.TargetNamespace = &(o.TargetNamespace)
 		}
 	}
 
@@ -250,14 +250,20 @@ func (o *Permissions) Patch(sparse elemental.SparseIdentifiable) {
 	}
 
 	so := sparse.(*SparsePermissions)
+	if so.ID != nil {
+		o.ID = *so.ID
+	}
+	if so.IP != nil {
+		o.IP = *so.IP
+	}
 	if so.Claims != nil {
 		o.Claims = *so.Claims
 	}
-	if so.ClientIP != nil {
-		o.ClientIP = *so.ClientIP
-	}
 	if so.Error != nil {
 		o.Error = *so.Error
+	}
+	if so.Namespace != nil {
+		o.Namespace = *so.Namespace
 	}
 	if so.Permissions != nil {
 		o.Permissions = *so.Permissions
@@ -270,12 +276,6 @@ func (o *Permissions) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.RestrictedPermissions != nil {
 		o.RestrictedPermissions = *so.RestrictedPermissions
-	}
-	if so.TargetID != nil {
-		o.TargetID = *so.TargetID
-	}
-	if so.TargetNamespace != nil {
-		o.TargetNamespace = *so.TargetNamespace
 	}
 }
 
@@ -313,7 +313,7 @@ func (o *Permissions) Validate() error {
 		requiredErrors = requiredErrors.Append(err)
 	}
 
-	if err := elemental.ValidateRequiredString("targetNamespace", o.TargetNamespace); err != nil {
+	if err := elemental.ValidateRequiredString("namespace", o.Namespace); err != nil {
 		requiredErrors = requiredErrors.Append(err)
 	}
 
@@ -351,12 +351,16 @@ func (*Permissions) AttributeSpecifications() map[string]elemental.AttributeSpec
 func (o *Permissions) ValueForAttribute(name string) interface{} {
 
 	switch name {
+	case "ID":
+		return o.ID
+	case "IP":
+		return o.IP
 	case "claims":
 		return o.Claims
-	case "clientIP":
-		return o.ClientIP
 	case "error":
 		return o.Error
+	case "namespace":
+		return o.Namespace
 	case "permissions":
 		return o.Permissions
 	case "restrictedNamespace":
@@ -365,10 +369,6 @@ func (o *Permissions) ValueForAttribute(name string) interface{} {
 		return o.RestrictedNetworks
 	case "restrictedPermissions":
 		return o.RestrictedPermissions
-	case "targetID":
-		return o.TargetID
-	case "targetNamespace":
-		return o.TargetNamespace
 	}
 
 	return nil
@@ -376,6 +376,22 @@ func (o *Permissions) ValueForAttribute(name string) interface{} {
 
 // PermissionsAttributesMap represents the map of attribute for Permissions.
 var PermissionsAttributesMap = map[string]elemental.AttributeSpecification{
+	"ID": {
+		AllowedChoices: []string{},
+		ConvertedName:  "ID",
+		Description:    `The optional ID of the object to check permission for.`,
+		Exposed:        true,
+		Name:           "ID",
+		Type:           "string",
+	},
+	"IP": {
+		AllowedChoices: []string{},
+		ConvertedName:  "IP",
+		Description:    `IP of the client.`,
+		Exposed:        true,
+		Name:           "IP",
+		Type:           "string",
+	},
 	"Claims": {
 		AllowedChoices: []string{},
 		ConvertedName:  "Claims",
@@ -386,14 +402,6 @@ var PermissionsAttributesMap = map[string]elemental.AttributeSpecification{
 		SubType:        "string",
 		Type:           "list",
 	},
-	"ClientIP": {
-		AllowedChoices: []string{},
-		ConvertedName:  "ClientIP",
-		Description:    `IP of the client.`,
-		Exposed:        true,
-		Name:           "clientIP",
-		Type:           "string",
-	},
 	"Error": {
 		AllowedChoices: []string{},
 		Autogenerated:  true,
@@ -402,6 +410,15 @@ var PermissionsAttributesMap = map[string]elemental.AttributeSpecification{
 		Exposed:        true,
 		Name:           "error",
 		ReadOnly:       true,
+		Type:           "string",
+	},
+	"Namespace": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Namespace",
+		Description:    `The namespace where to check permission from.`,
+		Exposed:        true,
+		Name:           "namespace",
+		Required:       true,
 		Type:           "string",
 	},
 	"Permissions": {
@@ -441,27 +458,26 @@ var PermissionsAttributesMap = map[string]elemental.AttributeSpecification{
 		SubType:        "string",
 		Type:           "list",
 	},
-	"TargetID": {
-		AllowedChoices: []string{},
-		ConvertedName:  "TargetID",
-		Description:    `The optional ID of the object to check permission for.`,
-		Exposed:        true,
-		Name:           "targetID",
-		Type:           "string",
-	},
-	"TargetNamespace": {
-		AllowedChoices: []string{},
-		ConvertedName:  "TargetNamespace",
-		Description:    `The namespace where to check permission from.`,
-		Exposed:        true,
-		Name:           "targetNamespace",
-		Required:       true,
-		Type:           "string",
-	},
 }
 
 // PermissionsLowerCaseAttributesMap represents the map of attribute for Permissions.
 var PermissionsLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
+	"id": {
+		AllowedChoices: []string{},
+		ConvertedName:  "ID",
+		Description:    `The optional ID of the object to check permission for.`,
+		Exposed:        true,
+		Name:           "ID",
+		Type:           "string",
+	},
+	"ip": {
+		AllowedChoices: []string{},
+		ConvertedName:  "IP",
+		Description:    `IP of the client.`,
+		Exposed:        true,
+		Name:           "IP",
+		Type:           "string",
+	},
 	"claims": {
 		AllowedChoices: []string{},
 		ConvertedName:  "Claims",
@@ -472,14 +488,6 @@ var PermissionsLowerCaseAttributesMap = map[string]elemental.AttributeSpecificat
 		SubType:        "string",
 		Type:           "list",
 	},
-	"clientip": {
-		AllowedChoices: []string{},
-		ConvertedName:  "ClientIP",
-		Description:    `IP of the client.`,
-		Exposed:        true,
-		Name:           "clientIP",
-		Type:           "string",
-	},
 	"error": {
 		AllowedChoices: []string{},
 		Autogenerated:  true,
@@ -488,6 +496,15 @@ var PermissionsLowerCaseAttributesMap = map[string]elemental.AttributeSpecificat
 		Exposed:        true,
 		Name:           "error",
 		ReadOnly:       true,
+		Type:           "string",
+	},
+	"namespace": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Namespace",
+		Description:    `The namespace where to check permission from.`,
+		Exposed:        true,
+		Name:           "namespace",
+		Required:       true,
 		Type:           "string",
 	},
 	"permissions": {
@@ -526,23 +543,6 @@ var PermissionsLowerCaseAttributesMap = map[string]elemental.AttributeSpecificat
 		Name:           "restrictedPermissions",
 		SubType:        "string",
 		Type:           "list",
-	},
-	"targetid": {
-		AllowedChoices: []string{},
-		ConvertedName:  "TargetID",
-		Description:    `The optional ID of the object to check permission for.`,
-		Exposed:        true,
-		Name:           "targetID",
-		Type:           "string",
-	},
-	"targetnamespace": {
-		AllowedChoices: []string{},
-		ConvertedName:  "TargetNamespace",
-		Description:    `The namespace where to check permission from.`,
-		Exposed:        true,
-		Name:           "targetNamespace",
-		Required:       true,
-		Type:           "string",
 	},
 }
 
@@ -609,14 +609,20 @@ func (o SparsePermissionsList) Version() int {
 
 // SparsePermissions represents the sparse version of a permissions.
 type SparsePermissions struct {
+	// The optional ID of the object to check permission for.
+	ID *string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
+
+	// IP of the client.
+	IP *string `json:"IP,omitempty" msgpack:"IP,omitempty" bson:"-" mapstructure:"IP,omitempty"`
+
 	// The list of claims.
 	Claims *[]string `json:"claims,omitempty" msgpack:"claims,omitempty" bson:"-" mapstructure:"claims,omitempty"`
 
-	// IP of the client.
-	ClientIP *string `json:"clientIP,omitempty" msgpack:"clientIP,omitempty" bson:"-" mapstructure:"clientIP,omitempty"`
-
 	// Return an eventual error.
 	Error *string `json:"error,omitempty" msgpack:"error,omitempty" bson:"-" mapstructure:"error,omitempty"`
+
+	// The namespace where to check permission from.
+	Namespace *string `json:"namespace,omitempty" msgpack:"namespace,omitempty" bson:"-" mapstructure:"namespace,omitempty"`
 
 	// The computed permissions.
 	Permissions *map[string]map[string]bool `json:"permissions,omitempty" msgpack:"permissions,omitempty" bson:"-" mapstructure:"permissions,omitempty"`
@@ -629,12 +635,6 @@ type SparsePermissions struct {
 
 	// Sets the permissions restrictions that should apply.
 	RestrictedPermissions *[]string `json:"restrictedPermissions,omitempty" msgpack:"restrictedPermissions,omitempty" bson:"-" mapstructure:"restrictedPermissions,omitempty"`
-
-	// The optional ID of the object to check permission for.
-	TargetID *string `json:"targetID,omitempty" msgpack:"targetID,omitempty" bson:"-" mapstructure:"targetID,omitempty"`
-
-	// The namespace where to check permission from.
-	TargetNamespace *string `json:"targetNamespace,omitempty" msgpack:"targetNamespace,omitempty" bson:"-" mapstructure:"targetNamespace,omitempty"`
 
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
 }
@@ -700,14 +700,20 @@ func (o *SparsePermissions) Version() int {
 func (o *SparsePermissions) ToPlain() elemental.PlainIdentifiable {
 
 	out := NewPermissions()
+	if o.ID != nil {
+		out.ID = *o.ID
+	}
+	if o.IP != nil {
+		out.IP = *o.IP
+	}
 	if o.Claims != nil {
 		out.Claims = *o.Claims
 	}
-	if o.ClientIP != nil {
-		out.ClientIP = *o.ClientIP
-	}
 	if o.Error != nil {
 		out.Error = *o.Error
+	}
+	if o.Namespace != nil {
+		out.Namespace = *o.Namespace
 	}
 	if o.Permissions != nil {
 		out.Permissions = *o.Permissions
@@ -720,12 +726,6 @@ func (o *SparsePermissions) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.RestrictedPermissions != nil {
 		out.RestrictedPermissions = *o.RestrictedPermissions
-	}
-	if o.TargetID != nil {
-		out.TargetID = *o.TargetID
-	}
-	if o.TargetNamespace != nil {
-		out.TargetNamespace = *o.TargetNamespace
 	}
 
 	return out

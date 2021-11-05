@@ -9,7 +9,7 @@ import (
 	"net/http"
 	"time"
 
-	"go.aporeto.io/a3s/internal/srv/authn/internal/issuer"
+	"go.aporeto.io/a3s/internal/issuer"
 	"go.aporeto.io/a3s/pkgs/api"
 	"go.aporeto.io/bahamut"
 	"go.aporeto.io/elemental"

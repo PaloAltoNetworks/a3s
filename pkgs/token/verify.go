@@ -13,7 +13,7 @@ func Verify(tokenString string, cert *x509.Certificate) (*IdentityToken, error) 
 
 	c := &IdentityToken{}
 
-	token, err := jwt.ParseWithClaims(tokenString, c, func(token *jwt.Token) (interface{}, error) {
+	_, err := jwt.ParseWithClaims(tokenString, c, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodECDSA); ok {
 			return cert.PublicKey.(*ecdsa.PublicKey), nil
 		}
@@ -23,5 +23,5 @@ func Verify(tokenString string, cert *x509.Certificate) (*IdentityToken, error) 
 		return nil, fmt.Errorf("unable to parse jwt: %w", err)
 	}
 
-	return token.Claims.(*IdentityToken), nil
+	return c, nil
 }

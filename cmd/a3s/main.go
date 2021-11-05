@@ -10,9 +10,7 @@ import (
 	"os"
 	"strings"
 
-	"go.aporeto.io/a3s/internal/srv/authn"
-	"go.aporeto.io/a3s/internal/srv/authz"
-	"go.aporeto.io/a3s/internal/srv/policy"
+	"go.aporeto.io/a3s/internal/processors"
 	"go.aporeto.io/a3s/pkgs/api"
 	"go.aporeto.io/a3s/pkgs/authenticator"
 	"go.aporeto.io/a3s/pkgs/authorizer"
@@ -30,6 +28,7 @@ var (
 	publicResources = []string{
 		api.IssueIdentity.Category,
 		api.PermissionsIdentity.Category,
+		api.AuthzIdentity.Category,
 	}
 )
 
@@ -46,17 +45,17 @@ func main() {
 		defer close()
 	}
 
-	manipulator := bootstrap.MakeMongoManipulator(cfg.MongoConf)
-	if err := indexes.Ensure(manipulator, api.Manager(), "a3s"); err != nil {
+	m := bootstrap.MakeMongoManipulator(cfg.MongoConf)
+	if err := indexes.Ensure(m, api.Manager(), "a3s"); err != nil {
 		zap.L().Fatal("Unable to ensure indexes", zap.Error(err))
 	}
 
-	if err := createRootNamespaceIfNeeded(manipulator); err != nil {
+	if err := createRootNamespaceIfNeeded(m); err != nil {
 		zap.L().Fatal("Unable to handle root namespace", zap.Error(err))
 	}
 
 	if cfg.Init {
-		if err := initRootPermissions(ctx, manipulator, cfg.InitRootUserCAPath); err != nil {
+		if err := initRootPermissions(ctx, m, cfg.InitRootUserCAPath); err != nil {
 			zap.L().Fatal("unable to initialize root permissions", zap.Error(err))
 			return
 		}
@@ -65,7 +64,7 @@ func main() {
 		return
 	}
 
-	jwtCert, _, err := cfg.AuthNConf.JWTCertificate()
+	jwtCert, jwtKey, err := cfg.JWT.JWTCertificate()
 	if err != nil {
 		zap.L().Fatal("Unable to get JWT certificate", zap.Error(err))
 	}
@@ -74,7 +73,7 @@ func main() {
 	defer pubsub.Disconnect() // nolint: errcheck
 
 	pauthn := authenticator.NewPrivate(jwtCert)
-	retriever := permissions.NewRetriever(manipulator)
+	retriever := permissions.NewRetriever(m)
 	pauthz := authorizer.New(
 		ctx,
 		retriever,
@@ -102,21 +101,16 @@ func main() {
 			),
 			bahamut.OptMTLS(nil, tls.RequestClientCert),
 			bahamut.OptErrorTransformer(errorTransformer),
-			bahamut.OptIdentifiableRetriever(bootstrap.MakeIdentifiableRetriever(manipulator)),
+			bahamut.OptIdentifiableRetriever(bootstrap.MakeIdentifiableRetriever(m)),
 		)...,
 	)
 
-	if err := authn.Init(ctx, cfg.AuthNConf, server, manipulator, pubsub); err != nil {
-		zap.L().Fatal("Unable to initialize authn module", zap.Error(err))
-	}
-
-	if err := policy.Init(ctx, cfg.PolicyConf, server, manipulator, retriever, pubsub); err != nil {
-		zap.L().Fatal("Unable to initialize policy module", zap.Error(err))
-	}
-
-	if err := authz.Init(ctx, server, manipulator, retriever); err != nil {
-		zap.L().Fatal("Unable to initialize policy module", zap.Error(err))
-	}
+	bahamut.RegisterProcessorOrDie(server, processors.NewIssueProcessor(m, jwtCert, jwtKey, cfg.JWT.JWTMaxValidity), api.IssueIdentity)
+	bahamut.RegisterProcessorOrDie(server, processors.NewMTLSSourcesProcessor(m), api.MTLSSourceIdentity)
+	bahamut.RegisterProcessorOrDie(server, processors.NewPermissionsProcessor(retriever), api.PermissionsIdentity)
+	bahamut.RegisterProcessorOrDie(server, processors.NewAuthzProcessor(pauthz, jwtCert), api.AuthzIdentity)
+	bahamut.RegisterProcessorOrDie(server, processors.NewNamespacesProcessor(m, pubsub), api.NamespaceIdentity)
+	bahamut.RegisterProcessorOrDie(server, processors.NewAuthorizationProcessor(m, pubsub, retriever), api.AuthorizationIdentity)
 
 	server.Run(ctx)
 }
