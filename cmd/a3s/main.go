@@ -70,6 +70,11 @@ func main() {
 		zap.L().Fatal("Unable to get JWT certificate", zap.Error(err))
 	}
 
+	zap.L().Info("JWT info configured",
+		zap.String("iss", cfg.JWT.JWTIssuer),
+		zap.String("aud", cfg.JWT.JWTAudience),
+	)
+
 	jwks := token.NewJWKS()
 	if err := jwks.AppendWithPrivate(jwtCert, jwtKey); err != nil {
 		zap.L().Fatal("unable to build JWKS", zap.Error(err))
