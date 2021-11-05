@@ -101,8 +101,8 @@ github.com/gofrs/uuid v4.0.0+incompatible h1:1SD/1F5pU8p29ybwgQSwpQk+mwdRrXCYuPh
 github.com/gofrs/uuid v4.0.0+incompatible/go.mod h1:b2aQJv3Z4Fp6yNu3cdSllBxTCLRxnplIgP/c0N/04lM=
 github.com/gogo/protobuf v1.1.1/go.mod h1:r8qH/GZQm5c6nD/R0oafs1akxWv10x8SbQlK7atdtwQ=
 github.com/gogo/protobuf v1.2.1/go.mod h1:hp+jE20tsWTFYpLwKvXlhS1hjn+gTNwPg2I6zVXpSg4=
-github.com/golang-jwt/jwt v3.2.2+incompatible h1:IfV12K8xAKAnZqdXVzCZ+TOjboZ2keLg81eXfW3O+oY=
-github.com/golang-jwt/jwt v3.2.2+incompatible/go.mod h1:8pz2t5EyA70fFQQSrl6XZXzqecmYZeUEB8OUGHkxJ+I=
+github.com/golang-jwt/jwt/v4 v4.1.0 h1:XUgk2Ex5veyVFVeLm0xhusUTQybEbexJXrvPNOKkSY0=
+github.com/golang-jwt/jwt/v4 v4.1.0/go.mod h1:/xlHOz8bRuivTWchD4jCa+NbatV+wEUSzwAxVc6locg=
 github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b/go.mod h1:SBH7ygxi8pfUlaOkMMuAQtPIUF8ecWP5IEl/CR7VP2Q=
 github.com/golang/groupcache v0.0.0-20190129154638-5b532d6fd5ef/go.mod h1:cIg4eruTrX1D+g88fzRXU5OdNfaM+9IcxsU14FzY7Hc=
 github.com/golang/mock v1.1.1/go.mod h1:oTYuIxOrZwtPieC+H1uAHpcLFnEyAGVDL/k47Jfbm0A=
@@ -398,8 +398,6 @@ github.com/yl2chen/cidranger v1.0.2/go.mod h1:9U1yz7WPYDwf0vpNWFaeRh0bjwz5RVgRy/
 github.com/yuin/goldmark v1.3.5/go.mod h1:mwnBkeHKe2W/ZEtQ+71ViKU8L12m81fl3OWwC1Zlc8k=
 go.aporeto.io/addedeffect v1.77.1-0.20210930200419-5082b3192403 h1:oKmMXJXoaO5IqDsJqoaARGog4TblYXqK+EtM6SoFA8Y=
 go.aporeto.io/addedeffect v1.77.1-0.20210930200419-5082b3192403/go.mod h1:YlGk/U5OdpLMNHxPJWunbhCZxJXlMCxo+N6J42jgNlU=
-go.aporeto.io/bahamut v1.112.1-0.20211103215415-5fc491973a94 h1:vjDO6VraOWBiXCki3tmwCeLPkwuolus8UA9b3tQHKsY=
-go.aporeto.io/bahamut v1.112.1-0.20211103215415-5fc491973a94/go.mod h1:h3FZp+4gLfuGQ9AWe3T4zsrOzDLnEa6yfxG3jOpurhI=
 go.aporeto.io/bahamut v1.112.1-0.20211105162237-0d08de35d6a0 h1:lja0iXG+4I7VLe3fXh+w/Eia5f9Z0Yk9s+eKwVUCoYY=
 go.aporeto.io/bahamut v1.112.1-0.20211105162237-0d08de35d6a0/go.mod h1:h3FZp+4gLfuGQ9AWe3T4zsrOzDLnEa6yfxG3jOpurhI=
 go.aporeto.io/elemental v1.100.1-0.20210910205400-851949ed821f/go.mod h1:1WRCDolBBhyTFah5tpf9DNVHaJefug7lV9V9UzPNDAE=

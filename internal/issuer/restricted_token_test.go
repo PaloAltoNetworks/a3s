@@ -35,7 +35,7 @@ func TestFromToken(t *testing.T) {
 		c := NewTokenIssuer()
 		err := c.FromToken(token, cert, "", "", "", permissions.Restrictions{})
 		So(err, ShouldNotBeNil)
-		So(err.Error(), ShouldEqual, `unable to compute restrictions: unable to compute authz restrictions from token: invalid restrictions.networks claim type`)
+		So(err.Error(), ShouldEqual, `unable to compute restrictions: unable to compute authz restrictions from token: json: cannot unmarshal string into Go struct field Restrictions.restrictions.networks of type []string`)
 	})
 
 	Convey("Using a token that is not correctly signed", t, func() {

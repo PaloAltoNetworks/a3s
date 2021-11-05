@@ -111,7 +111,7 @@ func TestIsAuthorized(t *testing.T) {
 
 			action, err := a.IsAuthorized(bctx)
 			So(err, ShouldNotBeNil)
-			So(err.Error(), ShouldEqual, "error 403 (a3s:authorizer): Forbidden: unable to compute authz restrictions from token: invalid jwt: illegal base64 data at input byte 0")
+			So(err.Error(), ShouldEqual, "error 403 (a3s:authorizer): Forbidden: unable to compute authz restrictions from token: invalid character '\\u009e' looking for beginning of value")
 			So(action, ShouldEqual, bahamut.AuthActionKO)
 		})
 
