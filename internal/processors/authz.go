@@ -64,7 +64,6 @@ func (p *AuthzProcessor) ProcessCreate(bctx bahamut.Context) error {
 		bctx.SetStatusCode(http.StatusOK)
 	} else {
 		bctx.SetStatusCode(http.StatusForbidden)
-		bctx.SetOutputData("Forbidden")
 	}
 
 	return nil

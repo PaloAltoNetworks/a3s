@@ -1,11 +1,8 @@
 package permissions
 
 import (
-	"encoding/json"
-	"errors"
 	"fmt"
 	"net"
-	"strings"
 
 	"github.com/apparentlymart/go-cidr/cidr"
 	"github.com/golang-jwt/jwt"
@@ -107,98 +104,17 @@ func (r Restrictions) ComputePermissionsRestrictions(requested []string) ([]stri
 
 // GetRestrictions returns the eventual Restrictions
 // embedded in the given token.
-func GetRestrictions(token string) (Restrictions, error) {
+func GetRestrictions(tokenString string) (Restrictions, error) {
 
-	ns, perms, networks, err := ExtractRestrictions(token)
-	if err != nil {
+	s := struct {
+		R Restrictions `json:"restrictions"`
+		jwt.Claims
+	}{}
+
+	parser := jwt.Parser{}
+	if _, _, err := parser.ParseUnverified(tokenString, &s); err != nil {
 		return Restrictions{}, fmt.Errorf("unable to compute authz restrictions from token: %w", err)
 	}
 
-	return Restrictions{
-		Namespace:   ns,
-		Permissions: perms,
-		Networks:    networks,
-	}, nil
-}
-
-// ExtractRestrictions extracts the eventual authz restrictions embded in the token.
-func ExtractRestrictions(token string) (ns string, perms []string, networks []string, err error) {
-
-	claims, err := UnsecureClaimsMap(token)
-	if err != nil {
-		return "", nil, nil, err
-	}
-
-	restrictions, ok := claims["restrictions"].(map[string]interface{})
-	if !ok {
-		return "", nil, nil, nil
-	}
-
-	lns, ok := restrictions["namespace"]
-	if ok {
-		ns, ok = lns.(string)
-		if !ok {
-			return "", nil, nil, fmt.Errorf("invalid restrictions.namespace claim type")
-		}
-	}
-
-	lai, ok := restrictions["perms"]
-	if ok {
-		permsIface, ok := lai.([]interface{})
-		if !ok {
-			return "", nil, nil, fmt.Errorf("invalid restrictions.permissions claim type")
-		}
-
-		for _, perm := range permsIface {
-			pstr, ok := perm.(string)
-			if !ok {
-				return "", nil, nil, fmt.Errorf("invalid restrictions.permissions claim item type")
-			}
-			perms = append(perms, pstr)
-		}
-	}
-
-	lnet, ok := restrictions["networks"]
-	if ok {
-		lnetIface, ok := lnet.([]interface{})
-		if !ok {
-			return "", nil, nil, fmt.Errorf("invalid restrictions.networks claim type")
-		}
-
-		for _, net := range lnetIface {
-			nstr, ok := net.(string)
-			if !ok {
-				return "", nil, nil, fmt.Errorf("invalid restrictions.networks claim item type")
-			}
-			networks = append(networks, nstr)
-		}
-	}
-
-	return ns, perms, networks, nil
-}
-
-// UnsecureClaimsMap decodes the claims in the given JWT token without
-// verifying its validity. Only use or trust this after proper validation.
-func UnsecureClaimsMap(token string) (claims map[string]interface{}, err error) {
-
-	if token == "" {
-		return nil, errors.New("invalid jwt: empty")
-	}
-
-	parts := strings.Split(token, ".")
-	if len(parts) != 3 {
-		return nil, errors.New("invalid jwt: not enough segments")
-	}
-
-	data, err := jwt.DecodeSegment(parts[1])
-	if err != nil {
-		return nil, fmt.Errorf("invalid jwt: %s", err)
-	}
-
-	claims = map[string]interface{}{}
-	if err := json.Unmarshal(data, &claims); err != nil {
-		return nil, fmt.Errorf("invalid jwt: %s", err)
-	}
-
-	return claims, nil
+	return s.R, nil
 }
