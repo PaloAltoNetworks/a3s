@@ -76,7 +76,8 @@ func (p *IssueProcessor) handleCertificateIssue(ctx context.Context, req *api.Is
 
 	idt := iss.Issue()
 
-	req.Token, err = idt.JWT(p.jwks.GetLast().PrivateKey(), "kid-placeholder", time.Now().Add(validity))
+	k := p.jwks.GetLast()
+	req.Token, err = idt.JWT(k.PrivateKey(), k.KID, time.Now().Add(validity))
 	if err != nil {
 		return err
 	}
