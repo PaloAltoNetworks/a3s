@@ -74,12 +74,12 @@ func TestParse(t *testing.T) {
 			"commonname=joe",
 		}
 
-		token, err := token1.JWT(key, time.Now().Add(10*time.Second))
+		token, err := token1.JWT(key, "kid", time.Now().Add(10*time.Second))
 		So(err, ShouldBeNil)
 
 		Convey("Calling JWT with a missing source type should fail", func() {
 			token1.Source.Type = ""
-			_, err := token1.JWT(key, time.Now().Add(10*time.Second))
+			_, err := token1.JWT(key, "kid", time.Now().Add(10*time.Second))
 			So(err, ShouldNotBeNil)
 			So(err.Error(), ShouldEqual, "invalid identity token: missing source type")
 		})

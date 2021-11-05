@@ -52,7 +52,7 @@ func TestFromToken(t *testing.T) {
 		mc.ExpiresAt = time.Now().Add(time.Hour).Unix()
 		mc.Issuer = "iss"
 
-		token, _ := mc.JWT(key, time.Time{})
+		token, _ := mc.JWT(key, "kid", time.Time{})
 		c := NewTokenIssuer()
 		err := c.FromToken(token, cert, "iss", "", "", permissions.Restrictions{})
 
@@ -66,7 +66,7 @@ func TestFromToken(t *testing.T) {
 		mc.ExpiresAt = time.Now().Add(time.Hour).Unix()
 		mc.Issuer = "iss"
 
-		token, _ := mc.JWT(key, time.Time{})
+		token, _ := mc.JWT(key, "kid", time.Time{})
 		c := NewTokenIssuer()
 		err := c.FromToken(token, cert, "iss", "", "chien", permissions.Restrictions{})
 
@@ -85,7 +85,7 @@ func TestFromToken(t *testing.T) {
 			Permissions: []string{"res,get,post"},
 		}
 
-		token, _ := mc.JWT(key, time.Time{})
+		token, _ := mc.JWT(key, "kid", time.Time{})
 		c := NewTokenIssuer()
 		err := c.FromToken(token, cert, "iss", "", "", permissions.Restrictions{
 			Namespace:   "/a/b",
@@ -111,7 +111,7 @@ func TestFromToken(t *testing.T) {
 			Permissions: []string{"res,get,post"},
 		}
 
-		token, _ := mc.JWT(key, time.Time{})
+		token, _ := mc.JWT(key, "kid", time.Time{})
 		c := NewTokenIssuer()
 		err := c.FromToken(token, cert, "iss", "", "", permissions.Restrictions{
 			Namespace:   "/",
@@ -134,7 +134,7 @@ func TestFromToken(t *testing.T) {
 			Permissions: []string{"res,get,post"},
 		}
 
-		token, _ := mc.JWT(key, time.Time{})
+		token, _ := mc.JWT(key, "kid", time.Time{})
 		c := NewTokenIssuer()
 		err := c.FromToken(token, cert, "iss", "", "", permissions.Restrictions{
 			Namespace:   "/a",
@@ -157,7 +157,7 @@ func TestFromToken(t *testing.T) {
 			Permissions: []string{"@auth:role=enforcer"},
 		}
 
-		token, _ := mc.JWT(key, time.Time{})
+		token, _ := mc.JWT(key, "kid", time.Time{})
 		c := NewTokenIssuer()
 		err := c.FromToken(token, cert, "issuer", "", "", permissions.Restrictions{
 			Namespace:   "/a",

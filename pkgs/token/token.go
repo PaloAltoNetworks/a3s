@@ -71,7 +71,7 @@ func (t *IdentityToken) Parse(tokenString string, cert *x509.Certificate, issuer
 }
 
 // JWT returns the signed JWT string.
-func (t *IdentityToken) JWT(key crypto.PrivateKey, exp time.Time) (string, error) {
+func (t *IdentityToken) JWT(key crypto.PrivateKey, kid string, exp time.Time) (string, error) {
 
 	t.Id = uuid.Must(uuid.NewV4()).String()
 	t.IssuedAt = time.Now().Unix()
@@ -94,5 +94,11 @@ func (t *IdentityToken) JWT(key crypto.PrivateKey, exp time.Time) (string, error
 		t.Identity = append(t.Identity, fmt.Sprintf("@sourcename=%s", t.Source.Name))
 	}
 
-	return jwt.NewWithClaims(jwt.SigningMethodES256, t).SignedString(key)
+	j := jwt.NewWithClaims(jwt.SigningMethodES256, t)
+
+	if kid != "" {
+		j.Header["kid"] = kid
+	}
+
+	return j.SignedString(key)
 }
