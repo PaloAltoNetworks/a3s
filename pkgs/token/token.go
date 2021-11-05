@@ -55,7 +55,7 @@ func (t *IdentityToken) Parse(tokenString string, keychain *JWKS, issuer string,
 		return fmt.Errorf("issuer '%s' is not acceptable. want '%s'", claims.Issuer, issuer)
 	}
 
-	if !claims.VerifyAudience(audience, true) {
+	if !claims.VerifyAudience(audience, false) {
 		return fmt.Errorf("audience '%s' is not acceptable. want '%s'", claims.Audience, audience)
 	}
 
@@ -63,10 +63,12 @@ func (t *IdentityToken) Parse(tokenString string, keychain *JWKS, issuer string,
 }
 
 // JWT returns the signed JWT string.
-func (t *IdentityToken) JWT(key crypto.PrivateKey, kid string, iss string, aud string, exp time.Time) (string, error) {
+func (t *IdentityToken) JWT(key crypto.PrivateKey, kid string, iss string, aud jwt.ClaimStrings, exp time.Time) (string, error) {
 
 	t.ID = uuid.Must(uuid.NewV4()).String()
 	t.IssuedAt = jwt.NewNumericDate(time.Now())
+	t.Issuer = iss
+	t.Audience = aud
 
 	if !exp.IsZero() {
 		t.ExpiresAt = jwt.NewNumericDate(exp)

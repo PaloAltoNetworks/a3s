@@ -59,7 +59,7 @@ func TestFromToken(t *testing.T) {
 		mc.ExpiresAt = jwt.NewNumericDate(time.Now().Add(time.Hour))
 		mc.Issuer = "iss"
 
-		token, _ := mc.JWT(key, kid, "iss", "aud", time.Time{})
+		token, _ := mc.JWT(key, kid, "iss", jwt.ClaimStrings{"aud"}, time.Time{})
 		c := NewTokenIssuer()
 		err := c.FromToken(token, keychain, "iss", "aud", "", permissions.Restrictions{})
 
@@ -73,7 +73,7 @@ func TestFromToken(t *testing.T) {
 		mc.ExpiresAt = jwt.NewNumericDate(time.Now().Add(time.Hour))
 		mc.Issuer = "iss"
 
-		token, _ := mc.JWT(key, kid, "iss", "aud", time.Time{})
+		token, _ := mc.JWT(key, kid, "iss", jwt.ClaimStrings{"aud"}, time.Time{})
 		c := NewTokenIssuer()
 		err := c.FromToken(token, keychain, "iss", "aud", "chien", permissions.Restrictions{})
 
@@ -92,7 +92,7 @@ func TestFromToken(t *testing.T) {
 			Permissions: []string{"res,get,post"},
 		}
 
-		token, _ := mc.JWT(key, kid, "iss", "aud", time.Time{})
+		token, _ := mc.JWT(key, kid, "iss", jwt.ClaimStrings{"aud"}, time.Time{})
 		c := NewTokenIssuer()
 		err := c.FromToken(token, keychain, "iss", "aud", "", permissions.Restrictions{
 			Namespace:   "/a/b",
@@ -118,7 +118,7 @@ func TestFromToken(t *testing.T) {
 			Permissions: []string{"res,get,post"},
 		}
 
-		token, _ := mc.JWT(key, kid, "iss", "aud", time.Time{})
+		token, _ := mc.JWT(key, kid, "iss", jwt.ClaimStrings{"aud"}, time.Time{})
 		c := NewTokenIssuer()
 		err := c.FromToken(token, keychain, "iss", "aud", "", permissions.Restrictions{
 			Namespace:   "/",
@@ -141,7 +141,7 @@ func TestFromToken(t *testing.T) {
 			Permissions: []string{"res,get,post"},
 		}
 
-		token, _ := mc.JWT(key, kid, "iss", "aud", time.Time{})
+		token, _ := mc.JWT(key, kid, "iss", jwt.ClaimStrings{"aud"}, time.Time{})
 		c := NewTokenIssuer()
 		err := c.FromToken(token, keychain, "iss", "aud", "", permissions.Restrictions{
 			Namespace:   "/a",
@@ -164,7 +164,7 @@ func TestFromToken(t *testing.T) {
 			Permissions: []string{"@auth:role=enforcer"},
 		}
 
-		token, _ := mc.JWT(key, kid, "iss", "aud", time.Time{})
+		token, _ := mc.JWT(key, kid, "iss", jwt.ClaimStrings{"aud"}, time.Time{})
 		c := NewTokenIssuer()
 		err := c.FromToken(token, keychain, "iss", "iss", "", permissions.Restrictions{
 			Namespace:   "/a",

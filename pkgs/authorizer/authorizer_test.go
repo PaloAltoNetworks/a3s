@@ -10,6 +10,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/golang-jwt/jwt/v4"
 	. "github.com/smartystreets/goconvey/convey"
 	"go.aporeto.io/a3s/pkgs/notification"
 	"go.aporeto.io/a3s/pkgs/nscache"
@@ -41,7 +42,7 @@ func getECCert() (*x509.Certificate, crypto.PrivateKey) {
 }
 
 func makeToken(claims *token.IdentityToken, key crypto.PrivateKey) string {
-	token, err := claims.JWT(key, "kid", "iss", "aud", time.Now().Add(time.Minute))
+	token, err := claims.JWT(key, "kid", "iss", jwt.ClaimStrings{"aud"}, time.Now().Add(time.Minute))
 	if err != nil {
 		panic(err)
 	}

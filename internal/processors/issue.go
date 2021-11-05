@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/golang-jwt/jwt/v4"
 	"go.aporeto.io/a3s/internal/issuer"
 	"go.aporeto.io/a3s/pkgs/api"
 	"go.aporeto.io/a3s/pkgs/token"
@@ -81,7 +82,7 @@ func (p *IssueProcessor) handleCertificateIssue(ctx context.Context, req *api.Is
 	idt := iss.Issue()
 
 	k := p.jwks.GetLast()
-	req.Token, err = idt.JWT(k.PrivateKey(), k.KID, p.issuer, p.audience, time.Now().Add(validity))
+	req.Token, err = idt.JWT(k.PrivateKey(), k.KID, p.issuer, jwt.ClaimStrings{p.audience}, time.Now().Add(validity))
 	if err != nil {
 		return err
 	}

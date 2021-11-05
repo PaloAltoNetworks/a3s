@@ -78,12 +78,12 @@ func TestParse(t *testing.T) {
 
 		kid := fmt.Sprintf("%02X", sha1.Sum(cert.Raw))
 
-		token, err := token1.JWT(key, kid, "iss", "aud", time.Now().Add(10*time.Second))
+		token, err := token1.JWT(key, kid, "iss", jwt.ClaimStrings{"aud"}, time.Now().Add(10*time.Second))
 		So(err, ShouldBeNil)
 
 		Convey("Calling JWT with a missing source type should fail", func() {
 			token1.Source.Type = ""
-			_, err := token1.JWT(key, "kid", "iss", "aud", time.Now().Add(10*time.Second))
+			_, err := token1.JWT(key, "kid", "iss", jwt.ClaimStrings{"aud"}, time.Now().Add(10*time.Second))
 			So(err, ShouldNotBeNil)
 			So(err.Error(), ShouldEqual, "invalid identity token: missing source type")
 		})
@@ -123,12 +123,10 @@ func TestParse(t *testing.T) {
 				Namespace: "/my/ns",
 				Name:      "mysource",
 			})
-			token2.Issuer = "not-iss"
-			token2.Audience = jwt.ClaimStrings{"aud"}
-			err = token2.Parse(token, keychain, "iss", "aud")
+			err = token2.Parse(token, keychain, "iss2", "aud")
 
 			So(err, ShouldNotBeNil)
-			So(err.Error(), ShouldEqual, "issuer 'not-iss' is not acceptable. want 'iss'")
+			So(err.Error(), ShouldEqual, "issuer 'iss' is not acceptable. want 'iss2'")
 		})
 
 		Convey("When I call Parse using the wrong audience", func() {
@@ -138,12 +136,10 @@ func TestParse(t *testing.T) {
 				Namespace: "/my/ns",
 				Name:      "mysource",
 			})
-			token2.Issuer = "iss"
-			token2.Audience = jwt.ClaimStrings{"not-aud"}
-			err = token2.Parse(token, keychain, "iss", "aud")
+			err = token2.Parse(token, keychain, "iss", "aud2")
 
 			So(err, ShouldNotBeNil)
-			So(err.Error(), ShouldEqual, "audience '[not-aud]' is not acceptable. want 'aud'")
+			So(err.Error(), ShouldEqual, "audience '[aud]' is not acceptable. want 'aud2'")
 		})
 
 		Convey("When I call Parse using the wrong signer certificate", func() {
