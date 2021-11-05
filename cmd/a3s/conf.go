@@ -44,7 +44,9 @@ func newConf() Conf {
 
 // JWTConf holds the configuration related to jwt management.
 type JWTConf struct {
+	JWTAudience    string        `mapstructure:"jwt-audience"         desc:"Value used for audience jwt field"`
 	JWTCertPath    string        `mapstructure:"jwt-cert"             desc:"Secret to use to sign the JWT"                         secret:"true" file:"true"`
+	JWTIssuer      string        `mapstructure:"jwt-issuer"           desc:"Value used for issuer jwt field"`
 	JWTKeyPass     string        `mapstructure:"jwt-key-pass"         desc:"JWT certificate key password"                          secret:"true" file:"true"`
 	JWTKeyPath     string        `mapstructure:"jwt-key"              desc:"Path to the JWT certificate key pem file"              secret:"true" file:"true"`
 	JWTMaxValidity time.Duration `mapstructure:"jwt-max-validity"     desc:"Maximum duration of the validity of the issued tokens" default:"720h"`

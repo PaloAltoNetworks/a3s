@@ -78,7 +78,7 @@ func main() {
 	pubsub := bootstrap.MakeNATSClient(cfg.NATSConf)
 	defer pubsub.Disconnect() // nolint: errcheck
 
-	pauthn := authenticator.NewPrivate(jwks)
+	pauthn := authenticator.NewPrivate(jwks, cfg.JWT.JWTIssuer, cfg.JWT.JWTAudience)
 	retriever := permissions.NewRetriever(m)
 	pauthz := authorizer.New(
 		ctx,
@@ -111,7 +111,7 @@ func main() {
 		)...,
 	)
 
-	bahamut.RegisterProcessorOrDie(server, processors.NewIssueProcessor(m, jwks, cfg.JWT.JWTMaxValidity), api.IssueIdentity)
+	bahamut.RegisterProcessorOrDie(server, processors.NewIssueProcessor(m, jwks, cfg.JWT.JWTMaxValidity, cfg.JWT.JWTIssuer, cfg.JWT.JWTAudience), api.IssueIdentity)
 	bahamut.RegisterProcessorOrDie(server, processors.NewMTLSSourcesProcessor(m), api.MTLSSourceIdentity)
 	bahamut.RegisterProcessorOrDie(server, processors.NewPermissionsProcessor(retriever), api.PermissionsIdentity)
 	bahamut.RegisterProcessorOrDie(server, processors.NewAuthzProcessor(pauthz, jwks), api.AuthzIdentity)

@@ -10,6 +10,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/golang-jwt/jwt/v4"
 	. "github.com/smartystreets/goconvey/convey"
 	"go.aporeto.io/tg/tglib"
 )
@@ -66,10 +67,6 @@ func TestParse(t *testing.T) {
 		token1.Source.Type = "certificate"
 		token1.Source.Namespace = "/my/ns"
 		token1.Source.Name = "mysource"
-		token1.Issuer = "https://a3s.com"
-		token1.Audience = "https://a3s.com"
-		token1.ExpiresAt = time.Now().Add(10 * time.Second).Unix()
-		token1.IssuedAt = time.Now().Unix()
 		token1.Identity = []string{
 			"org=a3s.com",
 			"orgunit=admin",
@@ -81,12 +78,12 @@ func TestParse(t *testing.T) {
 
 		kid := fmt.Sprintf("%02X", sha1.Sum(cert.Raw))
 
-		token, err := token1.JWT(key, kid, time.Now().Add(10*time.Second))
+		token, err := token1.JWT(key, kid, "iss", "aud", time.Now().Add(10*time.Second))
 		So(err, ShouldBeNil)
 
 		Convey("Calling JWT with a missing source type should fail", func() {
 			token1.Source.Type = ""
-			_, err := token1.JWT(key, "kid", time.Now().Add(10*time.Second))
+			_, err := token1.JWT(key, "kid", "iss", "aud", time.Now().Add(10*time.Second))
 			So(err, ShouldNotBeNil)
 			So(err.Error(), ShouldEqual, "invalid identity token: missing source type")
 		})
@@ -98,14 +95,17 @@ func TestParse(t *testing.T) {
 				Namespace: "/my/ns",
 				Name:      "mysource",
 			})
-			err = token2.Parse(token, keychain, "https://a3s.com", "https://a3s.com")
+			token2.Issuer = "iss"
+			token2.Audience = jwt.ClaimStrings{"aud"}
+
+			err = token2.Parse(token, keychain, "iss", "aud")
 
 			So(err, ShouldBeNil)
 			So(token2.Source.Type, ShouldEqual, "certificate")
-			So(token2.Issuer, ShouldEqual, "https://a3s.com")
-			So(token2.Audience, ShouldEqual, "https://a3s.com")
-			So(token2.ExpiresAt, ShouldEqual, token1.ExpiresAt)
-			So(token2.IssuedAt, ShouldEqual, token1.IssuedAt)
+			So(token2.Issuer, ShouldEqual, "iss")
+			So(token2.Audience, ShouldResemble, jwt.ClaimStrings{"aud"})
+			So(token2.ExpiresAt, ShouldResemble, token1.ExpiresAt)
+			So(token2.IssuedAt, ShouldResemble, token1.IssuedAt)
 			So(token2.Identity, ShouldResemble, []string{
 				"org=a3s.com",
 				"orgunit=admin",
@@ -123,10 +123,12 @@ func TestParse(t *testing.T) {
 				Namespace: "/my/ns",
 				Name:      "mysource",
 			})
-			err = token2.Parse(token, keychain, "https://not-a3s.com", "https://a3s.com")
+			token2.Issuer = "not-iss"
+			token2.Audience = jwt.ClaimStrings{"aud"}
+			err = token2.Parse(token, keychain, "iss", "aud")
 
 			So(err, ShouldNotBeNil)
-			So(err.Error(), ShouldEqual, "issuer 'https://a3s.com' is not acceptable. want 'https://not-a3s.com'")
+			So(err.Error(), ShouldEqual, "issuer 'not-iss' is not acceptable. want 'iss'")
 		})
 
 		Convey("When I call Parse using the wrong audience", func() {
@@ -136,10 +138,12 @@ func TestParse(t *testing.T) {
 				Namespace: "/my/ns",
 				Name:      "mysource",
 			})
-			err = token2.Parse(token, keychain, "https://a3s.com", "https://not-a3s.com")
+			token2.Issuer = "iss"
+			token2.Audience = jwt.ClaimStrings{"not-aud"}
+			err = token2.Parse(token, keychain, "iss", "aud")
 
 			So(err, ShouldNotBeNil)
-			So(err.Error(), ShouldEqual, "audience 'https://a3s.com' is not acceptable. want 'https://not-a3s.com'")
+			So(err.Error(), ShouldEqual, "audience '[not-aud]' is not acceptable. want 'aud'")
 		})
 
 		Convey("When I call Parse using the wrong signer certificate", func() {
@@ -152,7 +156,7 @@ func TestParse(t *testing.T) {
 				Namespace: "/my/ns",
 				Name:      "mysource",
 			})
-			err = token2.Parse(token, keychain2, "https://a3s.com", "https://a3s.com")
+			err = token2.Parse(token, keychain2, "iss", "aud")
 
 			So(err, ShouldNotBeNil)
 			So(err.Error(), ShouldEqual, fmt.Sprintf("unable to parse jwt: unable to find kid '%s': kid not found in JWKS", kid))
@@ -166,7 +170,7 @@ func TestParse(t *testing.T) {
 				Namespace: "/my/ns",
 				Name:      "mysource",
 			})
-			err = token2.Parse(token, keychain, "https://a3s.com", "https://a3s.com")
+			err = token2.Parse(token, keychain, "iss", "aud")
 
 			So(err, ShouldNotBeNil)
 			So(err.Error(), ShouldEqual, "unable to parse jwt: unexpected signing method: HS256")

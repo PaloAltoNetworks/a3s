@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/golang-jwt/jwt/v4"
 	"go.aporeto.io/a3s/pkgs/permissions"
 	"go.aporeto.io/a3s/pkgs/token"
 )
@@ -75,7 +76,12 @@ func (c *TokenIssuer) FromToken(
 		return ErrComputeRestrictions{Err: err}
 	}
 
-	c.token = token.NewIdentityToken(token.Source{})
+	c.token = &token.IdentityToken{
+		RegisteredClaims: jwt.RegisteredClaims{
+			Issuer:   issuer,
+			Audience: jwt.ClaimStrings{audience},
+		},
+	}
 	if err := c.token.Parse(tokenString, keychain, issuer, audience); err != nil {
 		return ErrInputToken{Err: err}
 	}
@@ -102,10 +108,10 @@ func (c *TokenIssuer) Issue() *token.IdentityToken {
 	return c.token
 }
 
-func computeNewValidity(originalExpUNIX int64, requestedValidityStr string) (int64, error) {
+func computeNewValidity(originalExpUNIX *jwt.NumericDate, requestedValidityStr string) (*jwt.NumericDate, error) {
 
-	if originalExpUNIX == 0 {
-		return 0, fmt.Errorf("unable to compute new validity: original expiration is zero")
+	if originalExpUNIX == nil || originalExpUNIX.Unix() == 0 {
+		return nil, fmt.Errorf("unable to compute new validity: original expiration is zero")
 	}
 
 	if requestedValidityStr == "" {
@@ -116,13 +122,13 @@ func computeNewValidity(originalExpUNIX int64, requestedValidityStr string) (int
 
 	requestedValidity, err := time.ParseDuration(requestedValidityStr)
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
 
-	originalExp := time.Unix(originalExpUNIX, 0)
+	originalExp := originalExpUNIX.Local()
 	if now.Add(requestedValidity).After(originalExp) {
-		return originalExp.Unix(), nil
+		return jwt.NewNumericDate(originalExp), nil
 	}
 
-	return now.Add(requestedValidity).Unix(), nil
+	return jwt.NewNumericDate(now.Add(requestedValidity)), nil
 }

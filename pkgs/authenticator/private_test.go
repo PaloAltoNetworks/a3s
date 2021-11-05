@@ -41,6 +41,8 @@ func getECCert() (*x509.Certificate, crypto.PrivateKey) {
 }
 
 func makeToken(claims *token.IdentityToken, signMethod jwt.SigningMethod, key crypto.PrivateKey, kid string) string {
+	claims.Issuer = "iss"
+	claims.Audience = jwt.ClaimStrings{"aud"}
 	token := jwt.NewWithClaims(signMethod, claims)
 	token.Header["kid"] = kid
 	t, err := token.SignedString(key)
@@ -57,7 +59,7 @@ func TestNewAuthenticator(t *testing.T) {
 		c, _ := getECCert()
 		jwks := token.NewJWKS()
 		_ = jwks.Append(c)
-		a := NewPrivate(jwks)
+		a := NewPrivate(jwks, "iss", "aud")
 
 		Convey("Then a should be correct", func() {
 			So(a.jwks, ShouldEqual, jwks)
@@ -73,7 +75,7 @@ func TestCommonAuth(t *testing.T) {
 		_, k2 := getECCert()
 		jwks := token.NewJWKS()
 		_ = jwks.Append(c)
-		a := NewPrivate(jwks)
+		a := NewPrivate(jwks, "iss", "aud")
 
 		kid1 := fmt.Sprintf("%02X", sha1.Sum(c.Raw))
 
@@ -144,7 +146,7 @@ func TestAuthenticateSession(t *testing.T) {
 		_, k2 := getECCert()
 		jwks := token.NewJWKS()
 		_ = jwks.Append(c)
-		a := NewPrivate(jwks)
+		a := NewPrivate(jwks, "iss", "aud")
 
 		kid1 := fmt.Sprintf("%02X", sha1.Sum(c.Raw))
 
@@ -212,7 +214,7 @@ func TestAuthenticateRequest(t *testing.T) {
 		_, k2 := getECCert()
 		jwks := token.NewJWKS()
 		_ = jwks.Append(c)
-		a := NewPrivate(jwks)
+		a := NewPrivate(jwks, "iss", "aud")
 
 		kid1 := fmt.Sprintf("%02X", sha1.Sum(c.Raw))
 

@@ -21,15 +21,19 @@ type IssueProcessor struct {
 	manipulator manipulate.Manipulator
 	jwks        *token.JWKS
 	maxValidity time.Duration
+	audience    string
+	issuer      string
 }
 
 // NewIssueProcessor returns a new IssueProcessor.
-func NewIssueProcessor(manipulator manipulate.Manipulator, jwks *token.JWKS, maxValidity time.Duration) *IssueProcessor {
+func NewIssueProcessor(manipulator manipulate.Manipulator, jwks *token.JWKS, maxValidity time.Duration, issuer string, audience string) *IssueProcessor {
 
 	return &IssueProcessor{
 		manipulator: manipulator,
 		jwks:        jwks,
 		maxValidity: maxValidity,
+		issuer:      issuer,
+		audience:    audience,
 	}
 }
 
@@ -77,7 +81,7 @@ func (p *IssueProcessor) handleCertificateIssue(ctx context.Context, req *api.Is
 	idt := iss.Issue()
 
 	k := p.jwks.GetLast()
-	req.Token, err = idt.JWT(k.PrivateKey(), k.KID, time.Now().Add(validity))
+	req.Token, err = idt.JWT(k.PrivateKey(), k.KID, p.issuer, p.audience, time.Now().Add(validity))
 	if err != nil {
 		return err
 	}

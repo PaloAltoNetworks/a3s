@@ -4,9 +4,11 @@ import (
 	"crypto/sha1"
 	"crypto/x509/pkix"
 	"fmt"
+	"reflect"
 	"testing"
 	"time"
 
+	"github.com/golang-jwt/jwt/v4"
 	. "github.com/smartystreets/goconvey/convey"
 	"go.aporeto.io/a3s/pkgs/permissions"
 	"go.aporeto.io/a3s/pkgs/token"
@@ -54,12 +56,12 @@ func TestFromToken(t *testing.T) {
 	Convey("Using a token that has no restrictions", t, func() {
 
 		mc := token.NewIdentityToken(token.Source{Type: "mtls"})
-		mc.ExpiresAt = time.Now().Add(time.Hour).Unix()
+		mc.ExpiresAt = jwt.NewNumericDate(time.Now().Add(time.Hour))
 		mc.Issuer = "iss"
 
-		token, _ := mc.JWT(key, kid, time.Time{})
+		token, _ := mc.JWT(key, kid, "iss", "aud", time.Time{})
 		c := NewTokenIssuer()
-		err := c.FromToken(token, keychain, "iss", "", "", permissions.Restrictions{})
+		err := c.FromToken(token, keychain, "iss", "aud", "", permissions.Restrictions{})
 
 		So(err, ShouldBeNil)
 		So(c.token.Restrictions, ShouldBeNil)
@@ -68,12 +70,12 @@ func TestFromToken(t *testing.T) {
 	Convey("Using a token that has bad expiration", t, func() {
 
 		mc := token.NewIdentityToken(token.Source{Type: "mtls"})
-		mc.ExpiresAt = time.Now().Add(time.Hour).Unix()
+		mc.ExpiresAt = jwt.NewNumericDate(time.Now().Add(time.Hour))
 		mc.Issuer = "iss"
 
-		token, _ := mc.JWT(key, kid, time.Time{})
+		token, _ := mc.JWT(key, kid, "iss", "aud", time.Time{})
 		c := NewTokenIssuer()
-		err := c.FromToken(token, keychain, "iss", "", "chien", permissions.Restrictions{})
+		err := c.FromToken(token, keychain, "iss", "aud", "chien", permissions.Restrictions{})
 
 		So(err, ShouldNotBeNil)
 		So(err.Error(), ShouldEqual, `unable to compute restrictions: time: invalid duration "chien"`)
@@ -82,7 +84,7 @@ func TestFromToken(t *testing.T) {
 	Convey("Using a token that has all valid restrictions", t, func() {
 
 		mc := token.NewIdentityToken(token.Source{Type: "mtls"})
-		mc.ExpiresAt = time.Now().Add(time.Hour).Unix()
+		mc.ExpiresAt = jwt.NewNumericDate(time.Now().Add(time.Hour))
 		mc.Issuer = "iss"
 		mc.Restrictions = &permissions.Restrictions{
 			Namespace:   "/a",
@@ -90,9 +92,9 @@ func TestFromToken(t *testing.T) {
 			Permissions: []string{"res,get,post"},
 		}
 
-		token, _ := mc.JWT(key, kid, time.Time{})
+		token, _ := mc.JWT(key, kid, "iss", "aud", time.Time{})
 		c := NewTokenIssuer()
-		err := c.FromToken(token, keychain, "iss", "", "", permissions.Restrictions{
+		err := c.FromToken(token, keychain, "iss", "aud", "", permissions.Restrictions{
 			Namespace:   "/a/b",
 			Networks:    []string{"1.1.0.0/16"},
 			Permissions: []string{"res,get"},
@@ -108,7 +110,7 @@ func TestFromToken(t *testing.T) {
 	Convey("Using a token that has bad ns restrictions", t, func() {
 
 		mc := token.NewIdentityToken(token.Source{Type: "mtls"})
-		mc.ExpiresAt = time.Now().Add(time.Hour).Unix()
+		mc.ExpiresAt = jwt.NewNumericDate(time.Now().Add(time.Hour))
 		mc.Issuer = "iss"
 		mc.Restrictions = &permissions.Restrictions{
 			Namespace:   "/a",
@@ -116,9 +118,9 @@ func TestFromToken(t *testing.T) {
 			Permissions: []string{"res,get,post"},
 		}
 
-		token, _ := mc.JWT(key, kid, time.Time{})
+		token, _ := mc.JWT(key, kid, "iss", "aud", time.Time{})
 		c := NewTokenIssuer()
-		err := c.FromToken(token, keychain, "iss", "", "", permissions.Restrictions{
+		err := c.FromToken(token, keychain, "iss", "aud", "", permissions.Restrictions{
 			Namespace:   "/",
 			Networks:    []string{"1.1.0.0/16"},
 			Permissions: []string{"res,post"},
@@ -131,7 +133,7 @@ func TestFromToken(t *testing.T) {
 	Convey("Using a token that has bad net restrictions", t, func() {
 
 		mc := token.NewIdentityToken(token.Source{Type: "mtls"})
-		mc.ExpiresAt = time.Now().Add(time.Hour).Unix()
+		mc.ExpiresAt = jwt.NewNumericDate(time.Now().Add(time.Hour))
 		mc.Issuer = "iss"
 		mc.Restrictions = &permissions.Restrictions{
 			Namespace:   "/a",
@@ -139,9 +141,9 @@ func TestFromToken(t *testing.T) {
 			Permissions: []string{"res,get,post"},
 		}
 
-		token, _ := mc.JWT(key, kid, time.Time{})
+		token, _ := mc.JWT(key, kid, "iss", "aud", time.Time{})
 		c := NewTokenIssuer()
-		err := c.FromToken(token, keychain, "iss", "", "", permissions.Restrictions{
+		err := c.FromToken(token, keychain, "iss", "aud", "", permissions.Restrictions{
 			Namespace:   "/a",
 			Networks:    []string{"10.1.0.0/16"},
 			Permissions: []string{"res,get"},
@@ -154,7 +156,7 @@ func TestFromToken(t *testing.T) {
 	Convey("Using a token that has bad perms restrictions", t, func() {
 
 		mc := token.NewIdentityToken(token.Source{Type: "mtls"})
-		mc.ExpiresAt = time.Now().Add(time.Hour).Unix()
+		mc.ExpiresAt = jwt.NewNumericDate(time.Now().Add(time.Hour))
 		mc.Issuer = "issuer"
 		mc.Restrictions = &permissions.Restrictions{
 			Namespace:   "/a",
@@ -162,9 +164,9 @@ func TestFromToken(t *testing.T) {
 			Permissions: []string{"@auth:role=enforcer"},
 		}
 
-		token, _ := mc.JWT(key, kid, time.Time{})
+		token, _ := mc.JWT(key, kid, "iss", "aud", time.Time{})
 		c := NewTokenIssuer()
-		err := c.FromToken(token, keychain, "issuer", "", "", permissions.Restrictions{
+		err := c.FromToken(token, keychain, "iss", "iss", "", permissions.Restrictions{
 			Namespace:   "/a",
 			Networks:    []string{"1.1.0.0/16"},
 			Permissions: []string{"@auth:role=namespace.administrator"},
@@ -178,71 +180,71 @@ func TestFromToken(t *testing.T) {
 
 func Test_computeNewValidity(t *testing.T) {
 
-	now := time.Now()
-	exp := now.Add(time.Hour)
+	now := jwt.NewNumericDate(time.Now())
+	exp := jwt.NewNumericDate(now.Add(time.Hour))
 
 	type args struct {
-		originalExpUNIX      int64
+		originalExpUNIX      *jwt.NumericDate
 		requestedValidityStr string
 	}
 	tests := []struct {
 		name    string
 		args    args
-		want    int64
+		want    *jwt.NumericDate
 		wantErr bool
 	}{
 		{
 			"no original",
 			args{
-				0,
+				nil,
 				"",
 			},
-			0,
+			nil,
 			true,
 		},
 		{
 			"no requested",
 			args{
-				exp.Unix(),
+				exp,
 				"",
 			},
-			exp.Unix(),
+			exp,
 			false,
 		},
 		{
 			"bad requested",
 			args{
-				exp.Unix(),
+				exp,
 				"chien",
 			},
-			0,
+			nil,
 			true,
 		},
 		{
 			"correct requested",
 			args{
-				exp.Unix(),
+				exp,
 				"30m",
 			},
-			now.Add(30 * time.Minute).Unix(),
+			jwt.NewNumericDate(now.Add(30 * time.Minute)),
 			false,
 		},
 		{
 			"requested too big",
 			args{
-				exp.Unix(),
+				exp,
 				"48h",
 			},
-			exp.Unix(),
+			exp,
 			false,
 		},
 		{
 			"requested the same",
 			args{
-				exp.Unix(),
-				time.Until(exp).String(),
+				exp,
+				time.Until(exp.Local()).String(),
 			},
-			exp.Unix(),
+			exp,
 			false,
 		},
 	}
@@ -253,7 +255,7 @@ func Test_computeNewValidity(t *testing.T) {
 				t.Errorf("computeNewValidity() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			if got != tt.want {
+			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("computeNewValidity() = %v, want %v", got, tt.want)
 			}
 		})

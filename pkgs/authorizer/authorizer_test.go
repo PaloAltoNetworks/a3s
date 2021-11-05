@@ -41,7 +41,7 @@ func getECCert() (*x509.Certificate, crypto.PrivateKey) {
 }
 
 func makeToken(claims *token.IdentityToken, key crypto.PrivateKey) string {
-	token, err := claims.JWT(key, "kid", time.Now().Add(time.Minute))
+	token, err := claims.JWT(key, "kid", "iss", "aud", time.Now().Add(time.Minute))
 	if err != nil {
 		panic(err)
 	}

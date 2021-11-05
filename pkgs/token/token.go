@@ -30,7 +30,7 @@ type IdentityToken struct {
 	Restrictions *permissions.Restrictions `json:"restrictions,omitempty"`
 	Source       Source                    `json:"source"`
 
-	jwt.StandardClaims
+	jwt.RegisteredClaims
 }
 
 // NewIdentityToken returns a new IdentityToken with the
@@ -51,11 +51,11 @@ func (t *IdentityToken) Parse(tokenString string, keychain *JWKS, issuer string,
 
 	claims := token.Claims.(*IdentityToken)
 
-	if !claims.VerifyIssuer(issuer, false) {
+	if claims.Issuer != issuer {
 		return fmt.Errorf("issuer '%s' is not acceptable. want '%s'", claims.Issuer, issuer)
 	}
 
-	if !claims.VerifyAudience(audience, false) {
+	if !claims.VerifyAudience(audience, true) {
 		return fmt.Errorf("audience '%s' is not acceptable. want '%s'", claims.Audience, audience)
 	}
 
@@ -63,13 +63,13 @@ func (t *IdentityToken) Parse(tokenString string, keychain *JWKS, issuer string,
 }
 
 // JWT returns the signed JWT string.
-func (t *IdentityToken) JWT(key crypto.PrivateKey, kid string, exp time.Time) (string, error) {
+func (t *IdentityToken) JWT(key crypto.PrivateKey, kid string, iss string, aud string, exp time.Time) (string, error) {
 
-	t.Id = uuid.Must(uuid.NewV4()).String()
-	t.IssuedAt = time.Now().Unix()
+	t.ID = uuid.Must(uuid.NewV4()).String()
+	t.IssuedAt = jwt.NewNumericDate(time.Now())
 
 	if !exp.IsZero() {
-		t.ExpiresAt = exp.Unix()
+		t.ExpiresAt = jwt.NewNumericDate(exp)
 	}
 
 	if t.Source.Type == "" {

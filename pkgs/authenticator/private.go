@@ -12,13 +12,17 @@ import (
 // A Private is a bahamut.Authenticator compliant structure to authentify
 // requests using a a3s token.
 type Private struct {
-	jwks *token.JWKS
+	jwks     *token.JWKS
+	issuer   string
+	audience string
 }
 
 // NewPrivate returns a new *Authenticator that will make a call
-func NewPrivate(jwks *token.JWKS) *Private {
+func NewPrivate(jwks *token.JWKS, issuer string, audience string) *Private {
 	return &Private{
-		jwks: jwks,
+		jwks:     jwks,
+		issuer:   issuer,
+		audience: audience,
 	}
 }
 
@@ -62,7 +66,7 @@ func (a *Private) commonAuth(tokenString string) (bahamut.AuthAction, []string, 
 	}
 
 	idt := &token.IdentityToken{}
-	if err := idt.Parse(tokenString, a.jwks, "", ""); err != nil {
+	if err := idt.Parse(tokenString, a.jwks, a.issuer, a.audience); err != nil {
 		return bahamut.AuthActionKO, nil, elemental.NewError(
 			"Unauthorized",
 			fmt.Sprintf("Authentication rejected with error: %s", err),
