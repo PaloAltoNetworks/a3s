@@ -107,7 +107,7 @@ func (p *AuthorizationsProcessor) makePreHook(ctx bahamut.Context) crud.PreWrite
 			return err
 		}
 
-		if !permissions.Contains(perms, permissions.Parse(auth.Permissions, "")) {
+		if !perms.Contains(permissions.Parse(auth.Permissions, "")) {
 			return elemental.NewErrorWithData(
 				"Validation Error",
 				"You cannot create an APIAuthorization with more privileges than your current ones.",

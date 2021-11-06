@@ -105,7 +105,7 @@ func (a *retriever) Permissions(ctx context.Context, claims []string, ns string,
 	// If we have restrictions on permission from the token,
 	// we reduce the
 	if len(cfg.restrictions.Permissions) > 0 {
-		out = Intersect(out, Parse(cfg.restrictions.Permissions, cfg.id))
+		out = out.Intersect(Parse(cfg.restrictions.Permissions, cfg.id))
 	}
 
 	// If we have restrictions on the origin networks from the token

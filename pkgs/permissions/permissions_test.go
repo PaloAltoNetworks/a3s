@@ -186,7 +186,7 @@ func TestContains(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := Contains(tt.args.perms, tt.args.other); got != tt.want {
+			if got := tt.args.perms.Contains(tt.args.other); got != tt.want {
 				t.Errorf("Contains() = %v, want %v", got, tt.want)
 			}
 		})
@@ -480,7 +480,7 @@ func TestIntersect(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := Intersect(tt.args.permissions, tt.args.restrictions); !reflect.DeepEqual(got, tt.want) {
+			if got := tt.args.permissions.Intersect(tt.args.restrictions); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("Intersect() = %v, want %v", got, tt.want)
 			}
 		})
@@ -602,7 +602,7 @@ func TestIsAllowed(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := IsAllowed(tt.args.perms, tt.args.operation, tt.args.resource); got != tt.want {
+			if got := tt.args.perms.Allows(tt.args.operation, tt.args.resource); got != tt.want {
 				t.Errorf("IsAllowed() = %v, want %v", got, tt.want)
 			}
 		})
@@ -649,7 +649,7 @@ func TestCopy(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := Copy(tt.args.perms); !reflect.DeepEqual(got, tt.want) {
+			if got := tt.args.perms.Copy(); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("Copy() = %v, want %v", got, tt.want)
 			}
 		})

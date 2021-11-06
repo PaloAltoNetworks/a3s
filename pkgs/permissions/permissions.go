@@ -10,12 +10,66 @@ type Permissions map[string]bool
 // A PermissionMap represents a map of resource to Permissions
 type PermissionMap map[string]Permissions
 
+// Parse parses the given list of permission string in the form
+// resource,action1,action2:targetID1,targetID2 and returns the
+// PermissionMap.
+func Parse(authStrings []string, targetID string) PermissionMap {
+
+	auths := PermissionMap{}
+
+	for _, item := range authStrings {
+
+		if strings.Contains(item, ":") {
+			// Format identity,get,post:id
+
+			// We did not receive any targetID, so this rule does not apply.
+			if targetID == "" {
+				continue
+			}
+
+			var tids []string
+			if parts := strings.SplitN(item, ":", 2); len(parts) == 2 {
+				tids = strings.Split(parts[1], ",")
+				item = parts[0]
+			}
+
+			accept := false
+			for _, tid := range tids {
+				if tid == targetID {
+					accept = true
+				}
+			}
+
+			if !accept {
+				continue
+			}
+		}
+
+		// item is now of form: identity,get,post...
+
+		parts := strings.Split(item, ",")
+		if len(parts) < 2 {
+			continue
+		}
+
+		if _, ok := auths[parts[0]]; !ok {
+			auths[parts[0]] = map[string]bool{}
+		}
+
+		for _, decorator := range parts[1:] {
+			auths[parts[0]][decorator] = true
+		}
+	}
+
+	return auths
+}
+
 // Copy returns a copy of the perms
-func Copy(perms PermissionMap) PermissionMap {
+func (p PermissionMap) Copy() PermissionMap {
 
-	var copy = make(PermissionMap, len(perms))
+	var copy = make(PermissionMap, len(p))
 
-	for i, m := range perms {
+	for i, m := range p {
 		copy[i] = make(Permissions, len(m))
 		for k, v := range m {
 			copy[i][k] = v
@@ -26,23 +80,23 @@ func Copy(perms PermissionMap) PermissionMap {
 
 // Contains returns true if the given Authorization is equal or lesser
 // than the receiver.
-func Contains(perms PermissionMap, other PermissionMap) bool {
+func (p PermissionMap) Contains(other PermissionMap) bool {
 
-	if len(perms) == 0 {
+	if len(p) == 0 {
 		return false
 	}
 
-	star := perms["*"]
+	star := p["*"]
 
 	for identity, decorators := range other {
 
-		if _, ok := perms[identity]; !ok && len(star) == 0 {
+		if _, ok := p[identity]; !ok && len(star) == 0 {
 			return false
 		}
 
 		for decorator := range decorators {
-			if !perms[identity][decorator] && !star[decorator] {
-				ok1 := perms[identity]["*"]
+			if !p[identity][decorator] && !star[decorator] {
+				ok1 := p[identity]["*"]
 				ok2 := star["*"]
 				if !ok1 && !ok2 {
 					return false
@@ -55,17 +109,17 @@ func Contains(perms PermissionMap, other PermissionMap) bool {
 }
 
 // Intersect returns the intersection between first set and second set.
-func Intersect(base PermissionMap, other PermissionMap) PermissionMap {
+func (p PermissionMap) Intersect(other PermissionMap) PermissionMap {
 
 	// If one or the other are empty, the intersection is nil.
-	if len(base) == 0 || len(other) == 0 {
+	if len(p) == 0 || len(other) == 0 {
 		return PermissionMap{}
 	}
 
 	// first we copy the base, since we are going to
 	// modify it.
 	candidate := PermissionMap{}
-	for k, v := range base {
+	for k, v := range p {
 		candidate[k] = Permissions{}
 		for kk, vv := range v {
 			candidate[k][kk] = vv
@@ -146,9 +200,9 @@ func Intersect(base PermissionMap, other PermissionMap) PermissionMap {
 	return candidate
 }
 
-// IsAllowed returns true if the given operation on the given identity is allowed in the
+// Allows returns true if the given operation on the given identity is allowed in the
 // given perms.
-func IsAllowed(perms PermissionMap, operation string, resource string) bool {
+func (p PermissionMap) Allows(operation string, resource string) bool {
 
 	allowed := func(p Permissions, m string) bool {
 		if authorized := p["*"]; authorized {
@@ -164,13 +218,13 @@ func IsAllowed(perms PermissionMap, operation string, resource string) bool {
 		return false
 	}
 
-	if p, ok := perms["*"]; ok {
+	if p, ok := p["*"]; ok {
 		if allowed(p, operation) {
 			return true
 		}
 	}
 
-	for i, p := range perms {
+	for i, p := range p {
 		if resource != i {
 			continue
 		}
@@ -180,58 +234,4 @@ func IsAllowed(perms PermissionMap, operation string, resource string) bool {
 	}
 
 	return false
-}
-
-// Parse parses the given list of permission string in the form
-// resource,action1,action2:targetID1,targetID2 and returns the
-// PermissionMap.
-func Parse(authStrings []string, targetID string) PermissionMap {
-
-	auths := PermissionMap{}
-
-	for _, item := range authStrings {
-
-		if strings.Contains(item, ":") {
-			// Format identity,get,post:id
-
-			// We did not receive any targetID, so this rule does not apply.
-			if targetID == "" {
-				continue
-			}
-
-			var tids []string
-			if parts := strings.SplitN(item, ":", 2); len(parts) == 2 {
-				tids = strings.Split(parts[1], ",")
-				item = parts[0]
-			}
-
-			accept := false
-			for _, tid := range tids {
-				if tid == targetID {
-					accept = true
-				}
-			}
-
-			if !accept {
-				continue
-			}
-		}
-
-		// item is now of form: identity,get,post...
-
-		parts := strings.Split(item, ",")
-		if len(parts) < 2 {
-			continue
-		}
-
-		if _, ok := auths[parts[0]]; !ok {
-			auths[parts[0]] = map[string]bool{}
-		}
-
-		for _, decorator := range parts[1:] {
-			auths[parts[0]][decorator] = true
-		}
-	}
-
-	return auths
 }

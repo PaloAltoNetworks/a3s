@@ -63,7 +63,7 @@ func TestIsAuthorizedWithToken(t *testing.T) {
 			perms, err := r.Permissions(ctx, []string{"color=blue"}, "/a")
 
 			So(err, ShouldBeNil)
-			So(IsAllowed(perms, "get", "things"), ShouldEqual, false)
+			So(perms.Allows("get", "things"), ShouldEqual, false)
 		})
 
 		Convey("When I retrieving the ns fails", func() {
@@ -76,7 +76,7 @@ func TestIsAuthorizedWithToken(t *testing.T) {
 
 			So(err, ShouldNotBeNil)
 			So(err.Error(), ShouldEqual, "noooo")
-			So(IsAllowed(perms, "get", "things"), ShouldEqual, false)
+			So(perms.Allows("get", "things"), ShouldEqual, false)
 		})
 
 		Convey("When I retrieving the ns is not found", func() {
@@ -88,7 +88,7 @@ func TestIsAuthorizedWithToken(t *testing.T) {
 			perms, err := r.Permissions(ctx, []string{"color=blue"}, "/a")
 
 			So(err, ShouldBeNil)
-			So(IsAllowed(perms, "get", "things"), ShouldEqual, false)
+			So(perms.Allows("get", "things"), ShouldEqual, false)
 		})
 
 		Convey("When there is a policy matching *,*", func() {
@@ -104,7 +104,7 @@ func TestIsAuthorizedWithToken(t *testing.T) {
 			perms, err := r.Permissions(ctx, []string{"color=blue"}, "/a")
 
 			So(err, ShouldBeNil)
-			So(IsAllowed(perms, "get", "things"), ShouldEqual, true)
+			So(perms.Allows("get", "things"), ShouldEqual, true)
 		})
 
 		Convey("When there is a policy matching twice using twice the same set", func() {
@@ -121,7 +121,7 @@ func TestIsAuthorizedWithToken(t *testing.T) {
 			perms, err := r.Permissions(ctx, []string{"color=blue"}, "/a")
 
 			So(err, ShouldBeNil)
-			So(IsAllowed(perms, "get", "things"), ShouldEqual, true)
+			So(perms.Allows("get", "things"), ShouldEqual, true)
 		})
 
 		Convey("When there is a policy matching with target namespace outside of restricted ns", func() {
@@ -139,7 +139,7 @@ func TestIsAuthorizedWithToken(t *testing.T) {
 			)
 
 			So(err, ShouldBeNil)
-			So(IsAllowed(perms, "get", "things"), ShouldEqual, false)
+			So(perms.Allows("get", "things"), ShouldEqual, false)
 		})
 
 		Convey("When there is a policy matching with target namespace equals to restricted ns", func() {
@@ -157,7 +157,7 @@ func TestIsAuthorizedWithToken(t *testing.T) {
 			)
 
 			So(err, ShouldBeNil)
-			So(IsAllowed(perms, "get", "things"), ShouldEqual, true)
+			So(perms.Allows("get", "things"), ShouldEqual, true)
 		})
 
 		Convey("When there is a policy matching with target namespace a child of restricted ns", func() {
@@ -175,7 +175,7 @@ func TestIsAuthorizedWithToken(t *testing.T) {
 			)
 
 			So(err, ShouldBeNil)
-			So(IsAllowed(perms, "get", "things"), ShouldEqual, true)
+			So(perms.Allows("get", "things"), ShouldEqual, true)
 		})
 
 		Convey("When there is a policy matching with target namespace a parent of restricted ns", func() {
@@ -193,7 +193,7 @@ func TestIsAuthorizedWithToken(t *testing.T) {
 			)
 
 			So(err, ShouldBeNil)
-			So(IsAllowed(perms, "get", "things"), ShouldEqual, false)
+			So(perms.Allows("get", "things"), ShouldEqual, false)
 		})
 
 		Convey("When there is a policy matching with a bad targetNs", func() {
@@ -212,7 +212,7 @@ func TestIsAuthorizedWithToken(t *testing.T) {
 			perms, err := r.Permissions(ctx, []string{"color=blue"}, "/a")
 
 			So(err, ShouldBeNil)
-			So(IsAllowed(perms, "get", "things"), ShouldEqual, false)
+			So(perms.Allows("get", "things"), ShouldEqual, false)
 		})
 
 		Convey("When there is a policy that is not matching", func() {
@@ -228,7 +228,7 @@ func TestIsAuthorizedWithToken(t *testing.T) {
 			perms, err := r.Permissions(ctx, []string{"color=blue"}, "/a")
 
 			So(err, ShouldBeNil)
-			So(IsAllowed(perms, "get", "things"), ShouldEqual, false)
+			So(perms.Allows("get", "things"), ShouldEqual, false)
 		})
 
 		Convey("When there is a policy matching but not on the correct permission set", func() {
@@ -244,7 +244,7 @@ func TestIsAuthorizedWithToken(t *testing.T) {
 			perms, err := r.Permissions(ctx, []string{"color=blue"}, "/a")
 
 			So(err, ShouldBeNil)
-			So(IsAllowed(perms, "get", "things"), ShouldEqual, false)
+			So(perms.Allows("get", "things"), ShouldEqual, false)
 		})
 
 		Convey("When there is a policy matching", func() {
@@ -260,7 +260,7 @@ func TestIsAuthorizedWithToken(t *testing.T) {
 			perms, err := r.Permissions(ctx, []string{"color=blue"}, "/a")
 
 			So(err, ShouldBeNil)
-			So(IsAllowed(perms, "get", "things"), ShouldEqual, true)
+			So(perms.Allows("get", "things"), ShouldEqual, true)
 		})
 
 		Convey("When there is a policy with matching restriction", func() {
@@ -278,7 +278,7 @@ func TestIsAuthorizedWithToken(t *testing.T) {
 			)
 
 			So(err, ShouldBeNil)
-			So(IsAllowed(perms, "get", "things"), ShouldEqual, true)
+			So(perms.Allows("get", "things"), ShouldEqual, true)
 		})
 
 		Convey("When there is a policy with not matching restriction", func() {
@@ -296,7 +296,7 @@ func TestIsAuthorizedWithToken(t *testing.T) {
 			)
 
 			So(err, ShouldBeNil)
-			So(IsAllowed(perms, "get", "things"), ShouldEqual, false)
+			So(perms.Allows("get", "things"), ShouldEqual, false)
 		})
 
 		Convey("When there is a policy invalid IP", func() {
@@ -315,7 +315,7 @@ func TestIsAuthorizedWithToken(t *testing.T) {
 
 			So(err, ShouldNotBeNil)
 			So(err.Error(), ShouldEqual, "missing or invalid origin IP '.2.2.2'")
-			So(IsAllowed(perms, "get", "things"), ShouldEqual, false)
+			So(perms.Allows("get", "things"), ShouldEqual, false)
 		})
 
 		Convey("When there is a policy invalid declared CIDR", func() {
@@ -334,7 +334,7 @@ func TestIsAuthorizedWithToken(t *testing.T) {
 
 			So(err, ShouldNotBeNil)
 			So(err.Error(), ShouldEqual, "invalid CIDR address: dawf")
-			So(IsAllowed(perms, "get", "things"), ShouldEqual, false)
+			So(perms.Allows("get", "things"), ShouldEqual, false)
 		})
 
 		Convey("When there is a policy with empty subject", func() {
@@ -353,7 +353,7 @@ func TestIsAuthorizedWithToken(t *testing.T) {
 			perms, err := r.Permissions(ctx, []string{"color=blue"}, "/a")
 
 			So(err, ShouldBeNil)
-			So(IsAllowed(perms, "get", "things"), ShouldEqual, false)
+			So(perms.Allows("get", "things"), ShouldEqual, false)
 		})
 
 		Convey("When there is a policy with empty string subject", func() {
@@ -372,7 +372,7 @@ func TestIsAuthorizedWithToken(t *testing.T) {
 			perms, err := r.Permissions(ctx, []string{"color=blue"}, "/a")
 
 			So(err, ShouldBeNil)
-			So(IsAllowed(perms, "get", "things"), ShouldEqual, false)
+			So(perms.Allows("get", "things"), ShouldEqual, false)
 		})
 
 		Convey("When there is a policy with nil subject", func() {
@@ -391,7 +391,7 @@ func TestIsAuthorizedWithToken(t *testing.T) {
 			perms, err := r.Permissions(ctx, []string{"color=blue"}, "/a")
 
 			So(err, ShouldBeNil)
-			So(IsAllowed(perms, "get", "things"), ShouldEqual, false)
+			So(perms.Allows("get", "things"), ShouldEqual, false)
 		})
 
 		Convey("When retrieving the policy fails", func() {
@@ -404,7 +404,7 @@ func TestIsAuthorizedWithToken(t *testing.T) {
 
 			So(err, ShouldNotBeNil)
 			So(err.Error(), ShouldEqual, "unable to retrieve api authorizations: boom")
-			So(IsAllowed(perms, "get", "things"), ShouldEqual, false)
+			So(perms.Allows("get", "things"), ShouldEqual, false)
 		})
 
 		Convey("When retrieving the policy with an invalid allowedSubnet", func() {
@@ -421,7 +421,7 @@ func TestIsAuthorizedWithToken(t *testing.T) {
 
 			So(err, ShouldNotBeNil)
 			So(err.Error(), ShouldEqual, "missing or invalid origin IP ''")
-			So(IsAllowed(perms, "get", "things"), ShouldEqual, false)
+			So(perms.Allows("get", "things"), ShouldEqual, false)
 		})
 
 		// Restrictions
@@ -441,7 +441,7 @@ func TestIsAuthorizedWithToken(t *testing.T) {
 			)
 
 			So(err, ShouldBeNil)
-			So(IsAllowed(perms, "get", "things"), ShouldEqual, false)
+			So(perms.Allows("get", "things"), ShouldEqual, false)
 		})
 
 		Convey("When there is a policy matching but the permissions are restricted", func() {
@@ -459,7 +459,7 @@ func TestIsAuthorizedWithToken(t *testing.T) {
 			)
 
 			So(err, ShouldBeNil)
-			So(IsAllowed(perms, "get", "things"), ShouldEqual, false)
+			So(perms.Allows("get", "things"), ShouldEqual, false)
 		})
 
 		Convey("When there is a policy matching but the networks are restricted", func() {
@@ -480,7 +480,7 @@ func TestIsAuthorizedWithToken(t *testing.T) {
 				)
 
 				So(err, ShouldBeNil)
-				So(IsAllowed(perms, "get", "things"), ShouldEqual, false)
+				So(perms.Allows("get", "things"), ShouldEqual, false)
 			})
 
 			Convey("When I the networks are incorrect", func() {
@@ -492,7 +492,7 @@ func TestIsAuthorizedWithToken(t *testing.T) {
 
 				So(err, ShouldNotBeNil)
 				So(err.Error(), ShouldEqual, `invalid CIDR address: how-come?`)
-				So(IsAllowed(perms, "get", "things"), ShouldEqual, false)
+				So(perms.Allows("get", "things"), ShouldEqual, false)
 			})
 		})
 
@@ -511,7 +511,7 @@ func TestIsAuthorizedWithToken(t *testing.T) {
 			perms, err := r.Permissions(ctx, []string{"color=blue"}, "/a")
 
 			So(err, ShouldBeNil)
-			So(IsAllowed(perms, "get", "things"), ShouldEqual, false)
+			So(perms.Allows("get", "things"), ShouldEqual, false)
 		})
 
 		Convey("When there is a policy with id restriction and not matching id provided", func() {
@@ -529,7 +529,7 @@ func TestIsAuthorizedWithToken(t *testing.T) {
 			)
 
 			So(err, ShouldBeNil)
-			So(IsAllowed(perms, "get", "things"), ShouldEqual, false)
+			So(perms.Allows("get", "things"), ShouldEqual, false)
 		})
 
 		Convey("When there is a policy with id restriction and matching id provided", func() {
@@ -547,7 +547,7 @@ func TestIsAuthorizedWithToken(t *testing.T) {
 			)
 
 			So(err, ShouldBeNil)
-			So(IsAllowed(perms, "get", "things"), ShouldEqual, true)
+			So(perms.Allows("get", "things"), ShouldEqual, true)
 		})
 	})
 }

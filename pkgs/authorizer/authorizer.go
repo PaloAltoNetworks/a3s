@@ -156,7 +156,7 @@ func (a *authorizer) CheckAuthorization(ctx context.Context, claims []string, op
 
 	if r := a.cache.Get(ns, key); r != nil && !r.Expired() {
 		perms := r.Value().(permissions.PermissionMap)
-		return permissions.IsAllowed(perms, operation, resource), nil
+		return perms.Allows(operation, resource), nil
 	}
 
 	ropts := []permissions.RetrieverOption{
@@ -177,7 +177,7 @@ func (a *authorizer) CheckAuthorization(ctx context.Context, claims []string, op
 		time.Hour+time.Duration(rand.Int63n(60*30))*time.Second,
 	)
 
-	return permissions.IsAllowed(perms, operation, resource), nil
+	return perms.Allows(operation, resource), nil
 }
 
 func hash(claims []string, remoteaddr string, id string, restrictions permissions.Restrictions) string {

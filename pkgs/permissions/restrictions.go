@@ -95,7 +95,7 @@ func (r Restrictions) ComputePermissionsRestrictions(requested []string) ([]stri
 		return requested, nil
 	}
 
-	if !Contains(Parse(r.Permissions, ""), Parse(requested, "")) {
+	if !Parse(r.Permissions, "").Contains(Parse(requested, "")) {
 		return nil, fmt.Errorf("the new permissions restrictions must not be broader than the existing ones")
 	}
 
