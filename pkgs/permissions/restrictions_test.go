@@ -1,8 +1,11 @@
 package permissions
 
 import (
+	"fmt"
 	"reflect"
 	"testing"
+
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestGetRestrictions(t *testing.T) {
@@ -94,7 +97,7 @@ func TestGetRestrictions(t *testing.T) {
 	}
 }
 
-func TestRestrictions_ComputeNamespaceRestriction(t *testing.T) {
+func TestRestrictions_RestrictNamespace(t *testing.T) {
 	type fields struct {
 		Namespace   string
 		Permissions []string
@@ -196,7 +199,7 @@ func TestRestrictions_ComputeNamespaceRestriction(t *testing.T) {
 				Permissions: tt.fields.Permissions,
 				Networks:    tt.fields.Networks,
 			}
-			got, err := r.ComputeNamespaceRestriction(tt.args.requested)
+			got, err := r.RestrictNamespace(tt.args.requested)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Restrictions.ComputeNamespaceRestriction() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -208,7 +211,7 @@ func TestRestrictions_ComputeNamespaceRestriction(t *testing.T) {
 	}
 }
 
-func TestRestrictions_ComputeNetworkRestrictions(t *testing.T) {
+func TestRestrictions_RestrictNetworks(t *testing.T) {
 	type fields struct {
 		Namespace   string
 		Permissions []string
@@ -417,7 +420,7 @@ func TestRestrictions_ComputeNetworkRestrictions(t *testing.T) {
 				Permissions: tt.fields.Permissions,
 				Networks:    tt.fields.Networks,
 			}
-			got, err := r.ComputeNetworkRestrictions(tt.args.requested)
+			got, err := r.RestrictNetworks(tt.args.requested)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Restrictions.ComputeNetworkRestrictions() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -429,7 +432,7 @@ func TestRestrictions_ComputeNetworkRestrictions(t *testing.T) {
 	}
 }
 
-func TestRestrictions_ComputePermissionsRestrictions(t *testing.T) {
+func TestRestrictions_RestrictPermissions(t *testing.T) {
 	type fields struct {
 		Namespace   string
 		Permissions []string
@@ -612,7 +615,7 @@ func TestRestrictions_ComputePermissionsRestrictions(t *testing.T) {
 				Permissions: tt.fields.Permissions,
 				Networks:    tt.fields.Networks,
 			}
-			got, err := r.ComputePermissionsRestrictions(tt.args.requested)
+			got, err := r.RestrictPermissions(tt.args.requested)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Restrictions.ComputePermissionsRestrictions() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -622,4 +625,16 @@ func TestRestrictions_ComputePermissionsRestrictions(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestErrRestrictionsViolations(t *testing.T) {
+
+	Convey("Given an TestErrRestrictionsViolations", t, func() {
+
+		e := fmt.Errorf("boom")
+		err := ErrRestrictionsViolation{Err: e}
+		So(err.Unwrap(), ShouldEqual, e)
+		So(err.Error(), ShouldEqual, "restriction violation: boom")
+
+	})
 }

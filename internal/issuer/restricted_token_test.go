@@ -127,7 +127,7 @@ func TestFromToken(t *testing.T) {
 		})
 
 		So(err, ShouldNotBeNil)
-		So(err.Error(), ShouldEqual, `unable to compute restrictions: the new namespace restriction must be empty, '/a' or one of its children`)
+		So(err.Error(), ShouldEqual, `unable to compute restrictions: restriction violation: restricted namespace must be empty, '/a' or one of its children`)
 	})
 
 	Convey("Using a token that has bad net restrictions", t, func() {
@@ -150,7 +150,7 @@ func TestFromToken(t *testing.T) {
 		})
 
 		So(err, ShouldNotBeNil)
-		So(err.Error(), ShouldEqual, `unable to compute restrictions: the new network restrictions must not overlap any of the original ones`)
+		So(err.Error(), ShouldEqual, `unable to compute restrictions: restriction violation: restricted networks must not overlap the current ones`)
 	})
 
 	Convey("Using a token that has bad perms restrictions", t, func() {
@@ -173,7 +173,7 @@ func TestFromToken(t *testing.T) {
 		})
 
 		So(err, ShouldNotBeNil)
-		So(err.Error(), ShouldEqual, `unable to compute restrictions: the new permissions restrictions must not be broader than the existing ones`)
+		So(err.Error(), ShouldEqual, `unable to compute restrictions: restriction violation: restricted permissions must not be more permissive than the current ones`)
 	})
 
 }

@@ -61,17 +61,17 @@ func (c *TokenIssuer) FromToken(
 		return ErrComputeRestrictions{Err: err}
 	}
 
-	restrictedNamespace, err := orest.ComputeNamespaceRestriction(restrictions.Namespace)
+	restrictedNamespace, err := orest.RestrictNamespace(restrictions.Namespace)
 	if err != nil {
 		return ErrComputeRestrictions{Err: err}
 	}
 
-	restrictedNetworks, err := orest.ComputeNetworkRestrictions(restrictions.Networks)
+	restrictedNetworks, err := orest.RestrictNetworks(restrictions.Networks)
 	if err != nil {
 		return ErrComputeRestrictions{Err: err}
 	}
 
-	restrictedPermissions, err := orest.ComputePermissionsRestrictions(restrictions.Permissions)
+	restrictedPermissions, err := orest.RestrictPermissions(restrictions.Permissions)
 	if err != nil {
 		return ErrComputeRestrictions{Err: err}
 	}

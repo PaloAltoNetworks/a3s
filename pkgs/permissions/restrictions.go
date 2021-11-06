@@ -9,6 +9,20 @@ import (
 	"go.aporeto.io/elemental"
 )
 
+// ErrRestrictionsViolation represents an error
+// during restrictions computations.
+type ErrRestrictionsViolation struct {
+	Err error
+}
+
+func (e ErrRestrictionsViolation) Error() string {
+	return fmt.Sprintf("restriction violation: %s", e.Err)
+}
+
+func (e ErrRestrictionsViolation) Unwrap() error {
+	return e.Err
+}
+
 // Restrictions are a collection of restrictions
 // that the policy engine should apply for authz based
 // on the token
@@ -18,9 +32,26 @@ type Restrictions struct {
 	Networks    []string `json:"networks"`
 }
 
-// ComputeNamespaceRestriction will return the namespace to use based on the
+// GetRestrictions returns the eventual Restrictions
+// embedded in the given token.
+func GetRestrictions(tokenString string) (Restrictions, error) {
+
+	s := struct {
+		R Restrictions `json:"restrictions"`
+		jwt.Claims
+	}{}
+
+	parser := jwt.Parser{}
+	if _, _, err := parser.ParseUnverified(tokenString, &s); err != nil {
+		return Restrictions{}, fmt.Errorf("unable to compute authz restrictions from token: %w", err)
+	}
+
+	return s.R, nil
+}
+
+// RestrictNamespace returns the namespace to use based on the
 // receiver and the new requested one.
-func (r Restrictions) ComputeNamespaceRestriction(requested string) (string, error) {
+func (r Restrictions) RestrictNamespace(requested string) (string, error) {
 
 	switch {
 
@@ -37,13 +68,15 @@ func (r Restrictions) ComputeNamespaceRestriction(requested string) (string, err
 		return requested, nil
 
 	default:
-		return "", fmt.Errorf("the new namespace restriction must be empty, '%s' or one of its children", r.Namespace)
+		return "", ErrRestrictionsViolation{
+			Err: fmt.Errorf("restricted namespace must be empty, '%s' or one of its children", r.Namespace),
+		}
 	}
 }
 
-// ComputeNetworkRestrictions will return the networks to use based on the
+// RestrictNetworks returns the networks to use based on the
 // receiver and the new requested ones.
-func (r Restrictions) ComputeNetworkRestrictions(requested []string) ([]string, error) {
+func (r Restrictions) RestrictNetworks(requested []string) ([]string, error) {
 
 	switch {
 
@@ -75,7 +108,9 @@ func (r Restrictions) ComputeNetworkRestrictions(requested []string) ([]string, 
 			}
 
 			if !valid {
-				return nil, fmt.Errorf("the new network restrictions must not overlap any of the original ones")
+				return nil, ErrRestrictionsViolation{
+					Err: fmt.Errorf("restricted networks must not overlap the current ones"),
+				}
 			}
 		}
 
@@ -83,9 +118,9 @@ func (r Restrictions) ComputeNetworkRestrictions(requested []string) ([]string, 
 	}
 }
 
-// ComputePermissionsRestrictions will return the networks to use based on the
+// RestrictPermissions returns the permissions to use based on the
 // receiver and the new requested ones.
-func (r Restrictions) ComputePermissionsRestrictions(requested []string) ([]string, error) {
+func (r Restrictions) RestrictPermissions(requested []string) ([]string, error) {
 
 	if len(requested) == 0 {
 		return r.Permissions, nil
@@ -96,25 +131,10 @@ func (r Restrictions) ComputePermissionsRestrictions(requested []string) ([]stri
 	}
 
 	if !Parse(r.Permissions, "").Contains(Parse(requested, "")) {
-		return nil, fmt.Errorf("the new permissions restrictions must not be broader than the existing ones")
+		return nil, ErrRestrictionsViolation{
+			Err: fmt.Errorf("restricted permissions must not be more permissive than the current ones"),
+		}
 	}
 
 	return requested, nil
-}
-
-// GetRestrictions returns the eventual Restrictions
-// embedded in the given token.
-func GetRestrictions(tokenString string) (Restrictions, error) {
-
-	s := struct {
-		R Restrictions `json:"restrictions"`
-		jwt.Claims
-	}{}
-
-	parser := jwt.Parser{}
-	if _, _, err := parser.ParseUnverified(tokenString, &s); err != nil {
-		return Restrictions{}, fmt.Errorf("unable to compute authz restrictions from token: %w", err)
-	}
-
-	return s.R, nil
 }
