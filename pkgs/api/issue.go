@@ -109,6 +109,9 @@ func (o IssuesList) Version() int {
 
 // Issue represents the model of a issue
 type Issue struct {
+	// Requested audience for the delivered token.
+	Audience []string `json:"audience" msgpack:"audience" bson:"-" mapstructure:"audience,omitempty"`
+
 	// Contains various additional information. Meaning depends on the `source`.
 	Metadata map[string]interface{} `json:"metadata" msgpack:"metadata" bson:"-" mapstructure:"metadata,omitempty"`
 
@@ -175,6 +178,7 @@ func NewIssue() *Issue {
 
 	return &Issue{
 		ModelVersion:          1,
+		Audience:              []string{},
 		Metadata:              map[string]interface{}{},
 		Opaque:                map[string]string{},
 		RestrictedNetworks:    []string{},
@@ -265,6 +269,7 @@ func (o *Issue) ToSparse(fields ...string) elemental.SparseIdentifiable {
 	if len(fields) == 0 {
 		// nolint: goimports
 		return &SparseIssue{
+			Audience:              &o.Audience,
 			Metadata:              &o.Metadata,
 			Opaque:                &o.Opaque,
 			RestrictedNamespace:   &o.RestrictedNamespace,
@@ -281,6 +286,8 @@ func (o *Issue) ToSparse(fields ...string) elemental.SparseIdentifiable {
 	sp := &SparseIssue{}
 	for _, f := range fields {
 		switch f {
+		case "audience":
+			sp.Audience = &(o.Audience)
 		case "metadata":
 			sp.Metadata = &(o.Metadata)
 		case "opaque":
@@ -314,6 +321,9 @@ func (o *Issue) Patch(sparse elemental.SparseIdentifiable) {
 	}
 
 	so := sparse.(*SparseIssue)
+	if so.Audience != nil {
+		o.Audience = *so.Audience
+	}
 	if so.Metadata != nil {
 		o.Metadata = *so.Metadata
 	}
@@ -418,6 +428,8 @@ func (*Issue) AttributeSpecifications() map[string]elemental.AttributeSpecificat
 func (o *Issue) ValueForAttribute(name string) interface{} {
 
 	switch name {
+	case "audience":
+		return o.Audience
 	case "metadata":
 		return o.Metadata
 	case "opaque":
@@ -445,6 +457,15 @@ func (o *Issue) ValueForAttribute(name string) interface{} {
 
 // IssueAttributesMap represents the map of attribute for Issue.
 var IssueAttributesMap = map[string]elemental.AttributeSpecification{
+	"Audience": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Audience",
+		Description:    `Requested audience for the delivered token.`,
+		Exposed:        true,
+		Name:           "audience",
+		SubType:        "string",
+		Type:           "list",
+	},
 	"Metadata": {
 		AllowedChoices: []string{},
 		ConvertedName:  "Metadata",
@@ -567,6 +588,15 @@ is bigger than the configured max validity, it will be capped. Default: ` + "`" 
 
 // IssueLowerCaseAttributesMap represents the map of attribute for Issue.
 var IssueLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
+	"audience": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Audience",
+		Description:    `Requested audience for the delivered token.`,
+		Exposed:        true,
+		Name:           "audience",
+		SubType:        "string",
+		Type:           "list",
+	},
 	"metadata": {
 		AllowedChoices: []string{},
 		ConvertedName:  "Metadata",
@@ -750,6 +780,9 @@ func (o SparseIssuesList) Version() int {
 
 // SparseIssue represents the sparse version of a issue.
 type SparseIssue struct {
+	// Requested audience for the delivered token.
+	Audience *[]string `json:"audience,omitempty" msgpack:"audience,omitempty" bson:"-" mapstructure:"audience,omitempty"`
+
 	// Contains various additional information. Meaning depends on the `source`.
 	Metadata *map[string]interface{} `json:"metadata,omitempty" msgpack:"metadata,omitempty" bson:"-" mapstructure:"metadata,omitempty"`
 
@@ -872,6 +905,9 @@ func (o *SparseIssue) Version() int {
 func (o *SparseIssue) ToPlain() elemental.PlainIdentifiable {
 
 	out := NewIssue()
+	if o.Audience != nil {
+		out.Audience = *o.Audience
+	}
 	if o.Metadata != nil {
 		out.Metadata = *o.Metadata
 	}

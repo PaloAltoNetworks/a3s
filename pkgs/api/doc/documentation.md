@@ -241,6 +241,10 @@ Issues a new a normalized token using various authentication sources.
 
 ```json
 {
+  "audience": [
+    "https://myfirstapp",
+    "https://mysecondapp"
+  ],
   "restrictedNamespace": "/namespace",
   "restrictedNetworks": [
     "10.0.0.0/8",
@@ -267,6 +271,12 @@ Parameters:
 - `asCookie` (`boolean`): If set to true, the token will be delivered in a secure cookie, and not in the response body.
 
 #### Attributes
+
+##### `audience`
+
+Type: `[]string`
+
+Requested audience for the delivered token.
 
 ##### `metadata`
 

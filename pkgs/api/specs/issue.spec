@@ -76,6 +76,15 @@ attributes:
     example_value:
     - dogs,post
 
+  - name: audience
+    description: Requested audience for the delivered token. 
+    type: list
+    subtype: string
+    exposed: true
+    example_value:
+    - https://myfirstapp
+    - https://mysecondapp
+
   - name: sourceName
     description: The name of the source to use.
     type: string

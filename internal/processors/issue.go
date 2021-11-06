@@ -44,13 +44,27 @@ func (p *IssueProcessor) ProcessCreate(bctx bahamut.Context) (err error) {
 	req := bctx.InputData().(*api.Issue)
 	validity, _ := time.ParseDuration(req.Validity) // elemental already validated this
 
+	var issuer token.Issuer
+
 	switch req.SourceType {
 
 	case api.IssueSourceTypeMTLS:
-		tlsState := bctx.Request().TLSConnectionState
-		if err := p.handleCertificateIssue(bctx.Context(), req, tlsState, validity); err != nil {
+		if issuer, err = p.handleCertificateIssue(bctx.Context(), req, bctx.Request().TLSConnectionState); err != nil {
 			return err
 		}
+	}
+
+	idt := issuer.Issue()
+	k := p.jwks.GetLast()
+
+	if req.Token, err = idt.JWT(
+		k.PrivateKey(),
+		k.KID,
+		p.issuer,
+		append(jwt.ClaimStrings{p.audience}, req.Audience...),
+		time.Now().Add(validity),
+	); err != nil {
+		return err
 	}
 
 	bctx.SetOutputData(req)
@@ -58,15 +72,15 @@ func (p *IssueProcessor) ProcessCreate(bctx bahamut.Context) (err error) {
 	return nil
 }
 
-func (p *IssueProcessor) handleCertificateIssue(ctx context.Context, req *api.Issue, tlsState *tls.ConnectionState, validity time.Duration) (err error) {
+func (p *IssueProcessor) handleCertificateIssue(ctx context.Context, req *api.Issue, tlsState *tls.ConnectionState) (token.Issuer, error) {
 
 	if tlsState == nil || len(tlsState.PeerCertificates) == 0 {
-		return elemental.NewError("Bad Request", "No client certificates", "a3s", http.StatusBadRequest)
+		return nil, elemental.NewError("Bad Request", "No client certificates", "a3s", http.StatusBadRequest)
 	}
 
 	out, err := retrieveSource(ctx, p.manipulator, req.SourceNamespace, req.SourceName, api.MTLSSourceIdentity)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	src := out.(*api.MTLSSource)
 
@@ -76,18 +90,10 @@ func (p *IssueProcessor) handleCertificateIssue(ctx context.Context, req *api.Is
 	userCert := tlsState.PeerCertificates[0]
 	iss := issuer.NewMTLSIssuer(pool, req.SourceNamespace, req.SourceName)
 	if err := iss.FromCertificate(userCert); err != nil {
-		return err
+		return nil, err
 	}
 
-	idt := iss.Issue()
-
-	k := p.jwks.GetLast()
-	req.Token, err = idt.JWT(k.PrivateKey(), k.KID, p.issuer, jwt.ClaimStrings{p.audience}, time.Now().Add(validity))
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return iss, nil
 }
 
 func retrieveSource(ctx context.Context, m manipulate.Manipulator, namespace string, name string, identity elemental.Identity) (elemental.Identifiable, error) {
