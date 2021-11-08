@@ -1,6 +1,8 @@
 package processors
 
 import (
+	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"go.aporeto.io/a3s/pkgs/api"
@@ -15,13 +17,17 @@ import (
 type AuthzProcessor struct {
 	authorizer authorizer.Authorizer
 	jwks       *token.JWKS
+	issuer     string
+	audience   string
 }
 
 // NewAuthzProcessor returns a new AuthzProcessor.
-func NewAuthzProcessor(authorizer authorizer.Authorizer, jwks *token.JWKS) *AuthzProcessor {
+func NewAuthzProcessor(authorizer authorizer.Authorizer, jwks *token.JWKS, issuer string, audience string) *AuthzProcessor {
 	return &AuthzProcessor{
 		authorizer: authorizer,
 		jwks:       jwks,
+		issuer:     issuer,
+		audience:   audience,
 	}
 }
 
@@ -30,8 +36,11 @@ func (p *AuthzProcessor) ProcessCreate(bctx bahamut.Context) error {
 
 	req := bctx.InputData().(*api.Authz)
 
+	d, _ := json.MarshalIndent(req, "", "  ")
+	fmt.Println(string(d))
+
 	idt := &token.IdentityToken{}
-	if err := idt.Parse(req.Token, p.jwks, "", ""); err != nil {
+	if err := idt.Parse(req.Token, p.jwks, p.issuer, p.audience); err != nil {
 		return elemental.NewError(
 			"Bad Request",
 			err.Error(),
@@ -56,6 +65,7 @@ func (p *AuthzProcessor) ProcessCreate(bctx bahamut.Context) error {
 		authorizer.OptionCheckRestrictions(r),
 	)
 	if err != nil {
+		fmt.Println(err)
 		return err
 	}
 

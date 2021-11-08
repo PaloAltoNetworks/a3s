@@ -10,6 +10,7 @@ import (
 	"errors"
 	"fmt"
 	"math/big"
+	"sync"
 )
 
 // Various errors returned by a JWKS.
@@ -24,6 +25,8 @@ type JWKS struct {
 	Keys []*JWKSKey `json:"keys"`
 
 	keyMap map[string]*JWKSKey
+
+	sync.RWMutex
 }
 
 // NewJWKS returns a new JWKS.
@@ -40,6 +43,9 @@ func (j *JWKS) Append(cert *x509.Certificate) error {
 
 // AppendWithPrivate appends a new certificate and its private key to the JWKS.
 func (j *JWKS) AppendWithPrivate(cert *x509.Certificate, private crypto.PrivateKey) error {
+
+	j.Lock()
+	defer j.Unlock()
 
 	public, ok := cert.PublicKey.(*ecdsa.PublicKey)
 	if !ok {
@@ -74,6 +80,9 @@ func (j *JWKS) AppendWithPrivate(cert *x509.Certificate, private crypto.PrivateK
 // Returns ErrJWKSNotFound if not found.
 func (j *JWKS) Get(kid string) (*JWKSKey, error) {
 
+	j.RLock()
+	defer j.RUnlock()
+
 	k, ok := j.keyMap[kid]
 	if !ok {
 		return nil, ErrJWKSNotFound
@@ -84,6 +93,9 @@ func (j *JWKS) Get(kid string) (*JWKSKey, error) {
 
 // GetLast returns the last inserted key.
 func (j *JWKS) GetLast() *JWKSKey {
+
+	j.RLock()
+	defer j.RUnlock()
 
 	if len(j.Keys) == 0 {
 		return nil
@@ -96,6 +108,9 @@ func (j *JWKS) GetLast() *JWKSKey {
 // Returns true if something was deleted, false
 // otherwise.
 func (j *JWKS) Del(kid string) bool {
+
+	j.Lock()
+	defer j.Unlock()
 
 	if _, ok := j.keyMap[kid]; !ok {
 		return false

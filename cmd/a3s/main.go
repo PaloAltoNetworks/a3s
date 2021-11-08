@@ -116,10 +116,14 @@ func main() {
 		)...,
 	)
 
+	if err := server.RegisterCustomRouteHandler("/.well-known/jwks.json", makeJWKSHandler(jwks)); err != nil {
+		zap.L().Fatal("Unable to install jwks handler", zap.Error(err))
+	}
+
 	bahamut.RegisterProcessorOrDie(server, processors.NewIssueProcessor(m, jwks, cfg.JWT.JWTMaxValidity, cfg.JWT.JWTIssuer, cfg.JWT.JWTAudience), api.IssueIdentity)
 	bahamut.RegisterProcessorOrDie(server, processors.NewMTLSSourcesProcessor(m), api.MTLSSourceIdentity)
 	bahamut.RegisterProcessorOrDie(server, processors.NewPermissionsProcessor(retriever), api.PermissionsIdentity)
-	bahamut.RegisterProcessorOrDie(server, processors.NewAuthzProcessor(pauthz, jwks), api.AuthzIdentity)
+	bahamut.RegisterProcessorOrDie(server, processors.NewAuthzProcessor(pauthz, jwks, cfg.JWT.JWTIssuer, cfg.JWT.JWTAudience), api.AuthzIdentity)
 	bahamut.RegisterProcessorOrDie(server, processors.NewNamespacesProcessor(m, pubsub), api.NamespaceIdentity)
 	bahamut.RegisterProcessorOrDie(server, processors.NewAuthorizationProcessor(m, pubsub, retriever), api.AuthorizationIdentity)
 
@@ -225,4 +229,21 @@ func initRootPermissions(ctx context.Context, m manipulate.Manipulator, caPath s
 	}
 
 	return nil
+}
+
+func makeJWKSHandler(jwks *token.JWKS) http.HandlerFunc {
+
+	return func(w http.ResponseWriter, req *http.Request) {
+
+		jwks.RLock()
+		defer jwks.RUnlock()
+
+		data, err := elemental.Encode(elemental.EncodingTypeJSON, jwks)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		w.Write(data)
+	}
 }

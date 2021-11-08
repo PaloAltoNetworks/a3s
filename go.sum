@@ -400,6 +400,8 @@ go.aporeto.io/addedeffect v1.77.1-0.20210930200419-5082b3192403 h1:oKmMXJXoaO5Iq
 go.aporeto.io/addedeffect v1.77.1-0.20210930200419-5082b3192403/go.mod h1:YlGk/U5OdpLMNHxPJWunbhCZxJXlMCxo+N6J42jgNlU=
 go.aporeto.io/bahamut v1.112.1-0.20211105162237-0d08de35d6a0 h1:lja0iXG+4I7VLe3fXh+w/Eia5f9Z0Yk9s+eKwVUCoYY=
 go.aporeto.io/bahamut v1.112.1-0.20211105162237-0d08de35d6a0/go.mod h1:h3FZp+4gLfuGQ9AWe3T4zsrOzDLnEa6yfxG3jOpurhI=
+go.aporeto.io/bahamut v1.112.1-0.20211108183110-26de36f87bcb h1:S9yXCEgyewhTMNcPAJqRzbznZ73rgCpjPQKZsVpEi7o=
+go.aporeto.io/bahamut v1.112.1-0.20211108183110-26de36f87bcb/go.mod h1:h3FZp+4gLfuGQ9AWe3T4zsrOzDLnEa6yfxG3jOpurhI=
 go.aporeto.io/elemental v1.100.1-0.20210910205400-851949ed821f/go.mod h1:1WRCDolBBhyTFah5tpf9DNVHaJefug7lV9V9UzPNDAE=
 go.aporeto.io/elemental v1.100.1-0.20211007231947-44c1aabe7914/go.mod h1:1WRCDolBBhyTFah5tpf9DNVHaJefug7lV9V9UzPNDAE=
 go.aporeto.io/elemental v1.100.1-0.20211029010343-e264f153acc2 h1:8pdxeWS8/DCDjWg7QBQZF7agBrApfj19P1zYcmuOX3o=
