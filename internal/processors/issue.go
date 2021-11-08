@@ -11,6 +11,7 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 	"go.aporeto.io/a3s/internal/issuer"
 	"go.aporeto.io/a3s/pkgs/api"
+	"go.aporeto.io/a3s/pkgs/permissions"
 	"go.aporeto.io/a3s/pkgs/token"
 	"go.aporeto.io/bahamut"
 	"go.aporeto.io/elemental"
@@ -52,6 +53,11 @@ func (p *IssueProcessor) ProcessCreate(bctx bahamut.Context) (err error) {
 		if issuer, err = p.handleCertificateIssue(bctx.Context(), req, bctx.Request().TLSConnectionState); err != nil {
 			return err
 		}
+
+	case api.IssueSourceTypeA3SIdentityToken:
+		if issuer, err = p.handleTokenIssue(bctx.Context(), req); err != nil {
+			return err
+		}
 	}
 
 	idt := issuer.Issue()
@@ -90,6 +96,38 @@ func (p *IssueProcessor) handleCertificateIssue(ctx context.Context, req *api.Is
 	userCert := tlsState.PeerCertificates[0]
 	iss := issuer.NewMTLSIssuer(pool, req.SourceNamespace, req.SourceName)
 	if err := iss.FromCertificate(userCert); err != nil {
+		return nil, err
+	}
+
+	return iss, nil
+}
+
+func (p *IssueProcessor) handleTokenIssue(ctx context.Context, req *api.Issue) (token.Issuer, error) {
+
+	iss := issuer.NewTokenIssuer()
+
+	token, ok := req.Metadata["token"].(string)
+	if !ok || token == "" {
+		return nil, elemental.NewError(
+			"Bad Request",
+			"This source needs the token to be passed as metadata key 'token'",
+			"a3s:authn",
+			http.StatusBadRequest,
+		)
+	}
+
+	if err := iss.FromToken(
+		token,
+		p.jwks,
+		p.issuer,
+		p.audience,
+		req.Validity,
+		permissions.Restrictions{
+			Namespace:   req.RestrictedNamespace,
+			Networks:    req.RestrictedNetworks,
+			Permissions: req.RestrictedPermissions,
+		},
+	); err != nil {
 		return nil, err
 	}
 
