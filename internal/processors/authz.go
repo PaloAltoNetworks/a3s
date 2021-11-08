@@ -1,8 +1,6 @@
 package processors
 
 import (
-	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"go.aporeto.io/a3s/pkgs/api"
@@ -36,9 +34,6 @@ func (p *AuthzProcessor) ProcessCreate(bctx bahamut.Context) error {
 
 	req := bctx.InputData().(*api.Authz)
 
-	d, _ := json.MarshalIndent(req, "", "  ")
-	fmt.Println(string(d))
-
 	idt := &token.IdentityToken{}
 	if err := idt.Parse(req.Token, p.jwks, p.issuer, p.audience); err != nil {
 		return elemental.NewError(
@@ -65,7 +60,6 @@ func (p *AuthzProcessor) ProcessCreate(bctx bahamut.Context) error {
 		authorizer.OptionCheckRestrictions(r),
 	)
 	if err != nil {
-		fmt.Println(err)
 		return err
 	}
 

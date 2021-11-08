@@ -16,6 +16,8 @@ import (
 	"go.aporeto.io/a3s/pkgs/authorizer"
 	"go.aporeto.io/a3s/pkgs/bootstrap"
 	"go.aporeto.io/a3s/pkgs/indexes"
+	"go.aporeto.io/a3s/pkgs/notification"
+	"go.aporeto.io/a3s/pkgs/nscache"
 	"go.aporeto.io/a3s/pkgs/permissions"
 	"go.aporeto.io/a3s/pkgs/token"
 	"go.aporeto.io/bahamut"
@@ -126,6 +128,8 @@ func main() {
 	bahamut.RegisterProcessorOrDie(server, processors.NewAuthzProcessor(pauthz, jwks, cfg.JWT.JWTIssuer, cfg.JWT.JWTAudience), api.AuthzIdentity)
 	bahamut.RegisterProcessorOrDie(server, processors.NewNamespacesProcessor(m, pubsub), api.NamespaceIdentity)
 	bahamut.RegisterProcessorOrDie(server, processors.NewAuthorizationProcessor(m, pubsub, retriever), api.AuthorizationIdentity)
+
+	notification.Subscribe(ctx, pubsub, nscache.NotificationNamespaceChanges, makeNamespaceCleaner(ctx, m))
 
 	server.Run(ctx)
 }
@@ -245,5 +249,28 @@ func makeJWKSHandler(jwks *token.JWKS) http.HandlerFunc {
 		}
 
 		w.Write(data)
+	}
+}
+
+func makeNamespaceCleaner(ctx context.Context, m manipulate.Manipulator) notification.Handler {
+
+	return func(msg *notification.Message) {
+
+		if msg.Type != string(elemental.OperationDelete) {
+			return
+		}
+
+		ns := msg.Data.(string)
+
+		for _, i := range api.Manager().AllIdentities() {
+			mctx := manipulate.NewContext(
+				ctx,
+				manipulate.ContextOptionNamespace(ns),
+				manipulate.ContextOptionRecursive(true),
+			)
+			if err := m.DeleteMany(mctx, i); err != nil {
+				zap.L().Error("Unable to clean namespace", zap.String("ns", ns), zap.Error(err))
+			}
+		}
 	}
 }

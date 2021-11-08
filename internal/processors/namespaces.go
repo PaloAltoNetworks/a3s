@@ -48,7 +48,7 @@ func (p *NamespacesProcessor) ProcessCreate(bctx bahamut.Context) error {
 
 	ns.Name = strings.Join([]string{rns, ns.Name}, "/")
 
-	return crud.Create(bctx, p.manipulator, ns, crud.OptionPostWriteHook(p.makeNotify()))
+	return crud.Create(bctx, p.manipulator, ns, crud.OptionPostWriteHook(p.makeNotify(bctx.Request().Operation)))
 }
 
 // ProcessRetrieveMany handles the retrieve many requests for Namespaces.
@@ -64,14 +64,14 @@ func (p *NamespacesProcessor) ProcessRetrieve(bctx bahamut.Context) error {
 // ProcessUpdate handles the update requests for Namespaces.
 func (p *NamespacesProcessor) ProcessUpdate(bctx bahamut.Context) error {
 	return crud.Update(bctx, p.manipulator, bctx.InputData().(*api.Namespace),
-		crud.OptionPostWriteHook(p.makeNotify()),
+		crud.OptionPostWriteHook(p.makeNotify(bctx.Request().Operation)),
 	)
 }
 
 // ProcessDelete handles the delete requests for Namespaces.
 func (p *NamespacesProcessor) ProcessDelete(bctx bahamut.Context) error {
 	return crud.Delete(bctx, p.manipulator, api.NewNamespace(),
-		crud.OptionPostWriteHook(p.makeNotify()),
+		crud.OptionPostWriteHook(p.makeNotify(bctx.Request().Operation)),
 	)
 }
 
@@ -80,12 +80,13 @@ func (p *NamespacesProcessor) ProcessInfo(bctx bahamut.Context) error {
 	return crud.Info(bctx, p.manipulator, api.NamespaceIdentity)
 }
 
-func (p *NamespacesProcessor) makeNotify() crud.PostWriteHook {
+func (p *NamespacesProcessor) makeNotify(op elemental.Operation) crud.PostWriteHook {
 	return func(obj elemental.Identifiable) {
 		_ = notification.Publish(
 			p.pubsub,
 			nscache.NotificationNamespaceChanges,
 			&notification.Message{
+				Type: string(op),
 				Data: obj.(*api.Namespace).Name,
 			},
 		)
