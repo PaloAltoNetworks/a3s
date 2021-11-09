@@ -110,13 +110,13 @@ func (o IssuesList) Version() int {
 // Issue represents the model of a issue
 type Issue struct {
 	// Requested audience for the delivered token.
-	Audience []string `json:"audience" msgpack:"audience" bson:"-" mapstructure:"audience,omitempty"`
+	Audience []string `json:"audience,omitempty" msgpack:"audience,omitempty" bson:"-" mapstructure:"audience,omitempty"`
 
 	// Contains various additional information. Meaning depends on the `source`.
-	Metadata map[string]interface{} `json:"metadata" msgpack:"metadata" bson:"-" mapstructure:"metadata,omitempty"`
+	Metadata map[string]interface{} `json:"metadata,omitempty" msgpack:"metadata,omitempty" bson:"-" mapstructure:"metadata,omitempty"`
 
 	// Opaque data that will be included in the issued token.
-	Opaque map[string]string `json:"opaque" msgpack:"opaque" bson:"-" mapstructure:"opaque,omitempty"`
+	Opaque map[string]string `json:"opaque,omitempty" msgpack:"opaque,omitempty" bson:"-" mapstructure:"opaque,omitempty"`
 
 	// Restricts the namespace where the token can be used.
 	//
@@ -126,7 +126,7 @@ type Issue struct {
 	//
 	// Restricting to a namespace you don't have initially access according to the
 	// policy engine has no effect and may end up making the token unusable.
-	RestrictedNamespace string `json:"restrictedNamespace" msgpack:"restrictedNamespace" bson:"-" mapstructure:"restrictedNamespace,omitempty"`
+	RestrictedNamespace string `json:"restrictedNamespace,omitempty" msgpack:"restrictedNamespace,omitempty" bson:"-" mapstructure:"restrictedNamespace,omitempty"`
 
 	// Restricts the networks from where the token can be used. This will reduce the
 	// existing set of authorized networks that normally apply to the token according
@@ -139,7 +139,7 @@ type Issue struct {
 	//
 	// Restricting to a network that is not initially authorized by the policy
 	// engine has no effect and may end up making the token unusable.
-	RestrictedNetworks []string `json:"restrictedNetworks" msgpack:"restrictedNetworks" bson:"-" mapstructure:"restrictedNetworks,omitempty"`
+	RestrictedNetworks []string `json:"restrictedNetworks,omitempty" msgpack:"restrictedNetworks,omitempty" bson:"-" mapstructure:"restrictedNetworks,omitempty"`
 
 	// Restricts the permissions of token. This will reduce the existing permissions
 	// that normally apply to the token according to the policy engine.
@@ -150,13 +150,13 @@ type Issue struct {
 	//
 	// Restricting to some permissions you don't initially have according to the policy
 	// engine has no effect and may end up making the token unusable.
-	RestrictedPermissions []string `json:"restrictedPermissions" msgpack:"restrictedPermissions" bson:"-" mapstructure:"restrictedPermissions,omitempty"`
+	RestrictedPermissions []string `json:"restrictedPermissions,omitempty" msgpack:"restrictedPermissions,omitempty" bson:"-" mapstructure:"restrictedPermissions,omitempty"`
 
 	// The name of the source to use.
-	SourceName string `json:"sourceName" msgpack:"sourceName" bson:"-" mapstructure:"sourceName,omitempty"`
+	SourceName string `json:"sourceName,omitempty" msgpack:"sourceName,omitempty" bson:"-" mapstructure:"sourceName,omitempty"`
 
 	// The namespace of the source to use.
-	SourceNamespace string `json:"sourceNamespace" msgpack:"sourceNamespace" bson:"-" mapstructure:"sourceNamespace,omitempty"`
+	SourceNamespace string `json:"sourceNamespace,omitempty" msgpack:"sourceNamespace,omitempty" bson:"-" mapstructure:"sourceNamespace,omitempty"`
 
 	// The authentication source. This will define how to verify
 	// credentials from internal or external source of authentication.
@@ -168,7 +168,7 @@ type Issue struct {
 	// Configures the maximum length of validity for a token, using
 	// [Golang duration syntax](https://golang.org/pkg/time/#example_Duration). If it
 	// is bigger than the configured max validity, it will be capped. Default: `24h`.
-	Validity string `json:"validity" msgpack:"validity" bson:"-" mapstructure:"validity,omitempty"`
+	Validity string `json:"validity,omitempty" msgpack:"validity,omitempty" bson:"-" mapstructure:"validity,omitempty"`
 
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
 }
@@ -472,7 +472,6 @@ var IssueAttributesMap = map[string]elemental.AttributeSpecification{
 		Description:    `Contains various additional information. Meaning depends on the ` + "`" + `source` + "`" + `.`,
 		Exposed:        true,
 		Name:           "metadata",
-		Orderable:      true,
 		SubType:        "map[string]interface{}",
 		Type:           "external",
 	},
@@ -579,10 +578,9 @@ credentials from internal or external source of authentication.`,
 		Description: `Configures the maximum length of validity for a token, using
 [Golang duration syntax](https://golang.org/pkg/time/#example_Duration). If it
 is bigger than the configured max validity, it will be capped. Default: ` + "`" + `24h` + "`" + `.`,
-		Exposed:   true,
-		Name:      "validity",
-		Orderable: true,
-		Type:      "string",
+		Exposed: true,
+		Name:    "validity",
+		Type:    "string",
 	},
 }
 
@@ -603,7 +601,6 @@ var IssueLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
 		Description:    `Contains various additional information. Meaning depends on the ` + "`" + `source` + "`" + `.`,
 		Exposed:        true,
 		Name:           "metadata",
-		Orderable:      true,
 		SubType:        "map[string]interface{}",
 		Type:           "external",
 	},
@@ -710,10 +707,9 @@ credentials from internal or external source of authentication.`,
 		Description: `Configures the maximum length of validity for a token, using
 [Golang duration syntax](https://golang.org/pkg/time/#example_Duration). If it
 is bigger than the configured max validity, it will be capped. Default: ` + "`" + `24h` + "`" + `.`,
-		Exposed:   true,
-		Name:      "validity",
-		Orderable: true,
-		Type:      "string",
+		Exposed: true,
+		Name:    "validity",
+		Type:    "string",
 	},
 }
 

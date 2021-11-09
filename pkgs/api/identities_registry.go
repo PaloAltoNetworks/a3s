@@ -7,6 +7,7 @@ var (
 		"authorization": AuthorizationIdentity,
 		"authz":         AuthzIdentity,
 		"issue":         IssueIdentity,
+		"ldapsource":    LDAPSourceIdentity,
 		"mtlssource":    MTLSSourceIdentity,
 		"namespace":     NamespaceIdentity,
 		"permissions":   PermissionsIdentity,
@@ -17,6 +18,7 @@ var (
 		"authorizations": AuthorizationIdentity,
 		"authz":          AuthzIdentity,
 		"issue":          IssueIdentity,
+		"ldapsources":    LDAPSourceIdentity,
 		"mtlssources":    MTLSSourceIdentity,
 		"namespaces":     NamespaceIdentity,
 		"permissions":    PermissionsIdentity,
@@ -35,6 +37,12 @@ var (
 		},
 		"authz": nil,
 		"issue": nil,
+		"ldapsource": {
+			{"namespace", "name"},
+			{":shard", ":unique", "zone", "zHash"},
+			{"namespace"},
+			{"namespace", "ID"},
+		},
 		"mtlssource": {
 			{"namespace", "name"},
 			{":shard", ":unique", "zone", "zHash"},
@@ -96,6 +104,8 @@ func (f modelManager) Identifiable(identity elemental.Identity) elemental.Identi
 		return NewAuthz()
 	case IssueIdentity:
 		return NewIssue()
+	case LDAPSourceIdentity:
+		return NewLDAPSource()
 	case MTLSSourceIdentity:
 		return NewMTLSSource()
 	case NamespaceIdentity:
@@ -119,6 +129,8 @@ func (f modelManager) SparseIdentifiable(identity elemental.Identity) elemental.
 		return NewSparseAuthz()
 	case IssueIdentity:
 		return NewSparseIssue()
+	case LDAPSourceIdentity:
+		return NewSparseLDAPSource()
 	case MTLSSourceIdentity:
 		return NewSparseMTLSSource()
 	case NamespaceIdentity:
@@ -150,6 +162,8 @@ func (f modelManager) Identifiables(identity elemental.Identity) elemental.Ident
 		return &AuthzsList{}
 	case IssueIdentity:
 		return &IssuesList{}
+	case LDAPSourceIdentity:
+		return &LDAPSourcesList{}
 	case MTLSSourceIdentity:
 		return &MTLSSourcesList{}
 	case NamespaceIdentity:
@@ -171,6 +185,8 @@ func (f modelManager) SparseIdentifiables(identity elemental.Identity) elemental
 		return &SparseAuthzsList{}
 	case IssueIdentity:
 		return &SparseIssuesList{}
+	case LDAPSourceIdentity:
+		return &SparseLDAPSourcesList{}
 	case MTLSSourceIdentity:
 		return &SparseMTLSSourcesList{}
 	case NamespaceIdentity:
@@ -208,6 +224,7 @@ func AllIdentities() []elemental.Identity {
 		AuthorizationIdentity,
 		AuthzIdentity,
 		IssueIdentity,
+		LDAPSourceIdentity,
 		MTLSSourceIdentity,
 		NamespaceIdentity,
 		PermissionsIdentity,
@@ -224,6 +241,8 @@ func AliasesForIdentity(identity elemental.Identity) []string {
 	case AuthzIdentity:
 		return []string{}
 	case IssueIdentity:
+		return []string{}
+	case LDAPSourceIdentity:
 		return []string{}
 	case MTLSSourceIdentity:
 		return []string{}

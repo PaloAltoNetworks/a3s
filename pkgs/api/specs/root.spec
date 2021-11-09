@@ -23,11 +23,12 @@ relations:
 - rest_name: issue
   create:
     description: Ask to issue a new authentication token.
-    parameters:
-      entries:
-      - name: asCookie
-        description: If set to true, the token will be delivered in a secure cookie, and not in the response body.
-        type: boolean
+
+- rest_name: ldapsource
+  get:
+    description: Retrieves the list of ldapsources.
+  create:
+    description: Creates a new ldapsource.
 
 - rest_name: mtlssource
   get:

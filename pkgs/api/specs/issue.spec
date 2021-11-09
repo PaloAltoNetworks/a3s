@@ -15,13 +15,14 @@ attributes:
     type: external
     exposed: true
     subtype: map[string]interface{}
-    orderable: true
+    omit_empty: true
 
   - name: opaque
     description: Opaque data that will be included in the issued token.
     type: external
     exposed: true
     subtype: map[string]string
+    omit_empty: true
 
   - name: restrictedNamespace
     description: |-
@@ -36,6 +37,7 @@ attributes:
     type: string
     exposed: true
     example_value: /namespace
+    omit_empty: true
 
   - name: restrictedNetworks
     description: |-
@@ -58,6 +60,7 @@ attributes:
     - 127.0.0.1/32
     validations:
     - $cidr_list_optional
+    omit_empty: true
 
   - name: restrictedPermissions
     description: |-
@@ -75,6 +78,7 @@ attributes:
     subtype: string
     example_value:
     - dogs,post
+    omit_empty: true
 
   - name: audience
     description: Requested audience for the delivered token. 
@@ -84,18 +88,21 @@ attributes:
     example_value:
     - https://myfirstapp
     - https://mysecondapp
+    omit_empty: true
 
   - name: sourceName
     description: The name of the source to use.
     type: string
     exposed: true
     example_value: /my/ns
+    omit_empty: true
 
   - name: sourceNamespace
     description: The namespace of the source to use.
     type: string
     exposed: true
     example_value: /my/ns
+    omit_empty: true
 
   - name: sourceType
     description: |-
@@ -131,6 +138,6 @@ attributes:
     type: string
     exposed: true
     default_value: 24h
-    orderable: true
     validations:
     - $timeDuration
+    omit_empty: true
