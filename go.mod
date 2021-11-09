@@ -12,6 +12,7 @@ require (
 )
 
 require (
+	github.com/Azure/go-ntlmssp v0.0.0-20200615164410-66371956d46c // indirect
 	github.com/NYTimes/gziphandler v1.1.1 // indirect
 	github.com/apparentlymart/go-cidr v1.1.0
 	github.com/araddon/dateparse v0.0.0-20210429162001-6b43995a97de // indirect
@@ -21,6 +22,8 @@ require (
 	github.com/fatih/structs v1.1.0
 	github.com/fsnotify/fsnotify v1.4.7 // indirect
 	github.com/globalsign/mgo v0.0.0-20181015135952-eeefdecb41b8
+	github.com/go-asn1-ber/asn1-ber v1.5.1 // indirect
+	github.com/go-ldap/ldap/v3 v3.4.1
 	github.com/go-zoo/bone v1.3.0 // indirect
 	github.com/gofrs/uuid v4.0.0+incompatible
 	github.com/golang-jwt/jwt/v4 v4.1.0

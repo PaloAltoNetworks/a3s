@@ -10,6 +10,16 @@ model:
 # Attributes
 attributes:
   v1:
+  - name: audience
+    description: Requested audience for the delivered token.
+    type: list
+    exposed: true
+    subtype: string
+    example_value:
+    - https://myfirstapp
+    - https://mysecondapp
+    omit_empty: true
+
   - name: metadata
     description: Contains various additional information. Meaning depends on the `source`.
     type: external
@@ -58,9 +68,9 @@ attributes:
     example_value:
     - 10.0.0.0/8
     - 127.0.0.1/32
+    omit_empty: true
     validations:
     - $cidr_list_optional
-    omit_empty: true
 
   - name: restrictedPermissions
     description: |-
@@ -78,16 +88,6 @@ attributes:
     subtype: string
     example_value:
     - dogs,post
-    omit_empty: true
-
-  - name: audience
-    description: Requested audience for the delivered token. 
-    type: list
-    subtype: string
-    exposed: true
-    example_value:
-    - https://myfirstapp
-    - https://mysecondapp
     omit_empty: true
 
   - name: sourceName
@@ -138,6 +138,6 @@ attributes:
     type: string
     exposed: true
     default_value: 24h
+    omit_empty: true
     validations:
     - $timeDuration
-    omit_empty: true

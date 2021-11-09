@@ -50,14 +50,17 @@ func (p *IssueProcessor) ProcessCreate(bctx bahamut.Context) (err error) {
 	switch req.SourceType {
 
 	case api.IssueSourceTypeMTLS:
-		if issuer, err = p.handleCertificateIssue(bctx.Context(), req, bctx.Request().TLSConnectionState); err != nil {
-			return err
-		}
+		issuer, err = p.handleCertificateIssue(bctx.Context(), req, bctx.Request().TLSConnectionState)
+
+	case api.IssueSourceTypeLDAP:
+		issuer, err = p.handleLDAPIssue(bctx.Context(), req)
 
 	case api.IssueSourceTypeA3SIdentityToken:
-		if issuer, err = p.handleTokenIssue(bctx.Context(), req); err != nil {
-			return err
-		}
+		issuer, err = p.handleTokenIssue(bctx.Context(), req)
+	}
+
+	if err != nil {
+		return elemental.NewError("Unauthorized", err.Error(), "a3s:authn", http.StatusUnauthorized)
 	}
 
 	idt := issuer.Issue()
@@ -73,6 +76,7 @@ func (p *IssueProcessor) ProcessCreate(bctx bahamut.Context) (err error) {
 		return err
 	}
 
+	req.Metadata = nil
 	bctx.SetOutputData(req)
 
 	return nil
@@ -102,20 +106,40 @@ func (p *IssueProcessor) handleCertificateIssue(ctx context.Context, req *api.Is
 	return iss, nil
 }
 
-func (p *IssueProcessor) handleTokenIssue(ctx context.Context, req *api.Issue) (token.Issuer, error) {
+func (p *IssueProcessor) handleLDAPIssue(ctx context.Context, req *api.Issue) (token.Issuer, error) {
 
-	iss := issuer.NewTokenIssuer()
-
-	token, ok := req.Metadata["token"].(string)
-	if !ok || token == "" {
-		return nil, elemental.NewError(
-			"Bad Request",
-			"This source needs the token to be passed as metadata key 'token'",
-			"a3s:authn",
-			http.StatusBadRequest,
-		)
+	username, err := extractMetadata(req, "username")
+	if err != nil {
+		return nil, err
 	}
 
+	password, err := extractMetadata(req, "password")
+	if err != nil {
+		return nil, err
+	}
+
+	out, err := retrieveSource(ctx, p.manipulator, req.SourceNamespace, req.SourceName, api.LDAPSourceIdentity)
+	if err != nil {
+		return nil, err
+	}
+
+	src := out.(*api.LDAPSource)
+	iss := issuer.NewLDAPIssuer(src)
+	if err := iss.FromCredentials(username, password); err != nil {
+		return nil, err
+	}
+
+	return iss, nil
+}
+
+func (p *IssueProcessor) handleTokenIssue(ctx context.Context, req *api.Issue) (token.Issuer, error) {
+
+	token, err := extractMetadata(req, "token")
+	if err != nil {
+		return nil, err
+	}
+
+	iss := issuer.NewTokenIssuer()
 	if err := iss.FromToken(
 		token,
 		p.jwks,
@@ -182,4 +206,19 @@ func retrieveSource(ctx context.Context, m manipulate.Manipulator, namespace str
 	}
 
 	return lst[0], nil
+}
+
+func extractMetadata(req *api.Issue, key string) (string, error) {
+
+	value, ok := req.Metadata[key].(string)
+	if !ok || value == "" {
+		return "", elemental.NewError(
+			"Bad Request",
+			fmt.Sprintf("This source needs the %s to be passed as metadata key '%s'", key, key),
+			"a3s:authn",
+			http.StatusBadRequest,
+		)
+	}
+
+	return value, nil
 }

@@ -124,6 +124,7 @@ func main() {
 
 	bahamut.RegisterProcessorOrDie(server, processors.NewIssueProcessor(m, jwks, cfg.JWT.JWTMaxValidity, cfg.JWT.JWTIssuer, cfg.JWT.JWTAudience), api.IssueIdentity)
 	bahamut.RegisterProcessorOrDie(server, processors.NewMTLSSourcesProcessor(m), api.MTLSSourceIdentity)
+	bahamut.RegisterProcessorOrDie(server, processors.NewLDAPSourcesProcessor(m), api.LDAPSourceIdentity)
 	bahamut.RegisterProcessorOrDie(server, processors.NewPermissionsProcessor(retriever), api.PermissionsIdentity)
 	bahamut.RegisterProcessorOrDie(server, processors.NewAuthzProcessor(pauthz, jwks, cfg.JWT.JWTIssuer, cfg.JWT.JWTAudience), api.AuthzIdentity)
 	bahamut.RegisterProcessorOrDie(server, processors.NewNamespacesProcessor(m, pubsub), api.NamespaceIdentity)
@@ -248,7 +249,7 @@ func makeJWKSHandler(jwks *token.JWKS) http.HandlerFunc {
 			return
 		}
 
-		w.Write(data)
+		_, _ = w.Write(data)
 	}
 }
 
