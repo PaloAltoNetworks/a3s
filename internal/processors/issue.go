@@ -3,7 +3,6 @@ package processors
 import (
 	"context"
 	"crypto/tls"
-	"crypto/x509"
 	"fmt"
 	"net/http"
 	"time"
@@ -94,11 +93,8 @@ func (p *IssueProcessor) handleCertificateIssue(ctx context.Context, req *api.Is
 	}
 	src := out.(*api.MTLSSource)
 
-	pool := x509.NewCertPool()
-	pool.AppendCertsFromPEM([]byte(src.CertificateAuthority))
-
 	userCert := tlsState.PeerCertificates[0]
-	iss := issuer.NewMTLSIssuer(pool, req.SourceNamespace, req.SourceName)
+	iss := issuer.NewMTLSIssuer(src)
 	if err := iss.FromCertificate(userCert); err != nil {
 		return nil, err
 	}

@@ -3,42 +3,42 @@ package issuer
 import (
 	"crypto/sha1"
 	"crypto/x509"
-	"crypto/x509/pkix"
 	"fmt"
 	"strings"
 
+	"go.aporeto.io/a3s/pkgs/api"
 	"go.aporeto.io/a3s/pkgs/token"
 )
 
 // MTLSIssuer issues IdentityToken from a TLS certificate.
 type MTLSIssuer struct {
-	subject            pkix.Name
-	serialNumber       string
-	emailAddresses     []string
-	dnsNames           []string
-	token              *token.IdentityToken
-	caPool             *x509.CertPool
 	signerFingerprints []string
+	token              *token.IdentityToken
+	certificate        *x509.Certificate
+	source             *api.MTLSSource
 }
 
 // NewMTLSIssuer returns a new MTLSIssuer.
-func NewMTLSIssuer(pool *x509.CertPool, sourceNamespace string, sourceName string) *MTLSIssuer {
+func NewMTLSIssuer(source *api.MTLSSource) *MTLSIssuer {
 
 	return &MTLSIssuer{
+		source: source,
 		token: token.NewIdentityToken(token.Source{
 			Type:      "mtls",
-			Namespace: sourceNamespace,
-			Name:      sourceName,
+			Namespace: source.Namespace,
+			Name:      source.Name,
 		}),
-		caPool: pool,
 	}
 }
 
 // FromCertificate prepares the issuer according to the provided x509.Certificate.
 func (c *MTLSIssuer) FromCertificate(certificate *x509.Certificate) error {
 
+	pool := x509.NewCertPool()
+	pool.AppendCertsFromPEM([]byte(c.source.CertificateAuthority))
+
 	chains, err := certificate.Verify(x509.VerifyOptions{
-		Roots:     c.caPool,
+		Roots:     pool,
 		KeyUsages: []x509.ExtKeyUsage{x509.ExtKeyUsageClientAuth},
 	})
 	if err != nil {
@@ -54,18 +54,7 @@ func (c *MTLSIssuer) FromCertificate(certificate *x509.Certificate) error {
 		}
 	}
 
-	c.subject = certificate.Subject
-	c.serialNumber = certificate.SerialNumber.String()
-
-	c.emailAddresses = make([]string, len(certificate.EmailAddresses))
-	for i, addr := range certificate.EmailAddresses {
-		c.emailAddresses[i] = addr
-	}
-
-	c.dnsNames = make([]string, len(certificate.DNSNames))
-	for i, dns := range certificate.DNSNames {
-		c.dnsNames[i] = dns
-	}
+	c.certificate = certificate
 
 	return nil
 }
@@ -73,63 +62,63 @@ func (c *MTLSIssuer) FromCertificate(certificate *x509.Certificate) error {
 // Issue issues the token.IdentityToken derived from the the user certificate.
 func (c *MTLSIssuer) Issue() *token.IdentityToken {
 
-	if v := c.subject.CommonName; v != "" {
+	if v := c.certificate.Subject.CommonName; v != "" {
 		c.token.Identity = append(c.token.Identity, fmt.Sprintf("commonname=%s", v))
 	}
 
-	if v := c.serialNumber; v != "" {
+	if v := c.certificate.SerialNumber; v != nil {
 		c.token.Identity = append(c.token.Identity, fmt.Sprintf("serialnumber=%s", v))
 	}
 
-	if vs := c.subject.Country; len(vs) != 0 {
+	if vs := c.certificate.Subject.Country; len(vs) != 0 {
 		for _, v := range vs {
 			c.token.Identity = append(c.token.Identity, fmt.Sprintf("country=%s", v))
 		}
 	}
 
-	if vs := c.subject.Locality; len(vs) != 0 {
+	if vs := c.certificate.Subject.Locality; len(vs) != 0 {
 		for _, v := range vs {
 			c.token.Identity = append(c.token.Identity, fmt.Sprintf("locality=%s", v))
 		}
 	}
 
-	if vs := c.subject.Organization; len(vs) != 0 {
+	if vs := c.certificate.Subject.Organization; len(vs) != 0 {
 		for _, v := range vs {
 			c.token.Identity = append(c.token.Identity, fmt.Sprintf("organization=%s", v))
 		}
 	}
 
-	if vs := c.subject.OrganizationalUnit; len(vs) != 0 {
+	if vs := c.certificate.Subject.OrganizationalUnit; len(vs) != 0 {
 		for _, v := range vs {
 			c.token.Identity = append(c.token.Identity, fmt.Sprintf("organizationalunit=%s", v))
 		}
 	}
 
-	if vs := c.subject.PostalCode; len(vs) != 0 {
+	if vs := c.certificate.Subject.PostalCode; len(vs) != 0 {
 		for _, v := range vs {
 			c.token.Identity = append(c.token.Identity, fmt.Sprintf("postalcode=%s", v))
 		}
 	}
 
-	if vs := c.subject.Province; len(vs) != 0 {
+	if vs := c.certificate.Subject.Province; len(vs) != 0 {
 		for _, v := range vs {
 			c.token.Identity = append(c.token.Identity, fmt.Sprintf("province=%s", v))
 		}
 	}
 
-	if vs := c.subject.StreetAddress; len(vs) != 0 {
+	if vs := c.certificate.Subject.StreetAddress; len(vs) != 0 {
 		for _, v := range vs {
 			c.token.Identity = append(c.token.Identity, fmt.Sprintf("streetaddress=%s", v))
 		}
 	}
 
-	if vs := c.emailAddresses; len(vs) != 0 {
+	if vs := c.certificate.EmailAddresses; len(vs) != 0 {
 		for _, v := range vs {
 			c.token.Identity = append(c.token.Identity, fmt.Sprintf("email=%s", v))
 		}
 	}
 
-	if vs := c.dnsNames; len(vs) != 0 {
+	if vs := c.certificate.DNSNames; len(vs) != 0 {
 		for _, v := range vs {
 			c.token.Identity = append(c.token.Identity, fmt.Sprintf("dnsname=%s", v))
 		}

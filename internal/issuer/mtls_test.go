@@ -11,6 +11,7 @@ import (
 	"testing"
 
 	. "github.com/smartystreets/goconvey/convey"
+	"go.aporeto.io/a3s/pkgs/api"
 	"go.aporeto.io/tg/tglib"
 )
 
@@ -80,12 +81,15 @@ func TestMTLSIssuer(t *testing.T) {
 
 		Convey("Calling NewMTLSIssuer should work", func() {
 
-			pool := x509.NewCertPool()
-			pool.AddCert(cacert1)
+			block, _ := tglib.CertToPEM(cacert1)
 
-			iss := NewMTLSIssuer(pool, "/my/ns", "mysource")
-			So(iss.caPool, ShouldEqual, pool)
+			src := api.NewMTLSSource()
+			src.Name = "mysource"
+			src.Namespace = "/my/ns"
+			src.CertificateAuthority = string(pem.EncodeToMemory(block))
+			iss := NewMTLSIssuer(src)
 			So(iss.token, ShouldNotBeNil)
+			So(iss.source, ShouldEqual, src)
 
 			Convey("Calling FromCertificate with a valid user cert should work", func() {
 
