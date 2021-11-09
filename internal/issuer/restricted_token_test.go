@@ -40,7 +40,7 @@ func TestFromToken(t *testing.T) {
 	Convey("Using a token with an bad restrictions", t, func() {
 		token := `eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJyZWFsbSI6IlZpbmNlIiwiZGF0YSI6eyJhY2NvdW50IjoiYXBvbXV4IiwiZW1haWwiOiJhZG1pbkBhcG9tdXguY29tIiwiaWQiOiI1ZTFjZjNlZmEzNzAwMzhmYWY3Zjg3NzciLCJvcmdhbml6YXRpb24iOiJhcG9tdXgiLCJyZWFsbSI6InZpbmNlIiwic3ViamVjdCI6ImFwb211eCJ9LCJyZXN0cmljdGlvbnMiOnsibmV0d29ya3MiOiIxMjcuMC4wLjEvMzIifSwiZXhwIjoxNTkwMDQzMjA1LCJpYXQiOjE1ODk5NTMyMDUsImlzcyI6Imh0dHBzOi8vbG9jYWxob3N0OjQ0NDMiLCJzdWIiOiJhcG9tdXgifQ.dIsnGMSEy961FqXgJH-TBVw8_9VrzH_j4xcQJG4JY0--ekwNuMpLr0CyOJFj_XFuVsY-ZS8Lwj5yJCYHv7TS8Q`
 		c := NewTokenIssuer()
-		err := c.FromToken(token, keychain, "", "", "", permissions.Restrictions{})
+		err := c.FromToken(token, keychain, "", "", 0, permissions.Restrictions{})
 		So(err, ShouldNotBeNil)
 		So(err.Error(), ShouldEqual, `unable to compute restrictions: unable to compute authz restrictions from token: json: cannot unmarshal string into Go struct field Restrictions.restrictions.networks of type []string`)
 	})
@@ -48,7 +48,7 @@ func TestFromToken(t *testing.T) {
 	Convey("Using a token that is missing kid", t, func() {
 		token := `eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJyZWFsbSI6IlZpbmNlIiwiZGF0YSI6eyJhY2NvdW50IjoiYXBvbXV4IiwiZW1haWwiOiJhZG1pbkBhcG9tdXguY29tIiwiaWQiOiI1ZTFjZjNlZmEzNzAwMzhmYWY3Zjg3NzciLCJvcmdhbml6YXRpb24iOiJhcG9tdXgiLCJyZWFsbSI6InZpbmNlIiwic3ViamVjdCI6ImFwb211eCJ9LCJyZXN0cmljdGlvbnMiOnt9LCJleHAiOjE1OTAzMDQzNDgsImlhdCI6MTU5MDIxNDM0OCwiaXNzIjoiaHR0cHM6Ly9sb2NhbGhvc3Q6NDQ0MyIsInN1YiI6ImFwb211eCJ9.7TZEEG-M-Ed-pKTzEGVZnKKZ1fvG0P7kN-VIKnVn_4TkTR2PX0EaToNZViGgcIs6pYXm7SByzjMl63ZiriSYkg`
 		c := NewTokenIssuer()
-		err := c.FromToken(token, keychain, "", "", "", permissions.Restrictions{})
+		err := c.FromToken(token, keychain, "", "", 0, permissions.Restrictions{})
 		So(err, ShouldNotBeNil)
 		So(err.Error(), ShouldEqual, `unable to parse input token: unable to parse jwt: token has no KID in its header`)
 	})
@@ -61,24 +61,10 @@ func TestFromToken(t *testing.T) {
 
 		token, _ := mc.JWT(key, kid, "iss", jwt.ClaimStrings{"aud"}, time.Time{})
 		c := NewTokenIssuer()
-		err := c.FromToken(token, keychain, "iss", "aud", "", permissions.Restrictions{})
+		err := c.FromToken(token, keychain, "iss", "aud", 0, permissions.Restrictions{})
 
 		So(err, ShouldBeNil)
 		So(c.token.Restrictions, ShouldBeNil)
-	})
-
-	Convey("Using a token that has bad expiration", t, func() {
-
-		mc := token.NewIdentityToken(token.Source{Type: "mtls"})
-		mc.ExpiresAt = jwt.NewNumericDate(time.Now().Add(time.Hour))
-		mc.Issuer = "iss"
-
-		token, _ := mc.JWT(key, kid, "iss", jwt.ClaimStrings{"aud"}, time.Time{})
-		c := NewTokenIssuer()
-		err := c.FromToken(token, keychain, "iss", "aud", "chien", permissions.Restrictions{})
-
-		So(err, ShouldNotBeNil)
-		So(err.Error(), ShouldEqual, `unable to compute restrictions: time: invalid duration "chien"`)
 	})
 
 	Convey("Using a token that has all valid restrictions", t, func() {
@@ -94,7 +80,7 @@ func TestFromToken(t *testing.T) {
 
 		token, _ := mc.JWT(key, kid, "iss", jwt.ClaimStrings{"aud"}, time.Time{})
 		c := NewTokenIssuer()
-		err := c.FromToken(token, keychain, "iss", "aud", "", permissions.Restrictions{
+		err := c.FromToken(token, keychain, "iss", "aud", 0, permissions.Restrictions{
 			Namespace:   "/a/b",
 			Networks:    []string{"1.1.0.0/16"},
 			Permissions: []string{"res,get"},
@@ -120,7 +106,7 @@ func TestFromToken(t *testing.T) {
 
 		token, _ := mc.JWT(key, kid, "iss", jwt.ClaimStrings{"aud"}, time.Time{})
 		c := NewTokenIssuer()
-		err := c.FromToken(token, keychain, "iss", "aud", "", permissions.Restrictions{
+		err := c.FromToken(token, keychain, "iss", "aud", 0, permissions.Restrictions{
 			Namespace:   "/",
 			Networks:    []string{"1.1.0.0/16"},
 			Permissions: []string{"res,post"},
@@ -143,7 +129,7 @@ func TestFromToken(t *testing.T) {
 
 		token, _ := mc.JWT(key, kid, "iss", jwt.ClaimStrings{"aud"}, time.Time{})
 		c := NewTokenIssuer()
-		err := c.FromToken(token, keychain, "iss", "aud", "", permissions.Restrictions{
+		err := c.FromToken(token, keychain, "iss", "aud", 0, permissions.Restrictions{
 			Namespace:   "/a",
 			Networks:    []string{"10.1.0.0/16"},
 			Permissions: []string{"res,get"},
@@ -166,7 +152,7 @@ func TestFromToken(t *testing.T) {
 
 		token, _ := mc.JWT(key, kid, "iss", jwt.ClaimStrings{"aud"}, time.Time{})
 		c := NewTokenIssuer()
-		err := c.FromToken(token, keychain, "iss", "iss", "", permissions.Restrictions{
+		err := c.FromToken(token, keychain, "iss", "iss", 0, permissions.Restrictions{
 			Namespace:   "/a",
 			Networks:    []string{"1.1.0.0/16"},
 			Permissions: []string{"@auth:role=namespace.administrator"},
@@ -184,8 +170,8 @@ func Test_computeNewValidity(t *testing.T) {
 	exp := jwt.NewNumericDate(now.Add(time.Hour))
 
 	type args struct {
-		originalExpUNIX      *jwt.NumericDate
-		requestedValidityStr string
+		originalExpUNIX   *jwt.NumericDate
+		requestedValidity time.Duration
 	}
 	tests := []struct {
 		name    string
@@ -197,7 +183,7 @@ func Test_computeNewValidity(t *testing.T) {
 			"no original",
 			args{
 				nil,
-				"",
+				0,
 			},
 			nil,
 			true,
@@ -206,25 +192,16 @@ func Test_computeNewValidity(t *testing.T) {
 			"no requested",
 			args{
 				exp,
-				"",
+				0,
 			},
 			exp,
 			false,
 		},
 		{
-			"bad requested",
-			args{
-				exp,
-				"chien",
-			},
-			nil,
-			true,
-		},
-		{
 			"correct requested",
 			args{
 				exp,
-				"30m",
+				30 * time.Minute,
 			},
 			jwt.NewNumericDate(now.Add(30 * time.Minute)),
 			false,
@@ -233,7 +210,7 @@ func Test_computeNewValidity(t *testing.T) {
 			"requested too big",
 			args{
 				exp,
-				"48h",
+				48 * time.Hour,
 			},
 			exp,
 			false,
@@ -242,7 +219,7 @@ func Test_computeNewValidity(t *testing.T) {
 			"requested the same",
 			args{
 				exp,
-				time.Until(exp.Local()).String(),
+				time.Until(exp.Local()),
 			},
 			exp,
 			false,
@@ -250,7 +227,7 @@ func Test_computeNewValidity(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := computeNewValidity(tt.args.originalExpUNIX, tt.args.requestedValidityStr)
+			got, err := computeNewValidity(tt.args.originalExpUNIX, tt.args.requestedValidity)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("computeNewValidity() error = %v, wantErr %v", err, tt.wantErr)
 				return

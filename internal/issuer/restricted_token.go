@@ -52,7 +52,7 @@ func (c *TokenIssuer) FromToken(
 	keychain *token.JWKS,
 	issuer string,
 	audience string,
-	validityStr string,
+	validity time.Duration,
 	restrictions permissions.Restrictions,
 ) error {
 
@@ -86,7 +86,7 @@ func (c *TokenIssuer) FromToken(
 		return ErrInputToken{Err: err}
 	}
 
-	c.token.ExpiresAt, err = computeNewValidity(c.token.ExpiresAt, validityStr)
+	c.token.ExpiresAt, err = computeNewValidity(c.token.ExpiresAt, validity)
 	if err != nil {
 		return ErrComputeRestrictions{Err: err}
 	}
@@ -108,22 +108,17 @@ func (c *TokenIssuer) Issue() *token.IdentityToken {
 	return c.token
 }
 
-func computeNewValidity(originalExpUNIX *jwt.NumericDate, requestedValidityStr string) (*jwt.NumericDate, error) {
+func computeNewValidity(originalExpUNIX *jwt.NumericDate, requestedValidity time.Duration) (*jwt.NumericDate, error) {
 
 	if originalExpUNIX == nil || originalExpUNIX.Unix() == 0 {
 		return nil, fmt.Errorf("unable to compute new validity: original expiration is zero")
 	}
 
-	if requestedValidityStr == "" {
+	if requestedValidity == 0 {
 		return originalExpUNIX, nil
 	}
 
 	now := time.Now()
-
-	requestedValidity, err := time.ParseDuration(requestedValidityStr)
-	if err != nil {
-		return nil, err
-	}
 
 	originalExp := originalExpUNIX.Local()
 	if now.Add(requestedValidity).After(originalExp) {

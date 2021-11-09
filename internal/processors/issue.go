@@ -56,7 +56,7 @@ func (p *IssueProcessor) ProcessCreate(bctx bahamut.Context) (err error) {
 		issuer, err = p.handleLDAPIssue(bctx.Context(), req)
 
 	case api.IssueSourceTypeA3SIdentityToken:
-		issuer, err = p.handleTokenIssue(bctx.Context(), req)
+		issuer, err = p.handleTokenIssue(bctx.Context(), req, validity)
 		// we reset to 0 to skip setting exp during issueing of the token
 		// as the token issers already caps it.
 		exp = time.Time{}
@@ -80,6 +80,7 @@ func (p *IssueProcessor) ProcessCreate(bctx bahamut.Context) (err error) {
 	}
 
 	req.Metadata = nil
+	req.Validity = time.Until(idt.ExpiresAt.Time).Round(time.Second).String()
 	bctx.SetOutputData(req)
 
 	return nil
@@ -132,7 +133,7 @@ func (p *IssueProcessor) handleLDAPIssue(ctx context.Context, req *api.Issue) (t
 	return iss, nil
 }
 
-func (p *IssueProcessor) handleTokenIssue(ctx context.Context, req *api.Issue) (token.Issuer, error) {
+func (p *IssueProcessor) handleTokenIssue(ctx context.Context, req *api.Issue, validity time.Duration) (token.Issuer, error) {
 
 	token, err := extractMetadata(req, "token")
 	if err != nil {
@@ -145,7 +146,7 @@ func (p *IssueProcessor) handleTokenIssue(ctx context.Context, req *api.Issue) (
 		p.jwks,
 		p.issuer,
 		p.audience,
-		req.Validity,
+		validity,
 		permissions.Restrictions{
 			Namespace:   req.RestrictedNamespace,
 			Networks:    req.RestrictedNetworks,
