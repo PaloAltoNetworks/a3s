@@ -1,6 +1,7 @@
 package issuer
 
 import (
+	"fmt"
 	"reflect"
 	"testing"
 
@@ -8,6 +9,15 @@ import (
 	. "github.com/smartystreets/goconvey/convey"
 	"go.aporeto.io/a3s/pkgs/api"
 )
+
+func TestErrLDAP(t *testing.T) {
+	Convey("ErrLDAP should work", t, func() {
+		e := fmt.Errorf("boom")
+		err := ErrLDAP{Err: e}
+		So(err.Error(), ShouldEqual, "ldap error: boom")
+		So(err.Unwrap(), ShouldEqual, e)
+	})
+}
 
 func TestNewLDAPIssuer(t *testing.T) {
 	Convey("Calling NewLDAPIssuer should work", t, func() {
@@ -19,6 +29,7 @@ func TestNewLDAPIssuer(t *testing.T) {
 		So(iss.token.Source.Type, ShouldEqual, "ldap")
 		So(iss.token.Source.Namespace, ShouldEqual, "/my/ns")
 		So(iss.token.Source.Name, ShouldEqual, "my-src")
+		So(iss.Issue(), ShouldEqual, iss.token)
 	})
 }
 
@@ -57,7 +68,7 @@ func TestFromCredential(t *testing.T) {
 	})
 }
 
-func Test_computeClaims(t *testing.T) {
+func Test_computeLDAPClaims(t *testing.T) {
 	type args struct {
 		entry *ldap.Entry
 		dn    *ldap.DN
@@ -207,7 +218,7 @@ func Test_computeClaims(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			tArgs := tt.args(t)
 
-			got1 := computeClaims(tArgs.entry, tArgs.dn, tArgs.inc, tArgs.exc)
+			got1 := computeLDAPClaims(tArgs.entry, tArgs.dn, tArgs.inc, tArgs.exc)
 
 			if !reflect.DeepEqual(got1, tt.want1) {
 				t.Errorf("computeClaims got1 = %v, want1: %v", got1, tt.want1)
@@ -216,7 +227,7 @@ func Test_computeClaims(t *testing.T) {
 	}
 }
 
-func Test_computeInclusion(t *testing.T) {
+func Test_computeLDAPInclusion(t *testing.T) {
 	type args struct {
 		src *api.LDAPSource
 	}
@@ -256,7 +267,7 @@ func Test_computeInclusion(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			tArgs := tt.args(t)
 
-			got1, got2 := computeInclusion(tArgs.src)
+			got1, got2 := computeLDPInclusion(tArgs.src)
 
 			if !reflect.DeepEqual(got1, tt.want1) {
 				t.Errorf("computeInclusion got1 = %v, want1: %v", got1, tt.want1)

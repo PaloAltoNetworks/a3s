@@ -53,9 +53,9 @@ func (c *LDAPIssuer) FromCredentials(username string, password string) (err erro
 		return err
 	}
 
-	inc, exc := computeInclusion(c.source)
+	inc, exc := computeLDPInclusion(c.source)
 
-	c.token.Identity = computeClaims(entry, dn, inc, exc)
+	c.token.Identity = computeLDAPClaims(entry, dn, inc, exc)
 
 	return nil
 }
@@ -142,7 +142,7 @@ func (c *LDAPIssuer) retrieveEntry(username string, password string) (*ldap.Entr
 	return entry, dn, nil
 }
 
-func computeClaims(entry *ldap.Entry, dn *ldap.DN, inc map[string]struct{}, exc map[string]struct{}) (claims []string) {
+func computeLDAPClaims(entry *ldap.Entry, dn *ldap.DN, inc map[string]struct{}, exc map[string]struct{}) (claims []string) {
 
 	claims = append(claims, fmt.Sprintf("dn=%s", entry.DN))
 
@@ -189,7 +189,7 @@ func computeClaims(entry *ldap.Entry, dn *ldap.DN, inc map[string]struct{}, exc 
 	return claims
 }
 
-func computeInclusion(src *api.LDAPSource) (inc map[string]struct{}, exc map[string]struct{}) {
+func computeLDPInclusion(src *api.LDAPSource) (inc map[string]struct{}, exc map[string]struct{}) {
 
 	inc = make(map[string]struct{}, len(src.IncludedKeys))
 	for _, key := range src.IncludedKeys {

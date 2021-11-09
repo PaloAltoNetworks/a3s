@@ -60,9 +60,12 @@ func (p *IssueProcessor) ProcessCreate(bctx bahamut.Context) (err error) {
 	case api.IssueSourceTypeLDAP:
 		issuer, err = p.handleLDAPIssue(bctx.Context(), req)
 
+	case api.IssueSourceTypeAWSSecurityToken:
+		issuer, err = p.handleAWSIssue(bctx.Context(), req)
+
 	case api.IssueSourceTypeA3SIdentityToken:
 		issuer, err = p.handleTokenIssue(bctx.Context(), req, validity)
-		// we reset to 0 to skip setting exp during issueing of the token
+		// we reset to 0 to skip setting exp during issuing of the token
 		// as the token issers already caps it.
 		exp = time.Time{}
 	}
@@ -127,6 +130,31 @@ func (p *IssueProcessor) handleLDAPIssue(ctx context.Context, req *api.Issue) (t
 	src := out.(*api.LDAPSource)
 	iss := issuer.NewLDAPIssuer(src)
 	if err := iss.FromCredentials(username, password); err != nil {
+		return nil, err
+	}
+
+	return iss, nil
+}
+
+func (p *IssueProcessor) handleAWSIssue(ctx context.Context, req *api.Issue) (token.Issuer, error) {
+
+	keyID, err := extractMetadata(req, "ID")
+	if err != nil {
+		return nil, err
+	}
+
+	keySecret, err := extractMetadata(req, "secret")
+	if err != nil {
+		return nil, err
+	}
+
+	sts, err := extractMetadata(req, "token")
+	if err != nil {
+		return nil, err
+	}
+
+	iss := issuer.NewAWSSTSIssuer()
+	if err := iss.FromSTS(keyID, keySecret, sts); err != nil {
 		return nil, err
 	}
 
