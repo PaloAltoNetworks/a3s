@@ -44,29 +44,6 @@ format-parameter:
 	rego format -m parametermapping < $(target) > $(target).formatted
 	mv $(target).formatted $(target)
 
-lint: 
-	golangci-lint run \
-		--timeout 2m \
-		--disable-all \
-		--exclude-use-default=false \
-		--enable=errcheck \
-		--enable=goimports \
-		--enable=ineffassign \
-		--enable=golint \
-		--enable=unused \
-		--enable=structcheck \
-		--enable=staticcheck \
-		--enable=varcheck \
-		--enable=deadcode \
-		--enable=unconvert \
-		--enable=misspell \
-		--enable=prealloc \
-		--enable=nakedret \
-		./...
-
-test:
-	go test ./... -race
-
 codecgen:
 	rm -f values_codecgen.go ; codecgen -o values_codecgen.go *.go;
 	cd types && rm -f values_codecgen.go ; codecgen -o values_codecgen.go *.go;

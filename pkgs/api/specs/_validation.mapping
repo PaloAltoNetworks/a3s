@@ -1,0 +1,27 @@
+$authorization_subject:
+  elemental:
+    name: ValidateAuthorizationSubject
+
+$cidr_list_optional:
+  elemental:
+    name: ValidateCIDRListOptional
+
+$cidr_optional:
+  elemental:
+    name: ValidateCIDROptional
+
+$duration:
+  elemental:
+    name: ValidateDuration
+
+$issue:
+  elemental:
+    name: ValidateIssue
+
+$pem:
+  elemental:
+    name: ValidatePEM
+
+$tags_expression:
+  elemental:
+    name: ValidateTagsExpression

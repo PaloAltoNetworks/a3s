@@ -358,6 +358,10 @@ func (o *MTLSSource) Validate() error {
 		requiredErrors = requiredErrors.Append(err)
 	}
 
+	if err := ValidatePEM("certificateAuthority", o.CertificateAuthority); err != nil {
+		errors = errors.Append(err)
+	}
+
 	if err := elemental.ValidateRequiredString("name", o.Name); err != nil {
 		requiredErrors = requiredErrors.Append(err)
 	}

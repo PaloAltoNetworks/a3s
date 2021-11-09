@@ -7,22 +7,24 @@ var (
 		"authorization": AuthorizationIdentity,
 		"authz":         AuthzIdentity,
 		"issue":         IssueIdentity,
-		"ldapsource":    LDAPSourceIdentity,
-		"mtlssource":    MTLSSourceIdentity,
-		"namespace":     NamespaceIdentity,
-		"permissions":   PermissionsIdentity,
-		"root":          RootIdentity,
+
+		"ldapsource":  LDAPSourceIdentity,
+		"mtlssource":  MTLSSourceIdentity,
+		"namespace":   NamespaceIdentity,
+		"permissions": PermissionsIdentity,
+		"root":        RootIdentity,
 	}
 
 	identitycategoriesMap = map[string]elemental.Identity{
 		"authorizations": AuthorizationIdentity,
 		"authz":          AuthzIdentity,
 		"issue":          IssueIdentity,
-		"ldapsources":    LDAPSourceIdentity,
-		"mtlssources":    MTLSSourceIdentity,
-		"namespaces":     NamespaceIdentity,
-		"permissions":    PermissionsIdentity,
-		"root":           RootIdentity,
+
+		"ldapsources": LDAPSourceIdentity,
+		"mtlssources": MTLSSourceIdentity,
+		"namespaces":  NamespaceIdentity,
+		"permissions": PermissionsIdentity,
+		"root":        RootIdentity,
 	}
 
 	aliasesMap = map[string]elemental.Identity{}

@@ -6,6 +6,87 @@
 
 ## authn
 
+### IssueAWS
+
+Additional issuing information for AWS STS token source.
+
+#### Example
+
+```json
+{
+  "ID": "xxxxx",
+  "secret": "yyyyy",
+  "token": "valid.jwt.token"
+}
+```
+
+#### Attributes
+
+##### `ID` [`required`]
+
+Type: `string`
+
+The ID of the AWS STS token.
+
+##### `secret` [`required`]
+
+Type: `string`
+
+The secret associated to the AWS STS token.
+
+##### `token` [`required`]
+
+Type: `string`
+
+The original token.
+
+### IssueLDAP
+
+Additional issuing information for the LDAP source.
+
+#### Example
+
+```json
+{
+  "password": "secret",
+  "username": "joe"
+}
+```
+
+#### Attributes
+
+##### `password` [`required`]
+
+Type: `string`
+
+The password for the user.
+
+##### `username` [`required`]
+
+Type: `string`
+
+The LDAP username.
+
+### IssueToken
+
+Additional issuing information for A3S token source.
+
+#### Example
+
+```json
+{
+  "token": "valid.jwt.token"
+}
+```
+
+#### Attributes
+
+##### `token` [`required`]
+
+Type: `string`
+
+The original token.
+
 ### LDAPSource
 
 Defines a remote LDAP to use as an authentication source.
@@ -427,11 +508,23 @@ Type: `[]string`
 
 Requested audience for the delivered token.
 
-##### `metadata`
+##### `inputAWSSTS`
 
-Type: `map[string]interface{}`
+Type: [`issueaws`](#issueaws)
 
-Contains various additional information. Meaning depends on the `source`.
+Contains additional information for an AWS STS token source.
+
+##### `inputLDAP`
+
+Type: [`issueldap`](#issueldap)
+
+Contains additional information for an LDAP source.
+
+##### `inputToken`
+
+Type: [`issuetoken`](#issuetoken)
+
+Contains additional information for an A3S token source.
 
 ##### `opaque`
 

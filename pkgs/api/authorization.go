@@ -458,6 +458,17 @@ func (o *Authorization) Validate() error {
 		requiredErrors = requiredErrors.Append(err)
 	}
 
+	if err := ValidateAuthorizationSubject("subject", o.Subject); err != nil {
+		errors = errors.Append(err)
+	}
+	if err := ValidateTagsExpression("subject", o.Subject); err != nil {
+		errors = errors.Append(err)
+	}
+
+	if err := ValidateCIDRListOptional("subnets", o.Subnets); err != nil {
+		errors = errors.Append(err)
+	}
+
 	if err := elemental.ValidateRequiredString("targetNamespace", o.TargetNamespace); err != nil {
 		requiredErrors = requiredErrors.Append(err)
 	}

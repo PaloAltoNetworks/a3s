@@ -6,6 +6,8 @@ model:
   package: authn
   group: core
   description: Issues a new a normalized token using various authentication sources.
+  validations:
+  - $issue
 
 # Attributes
 attributes:
@@ -20,12 +22,35 @@ attributes:
     - https://mysecondapp
     omit_empty: true
 
-  - name: metadata
-    description: Contains various additional information. Meaning depends on the `source`.
-    type: external
+  - name: inputAWSSTS
+    description: Contains additional information for an AWS STS token source.
+    type: ref
     exposed: true
-    subtype: map[string]interface{}
+    subtype: issueaws
     omit_empty: true
+    extensions:
+      noInit: true
+      refMode: pointer
+
+  - name: inputLDAP
+    description: Contains additional information for an LDAP source.
+    type: ref
+    exposed: true
+    subtype: issueldap
+    omit_empty: true
+    extensions:
+      noInit: true
+      refMode: pointer
+
+  - name: inputToken
+    description: Contains additional information for an A3S token source.
+    type: ref
+    exposed: true
+    subtype: issuetoken
+    omit_empty: true
+    extensions:
+      noInit: true
+      refMode: pointer
 
   - name: opaque
     description: Opaque data that will be included in the issued token.
@@ -140,4 +165,4 @@ attributes:
     default_value: 24h
     omit_empty: true
     validations:
-    - $timeDuration
+    - $duration

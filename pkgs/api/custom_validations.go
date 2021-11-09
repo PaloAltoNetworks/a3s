@@ -7,9 +7,24 @@ import (
 	"net/http"
 	"regexp"
 	"strings"
+	"time"
 
 	"go.aporeto.io/elemental"
 )
+
+// ValidateDuration valides the given string is a parseable Go duration.
+func ValidateDuration(attribute string, duration string) error {
+
+	if duration == "" {
+		return nil
+	}
+
+	if _, err := time.ParseDuration(duration); err != nil {
+		return makeErr("attr", fmt.Sprintf("Attribute '%s' must be a validation duration", attribute))
+	}
+
+	return nil
+}
 
 // ValidateCIDR validates a CIDR.
 func ValidateCIDR(attribute string, network string) error {
@@ -159,6 +174,27 @@ func ValidatePEM(attribute string, pemdata string) error {
 		}
 		i++
 	}
+}
+
+// ValidateIssue validates a whole issue object.
+func ValidateIssue(iss *Issue) error {
+
+	switch iss.SourceType {
+	case IssueSourceTypeA3SIdentityToken:
+		if iss.InputToken == nil {
+			return makeErr("inputToken", "You must set inputToken for the requested sourceType")
+		}
+	case IssueSourceTypeAWSSecurityToken:
+		if iss.InputAWSSTS == nil {
+			return makeErr("inputAWSSTS", "You must set inputAWSSTS for the requested sourceType")
+		}
+	case IssueSourceTypeLDAP:
+		if iss.InputLDAP == nil {
+			return makeErr("inputLDAP", "You must set inputLDAP for the requested sourceType")
+		}
+	}
+
+	return nil
 }
 
 func makeErr(attribute string, message string) elemental.Error {

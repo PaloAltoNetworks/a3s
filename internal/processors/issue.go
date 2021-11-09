@@ -81,7 +81,9 @@ func (p *IssueProcessor) ProcessCreate(bctx bahamut.Context) (err error) {
 		return err
 	}
 
-	req.Metadata = nil
+	req.InputLDAP = nil
+	req.InputAWSSTS = nil
+	req.InputToken = nil
 	req.Validity = time.Until(idt.ExpiresAt.Time).Round(time.Second).String()
 
 	bctx.SetOutputData(req)
@@ -112,16 +114,6 @@ func (p *IssueProcessor) handleCertificateIssue(ctx context.Context, req *api.Is
 
 func (p *IssueProcessor) handleLDAPIssue(ctx context.Context, req *api.Issue) (token.Issuer, error) {
 
-	username, err := extractMetadata(req, "username")
-	if err != nil {
-		return nil, err
-	}
-
-	password, err := extractMetadata(req, "password")
-	if err != nil {
-		return nil, err
-	}
-
 	out, err := retrieveSource(ctx, p.manipulator, req.SourceNamespace, req.SourceName, api.LDAPSourceIdentity)
 	if err != nil {
 		return nil, err
@@ -129,7 +121,7 @@ func (p *IssueProcessor) handleLDAPIssue(ctx context.Context, req *api.Issue) (t
 
 	src := out.(*api.LDAPSource)
 	iss := issuer.NewLDAPIssuer(src)
-	if err := iss.FromCredentials(username, password); err != nil {
+	if err := iss.FromCredentials(req.InputLDAP.Username, req.InputLDAP.Password); err != nil {
 		return nil, err
 	}
 
@@ -138,23 +130,8 @@ func (p *IssueProcessor) handleLDAPIssue(ctx context.Context, req *api.Issue) (t
 
 func (p *IssueProcessor) handleAWSIssue(ctx context.Context, req *api.Issue) (token.Issuer, error) {
 
-	keyID, err := extractMetadata(req, "ID")
-	if err != nil {
-		return nil, err
-	}
-
-	keySecret, err := extractMetadata(req, "secret")
-	if err != nil {
-		return nil, err
-	}
-
-	sts, err := extractMetadata(req, "token")
-	if err != nil {
-		return nil, err
-	}
-
 	iss := issuer.NewAWSSTSIssuer()
-	if err := iss.FromSTS(keyID, keySecret, sts); err != nil {
+	if err := iss.FromSTS(req.InputAWSSTS.ID, req.InputAWSSTS.Secret, req.InputAWSSTS.Token); err != nil {
 		return nil, err
 	}
 
@@ -163,14 +140,9 @@ func (p *IssueProcessor) handleAWSIssue(ctx context.Context, req *api.Issue) (to
 
 func (p *IssueProcessor) handleTokenIssue(ctx context.Context, req *api.Issue, validity time.Duration) (token.Issuer, error) {
 
-	token, err := extractMetadata(req, "token")
-	if err != nil {
-		return nil, err
-	}
-
 	iss := issuer.NewTokenIssuer()
 	if err := iss.FromToken(
-		token,
+		req.InputToken.Token,
 		p.jwks,
 		p.issuer,
 		p.audience,
@@ -235,19 +207,4 @@ func retrieveSource(ctx context.Context, m manipulate.Manipulator, namespace str
 	}
 
 	return lst[0], nil
-}
-
-func extractMetadata(req *api.Issue, key string) (string, error) {
-
-	value, ok := req.Metadata[key].(string)
-	if !ok || value == "" {
-		return "", elemental.NewError(
-			"Bad Request",
-			fmt.Sprintf("This source needs the %s to be passed as metadata key '%s'", key, key),
-			"a3s:authn",
-			http.StatusBadRequest,
-		)
-	}
-
-	return value, nil
 }

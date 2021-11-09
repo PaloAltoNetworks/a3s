@@ -684,3 +684,175 @@ ADAKBggqhkjOPQQDAgNJADBGAiEAm1u2T1vRooIy3rd0BmBSAa6WR6BtHl9nDbGN
 		})
 	}
 }
+
+func TestValidateIssue(t *testing.T) {
+	type args struct {
+		iss *Issue
+	}
+	tests := []struct {
+		name string
+		args func(t *testing.T) args
+
+		wantErr    bool
+		inspectErr func(err error, t *testing.T) //use for more precise error evaluation after test
+	}{
+		{
+			"test token missing",
+			func(*testing.T) args {
+				return args{
+					&Issue{
+						SourceType: IssueSourceTypeA3SIdentityToken,
+						InputToken: nil,
+					},
+				}
+			},
+			true,
+			nil,
+		},
+		{
+			"test token present",
+			func(*testing.T) args {
+				return args{
+					&Issue{
+						SourceType: IssueSourceTypeA3SIdentityToken,
+						InputToken: &IssueToken{},
+					},
+				}
+			},
+			false,
+			nil,
+		},
+		{
+			"test aws missing",
+			func(*testing.T) args {
+				return args{
+					&Issue{
+						SourceType:  IssueSourceTypeAWSSecurityToken,
+						InputAWSSTS: nil,
+					},
+				}
+			},
+			true,
+			nil,
+		},
+		{
+			"test aws present",
+			func(*testing.T) args {
+				return args{
+					&Issue{
+						SourceType:  IssueSourceTypeAWSSecurityToken,
+						InputAWSSTS: &IssueAWS{},
+					},
+				}
+			},
+			false,
+			nil,
+		},
+		{
+			"test ldap missing",
+			func(*testing.T) args {
+				return args{
+					&Issue{
+						SourceType: IssueSourceTypeLDAP,
+						InputLDAP:  nil,
+					},
+				}
+			},
+			true,
+			nil,
+		},
+		{
+			"test aws present",
+			func(*testing.T) args {
+				return args{
+					&Issue{
+						SourceType: IssueSourceTypeLDAP,
+						InputLDAP:  &IssueLDAP{},
+					},
+				}
+			},
+			false,
+			nil,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tArgs := tt.args(t)
+
+			err := ValidateIssue(tArgs.iss)
+
+			if (err != nil) != tt.wantErr {
+				t.Fatalf("ValidateIssue error = %v, wantErr: %t", err, tt.wantErr)
+			}
+
+			if tt.inspectErr != nil {
+				tt.inspectErr(err, t)
+			}
+		})
+	}
+}
+
+func TestValidateDuration(t *testing.T) {
+	type args struct {
+		attribute string
+		duration  string
+	}
+	tests := []struct {
+		name string
+		args func(t *testing.T) args
+
+		wantErr    bool
+		inspectErr func(err error, t *testing.T) //use for more precise error evaluation after test
+	}{
+		{
+			"valid",
+			func(*testing.T) args {
+				return args{
+					"attr",
+					"10s",
+				}
+			},
+			false,
+			nil,
+		},
+		{
+			"invalid",
+			func(*testing.T) args {
+				return args{
+					"attr",
+					"dog",
+				}
+			},
+			true,
+			nil,
+		},
+		{
+			"empty",
+			func(*testing.T) args {
+				return args{
+					"attr",
+					"",
+				}
+			},
+			false,
+			nil,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tArgs := tt.args(t)
+
+			err := ValidateDuration(tArgs.attribute, tArgs.duration)
+
+			if (err != nil) != tt.wantErr {
+				t.Fatalf("ValidateDuration error = %v, wantErr: %t", err, tt.wantErr)
+			}
+
+			if tt.inspectErr != nil {
+				tt.inspectErr(err, t)
+			}
+		})
+	}
+}

@@ -112,8 +112,14 @@ type Issue struct {
 	// Requested audience for the delivered token.
 	Audience []string `json:"audience,omitempty" msgpack:"audience,omitempty" bson:"-" mapstructure:"audience,omitempty"`
 
-	// Contains various additional information. Meaning depends on the `source`.
-	Metadata map[string]interface{} `json:"metadata,omitempty" msgpack:"metadata,omitempty" bson:"-" mapstructure:"metadata,omitempty"`
+	// Contains additional information for an AWS STS token source.
+	InputAWSSTS *IssueAWS `json:"inputAWSSTS,omitempty" msgpack:"inputAWSSTS,omitempty" bson:"-" mapstructure:"inputAWSSTS,omitempty"`
+
+	// Contains additional information for an LDAP source.
+	InputLDAP *IssueLDAP `json:"inputLDAP,omitempty" msgpack:"inputLDAP,omitempty" bson:"-" mapstructure:"inputLDAP,omitempty"`
+
+	// Contains additional information for an A3S token source.
+	InputToken *IssueToken `json:"inputToken,omitempty" msgpack:"inputToken,omitempty" bson:"-" mapstructure:"inputToken,omitempty"`
 
 	// Opaque data that will be included in the issued token.
 	Opaque map[string]string `json:"opaque,omitempty" msgpack:"opaque,omitempty" bson:"-" mapstructure:"opaque,omitempty"`
@@ -178,10 +184,9 @@ func NewIssue() *Issue {
 
 	return &Issue{
 		ModelVersion:          1,
-		Audience:              []string{},
-		Metadata:              map[string]interface{}{},
-		Opaque:                map[string]string{},
 		RestrictedNetworks:    []string{},
+		Opaque:                map[string]string{},
+		Audience:              []string{},
 		RestrictedPermissions: []string{},
 		Validity:              "24h",
 	}
@@ -270,7 +275,9 @@ func (o *Issue) ToSparse(fields ...string) elemental.SparseIdentifiable {
 		// nolint: goimports
 		return &SparseIssue{
 			Audience:              &o.Audience,
-			Metadata:              &o.Metadata,
+			InputAWSSTS:           o.InputAWSSTS,
+			InputLDAP:             o.InputLDAP,
+			InputToken:            o.InputToken,
 			Opaque:                &o.Opaque,
 			RestrictedNamespace:   &o.RestrictedNamespace,
 			RestrictedNetworks:    &o.RestrictedNetworks,
@@ -288,8 +295,12 @@ func (o *Issue) ToSparse(fields ...string) elemental.SparseIdentifiable {
 		switch f {
 		case "audience":
 			sp.Audience = &(o.Audience)
-		case "metadata":
-			sp.Metadata = &(o.Metadata)
+		case "inputAWSSTS":
+			sp.InputAWSSTS = o.InputAWSSTS
+		case "inputLDAP":
+			sp.InputLDAP = o.InputLDAP
+		case "inputToken":
+			sp.InputToken = o.InputToken
 		case "opaque":
 			sp.Opaque = &(o.Opaque)
 		case "restrictedNamespace":
@@ -324,8 +335,14 @@ func (o *Issue) Patch(sparse elemental.SparseIdentifiable) {
 	if so.Audience != nil {
 		o.Audience = *so.Audience
 	}
-	if so.Metadata != nil {
-		o.Metadata = *so.Metadata
+	if so.InputAWSSTS != nil {
+		o.InputAWSSTS = so.InputAWSSTS
+	}
+	if so.InputLDAP != nil {
+		o.InputLDAP = so.InputLDAP
+	}
+	if so.InputToken != nil {
+		o.InputToken = so.InputToken
 	}
 	if so.Opaque != nil {
 		o.Opaque = *so.Opaque
@@ -386,11 +403,45 @@ func (o *Issue) Validate() error {
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
+	if o.InputAWSSTS != nil {
+		elemental.ResetDefaultForZeroValues(o.InputAWSSTS)
+		if err := o.InputAWSSTS.Validate(); err != nil {
+			errors = errors.Append(err)
+		}
+	}
+
+	if o.InputLDAP != nil {
+		elemental.ResetDefaultForZeroValues(o.InputLDAP)
+		if err := o.InputLDAP.Validate(); err != nil {
+			errors = errors.Append(err)
+		}
+	}
+
+	if o.InputToken != nil {
+		elemental.ResetDefaultForZeroValues(o.InputToken)
+		if err := o.InputToken.Validate(); err != nil {
+			errors = errors.Append(err)
+		}
+	}
+
+	if err := ValidateCIDRListOptional("restrictedNetworks", o.RestrictedNetworks); err != nil {
+		errors = errors.Append(err)
+	}
+
 	if err := elemental.ValidateRequiredString("sourceType", string(o.SourceType)); err != nil {
 		requiredErrors = requiredErrors.Append(err)
 	}
 
 	if err := elemental.ValidateStringInList("sourceType", string(o.SourceType), []string{"AWSSecurityToken", "MTLS", "LDAP", "GCPIdentityToken", "AzureIdentityToken", "OIDC", "SAML", "A3SIdentityToken"}, false); err != nil {
+		errors = errors.Append(err)
+	}
+
+	if err := ValidateDuration("validity", o.Validity); err != nil {
+		errors = errors.Append(err)
+	}
+
+	// Custom object validation.
+	if err := ValidateIssue(o); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -430,8 +481,12 @@ func (o *Issue) ValueForAttribute(name string) interface{} {
 	switch name {
 	case "audience":
 		return o.Audience
-	case "metadata":
-		return o.Metadata
+	case "inputAWSSTS":
+		return o.InputAWSSTS
+	case "inputLDAP":
+		return o.InputLDAP
+	case "inputToken":
+		return o.InputToken
 	case "opaque":
 		return o.Opaque
 	case "restrictedNamespace":
@@ -466,14 +521,32 @@ var IssueAttributesMap = map[string]elemental.AttributeSpecification{
 		SubType:        "string",
 		Type:           "list",
 	},
-	"Metadata": {
+	"InputAWSSTS": {
 		AllowedChoices: []string{},
-		ConvertedName:  "Metadata",
-		Description:    `Contains various additional information. Meaning depends on the ` + "`" + `source` + "`" + `.`,
+		ConvertedName:  "InputAWSSTS",
+		Description:    `Contains additional information for an AWS STS token source.`,
 		Exposed:        true,
-		Name:           "metadata",
-		SubType:        "map[string]interface{}",
-		Type:           "external",
+		Name:           "inputAWSSTS",
+		SubType:        "issueaws",
+		Type:           "ref",
+	},
+	"InputLDAP": {
+		AllowedChoices: []string{},
+		ConvertedName:  "InputLDAP",
+		Description:    `Contains additional information for an LDAP source.`,
+		Exposed:        true,
+		Name:           "inputLDAP",
+		SubType:        "issueldap",
+		Type:           "ref",
+	},
+	"InputToken": {
+		AllowedChoices: []string{},
+		ConvertedName:  "InputToken",
+		Description:    `Contains additional information for an A3S token source.`,
+		Exposed:        true,
+		Name:           "inputToken",
+		SubType:        "issuetoken",
+		Type:           "ref",
 	},
 	"Opaque": {
 		AllowedChoices: []string{},
@@ -595,14 +668,32 @@ var IssueLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
 		SubType:        "string",
 		Type:           "list",
 	},
-	"metadata": {
+	"inputawssts": {
 		AllowedChoices: []string{},
-		ConvertedName:  "Metadata",
-		Description:    `Contains various additional information. Meaning depends on the ` + "`" + `source` + "`" + `.`,
+		ConvertedName:  "InputAWSSTS",
+		Description:    `Contains additional information for an AWS STS token source.`,
 		Exposed:        true,
-		Name:           "metadata",
-		SubType:        "map[string]interface{}",
-		Type:           "external",
+		Name:           "inputAWSSTS",
+		SubType:        "issueaws",
+		Type:           "ref",
+	},
+	"inputldap": {
+		AllowedChoices: []string{},
+		ConvertedName:  "InputLDAP",
+		Description:    `Contains additional information for an LDAP source.`,
+		Exposed:        true,
+		Name:           "inputLDAP",
+		SubType:        "issueldap",
+		Type:           "ref",
+	},
+	"inputtoken": {
+		AllowedChoices: []string{},
+		ConvertedName:  "InputToken",
+		Description:    `Contains additional information for an A3S token source.`,
+		Exposed:        true,
+		Name:           "inputToken",
+		SubType:        "issuetoken",
+		Type:           "ref",
 	},
 	"opaque": {
 		AllowedChoices: []string{},
@@ -779,8 +870,14 @@ type SparseIssue struct {
 	// Requested audience for the delivered token.
 	Audience *[]string `json:"audience,omitempty" msgpack:"audience,omitempty" bson:"-" mapstructure:"audience,omitempty"`
 
-	// Contains various additional information. Meaning depends on the `source`.
-	Metadata *map[string]interface{} `json:"metadata,omitempty" msgpack:"metadata,omitempty" bson:"-" mapstructure:"metadata,omitempty"`
+	// Contains additional information for an AWS STS token source.
+	InputAWSSTS *IssueAWS `json:"inputAWSSTS,omitempty" msgpack:"inputAWSSTS,omitempty" bson:"-" mapstructure:"inputAWSSTS,omitempty"`
+
+	// Contains additional information for an LDAP source.
+	InputLDAP *IssueLDAP `json:"inputLDAP,omitempty" msgpack:"inputLDAP,omitempty" bson:"-" mapstructure:"inputLDAP,omitempty"`
+
+	// Contains additional information for an A3S token source.
+	InputToken *IssueToken `json:"inputToken,omitempty" msgpack:"inputToken,omitempty" bson:"-" mapstructure:"inputToken,omitempty"`
 
 	// Opaque data that will be included in the issued token.
 	Opaque *map[string]string `json:"opaque,omitempty" msgpack:"opaque,omitempty" bson:"-" mapstructure:"opaque,omitempty"`
@@ -904,8 +1001,14 @@ func (o *SparseIssue) ToPlain() elemental.PlainIdentifiable {
 	if o.Audience != nil {
 		out.Audience = *o.Audience
 	}
-	if o.Metadata != nil {
-		out.Metadata = *o.Metadata
+	if o.InputAWSSTS != nil {
+		out.InputAWSSTS = o.InputAWSSTS
+	}
+	if o.InputLDAP != nil {
+		out.InputLDAP = o.InputLDAP
+	}
+	if o.InputToken != nil {
+		out.InputToken = o.InputToken
 	}
 	if o.Opaque != nil {
 		out.Opaque = *o.Opaque
