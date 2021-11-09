@@ -15,6 +15,11 @@ attributes:
     type: string
     exposed: true
 
+  - name: IP
+    description: IP of the client.
+    type: string
+    exposed: true
+
   - name: action
     description: The action to check permission for.
     type: string
@@ -22,8 +27,8 @@ attributes:
     required: true
     example_value: delete
 
-  - name: IP
-    description: IP of the client.
+  - name: audience
+    description: Audience that should be checked for.
     type: string
     exposed: true
 

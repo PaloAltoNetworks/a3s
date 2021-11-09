@@ -272,6 +272,12 @@ Type: `string`
 
 The action to check permission for.
 
+##### `audience`
+
+Type: `string`
+
+Audience that should be checked for.
+
 ##### `namespace` [`required`]
 
 Type: `string`

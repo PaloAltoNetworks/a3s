@@ -89,6 +89,9 @@ type Authz struct {
 	// The action to check permission for.
 	Action string `json:"action" msgpack:"action" bson:"-" mapstructure:"action,omitempty"`
 
+	// Audience that should be checked for.
+	Audience string `json:"audience" msgpack:"audience" bson:"-" mapstructure:"audience,omitempty"`
+
 	// The namespace where to check permission from.
 	Namespace string `json:"namespace" msgpack:"namespace" bson:"-" mapstructure:"namespace,omitempty"`
 
@@ -194,6 +197,7 @@ func (o *Authz) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			ID:        &o.ID,
 			IP:        &o.IP,
 			Action:    &o.Action,
+			Audience:  &o.Audience,
 			Namespace: &o.Namespace,
 			Resource:  &o.Resource,
 			Token:     &o.Token,
@@ -209,6 +213,8 @@ func (o *Authz) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.IP = &(o.IP)
 		case "action":
 			sp.Action = &(o.Action)
+		case "audience":
+			sp.Audience = &(o.Audience)
 		case "namespace":
 			sp.Namespace = &(o.Namespace)
 		case "resource":
@@ -236,6 +242,9 @@ func (o *Authz) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.Action != nil {
 		o.Action = *so.Action
+	}
+	if so.Audience != nil {
+		o.Audience = *so.Audience
 	}
 	if so.Namespace != nil {
 		o.Namespace = *so.Namespace
@@ -334,6 +343,8 @@ func (o *Authz) ValueForAttribute(name string) interface{} {
 		return o.IP
 	case "action":
 		return o.Action
+	case "audience":
+		return o.Audience
 	case "namespace":
 		return o.Namespace
 	case "resource":
@@ -370,6 +381,14 @@ var AuthzAttributesMap = map[string]elemental.AttributeSpecification{
 		Exposed:        true,
 		Name:           "action",
 		Required:       true,
+		Type:           "string",
+	},
+	"Audience": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Audience",
+		Description:    `Audience that should be checked for.`,
+		Exposed:        true,
+		Name:           "audience",
 		Type:           "string",
 	},
 	"Namespace": {
@@ -427,6 +446,14 @@ var AuthzLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
 		Exposed:        true,
 		Name:           "action",
 		Required:       true,
+		Type:           "string",
+	},
+	"audience": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Audience",
+		Description:    `Audience that should be checked for.`,
+		Exposed:        true,
+		Name:           "audience",
 		Type:           "string",
 	},
 	"namespace": {
@@ -531,6 +558,9 @@ type SparseAuthz struct {
 	// The action to check permission for.
 	Action *string `json:"action,omitempty" msgpack:"action,omitempty" bson:"-" mapstructure:"action,omitempty"`
 
+	// Audience that should be checked for.
+	Audience *string `json:"audience,omitempty" msgpack:"audience,omitempty" bson:"-" mapstructure:"audience,omitempty"`
+
 	// The namespace where to check permission from.
 	Namespace *string `json:"namespace,omitempty" msgpack:"namespace,omitempty" bson:"-" mapstructure:"namespace,omitempty"`
 
@@ -612,6 +642,9 @@ func (o *SparseAuthz) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.Action != nil {
 		out.Action = *o.Action
+	}
+	if o.Audience != nil {
+		out.Audience = *o.Audience
 	}
 	if o.Namespace != nil {
 		out.Namespace = *o.Namespace

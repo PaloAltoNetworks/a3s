@@ -45,6 +45,11 @@ func (p *IssueProcessor) ProcessCreate(bctx bahamut.Context) (err error) {
 	validity, _ := time.ParseDuration(req.Validity) // elemental already validated this
 	exp := time.Now().Add(validity)
 
+	audience := req.Audience
+	if len(audience) == 0 {
+		audience = jwt.ClaimStrings{p.audience}
+	}
+
 	var issuer token.Issuer
 
 	switch req.SourceType {
@@ -69,18 +74,13 @@ func (p *IssueProcessor) ProcessCreate(bctx bahamut.Context) (err error) {
 	idt := issuer.Issue()
 	k := p.jwks.GetLast()
 
-	if req.Token, err = idt.JWT(
-		k.PrivateKey(),
-		k.KID,
-		p.issuer,
-		append(jwt.ClaimStrings{p.audience}, req.Audience...),
-		exp,
-	); err != nil {
+	if req.Token, err = idt.JWT(k.PrivateKey(), k.KID, p.issuer, audience, exp); err != nil {
 		return err
 	}
 
 	req.Metadata = nil
 	req.Validity = time.Until(idt.ExpiresAt.Time).Round(time.Second).String()
+
 	bctx.SetOutputData(req)
 
 	return nil

@@ -35,7 +35,7 @@ func (p *AuthzProcessor) ProcessCreate(bctx bahamut.Context) error {
 	req := bctx.InputData().(*api.Authz)
 
 	idt := &token.IdentityToken{}
-	if err := idt.Parse(req.Token, p.jwks, p.issuer, p.audience); err != nil {
+	if err := idt.Parse(req.Token, p.jwks, p.issuer, req.Audience); err != nil {
 		return elemental.NewError(
 			"Bad Request",
 			err.Error(),
