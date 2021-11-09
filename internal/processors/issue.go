@@ -43,6 +43,7 @@ func (p *IssueProcessor) ProcessCreate(bctx bahamut.Context) (err error) {
 
 	req := bctx.InputData().(*api.Issue)
 	validity, _ := time.ParseDuration(req.Validity) // elemental already validated this
+	exp := time.Now().Add(validity)
 
 	var issuer token.Issuer
 
@@ -56,6 +57,9 @@ func (p *IssueProcessor) ProcessCreate(bctx bahamut.Context) (err error) {
 
 	case api.IssueSourceTypeA3SIdentityToken:
 		issuer, err = p.handleTokenIssue(bctx.Context(), req)
+		// we reset to 0 to skip setting exp during issueing of the token
+		// as the token issers already caps it.
+		exp = time.Time{}
 	}
 
 	if err != nil {
@@ -70,7 +74,7 @@ func (p *IssueProcessor) ProcessCreate(bctx bahamut.Context) (err error) {
 		k.KID,
 		p.issuer,
 		append(jwt.ClaimStrings{p.audience}, req.Audience...),
-		time.Now().Add(validity),
+		exp,
 	); err != nil {
 		return err
 	}
