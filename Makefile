@@ -1,5 +1,8 @@
 MAKEFLAGS += --warn-undefined-variables
 SHELL := /bin/bash -o pipefail
+DOCKER_REPO ?= "a3s"
+DOCKER_IMAGE ?= "a3s"
+DOCKER_TAG ?= "dev"
 
 export GO111MODULE = on
 
@@ -37,3 +40,11 @@ sec:
 
 codegen:
 	cd pkgs/api && make codegen
+
+build_linux:
+	cd cmd/a3s && CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-w -s"
+
+docker: build_linux
+	mkdir -p docker/in
+	cp cmd/a3s/a3s docker/in
+	cd docker && docker build -t ${DOCKER_REPO}/${DOCKER_IMAGE}:${DOCKER_TAG} .
