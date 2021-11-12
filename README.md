@@ -79,10 +79,6 @@ If you want to check the content of a token, you can use:
 	kid: 1DAA6949AACB82DBEF1CFE7D93586DD0BF1F090A
 
 	{
-	  "aud": [
-		"x",
-		"y"
-	  ],
 	  "exp": 1636830341,
 	  "iat": 1636743941,
 	  "identity": [
