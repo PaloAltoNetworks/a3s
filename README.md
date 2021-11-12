@@ -157,3 +157,15 @@ This will launch a tmux session starting everything and giving you a working
 terminal. To exit:
 
 	env-kill
+
+## Support
+
+Please read [SUPPORT.md](SUPPORT.md) for details on how to get support for this
+project.
+
+## Contributing
+
+We value your contributions! Please read
+[CONTRIBUTING.md](https://github.com/PaloAltoNetworks/.github/CONTRIBUTING.md)
+for details on how to contribute, and the process for submitting pull requests
+to us. 
