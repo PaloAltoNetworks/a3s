@@ -52,6 +52,11 @@ func ApplyZoning(o elemental.Identifiable) error {
 	case *api.SparseMTLSSource:
 		z.SetZHash(hash(fmt.Sprintf("%s:%s", *oo.Namespace, *oo.Name)))
 
+	case *api.LDAPSource:
+		z.SetZHash(hash(fmt.Sprintf("%s:%s", oo.Namespace, oo.Name)))
+	case *api.SparseLDAPSource:
+		z.SetZHash(hash(fmt.Sprintf("%s:%s", *oo.Namespace, *oo.Name)))
+
 	default:
 		z.SetZHash(hash(oo.Identifier()))
 	}

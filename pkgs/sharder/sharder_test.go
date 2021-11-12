@@ -75,6 +75,22 @@ func TestShard(t *testing.T) {
 			So(*so.Zone, ShouldEqual, 0)
 			So(o.ZHash, ShouldEqual, hash(fmt.Sprintf("%s:%s", aString, aString)))
 		})
+
+		Convey("Then sharding an LDAPSource should work", func() {
+			o := api.NewLDAPSource()
+			o.Namespace = aString
+			o.Name = aString
+			So(s.Shard(nil, nil, o), ShouldBeNil)
+			So(o.Zone, ShouldEqual, 0)
+			So(o.ZHash, ShouldEqual, hash(fmt.Sprintf("%s:%s", aString, aString)))
+
+			so := api.NewSparseLDAPSource()
+			so.Namespace = &aString
+			so.Name = &aString
+			So(s.Shard(nil, nil, so), ShouldBeNil)
+			So(*so.Zone, ShouldEqual, 0)
+			So(o.ZHash, ShouldEqual, hash(fmt.Sprintf("%s:%s", aString, aString)))
+		})
 	})
 }
 
