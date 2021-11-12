@@ -101,6 +101,15 @@ If you want to check the content of a token, you can use:
 
 You can omit `--token` if you have set `$A3SCTL_TOKEN`.
 
+### Test with the example
+
+There is a very small python Flask server located in `/example/python/testapp`.
+This comes with a script that you can inspect that will create a namespace to
+handle this application, an MTLS source and two authorizations.
+
+You can take a look at the [README](examples/python/testapp/README.md) in that
+folder to get started.
+
 ## Dev environment
 
 ### Prerequesites
