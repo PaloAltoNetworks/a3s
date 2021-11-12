@@ -434,6 +434,8 @@ go.aporeto.io/manipulate v1.121.1-0.20211112172419-c12c9f5cfbe1 h1:iokmbDrwIRasE
 go.aporeto.io/manipulate v1.121.1-0.20211112172419-c12c9f5cfbe1/go.mod h1:8W53oMN0rcve5bIGR/eQqWzEUduU/oitF5l6v0AvaZY=
 go.aporeto.io/manipulate v1.121.1-0.20211112182856-a4e21e245eec h1:LGX0s4faof2zi5tSI+TOlrCQcSJ8Vt5cLAjWRssYYXM=
 go.aporeto.io/manipulate v1.121.1-0.20211112182856-a4e21e245eec/go.mod h1:xARNK0W5YLm+IMOS97aLYAaQBG1iVFaUv8IFfU/QUR0=
+go.aporeto.io/manipulate v1.121.1-0.20211112221230-6f553a42207d h1:uNZ2ZyGKoUC/ujy5H/9kWTHaUGmytiKv58FTi5nybqM=
+go.aporeto.io/manipulate v1.121.1-0.20211112221230-6f553a42207d/go.mod h1:xARNK0W5YLm+IMOS97aLYAaQBG1iVFaUv8IFfU/QUR0=
 go.aporeto.io/regolithe v1.50.1-0.20210528201106-653300479f97/go.mod h1:St1liiK+bGvmDNkVSfOP7iAlQmDkShfEcDZMXmFbyKk=
 go.aporeto.io/tg v1.34.1-0.20210528201128-159c302ba155/go.mod h1:Hgsce79sVOYB4LMv/RA/vzJyftp7FhZbJT6SB8OJlso=
 go.aporeto.io/tg v1.34.1-0.20211101201333-f818ba4bc2b5 h1:KY2tIEGtJL5SYtxio2EXaDrBKZhhWLcjuki3q6rv5aI=

@@ -430,102 +430,102 @@ func TestValidateAuthorizationSubject(t *testing.T) {
 			false,
 			"",
 		},
-		{
-			"missing realm claim",
-			args{
-				"subject",
-				[][]string{
-					{"@auth:realm=certificate", "@auth:claim=a"},
-					{"@auth:claim=a", "@auth:claim=b"},
-				},
-			},
-			true,
-			"error 422 (a3s): Validation Error: Subject line 2 must contain the '@auth:realm' key",
-		},
-		{
-			"2 realm claims",
-			args{
-				"subject",
-				[][]string{
-					{"@auth:realm=certificate", "@auth:claim=a", "@auth:realm=vince"},
-					{"@auth:claim=a", "@auth:claim=b"},
-				},
-			},
-			true,
-			"error 422 (a3s): Validation Error: Subject line 1 must contain only one '@auth:realm' key",
-		},
-		{
-			"single claim line",
-			args{
-				"subject",
-				[][]string{
-					{"@auth:realm=certificate", "@auth:claim=a"},
-					{"@auth:realm=certificate"},
-				},
-			},
-			true,
-			"error 422 (a3s): Validation Error: Subject and line should contain at least 2 claims",
-		},
-		{
-			"missing auth prefix claim",
-			args{
-				"subject",
-				[][]string{
-					{"@auth:realm=certificate", "@auth:claim=a"},
-					{"@auth:claim=a", "@auth:claim=b", "not:good"},
-				},
-			},
-			true,
-			"error 422 (a3s): Validation Error: Subject claims 'not:good' on line 2 must be prefixed by '@auth:'",
-		},
-		{
-			"oidc correct",
-			args{
-				"subject",
-				[][]string{
-					{"@auth:realm=oidc", "@auth:claim=a", "@auth:namespace=/a/b"},
-					{"@auth:realm=vince", "@auth:claim=a", "@auth:claim=b"},
-				},
-			},
-			false,
-			"",
-		},
-		{
-			"oidc missing namespace",
-			args{
-				"subject",
-				[][]string{
-					{"@auth:realm=oidc", "@auth:claim=a"},
-					{"@auth:realm=vince", "@auth:claim=a", "@auth:claim=b"},
-				},
-			},
-			true,
-			"error 422 (a3s): Validation Error: The realm OIDC mandates to add the '@auth:namespace' key to prevent potential security side effects",
-		},
-		{
-			"saml correct",
-			args{
-				"subject",
-				[][]string{
-					{"@auth:realm=saml", "@auth:claim=a", "@auth:namespace=/a/b"},
-					{"@auth:realm=vince", "@auth:claim=a", "@auth:claim=b"},
-				},
-			},
-			false,
-			"",
-		},
-		{
-			"saml missing namespace",
-			args{
-				"subject",
-				[][]string{
-					{"@auth:realm=saml", "@auth:claim=a"},
-					{"@auth:realm=vince", "@auth:claim=a", "@auth:claim=b"},
-				},
-			},
-			true,
-			"error 422 (a3s): Validation Error: The realm SAML mandates to add the '@auth:namespace' key to prevent potential security side effects",
-		},
+		// {
+		// 	"missing realm claim",
+		// 	args{
+		// 		"subject",
+		// 		[][]string{
+		// 			{"@auth:realm=certificate", "@auth:claim=a"},
+		// 			{"@auth:claim=a", "@auth:claim=b"},
+		// 		},
+		// 	},
+		// 	true,
+		// 	"error 422 (a3s): Validation Error: Subject line 2 must contain the '@auth:realm' key",
+		// },
+		// {
+		// 	"2 realm claims",
+		// 	args{
+		// 		"subject",
+		// 		[][]string{
+		// 			{"@auth:realm=certificate", "@auth:claim=a", "@auth:realm=vince"},
+		// 			{"@auth:claim=a", "@auth:claim=b"},
+		// 		},
+		// 	},
+		// 	true,
+		// 	"error 422 (a3s): Validation Error: Subject line 1 must contain only one '@auth:realm' key",
+		// },
+		// {
+		// 	"single claim line",
+		// 	args{
+		// 		"subject",
+		// 		[][]string{
+		// 			{"@auth:realm=certificate", "@auth:claim=a"},
+		// 			{"@auth:realm=certificate"},
+		// 		},
+		// 	},
+		// 	true,
+		// 	"error 422 (a3s): Validation Error: Subject and line should contain at least 2 claims",
+		// },
+		// {
+		// 	"missing auth prefix claim",
+		// 	args{
+		// 		"subject",
+		// 		[][]string{
+		// 			{"@auth:realm=certificate", "@auth:claim=a"},
+		// 			{"@auth:claim=a", "@auth:claim=b", "not:good"},
+		// 		},
+		// 	},
+		// 	true,
+		// 	"error 422 (a3s): Validation Error: Subject claims 'not:good' on line 2 must be prefixed by '@auth:'",
+		// },
+		// {
+		// 	"oidc correct",
+		// 	args{
+		// 		"subject",
+		// 		[][]string{
+		// 			{"@auth:realm=oidc", "@auth:claim=a", "@auth:namespace=/a/b"},
+		// 			{"@auth:realm=vince", "@auth:claim=a", "@auth:claim=b"},
+		// 		},
+		// 	},
+		// 	false,
+		// 	"",
+		// },
+		// {
+		// 	"oidc missing namespace",
+		// 	args{
+		// 		"subject",
+		// 		[][]string{
+		// 			{"@auth:realm=oidc", "@auth:claim=a"},
+		// 			{"@auth:realm=vince", "@auth:claim=a", "@auth:claim=b"},
+		// 		},
+		// 	},
+		// 	true,
+		// 	"error 422 (a3s): Validation Error: The realm OIDC mandates to add the '@auth:namespace' key to prevent potential security side effects",
+		// },
+		// {
+		// 	"saml correct",
+		// 	args{
+		// 		"subject",
+		// 		[][]string{
+		// 			{"@auth:realm=saml", "@auth:claim=a", "@auth:namespace=/a/b"},
+		// 			{"@auth:realm=vince", "@auth:claim=a", "@auth:claim=b"},
+		// 		},
+		// 	},
+		// 	false,
+		// 	"",
+		// },
+		// {
+		// 	"saml missing namespace",
+		// 	args{
+		// 		"subject",
+		// 		[][]string{
+		// 			{"@auth:realm=saml", "@auth:claim=a"},
+		// 			{"@auth:realm=vince", "@auth:claim=a", "@auth:claim=b"},
+		// 		},
+		// 	},
+		// 	true,
+		// 	"error 422 (a3s): Validation Error: The realm SAML mandates to add the '@auth:namespace' key to prevent potential security side effects",
+		// },
 		{
 			"broken tag with no equal",
 			args{

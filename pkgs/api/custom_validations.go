@@ -96,20 +96,7 @@ func ValidateAuthorizationSubject(attribute string, subject [][]string) error {
 
 	for i, ands := range subject {
 
-		if len(ands) < 2 {
-			return makeErr(attribute, "Subject and line should contain at least 2 claims")
-		}
-
-		var realmClaims int
-		neededAdditionalMandatoryClaims := map[string]string{}
-
-		keys := map[string]struct{}{}
-
 		for _, claim := range ands {
-
-			if !strings.HasPrefix(claim, "@auth:") {
-				return makeErr(attribute, fmt.Sprintf("Subject claims '%s' on line %d must be prefixed by '@auth:'", claim, i+1))
-			}
 
 			parts := strings.SplitN(claim, "=", 2)
 			if len(parts) != 2 {
@@ -117,33 +104,6 @@ func ValidateAuthorizationSubject(attribute string, subject [][]string) error {
 			}
 			if parts[1] == "" {
 				return makeErr(attribute, fmt.Sprintf("Subject claims '%s' on line %d has no value", claim, i+1))
-			}
-			keys[parts[0]] = struct{}{}
-
-			if strings.HasPrefix(claim, "@auth:realm=") {
-				realmClaims++
-
-				switch strings.TrimPrefix(claim, "@auth:realm=") {
-				case "oidc":
-					neededAdditionalMandatoryClaims["@auth:namespace"] = "The realm OIDC mandates to add the '@auth:namespace' key to prevent potential security side effects"
-				case "saml":
-					neededAdditionalMandatoryClaims["@auth:namespace"] = "The realm SAML mandates to add the '@auth:namespace' key to prevent potential security side effects"
-				default:
-				}
-			}
-		}
-
-		if realmClaims == 0 {
-			return makeErr(attribute, fmt.Sprintf("Subject line %d must contain the '@auth:realm' key", i+1))
-		}
-
-		if realmClaims > 1 {
-			return makeErr(attribute, fmt.Sprintf("Subject line %d must contain only one '@auth:realm' key", i+1))
-		}
-
-		for mkey, msg := range neededAdditionalMandatoryClaims {
-			if _, ok := keys[mkey]; !ok {
-				return makeErr(attribute, msg)
 			}
 		}
 	}

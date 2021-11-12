@@ -120,6 +120,10 @@ CCqGSM49BAMCA0gAMEUCIQD+nL9RF9EvQXHyYuJ31Lz9yWd9hsK91stnpAs890gS
 
 Retrieves the list of ldapsources.
 
+Parameters:
+
+- `q` (`string`): This is an example.
+
 ##### `POST /ldapsources`
 
 Creates a new ldapsource.
@@ -261,6 +265,10 @@ bOmROq+EsxO4L/GzJx7MBbeJ6x142VKSBQ==
 ##### `GET /mtlssources`
 
 Retrieves the list of mtlssources.
+
+Parameters:
+
+- `q` (`string`): This is an example.
 
 ##### `POST /mtlssources`
 
@@ -642,6 +650,10 @@ TODO.
 
 Retrieves the list of authorization.
 
+Parameters:
+
+- `q` (`string`): This is an example.
+
 ##### `POST /authorizations`
 
 Creates a new authorization.
@@ -744,6 +756,10 @@ request is made against a namespace. Namespaces form a tree hierarchy.
 ##### `GET /namespaces`
 
 Retrieves the list of namespaces.
+
+Parameters:
+
+- `q` (`string`): This is an example.
 
 ##### `POST /namespaces`
 

@@ -13,6 +13,8 @@ relations:
 - rest_name: authorization
   get:
     description: Retrieves the list of authorization.
+    global_parameters:
+    - $queryable
   create:
     description: Creates a new authorization.
 
@@ -27,18 +29,24 @@ relations:
 - rest_name: ldapsource
   get:
     description: Retrieves the list of ldapsources.
+    global_parameters:
+    - $queryable
   create:
     description: Creates a new ldapsource.
 
 - rest_name: mtlssource
   get:
     description: Retrieves the list of mtlssources.
+    global_parameters:
+    - $queryable
   create:
     description: Creates a new mtlssource.
 
 - rest_name: namespace
   get:
     description: Retrieves the list of namespaces.
+    global_parameters:
+    - $queryable
   create:
     description: Creates a new namespace.
 
