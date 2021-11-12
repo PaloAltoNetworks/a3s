@@ -14,6 +14,7 @@ import (
 // Conf holds the main configuration flags.
 type Conf struct {
 	Init               bool   `mapstructure:"init"          desc:"If set, initialize the root permissions usingf the CA passed in --init-root-ca and exit"`
+	InitContinue       bool   `mapstructure:"init-continue" desc:"Continues normal boot after init."`
 	InitRootUserCAPath string `mapstructure:"init-root-ca"  desc:"Path to the root CA to use to initialize root permissions"`
 
 	JWT JWTConf `mapstructure:",squash"`

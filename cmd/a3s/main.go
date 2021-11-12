@@ -58,13 +58,19 @@ func main() {
 	}
 
 	if cfg.Init {
-		if err := initRootPermissions(ctx, m, cfg.InitRootUserCAPath); err != nil {
+		initialized, err := initRootPermissions(ctx, m, cfg.InitRootUserCAPath, cfg.InitContinue)
+		if err != nil {
 			zap.L().Fatal("unable to initialize root permissions", zap.Error(err))
 			return
 		}
 
-		zap.L().Info("Root permissions initialized")
-		return
+		if initialized {
+			zap.L().Info("Root auth initialized")
+		}
+
+		if !cfg.InitContinue {
+			return
+		}
 	}
 
 	jwtCert, jwtKey, err := cfg.JWT.JWTCertificate()
@@ -186,16 +192,16 @@ func createRootNamespaceIfNeeded(m manipulate.Manipulator) error {
 	return nil
 }
 
-func initRootPermissions(ctx context.Context, m manipulate.Manipulator, caPath string) error {
+func initRootPermissions(ctx context.Context, m manipulate.Manipulator, caPath string, ifNeeded bool) (bool, error) {
 
 	caData, err := os.ReadFile(caPath)
 	if err != nil {
-		return fmt.Errorf("unable to read root user ca: %w", err)
+		return false, fmt.Errorf("unable to read root user ca: %w", err)
 	}
 
 	caCerts, err := tglib.ParseCertificates(caData)
 	if err != nil {
-		return fmt.Errorf("unable to parse root user ca: %w", err)
+		return false, fmt.Errorf("unable to parse root user ca: %w", err)
 	}
 
 	chain := make([]string, len(caCerts))
@@ -209,7 +215,10 @@ func initRootPermissions(ctx context.Context, m manipulate.Manipulator, caPath s
 	source.Description = "Root auth source used to bootstrap permissions."
 	source.CertificateAuthority = string(caData)
 	if err := m.Create(manipulate.NewContext(ctx), source); err != nil {
-		return fmt.Errorf("unable to create root mtls auth source: %w", err)
+		if errors.As(err, &manipulate.ErrConstraintViolation{}) && ifNeeded {
+			return false, nil
+		}
+		return false, fmt.Errorf("unable to create root mtls auth source: %w", err)
 	}
 
 	auth := api.NewAuthorization()
@@ -230,10 +239,10 @@ func initRootPermissions(ctx context.Context, m manipulate.Manipulator, caPath s
 	auth.Hidden = true
 
 	if err := m.Create(manipulate.NewContext(ctx), auth); err != nil {
-		return fmt.Errorf("unable to create root auth: %w", err)
+		return false, fmt.Errorf("unable to create root auth: %w", err)
 	}
 
-	return nil
+	return true, nil
 }
 
 func makeJWKSHandler(jwks *token.JWKS) http.HandlerFunc {

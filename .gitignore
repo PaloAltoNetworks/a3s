@@ -1,4 +1,5 @@
 cmd/a3s/a3s
+cmd/a3sctl/a3sctl
 coverage.xml
 unit_coverage.cov
 remod.dev

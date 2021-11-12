@@ -1,0 +1,44 @@
+version: '3'
+services:
+  mongo:
+    image: mongo:4
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: root
+    volumes:
+    - .data/mongo-compose:/data/db
+  nats:
+    image: nats
+    command: --user nats-user --pass nats-password
+  centos:
+    image: centos
+    command: sleep 10000
+  a3s:
+    image: a3s/a3s:dev
+    ports:
+    - 44443:443
+    restart: unless-stopped
+    volumes:
+    - .data/certificates:/certs
+    environment:
+      A3S_INIT: "true"
+      A3S_INIT_CONTINUE: "true"
+      A3S_INIT_ROOT_CA: "/certs/ca-acme-cert.pem"
+      A3S_MONGO_URL: mongodb://mongo:27017
+      A3S_MONGO_AUTH_DB: admin
+      A3S_MONGO_USER: root
+      A3S_MONGO_PASS: root
+      A3S_MONGO_TLS_DISABLE: "true"
+      A3S_ENCRYPTION_KEY: "1234567890ABCDEF"
+      A3S_NATS_URL: nats://nats:4222
+      A3S_NATS_USER: nats-user
+      A3S_NATS_PASS: nats-password
+      A3S_NATS_TLS_DISABLE: "true"
+      A3S_TLS_CERT: /certs/a3s-cert.pem
+      A3S_TLS_KEY: /certs/a3s-key.pem
+      A3S_TLS_KEY_PASS: password
+      A3S_JWT_CERT: /certs/jwt-cert.pem
+      A3S_JWT_KEY: /certs/jwt-key.pem
+      A3S_JWT_KEY_PASS: password
+      A3S_JWT_ISSUER: https://127.0.0.1
+      A3S_JWT_AUDIENCE: https://127.0.0.1
