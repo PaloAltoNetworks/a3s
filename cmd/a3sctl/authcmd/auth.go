@@ -30,6 +30,7 @@ func init() {
 	)
 }
 
+// AuthCmd is the root cmd for authentication subcommand.
 var AuthCmd = &cobra.Command{
 	Use:   "auth",
 	Short: "Authenticate and retrieve a token.",
