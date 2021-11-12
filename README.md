@@ -65,9 +65,14 @@ namespaces, authorizations, etc, you need to obtain a root token to start
 interacting with the server:
 
 	 a3sctl auth mtls \
+		--api https://127.0.0.1:44443 \
+		--api-skip-verify \
 		--cert dev/.data/certificates/user-cert.pem \
 		--key dev/.data/certificates/user-key.pem \
 		--source-name root \
+
+> NOTE: In production environment, never use --api-skip-verify. You should
+> instead trust the CA used to issue a3s TLS certificate.
 
 This will print a token you can use for subsequent calls. You can set in the
 `$A3SCTL_TOKEN` env variable to use it automatically in the subsequent calls.
