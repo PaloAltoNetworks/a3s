@@ -24,6 +24,8 @@ func init() {
 	AuthCmd.PersistentFlags().String("source-name", "default", "The name of the auth source")
 	AuthCmd.PersistentFlags().String("source-namespace", "/", "The namespace of the auth source")
 
+	authCheckCmd.Flags().String("token", "", "The token to verify")
+
 	AuthCmd.AddCommand(
 		authCheckCmd,
 		authMTLSCmd,

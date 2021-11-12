@@ -44,6 +44,9 @@ codegen:
 build_linux:
 	cd cmd/a3s && CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-w -s"
 
+cli:
+	cd cmd/a3sctl && CGO_ENABLED=0 go install -ldflags="-w -s"
+
 docker: build_linux
 	mkdir -p docker/in
 	cp cmd/a3s/a3s docker/in
