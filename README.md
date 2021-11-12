@@ -1,6 +1,6 @@
 # a3s
 
-> NOTE: this is a work in progress and this software is not usable yet
+> NOTE: This is a work in progress.
 
 a3s (stands for Auth As A Service) is an authentication and ABAC authorization
 server.
@@ -21,10 +21,29 @@ Basically, an authorization policy allows a subset of users, defined by claims
 retrieved from an authentication source, to perform actions in a particular
 namespace and all of its children.
 
+## Quick start
 
-## Launch Dev environment
+The easiest way to get started is to use the `docker-compose.yaml` in the `dev`
+folder.
 
-> NOTE: This is a work in progress.
+First, generate the needed certificates:
+
+	dev/certs-init
+
+This creates the needed certificates in `dev/.data/certificates` that the a3s
+container will mount (the same certificates will be used by the dev
+environment).
+
+Then build the docker container: 
+
+	make docker
+
+And finally start the docker-compose file:
+
+	cd ./dev
+	docker compose up
+
+## Dev environment
 
 ### Prerequesites
 
@@ -34,7 +53,6 @@ First, clone this repository and make sure you have the following installed:
 - mongod
 - nats-server
 - tmux & tmuxinator
-
 
 ### Initialize environment
 
@@ -55,8 +73,10 @@ folder, you can reinitialize the environment.
 All of a3s configuration is defined as env variables from `dev/env`
 
 Finally, you must initialize the root permissions. a3s has no exception or
-hardscoded credentials, so we must add an auth source and an authorization. To
-do so, you can run:
+hardcoded or weak credentials, so we must add an auth source and an
+authorization.
+
+To do so, you run:
 
     dev/a3s-run --init --init-root-ca dev/.data/certificates/ca-acme-cert.pem
 

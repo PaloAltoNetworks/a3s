@@ -6,7 +6,7 @@ require (
 	go.aporeto.io/addedeffect v1.77.1-0.20210930200419-5082b3192403
 	go.aporeto.io/bahamut v1.112.1-0.20211108183110-26de36f87bcb
 	go.aporeto.io/elemental v1.100.1-0.20211029010343-e264f153acc2
-	go.aporeto.io/manipulate v1.121.1-0.20211026222548-61cab81ae328
+	go.aporeto.io/manipulate v1.121.1-0.20211112020558-c1c882d134b3
 	go.aporeto.io/tg v1.34.1-0.20211101201333-f818ba4bc2b5
 	go.aporeto.io/wsc v1.36.1-0.20210528201141-2af38def4959 // indirect
 )
@@ -57,7 +57,7 @@ require (
 	github.com/spf13/cast v1.3.1 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
-	github.com/spf13/viper v1.7.1 // indirect
+	github.com/spf13/viper v1.7.1
 	github.com/subosito/gotenv v1.2.0 // indirect
 	github.com/uber/jaeger-client-go v2.22.1+incompatible // indirect
 	github.com/uber/jaeger-lib v2.2.0+incompatible // indirect
@@ -74,4 +74,17 @@ require (
 	google.golang.org/protobuf v1.26.0 // indirect
 	gopkg.in/ini.v1 v1.57.0 // indirect
 	gopkg.in/yaml.v2 v2.3.0 // indirect
+)
+
+require github.com/spf13/cobra v1.1.1
+
+require (
+	github.com/fatih/color v1.7.0 // indirect
+	github.com/hokaccha/go-prettyjson v0.0.0-20210113012101-fb4e108d2519 // indirect
+	github.com/inconshreveable/mousetrap v1.0.0 // indirect
+	github.com/mattn/go-colorable v0.0.9 // indirect
+	github.com/mattn/go-isatty v0.0.3 // indirect
+	github.com/mattn/go-runewidth v0.0.10 // indirect
+	github.com/olekukonko/tablewriter v0.0.5 // indirect
+	github.com/rivo/uniseg v0.1.0 // indirect
 )
