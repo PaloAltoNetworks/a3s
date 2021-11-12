@@ -10,9 +10,6 @@ services:
   nats:
     image: nats
     command: --user nats-user --pass nats-password
-  centos:
-    image: centos
-    command: sleep 10000
   a3s:
     image: a3s/a3s:dev
     ports:
