@@ -43,6 +43,63 @@ And finally start the docker-compose file:
 	cd ./dev
 	docker compose up
 
+## Using the system
+
+You can start interact with the system by using the raw API with curl or using
+the provided `a3sctl`. The later provide a streamlined interface that makes it
+more pleasant to use than the raw API.
+
+### Install a3sctl
+
+To install the cli, run:
+
+	make cli
+
+This will install `a3sctl` into you`$GOBIN` folder. You should have this folder
+in your `$PATH` if you want to use the cli without using its full path.
+
+### Obtain a root token 
+
+In order to configure the system and create additional namespaces, additional
+namespaces, authorizations, etc, you need to obtain a root token to start
+interacting with the server:
+
+	 a3sctl auth mtls \
+		--cert dev/.data/certificates/user-cert.pem \
+		--key dev/.data/certificates/user-key.pem \
+		--source-name root \
+
+This will print a token you can use for subsequent calls. You can set in the
+`$A3SCTL_TOKEN` env variable to use it automatically in the subsequent calls.
+
+If you want to check the content of a token, you can use:
+
+	$ a3sctl auth check --token <token>
+	alg: ES256
+	kid: 1DAA6949AACB82DBEF1CFE7D93586DD0BF1F090A
+
+	{
+	  "aud": [
+		"x",
+		"y"
+	  ],
+	  "exp": 1636830341,
+	  "iat": 1636743941,
+	  "identity": [
+		"commonname=Jean-Michel",
+		"serialnumber=219959457279438724775594138274989969558",
+		"fingerprint=C8BB0E5FA7644DDC97FD54AEF09053E880EDA939",
+		"issuerchain=D98F838F491542CC238275763AA06B7DC949737D",
+		"@sourcetype=mtls",
+		"@sourcenamespace=/",
+		"@sourcename=root"
+	  ],
+	  "iss": "https://127.0.0.1",
+	  "jti": "b2b441a0-5283-4586-baa7-4a45147aaf46"
+	}
+
+You can omit `--token` if you have set `$A3SCTL_TOKEN`.
+
 ## Dev environment
 
 ### Prerequesites
@@ -50,11 +107,11 @@ And finally start the docker-compose file:
 First, clone this repository and make sure you have the following installed:
 
 - go
-- mongod
+- mongodb
 - nats-server
 - tmux & tmuxinator
 
-### Initialize environment
+### Initialize the environment
 
 If this is the first time you start the environment, you need to initialize
 various things.  
@@ -82,9 +139,9 @@ To do so, you run:
 
 ### Start everything
 
-Once initialized, go to the `dev` folder and run:
+Once initialized, start the tmux session by running:
 
-	./env-run
+	dev/env-run
 
 This will launch a tmux session starting everything and giving you a working
 terminal. To exit:
