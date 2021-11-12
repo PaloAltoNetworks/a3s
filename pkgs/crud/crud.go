@@ -33,6 +33,8 @@ func Create(bctx bahamut.Context, m manipulate.Manipulator, obj elemental.Identi
 		cfg.postHook(obj)
 	}
 
+	bctx.SetOutputData(obj)
+
 	return nil
 }
 
