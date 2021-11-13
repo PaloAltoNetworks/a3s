@@ -65,8 +65,8 @@ func (a *Private) commonAuth(tokenString string) (bahamut.AuthAction, []string, 
 		)
 	}
 
-	idt := &token.IdentityToken{}
-	if err := idt.Parse(tokenString, a.jwks, a.issuer, a.audience); err != nil {
+	idt, err := token.Parse(tokenString, a.jwks, a.issuer, a.audience)
+	if err != nil {
 		return bahamut.AuthActionKO, nil, elemental.NewError(
 			"Unauthorized",
 			fmt.Sprintf("Authentication rejected with error: %s", err),

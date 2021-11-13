@@ -90,15 +90,7 @@ func TestParse(t *testing.T) {
 
 		Convey("When I call Parse using the correct signer certificate", func() {
 
-			token2 := NewIdentityToken(Source{
-				Type:      "certificate",
-				Namespace: "/my/ns",
-				Name:      "mysource",
-			})
-			token2.Issuer = "iss"
-			token2.Audience = jwt.ClaimStrings{"aud"}
-
-			err = token2.Parse(token, keychain, "iss", "aud")
+			token2, err := Parse(token, keychain, "iss", "aud")
 
 			So(err, ShouldBeNil)
 			So(token2.Source.Type, ShouldEqual, "certificate")
@@ -118,26 +110,18 @@ func TestParse(t *testing.T) {
 
 		Convey("When I call Parse using the wrong issuer", func() {
 
-			token2 := NewIdentityToken(Source{
-				Type:      "certificate",
-				Namespace: "/my/ns",
-				Name:      "mysource",
-			})
-			err = token2.Parse(token, keychain, "iss2", "aud")
+			token2, err := Parse(token, keychain, "iss2", "aud")
 
+			So(token2, ShouldBeNil)
 			So(err, ShouldNotBeNil)
 			So(err.Error(), ShouldEqual, "issuer 'iss' is not acceptable. want 'iss2'")
 		})
 
 		Convey("When I call Parse using the wrong audience", func() {
 
-			token2 := NewIdentityToken(Source{
-				Type:      "certificate",
-				Namespace: "/my/ns",
-				Name:      "mysource",
-			})
-			err = token2.Parse(token, keychain, "iss", "aud2")
+			token2, err := Parse(token, keychain, "iss", "aud2")
 
+			So(token2, ShouldBeNil)
 			So(err, ShouldNotBeNil)
 			So(err.Error(), ShouldEqual, "audience '[aud]' is not acceptable. want 'aud2'")
 		})
@@ -147,13 +131,9 @@ func TestParse(t *testing.T) {
 			cert2, _ := getECCert()
 			keychain2 := NewJWKS()
 			_ = keychain2.Append(cert2)
-			token2 := NewIdentityToken(Source{
-				Type:      "certificate",
-				Namespace: "/my/ns",
-				Name:      "mysource",
-			})
-			err = token2.Parse(token, keychain2, "iss", "aud")
+			token2, err := Parse(token, keychain2, "iss", "aud")
 
+			So(token2, ShouldBeNil)
 			So(err, ShouldNotBeNil)
 			So(err.Error(), ShouldEqual, fmt.Sprintf("unable to parse jwt: unable to find kid '%s': kid not found in JWKS", kid))
 		})
@@ -161,13 +141,9 @@ func TestParse(t *testing.T) {
 		Convey("When I call Parse using a wrong asigning method", func() {
 
 			token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyZWFsbSI6IlZpbmNlIiwiaWR0IjpbIkBzb3VyY2U9YS1zb3VyY2UiLCJAbmFtZXNwYWNlPS9hL25hbWVzcGFjZSIsInVzZXJuYW1lPWpvZSIsInRlYW09cmVkIl0sImF1ZCI6Imh0dHBzOi8vYTNzLmNvbSIsImlhdCI6MTU0ODc5MDMwMCwiaXNzIjoiaHR0cHM6Ly9hM3MuY29tIn0.5PYuuULqrMArgdxq5eKSImsNskobw528Gr8Xe7HgPFs"
-			token2 := NewIdentityToken(Source{
-				Type:      "certificate",
-				Namespace: "/my/ns",
-				Name:      "mysource",
-			})
-			err = token2.Parse(token, keychain, "iss", "aud")
+			token2, err := Parse(token, keychain, "iss", "aud")
 
+			So(token2, ShouldBeNil)
 			So(err, ShouldNotBeNil)
 			So(err.Error(), ShouldEqual, "unable to parse jwt: unexpected signing method: HS256")
 		})

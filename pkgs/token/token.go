@@ -3,6 +3,7 @@ package token
 import (
 	"crypto"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/gofrs/uuid"
@@ -28,7 +29,7 @@ type IdentityToken struct {
 	Identity     []string                  `json:"identity"`
 	Opaque       map[string]string         `json:"opaque,omitempty"`
 	Restrictions *permissions.Restrictions `json:"restrictions,omitempty"`
-	Source       Source                    `json:"source"`
+	Source       Source                    `json:"-"`
 
 	jwt.RegisteredClaims
 }
@@ -42,24 +43,36 @@ func NewIdentityToken(source Source) *IdentityToken {
 }
 
 // Parse returns a validated IdentityToken from the given token string.
-func (t *IdentityToken) Parse(tokenString string, keychain *JWKS, issuer string, audience string) error {
+func Parse(tokenString string, keychain *JWKS, issuer string, audience string) (*IdentityToken, error) {
 
+	t := &IdentityToken{}
 	token, err := jwt.ParseWithClaims(tokenString, t, makeKeyFunc(keychain))
 	if err != nil {
-		return fmt.Errorf("unable to parse jwt: %w", err)
+		return nil, fmt.Errorf("unable to parse jwt: %w", err)
 	}
 
 	claims := token.Claims.(*IdentityToken)
 
+	for _, c := range claims.Identity {
+		switch {
+		case strings.HasPrefix(c, "@sourcename="):
+			claims.Source.Name = strings.TrimPrefix(c, "@sourcename=")
+		case strings.HasPrefix(c, "@sourcenamespace="):
+			claims.Source.Namespace = strings.TrimPrefix(c, "@sourcenamespace=")
+		case strings.HasPrefix(c, "@sourcetype="):
+			claims.Source.Type = strings.TrimPrefix(c, "@sourcetype=")
+		}
+	}
+
 	if claims.Issuer != issuer {
-		return fmt.Errorf("issuer '%s' is not acceptable. want '%s'", claims.Issuer, issuer)
+		return nil, fmt.Errorf("issuer '%s' is not acceptable. want '%s'", claims.Issuer, issuer)
 	}
 
 	if !claims.VerifyAudience(audience, false) {
-		return fmt.Errorf("audience '%s' is not acceptable. want '%s'", claims.Audience, audience)
+		return nil, fmt.Errorf("audience '%s' is not acceptable. want '%s'", claims.Audience, audience)
 	}
 
-	return nil
+	return t, nil
 }
 
 // JWT returns the signed JWT string.

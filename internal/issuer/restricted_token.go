@@ -76,13 +76,7 @@ func (c *TokenIssuer) FromToken(
 		return ErrComputeRestrictions{Err: err}
 	}
 
-	c.token = &token.IdentityToken{
-		RegisteredClaims: jwt.RegisteredClaims{
-			Issuer:   issuer,
-			Audience: jwt.ClaimStrings{audience},
-		},
-	}
-	if err := c.token.Parse(tokenString, keychain, issuer, audience); err != nil {
+	if c.token, err = token.Parse(tokenString, keychain, issuer, audience); err != nil {
 		return ErrInputToken{Err: err}
 	}
 
