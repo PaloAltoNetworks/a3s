@@ -33,13 +33,13 @@ echo
 echo "* Creating mtlssource"
 a3sctl api create mtlssource -n "/testapp" \
 	--name "default" \
-	--certificateAuthority "$(cat certs/a3s-test-authority-cert.pem)"
+	--certificate-authority "$(cat certs/a3s-test-authority-cert.pem)"
 
 echo
 echo "* Creating authorization for /secret"
 a3sctl api create authorization -n "/testapp" \
 	--name "secret-access" \
-	--targetNamespace "/testapp" \
+	--target-namespace "/testapp" \
 	--subject '[
 		[
 			"@sourcetype=mtls",
@@ -54,7 +54,7 @@ echo
 echo "* Creating authorization for /topsecret"
 a3sctl api create authorization -n "/testapp" \
 	--name "top-secret-access" \
-	--targetNamespace "/testapp" \
+	--target-namespace "/testapp" \
 	--subject '[
 		[
 			"@sourcetype=mtls",
@@ -76,6 +76,8 @@ echo "Here is a command to get a token for john:"
 echo
 cat <<EOF
 	a3sctl auth mtls \\
+		--api https://127.0.0.1:44443 \\
+		--api-skip-verify \\
 		--audience testapp \\
 		--source-namespace /testapp \\
 		--cert certs/john-cert.pem \\
@@ -87,6 +89,8 @@ echo "Here is a command to get a token for michael:"
 echo
 cat <<EOF
 	a3sctl auth mtls \\
+		--api https://127.0.0.1:44443 \\
+		--api-skip-verify \\
 		--audience testapp \\
 		--source-namespace /testapp \\
 		--cert certs/michael-cert.pem \\

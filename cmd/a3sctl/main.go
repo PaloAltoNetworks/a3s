@@ -7,6 +7,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"go.aporeto.io/a3s/cmd/a3sctl/authcmd"
+	"go.aporeto.io/a3s/cmd/a3sctl/compcmd"
 	"go.aporeto.io/a3s/pkgs/api"
 	"go.aporeto.io/manipulate/manipcli"
 )
@@ -20,27 +21,41 @@ func main() {
 	})
 
 	rootCmd := &cobra.Command{
-		Use:           "a3sctl",
-		Short:         "Controls a3s APIs",
-		SilenceUsage:  true,
-		SilenceErrors: true,
+		Use:              "a3sctl",
+		Short:            "Controls a3s APIs",
+		SilenceUsage:     true,
+		SilenceErrors:    true,
+		TraverseChildren: true,
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
-			return viper.BindPFlags(cmd.PersistentFlags())
+			if err := viper.BindPFlags(cmd.PersistentFlags()); err != nil {
+				return err
+			}
+			return viper.BindPFlags(cmd.Flags())
 		},
 	}
 
-	rootCmd.PersistentFlags().AddFlagSet(manipcli.ManipulatorFlagSet())
-	m := manipcli.ManipulatorMakerFromFlags()
-	apiCmd := manipcli.GenerateCobraCommand(api.Manager(), m)
+	mflags := manipcli.ManipulatorFlagSet()
+	mmaker := manipcli.ManipulatorMakerFromFlags()
+
+	apiCmd := manipcli.New(api.Manager(), mmaker)
+	apiCmd.PersistentFlags().AddFlagSet(mflags)
+	// cobra.MarkFlagRequired(apiCmd.PersistentFlags(), "api")
+	// cobra.MarkFlagRequired(apiCmd.PersistentFlags(), "namespace")
+
+	authCmd := authcmd.New(mmaker)
+	authCmd.PersistentFlags().AddFlagSet(mflags)
+	// cobra.MarkFlagRequired(authCmd.PersistentFlags(), "api")
+
+	compCmd := compcmd.New()
 
 	rootCmd.AddCommand(
 		apiCmd,
-		authcmd.AuthCmd,
-		completionCmd,
+		authCmd,
+		compCmd,
 	)
 
 	if err := rootCmd.Execute(); err != nil {
-		fmt.Printf("error: %s", err)
+		fmt.Printf("error: %s\n", err)
 	}
 
 }
