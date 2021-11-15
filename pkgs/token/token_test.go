@@ -78,14 +78,27 @@ func TestParse(t *testing.T) {
 
 		kid := fmt.Sprintf("%02X", sha1.Sum(cert.Raw))
 
-		token, err := token1.JWT(key, kid, "iss", jwt.ClaimStrings{"aud"}, time.Now().Add(10*time.Second))
+		token, err := token1.JWT(key, kid, "iss", jwt.ClaimStrings{"aud"}, time.Now().Add(10*time.Second), nil)
 		So(err, ShouldBeNil)
 
 		Convey("Calling JWT with a missing source type should fail", func() {
 			token1.Source.Type = ""
-			_, err := token1.JWT(key, "kid", "iss", jwt.ClaimStrings{"aud"}, time.Now().Add(10*time.Second))
+			_, err := token1.JWT(key, "kid", "iss", jwt.ClaimStrings{"aud"}, time.Now().Add(10*time.Second), nil)
 			So(err, ShouldNotBeNil)
 			So(err.Error(), ShouldEqual, "invalid identity token: missing source type")
+		})
+
+		Convey("Calling JWT using cloaking", func() {
+			token2, err := token1.JWT(key, kid, "iss", jwt.ClaimStrings{"aud"}, time.Now().Add(10*time.Second), []string{"org="})
+			So(err, ShouldBeNil)
+			token3, err := Parse(token2, keychain, "iss", "aud")
+			So(err, ShouldBeNil)
+			So(token3.Identity, ShouldResemble, []string{
+				"org=a3s.com",
+				"@sourcetype=certificate",
+				"@sourcenamespace=/my/ns",
+				"@sourcename=mysource",
+			})
 		})
 
 		Convey("When I call Parse using the correct signer certificate", func() {

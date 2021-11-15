@@ -487,6 +487,10 @@ Issues a new a normalized token using various authentication sources.
     "https://myfirstapp",
     "https://mysecondapp"
   ],
+  "cloak": [
+    "org=",
+    "age="
+  ],
   "restrictedNamespace": "/namespace",
   "restrictedNetworks": [
     "10.0.0.0/8",
@@ -515,6 +519,14 @@ Ask to issue a new authentication token.
 Type: `[]string`
 
 Requested audience for the delivered token.
+
+##### `cloak`
+
+Type: `[]string`
+
+Sets a list of identity claim prefix to allow in the final token. This can be
+used to hide some information when asking for a token as not all systems need to
+know all of the claims.
 
 ##### `inputAWSSTS`
 

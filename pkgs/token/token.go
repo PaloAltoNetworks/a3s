@@ -76,7 +76,7 @@ func Parse(tokenString string, keychain *JWKS, issuer string, audience string) (
 }
 
 // JWT returns the signed JWT string.
-func (t *IdentityToken) JWT(key crypto.PrivateKey, kid string, iss string, aud jwt.ClaimStrings, exp time.Time) (string, error) {
+func (t *IdentityToken) JWT(key crypto.PrivateKey, kid string, iss string, aud jwt.ClaimStrings, exp time.Time, cloak []string) (string, error) {
 
 	t.ID = uuid.Must(uuid.NewV4()).String()
 	t.IssuedAt = jwt.NewNumericDate(time.Now())
@@ -85,6 +85,18 @@ func (t *IdentityToken) JWT(key crypto.PrivateKey, kid string, iss string, aud j
 
 	if !exp.IsZero() {
 		t.ExpiresAt = jwt.NewNumericDate(exp)
+	}
+
+	if len(cloak) > 0 {
+		var cloakedIdentity []string
+		for _, claim := range t.Identity {
+			for _, c := range cloak {
+				if strings.HasPrefix(claim, c) {
+					cloakedIdentity = append(cloakedIdentity, claim)
+				}
+			}
+		}
+		t.Identity = cloakedIdentity
 	}
 
 	if t.Source.Type == "" {

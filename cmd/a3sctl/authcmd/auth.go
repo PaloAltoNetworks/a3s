@@ -25,6 +25,7 @@ func New(mmaker manipcli.ManipulatorMaker) *cobra.Command {
 	rootCmd.PersistentFlags().StringSlice("audience", nil, "Requested audience for the token.")
 	rootCmd.PersistentFlags().String("source-name", "default", "The name of the auth source.")
 	rootCmd.PersistentFlags().String("source-namespace", "/", "The namespace of the auth source.")
+	rootCmd.PersistentFlags().StringSlice("cloak", nil, "Cloak identity claims. Only claims with a prefix matching of of the given string will be used in the token.")
 	viper.BindPFlags(rootCmd.Flags())
 
 	checkCmd := &cobra.Command{
@@ -33,8 +34,7 @@ func New(mmaker manipcli.ManipulatorMaker) *cobra.Command {
 		TraverseChildren: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
 
-			flags := cmd.Flags()
-			fToken, _ := flags.GetString("token")
+			fToken := viper.GetString("token")
 
 			claims := jwt.MapClaims{}
 			p := jwt.Parser{}
@@ -68,13 +68,13 @@ func New(mmaker manipcli.ManipulatorMaker) *cobra.Command {
 		TraverseChildren: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
 
-			flags := cmd.Flags()
-			fCert, _ := flags.GetString("cert")
-			fKey, _ := flags.GetString("key")
-			fPass, _ := flags.GetString("pass")
-			fSourceName, _ := flags.GetString("source-name")
-			fSourceNamespace, _ := flags.GetString("source-namespace")
-			fAudience, _ := flags.GetStringSlice("audience")
+			fCert := viper.GetString("cert")
+			fKey := viper.GetString("key")
+			fPass := viper.GetString("pass")
+			fSourceName := viper.GetString("source-name")
+			fSourceNamespace := viper.GetString("source-namespace")
+			fAudience := viper.GetStringSlice("audience")
+			fCloak := viper.GetStringSlice("cloak")
 
 			cert, key, err := tglib.ReadCertificatePEM(fCert, fKey, fPass)
 			if err != nil {
@@ -96,6 +96,7 @@ func New(mmaker manipcli.ManipulatorMaker) *cobra.Command {
 			iss.SourceName = fSourceName
 			iss.SourceNamespace = fSourceNamespace
 			iss.Audience = fAudience
+			iss.Cloak = fCloak
 
 			if err := m.Create(nil, iss); err != nil {
 				return err
@@ -122,15 +123,17 @@ func New(mmaker manipcli.ManipulatorMaker) *cobra.Command {
 			flags := cmd.Flags()
 			fSourceName, _ := flags.GetString("source-name")
 			fSourceNamespace, _ := flags.GetString("source-namespace")
-			fAudience, _ := flags.GetStringSlice("audience")
-			fUser, _ := flags.GetString("user")
-			fPass, _ := flags.GetString("pass")
+			fAudience := viper.GetStringSlice("audience")
+			fUser := viper.GetString("user")
+			fPass := viper.GetString("pass")
+			fCloak := viper.GetStringSlice("cloak")
 
 			iss := api.NewIssue()
 			iss.SourceType = api.IssueSourceTypeLDAP
 			iss.SourceName = fSourceName
 			iss.SourceNamespace = fSourceNamespace
 			iss.Audience = fAudience
+			iss.Cloak = fCloak
 			iss.InputLDAP = &api.IssueLDAP{
 				Username: fUser,
 				Password: fPass,

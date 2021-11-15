@@ -22,6 +22,19 @@ attributes:
     - https://mysecondapp
     omit_empty: true
 
+  - name: cloak
+    description: |-
+      Sets a list of identity claim prefix to allow in the final token. This can be
+      used to hide some information when asking for a token as not all systems need to
+      know all of the claims.
+    type: list
+    exposed: true
+    subtype: string
+    example_value:
+    - org=
+    - age=
+    omit_empty: true
+
   - name: inputAWSSTS
     description: Contains additional information for an AWS STS token source.
     type: ref

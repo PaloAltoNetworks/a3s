@@ -112,6 +112,11 @@ type Issue struct {
 	// Requested audience for the delivered token.
 	Audience []string `json:"audience,omitempty" msgpack:"audience,omitempty" bson:"-" mapstructure:"audience,omitempty"`
 
+	// Sets a list of identity claim prefix to allow in the final token. This can be
+	// used to hide some information when asking for a token as not all systems need to
+	// know all of the claims.
+	Cloak []string `json:"cloak,omitempty" msgpack:"cloak,omitempty" bson:"-" mapstructure:"cloak,omitempty"`
+
 	// Contains additional information for an AWS STS token source.
 	InputAWSSTS *IssueAWS `json:"inputAWSSTS,omitempty" msgpack:"inputAWSSTS,omitempty" bson:"-" mapstructure:"inputAWSSTS,omitempty"`
 
@@ -185,8 +190,9 @@ func NewIssue() *Issue {
 	return &Issue{
 		ModelVersion:          1,
 		RestrictedNetworks:    []string{},
-		Opaque:                map[string]string{},
 		Audience:              []string{},
+		Opaque:                map[string]string{},
+		Cloak:                 []string{},
 		RestrictedPermissions: []string{},
 		Validity:              "24h",
 	}
@@ -275,6 +281,7 @@ func (o *Issue) ToSparse(fields ...string) elemental.SparseIdentifiable {
 		// nolint: goimports
 		return &SparseIssue{
 			Audience:              &o.Audience,
+			Cloak:                 &o.Cloak,
 			InputAWSSTS:           o.InputAWSSTS,
 			InputLDAP:             o.InputLDAP,
 			InputToken:            o.InputToken,
@@ -295,6 +302,8 @@ func (o *Issue) ToSparse(fields ...string) elemental.SparseIdentifiable {
 		switch f {
 		case "audience":
 			sp.Audience = &(o.Audience)
+		case "cloak":
+			sp.Cloak = &(o.Cloak)
 		case "inputAWSSTS":
 			sp.InputAWSSTS = o.InputAWSSTS
 		case "inputLDAP":
@@ -334,6 +343,9 @@ func (o *Issue) Patch(sparse elemental.SparseIdentifiable) {
 	so := sparse.(*SparseIssue)
 	if so.Audience != nil {
 		o.Audience = *so.Audience
+	}
+	if so.Cloak != nil {
+		o.Cloak = *so.Cloak
 	}
 	if so.InputAWSSTS != nil {
 		o.InputAWSSTS = so.InputAWSSTS
@@ -481,6 +493,8 @@ func (o *Issue) ValueForAttribute(name string) interface{} {
 	switch name {
 	case "audience":
 		return o.Audience
+	case "cloak":
+		return o.Cloak
 	case "inputAWSSTS":
 		return o.InputAWSSTS
 	case "inputLDAP":
@@ -520,6 +534,17 @@ var IssueAttributesMap = map[string]elemental.AttributeSpecification{
 		Name:           "audience",
 		SubType:        "string",
 		Type:           "list",
+	},
+	"Cloak": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Cloak",
+		Description: `Sets a list of identity claim prefix to allow in the final token. This can be
+used to hide some information when asking for a token as not all systems need to
+know all of the claims.`,
+		Exposed: true,
+		Name:    "cloak",
+		SubType: "string",
+		Type:    "list",
 	},
 	"InputAWSSTS": {
 		AllowedChoices: []string{},
@@ -667,6 +692,17 @@ var IssueLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
 		Name:           "audience",
 		SubType:        "string",
 		Type:           "list",
+	},
+	"cloak": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Cloak",
+		Description: `Sets a list of identity claim prefix to allow in the final token. This can be
+used to hide some information when asking for a token as not all systems need to
+know all of the claims.`,
+		Exposed: true,
+		Name:    "cloak",
+		SubType: "string",
+		Type:    "list",
 	},
 	"inputawssts": {
 		AllowedChoices: []string{},
@@ -870,6 +906,11 @@ type SparseIssue struct {
 	// Requested audience for the delivered token.
 	Audience *[]string `json:"audience,omitempty" msgpack:"audience,omitempty" bson:"-" mapstructure:"audience,omitempty"`
 
+	// Sets a list of identity claim prefix to allow in the final token. This can be
+	// used to hide some information when asking for a token as not all systems need to
+	// know all of the claims.
+	Cloak *[]string `json:"cloak,omitempty" msgpack:"cloak,omitempty" bson:"-" mapstructure:"cloak,omitempty"`
+
 	// Contains additional information for an AWS STS token source.
 	InputAWSSTS *IssueAWS `json:"inputAWSSTS,omitempty" msgpack:"inputAWSSTS,omitempty" bson:"-" mapstructure:"inputAWSSTS,omitempty"`
 
@@ -1000,6 +1041,9 @@ func (o *SparseIssue) ToPlain() elemental.PlainIdentifiable {
 	out := NewIssue()
 	if o.Audience != nil {
 		out.Audience = *o.Audience
+	}
+	if o.Cloak != nil {
+		out.Cloak = *o.Cloak
 	}
 	if o.InputAWSSTS != nil {
 		out.InputAWSSTS = o.InputAWSSTS
