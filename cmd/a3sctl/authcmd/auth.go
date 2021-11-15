@@ -29,7 +29,6 @@ func New(mmaker manipcli.ManipulatorMaker) *cobra.Command {
 	rootCmd.PersistentFlags().String("source-namespace", "/", "The namespace of the auth source.")
 	rootCmd.PersistentFlags().StringSlice("cloak", nil, "Cloak identity claims. Only claims with a prefix matching of of the given string will be used in the token.")
 	rootCmd.PersistentFlags().Bool("qrcode", false, "If passed, display the token as a QR code.")
-	viper.BindPFlags(rootCmd.Flags())
 
 	checkCmd := &cobra.Command{
 		Use:              "check",
@@ -62,8 +61,7 @@ func New(mmaker manipcli.ManipulatorMaker) *cobra.Command {
 		},
 	}
 	checkCmd.Flags().String("token", "", "The token to verify.")
-	cobra.MarkFlagRequired(checkCmd.Flags(), "token")
-	viper.BindPFlags(checkCmd.Flags())
+	_ = cobra.MarkFlagRequired(checkCmd.Flags(), "token")
 
 	mtlsCmd := &cobra.Command{
 		Use:              "mtls",
@@ -114,9 +112,8 @@ func New(mmaker manipcli.ManipulatorMaker) *cobra.Command {
 	mtlsCmd.Flags().String("cert", "", "Path to the certificate in PEM format.")
 	mtlsCmd.Flags().String("key", "", "Path to the certificate key in PEM format.")
 	mtlsCmd.Flags().String("pass", "", "Passphrase for the certificate key.")
-	cobra.MarkFlagRequired(mtlsCmd.Flags(), "cert")
-	cobra.MarkFlagRequired(mtlsCmd.Flags(), "key")
-	viper.BindPFlags(mtlsCmd.Flags())
+	_ = cobra.MarkFlagRequired(mtlsCmd.Flags(), "cert")
+	_ = cobra.MarkFlagRequired(mtlsCmd.Flags(), "key")
 
 	ldapCmd := &cobra.Command{
 		Use:              "ldap",
@@ -160,9 +157,8 @@ func New(mmaker manipcli.ManipulatorMaker) *cobra.Command {
 	}
 	ldapCmd.Flags().String("user", "", "The LDAP username to use.")
 	ldapCmd.Flags().String("pass", "", "The password associateds to the user.")
-	cobra.MarkFlagRequired(ldapCmd.Flags(), "user")
-	cobra.MarkFlagRequired(ldapCmd.Flags(), "pass")
-	viper.BindPFlags(ldapCmd.Flags())
+	_ = cobra.MarkFlagRequired(ldapCmd.Flags(), "user")
+	_ = cobra.MarkFlagRequired(ldapCmd.Flags(), "pass")
 
 	rootCmd.AddCommand(
 		checkCmd,

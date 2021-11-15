@@ -91,7 +91,7 @@ func initCobra() {
 
 		viper.SetConfigType("yaml")
 		viper.SetConfigFile(cfgFile)
-		viper.ReadInConfig()
+		_ = viper.ReadInConfig()
 
 		return
 	}
@@ -106,5 +106,5 @@ func initCobra() {
 		viper.SetConfigName("default")
 	}
 
-	viper.ReadInConfig()
+	_ = viper.ReadInConfig()
 }
