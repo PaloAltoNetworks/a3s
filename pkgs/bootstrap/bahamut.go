@@ -11,6 +11,7 @@ import (
 	"go.aporeto.io/a3s/internal/conf"
 	"go.aporeto.io/a3s/pkgs/api"
 	"go.aporeto.io/bahamut"
+	"go.aporeto.io/bahamut/authorizer/simple"
 	"go.aporeto.io/elemental"
 	"go.aporeto.io/manipulate"
 	"go.uber.org/zap"
@@ -175,4 +176,18 @@ func MakeIdentifiableRetriever(manipulator manipulate.Manipulator) bahamut.Ident
 
 		return obj, nil
 	}
+}
+
+// MakePublishHandler returns a bahamut.PushPublishHandler that publishes all events but the
+// ones related to the given identities.
+func MakePublishHandler(excludedIdentities []elemental.Identity) bahamut.PushPublishHandler {
+
+	return simple.NewPublishHandler(func(event *elemental.Event) (bool, error) {
+		for _, i := range excludedIdentities {
+			if event.Identity == i.Name {
+				return false, nil
+			}
+		}
+		return true, nil
+	})
 }
