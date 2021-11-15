@@ -100,15 +100,16 @@ func (g *PushDispatchHandler) ShouldDispatch(session bahamut.PushSession, event 
 	isFromChildNS := elemental.IsNamespaceChildrenOfNamespace(entity.Namespace, sessionNS)
 	isRecursive := session.Parameter("mode") == "all"
 
-	// If it's a ns delete, then all authorization are already voided, we just push the event to the clients so they know it's gone.
+	// If it's a ns delete, then all authorization are already voided,
+	// we just push the event to the clients so they know it's gone.
 	if event.Identity == api.NamespaceIdentity.Name &&
 		event.Type == elemental.EventDelete &&
 		(entity.Name == sessionNS || isFromParentNS) {
 		return true, nil
 	}
 
-	// If the object is in a parent namespace or in a child namespace and it's not in recursive mode, we don't push
-	// unless it is propagating.
+	// If the object is in a parent namespace or in a child namespace
+	// and it's not in recursive mode, we don't push unless it is propagating.
 	if !(isFromCurrentNS || (isFromChildNS && isRecursive)) {
 
 		// If the object is not from a parent NS, we don't push.
@@ -122,7 +123,8 @@ func (g *PushDispatchHandler) ShouldDispatch(session bahamut.PushSession, event 
 		}
 	}
 
-	// Finally we check if the session has the right to read the object that is about to be pushed.
+	// Finally we check if the session has the right to read
+	// the object that is about to be pushed.
 	restrictions, err := permissions.GetRestrictions(token.FromSession(session))
 	if err != nil {
 		return false, err
