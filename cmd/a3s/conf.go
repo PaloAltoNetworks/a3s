@@ -23,7 +23,7 @@ type Conf struct {
 	conf.HealthConfiguration `mapstructure:",squash"`
 	conf.HTTPTimeoutsConf    `mapstructure:",squash"`
 	conf.LoggingConf         `mapstructure:",squash"`
-	conf.NATSConf            `mapstructure:",squash"`
+	conf.NATSPublisherConf   `mapstructure:",squash"`
 	conf.ProfilingConf       `mapstructure:",squash"`
 	conf.RateLimitingConf    `mapstructure:",squash"`
 	conf.MongoConf           `mapstructure:",squash" override:"mongo-db=a3s"`

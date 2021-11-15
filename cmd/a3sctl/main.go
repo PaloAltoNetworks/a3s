@@ -11,11 +11,16 @@ import (
 	"github.com/spf13/viper"
 	"go.aporeto.io/a3s/cmd/a3sctl/authcmd"
 	"go.aporeto.io/a3s/cmd/a3sctl/compcmd"
+	"go.aporeto.io/a3s/internal/conf"
 	"go.aporeto.io/a3s/pkgs/api"
+	"go.aporeto.io/a3s/pkgs/bootstrap"
 	"go.aporeto.io/manipulate/manipcli"
 )
 
-var cfgFile string
+var (
+	cfgFile  string
+	logLevel string
+)
 
 func main() {
 
@@ -35,6 +40,7 @@ func main() {
 		},
 	}
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default: $HOME/.config/a3sctl/default.yaml)")
+	rootCmd.PersistentFlags().StringVar(&logLevel, "log-level", "warn", "Log level. Can be debug, info, warn or error")
 
 	mflags := manipcli.ManipulatorFlagSet()
 	mmaker := manipcli.ManipulatorMakerFromFlags()
@@ -63,6 +69,11 @@ func initCobra() {
 	viper.SetEnvPrefix("a3sctl")
 	viper.AutomaticEnv()
 	viper.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
+
+	bootstrap.ConfigureLogger("a3sctl", conf.LoggingConf{
+		LogLevel:  logLevel,
+		LogFormat: "console",
+	})
 
 	home, err := homedir.Dir()
 	if err != nil {
