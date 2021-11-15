@@ -65,7 +65,7 @@ a3sctl api create authorization -n "/testapp" \
 			"commonname=john"
 		]
 	]' \
-	--permissions '["/secret,GET"]' ||
+	--permissions '["/secret:GET"]' ||
 	die "unable to create authorization for /secret"
 
 echo
@@ -82,8 +82,8 @@ a3sctl api create authorization -n "/testapp" \
 		]
 	]' \
 	--permissions '[
-		"/secret,GET",
-		"/topsecret,GET"
+		"/secret:GET",
+		"/topsecret:GET"
 	]' ||
 	die "unable to create authorization for /topsecret"
 

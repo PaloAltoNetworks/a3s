@@ -671,7 +671,7 @@ func TestParse(t *testing.T) {
 			"simple unique permission",
 			args{
 				[]string{
-					"api1,get,post",
+					"api1:get,post",
 				},
 				"",
 			},
@@ -683,8 +683,8 @@ func TestParse(t *testing.T) {
 			"simple double permissions",
 			args{
 				[]string{
-					"api1,get,post",
-					"api2,get",
+					"api1:get,post",
+					"api2:get",
 				},
 				"",
 			},
@@ -697,8 +697,8 @@ func TestParse(t *testing.T) {
 			"simple overlapping permissions",
 			args{
 				[]string{
-					"api1,get,post",
-					"api1,delete",
+					"api1:get,post",
+					"api1:delete",
 				},
 				"",
 			},
@@ -710,21 +710,21 @@ func TestParse(t *testing.T) {
 			"check with empty targetID",
 			args{
 				[]string{
-					"api1,get,post:",
-					"api1,delete",
+					"api1:get,post:",
+					"api1:delete",
 				},
 				"",
 			},
 			PermissionMap{
-				"api1": {"delete": true},
+				"api1": {"get": true, "post": true, "delete": true},
 			},
 		},
 		{
 			"check with matching targetID",
 			args{
 				[]string{
-					"api1,get,post:xxx",
-					"api1,delete",
+					"api1:get,post:xxx",
+					"api1:delete",
 				},
 				"xxx",
 			},
@@ -736,8 +736,8 @@ func TestParse(t *testing.T) {
 			"check with on matching targetID and one not matching",
 			args{
 				[]string{
-					"api1,get,post:yyy,xxx",
-					"api1,delete",
+					"api1:get,post:yyy,xxx",
+					"api1:delete",
 				},
 				"xxx",
 			},
@@ -749,8 +749,8 @@ func TestParse(t *testing.T) {
 			"check with not matching targetID",
 			args{
 				[]string{
-					"api1,get,post:xxx",
-					"api1,delete",
+					"api1:get,post:xxx",
+					"api1:delete",
 				},
 				"zzz",
 			},

@@ -75,7 +75,7 @@ func TestFromToken(t *testing.T) {
 		mc.Restrictions = &permissions.Restrictions{
 			Namespace:   "/a",
 			Networks:    []string{"1.0.0.0/8"},
-			Permissions: []string{"res,get,post"},
+			Permissions: []string{"res:get,post"},
 		}
 
 		token, _ := mc.JWT(key, kid, "iss", jwt.ClaimStrings{"aud"}, time.Time{}, nil)
@@ -83,14 +83,14 @@ func TestFromToken(t *testing.T) {
 		err := c.FromToken(token, keychain, "iss", "aud", 0, permissions.Restrictions{
 			Namespace:   "/a/b",
 			Networks:    []string{"1.1.0.0/16"},
-			Permissions: []string{"res,get"},
+			Permissions: []string{"res:get"},
 		})
 
 		So(err, ShouldBeNil)
 		So(c.token.Restrictions, ShouldNotBeNil)
 		So(c.token.Restrictions.Namespace, ShouldEqual, "/a/b")
 		So(c.token.Restrictions.Networks, ShouldResemble, []string{"1.1.0.0/16"})
-		So(c.token.Restrictions.Permissions, ShouldResemble, []string{"res,get"})
+		So(c.token.Restrictions.Permissions, ShouldResemble, []string{"res:get"})
 	})
 
 	Convey("Using a token that has bad ns restrictions", t, func() {
@@ -101,7 +101,7 @@ func TestFromToken(t *testing.T) {
 		mc.Restrictions = &permissions.Restrictions{
 			Namespace:   "/a",
 			Networks:    []string{"1.0.0.0/8"},
-			Permissions: []string{"res,get,post"},
+			Permissions: []string{"res:get,post"},
 		}
 
 		token, _ := mc.JWT(key, kid, "iss", jwt.ClaimStrings{"aud"}, time.Time{}, nil)
@@ -109,7 +109,7 @@ func TestFromToken(t *testing.T) {
 		err := c.FromToken(token, keychain, "iss", "aud", 0, permissions.Restrictions{
 			Namespace:   "/",
 			Networks:    []string{"1.1.0.0/16"},
-			Permissions: []string{"res,post"},
+			Permissions: []string{"res:post"},
 		})
 
 		So(err, ShouldNotBeNil)
@@ -124,7 +124,7 @@ func TestFromToken(t *testing.T) {
 		mc.Restrictions = &permissions.Restrictions{
 			Namespace:   "/a",
 			Networks:    []string{"1.0.0.0/8"},
-			Permissions: []string{"res,get,post"},
+			Permissions: []string{"res:get,post"},
 		}
 
 		token, _ := mc.JWT(key, kid, "iss", jwt.ClaimStrings{"aud"}, time.Time{}, nil)
@@ -132,7 +132,7 @@ func TestFromToken(t *testing.T) {
 		err := c.FromToken(token, keychain, "iss", "aud", 0, permissions.Restrictions{
 			Namespace:   "/a",
 			Networks:    []string{"10.1.0.0/16"},
-			Permissions: []string{"res,get"},
+			Permissions: []string{"res:get"},
 		})
 
 		So(err, ShouldNotBeNil)

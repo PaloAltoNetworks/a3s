@@ -19,24 +19,34 @@ func Parse(authStrings []string, targetID string) PermissionMap {
 
 	for _, item := range authStrings {
 
-		if strings.Contains(item, ":") {
-			// Format identity,get,post:id
+		segments := strings.SplitN(item, ":", 3)
+
+		var resource, actions, ids string
+		switch len(segments) {
+		case 0, 1:
+			continue
+		case 2:
+			resource = segments[0]
+			actions = segments[1]
+		case 3:
+			resource = segments[0]
+			actions = segments[1]
+			ids = segments[2]
+
+		}
+
+		if len(ids) > 0 {
 
 			// We did not receive any targetID, so this rule does not apply.
 			if targetID == "" {
 				continue
 			}
 
-			var tids []string
-			if parts := strings.SplitN(item, ":", 2); len(parts) == 2 {
-				tids = strings.Split(parts[1], ",")
-				item = parts[0]
-			}
-
 			accept := false
-			for _, tid := range tids {
+			for _, tid := range strings.Split(ids, ",") {
 				if tid == targetID {
 					accept = true
+					break
 				}
 			}
 
@@ -45,19 +55,14 @@ func Parse(authStrings []string, targetID string) PermissionMap {
 			}
 		}
 
-		// item is now of form: identity,get,post...
+		parts := strings.Split(actions, ",")
 
-		parts := strings.Split(item, ",")
-		if len(parts) < 2 {
-			continue
+		if _, ok := auths[resource]; !ok {
+			auths[resource] = map[string]bool{}
 		}
 
-		if _, ok := auths[parts[0]]; !ok {
-			auths[parts[0]] = map[string]bool{}
-		}
-
-		for _, decorator := range parts[1:] {
-			auths[parts[0]][decorator] = true
+		for _, action := range parts {
+			auths[resource][action] = true
 		}
 	}
 

@@ -465,13 +465,13 @@ func TestRestrictions_RestrictPermissions(t *testing.T) {
 			"original, no requested",
 			fields{
 				"",
-				[]string{"r,get"},
+				[]string{"r:get"},
 				nil,
 			},
 			args{
 				nil,
 			},
-			[]string{"r,get"},
+			[]string{"r:get"},
 			false,
 		},
 		{
@@ -482,9 +482,9 @@ func TestRestrictions_RestrictPermissions(t *testing.T) {
 				nil,
 			},
 			args{
-				[]string{"r,get"},
+				[]string{"r:get"},
 			},
-			[]string{"r,get"},
+			[]string{"r:get"},
 			false,
 		},
 
@@ -492,24 +492,24 @@ func TestRestrictions_RestrictPermissions(t *testing.T) {
 			"single original, single valid requested",
 			fields{
 				"",
-				[]string{"r,get,post"},
+				[]string{"r:get,post"},
 				nil,
 			},
 			args{
-				[]string{"r,get"},
+				[]string{"r:get"},
 			},
-			[]string{"r,get"},
+			[]string{"r:get"},
 			false,
 		},
 		{
 			"single original, single invalid requested",
 			fields{
 				"",
-				[]string{"r,get"},
+				[]string{"r:get"},
 				nil,
 			},
 			args{
-				[]string{"r,post"},
+				[]string{"r:post"},
 			},
 			nil,
 			true,
@@ -518,13 +518,13 @@ func TestRestrictions_RestrictPermissions(t *testing.T) {
 			"single original, identical requested",
 			fields{
 				"",
-				[]string{"r,get"},
+				[]string{"r:get"},
 				nil,
 			},
 			args{
-				[]string{"r,get"},
+				[]string{"r:get"},
 			},
-			[]string{"r,get"},
+			[]string{"r:get"},
 			false,
 		},
 
@@ -532,24 +532,24 @@ func TestRestrictions_RestrictPermissions(t *testing.T) {
 			"single original, dual valid requested",
 			fields{
 				"",
-				[]string{"r,get,post"},
+				[]string{"r:get,post"},
 				nil,
 			},
 			args{
-				[]string{"r,get", "r,post"},
+				[]string{"r:get", "r:post"},
 			},
-			[]string{"r,get", "r,post"},
+			[]string{"r:get", "r:post"},
 			false,
 		},
 		{
 			"single original, dual invalid requested",
 			fields{
 				"",
-				[]string{"r,get"},
+				[]string{"r:get"},
 				nil,
 			},
 			args{
-				[]string{"r,post", "r,put"},
+				[]string{"r:post", "r:put"},
 			},
 			nil,
 			true,
@@ -558,11 +558,11 @@ func TestRestrictions_RestrictPermissions(t *testing.T) {
 			"single original, one valid and one invalid requested",
 			fields{
 				"",
-				[]string{"r,get"},
+				[]string{"r:get"},
 				nil,
 			},
 			args{
-				[]string{"r,get", "r,delete"},
+				[]string{"r:get", "r:delete"},
 			},
 			nil,
 			true,
@@ -572,24 +572,24 @@ func TestRestrictions_RestrictPermissions(t *testing.T) {
 			"dual original, dual valid requested",
 			fields{
 				"",
-				[]string{"r1,get,post", "r2,get,post"},
+				[]string{"r1:get,post", "r2:get,post"},
 				nil,
 			},
 			args{
-				[]string{"r1,get", "r2,post"},
+				[]string{"r1:get", "r2:post"},
 			},
-			[]string{"r1,get", "r2,post"},
+			[]string{"r1:get", "r2:post"},
 			false,
 		},
 		{
 			"dual original, dual invalid requested",
 			fields{
 				"",
-				[]string{"r1,get", "r2,get,post"},
+				[]string{"r1:get", "r2:get,post"},
 				nil,
 			},
 			args{
-				[]string{"r1,delete", "r2,delete"},
+				[]string{"r1:delete", "r2:delete"},
 			},
 			nil,
 			true,
@@ -598,11 +598,11 @@ func TestRestrictions_RestrictPermissions(t *testing.T) {
 			"dual original, one valid and one invalid requested",
 			fields{
 				"",
-				[]string{"r1,get,post", "r2,get,post"},
+				[]string{"r1:get,post", "r2:get,post"},
 				nil,
 			},
 			args{
-				[]string{"r1,get", "r2,delete"},
+				[]string{"r1:get", "r2:delete"},
 			},
 			nil,
 			true,

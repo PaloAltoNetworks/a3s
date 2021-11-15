@@ -30,7 +30,7 @@ func TestNewRetriever(t *testing.T) {
 func TestIsAuthorizedWithToken(t *testing.T) {
 
 	var (
-		permSetAllowAll = "*,*"
+		permSetAllowAll = "*:*"
 		permSetOnBla    = "bla"
 		ctx             = context.Background()
 	)
@@ -112,8 +112,8 @@ func TestIsAuthorizedWithToken(t *testing.T) {
 			m.MockRetrieveMany(t, func(mctx manipulate.Context, dest elemental.Identifiables) error {
 				*dest.(*api.AuthorizationsList) = append(
 					*dest.(*api.AuthorizationsList),
-					makeAPIPol([]string{"things,delete"}, nil),
-					makeAPIPol([]string{"things,get"}, nil),
+					makeAPIPol([]string{"things:delete"}, nil),
+					makeAPIPol([]string{"things:get"}, nil),
 				)
 				return nil
 			})
@@ -252,7 +252,7 @@ func TestIsAuthorizedWithToken(t *testing.T) {
 			m.MockRetrieveMany(t, func(mctx manipulate.Context, dest elemental.Identifiables) error {
 				*dest.(*api.AuthorizationsList) = append(
 					*dest.(*api.AuthorizationsList),
-					makeAPIPol([]string{"things,get"}, nil),
+					makeAPIPol([]string{"things:get"}, nil),
 				)
 				return nil
 			})
@@ -268,7 +268,7 @@ func TestIsAuthorizedWithToken(t *testing.T) {
 			m.MockRetrieveMany(t, func(mctx manipulate.Context, dest elemental.Identifiables) error {
 				*dest.(*api.AuthorizationsList) = append(
 					*dest.(*api.AuthorizationsList),
-					makeAPIPol([]string{"things,get"}, []string{"10.0.0.0/8", "11.0.0.0/8"}),
+					makeAPIPol([]string{"things:get"}, []string{"10.0.0.0/8", "11.0.0.0/8"}),
 				)
 				return nil
 			})
@@ -286,7 +286,7 @@ func TestIsAuthorizedWithToken(t *testing.T) {
 			m.MockRetrieveMany(t, func(mctx manipulate.Context, dest elemental.Identifiables) error {
 				*dest.(*api.AuthorizationsList) = append(
 					*dest.(*api.AuthorizationsList),
-					makeAPIPol([]string{"things,get"}, []string{"10.0.0.0/8", "11.0.0.0/8"}),
+					makeAPIPol([]string{"things:get"}, []string{"10.0.0.0/8", "11.0.0.0/8"}),
 				)
 				return nil
 			})
@@ -304,7 +304,7 @@ func TestIsAuthorizedWithToken(t *testing.T) {
 			m.MockRetrieveMany(t, func(mctx manipulate.Context, dest elemental.Identifiables) error {
 				*dest.(*api.AuthorizationsList) = append(
 					*dest.(*api.AuthorizationsList),
-					makeAPIPol([]string{"things,get"}, []string{"10.0.0.0/8", "11.0.0.0/8"}),
+					makeAPIPol([]string{"things:get"}, []string{"10.0.0.0/8", "11.0.0.0/8"}),
 				)
 				return nil
 			})
@@ -323,7 +323,7 @@ func TestIsAuthorizedWithToken(t *testing.T) {
 			m.MockRetrieveMany(t, func(mctx manipulate.Context, dest elemental.Identifiables) error {
 				*dest.(*api.AuthorizationsList) = append(
 					*dest.(*api.AuthorizationsList),
-					makeAPIPol([]string{"things,get"}, []string{"dawf"}),
+					makeAPIPol([]string{"things:get"}, []string{"dawf"}),
 				)
 				return nil
 			})
@@ -503,7 +503,7 @@ func TestIsAuthorizedWithToken(t *testing.T) {
 			m.MockRetrieveMany(t, func(mctx manipulate.Context, dest elemental.Identifiables) error {
 				*dest.(*api.AuthorizationsList) = append(
 					*dest.(*api.AuthorizationsList),
-					makeAPIPol([]string{"things,get:xyz,abc"}, nil),
+					makeAPIPol([]string{"things:get:xyz,abc"}, nil),
 				)
 				return nil
 			})
@@ -519,7 +519,7 @@ func TestIsAuthorizedWithToken(t *testing.T) {
 			m.MockRetrieveMany(t, func(mctx manipulate.Context, dest elemental.Identifiables) error {
 				*dest.(*api.AuthorizationsList) = append(
 					*dest.(*api.AuthorizationsList),
-					makeAPIPol([]string{"things,get:xyz,abc"}, nil),
+					makeAPIPol([]string{"things:get:xyz,abc"}, nil),
 				)
 				return nil
 			})
@@ -537,7 +537,7 @@ func TestIsAuthorizedWithToken(t *testing.T) {
 			m.MockRetrieveMany(t, func(mctx manipulate.Context, dest elemental.Identifiables) error {
 				*dest.(*api.AuthorizationsList) = append(
 					*dest.(*api.AuthorizationsList),
-					makeAPIPol([]string{"things,get:xyz,abc"}, nil),
+					makeAPIPol([]string{"things:get:xyz,abc"}, nil),
 				)
 				return nil
 			})
@@ -555,9 +555,9 @@ func TestIsAuthorizedWithToken(t *testing.T) {
 func TestPermissionsWithToken(t *testing.T) {
 
 	var (
-		testrole1 = "stuff,*"
-		testrole2 = "*,*"
-		testrole3 = "bla,get,post,put"
+		testrole1 = "stuff:*"
+		testrole2 = "*:*"
+		testrole3 = "bla:get,post,put"
 		ctx       = context.Background()
 	)
 
@@ -634,7 +634,7 @@ func TestPermissionsWithToken(t *testing.T) {
 			m.MockRetrieveMany(t, func(mctx manipulate.Context, dest elemental.Identifiables) error {
 				*dest.(*api.AuthorizationsList) = append(
 					*dest.(*api.AuthorizationsList),
-					makeAPIPol([]string{"r1,get,post", "r2,put"}, nil),
+					makeAPIPol([]string{"r1:get,post", "r2:put"}, nil),
 				)
 				return nil
 			})
