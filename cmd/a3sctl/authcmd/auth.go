@@ -2,9 +2,11 @@ package authcmd
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/hokaccha/go-prettyjson"
+	"github.com/mdp/qrterminal"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"go.aporeto.io/a3s/pkgs/api"
@@ -26,6 +28,7 @@ func New(mmaker manipcli.ManipulatorMaker) *cobra.Command {
 	rootCmd.PersistentFlags().String("source-name", "default", "The name of the auth source.")
 	rootCmd.PersistentFlags().String("source-namespace", "/", "The namespace of the auth source.")
 	rootCmd.PersistentFlags().StringSlice("cloak", nil, "Cloak identity claims. Only claims with a prefix matching of of the given string will be used in the token.")
+	rootCmd.PersistentFlags().Bool("qrcode", false, "If passed, display the token as a QR code.")
 	viper.BindPFlags(rootCmd.Flags())
 
 	checkCmd := &cobra.Command{
@@ -75,6 +78,7 @@ func New(mmaker manipcli.ManipulatorMaker) *cobra.Command {
 			fSourceNamespace := viper.GetString("source-namespace")
 			fAudience := viper.GetStringSlice("audience")
 			fCloak := viper.GetStringSlice("cloak")
+			fQRCode := viper.GetBool("qrcode")
 
 			cert, key, err := tglib.ReadCertificatePEM(fCert, fKey, fPass)
 			if err != nil {
@@ -102,7 +106,7 @@ func New(mmaker manipcli.ManipulatorMaker) *cobra.Command {
 				return err
 			}
 
-			fmt.Println(iss.Token)
+			printToken(iss.Token, fQRCode)
 
 			return nil
 		},
@@ -127,6 +131,7 @@ func New(mmaker manipcli.ManipulatorMaker) *cobra.Command {
 			fUser := viper.GetString("user")
 			fPass := viper.GetString("pass")
 			fCloak := viper.GetStringSlice("cloak")
+			fQRCode := viper.GetBool("qrcode")
 
 			iss := api.NewIssue()
 			iss.SourceType = api.IssueSourceTypeLDAP
@@ -148,7 +153,7 @@ func New(mmaker manipcli.ManipulatorMaker) *cobra.Command {
 				return err
 			}
 
-			fmt.Println(iss.Token)
+			printToken(iss.Token, fQRCode)
 
 			return nil
 		},
@@ -166,4 +171,26 @@ func New(mmaker manipcli.ManipulatorMaker) *cobra.Command {
 	)
 
 	return rootCmd
+}
+
+func printToken(token string, qrCode bool) {
+
+	if !qrCode {
+		fmt.Println(token)
+		return
+	}
+
+	qrterminal.GenerateWithConfig(
+		token,
+		qrterminal.Config{
+			Writer:         os.Stdout,
+			Level:          qrterminal.M,
+			HalfBlocks:     true,
+			QuietZone:      1,
+			BlackChar:      qrterminal.BLACK_BLACK,
+			WhiteBlackChar: qrterminal.WHITE_BLACK,
+			WhiteChar:      qrterminal.WHITE_WHITE,
+			BlackWhiteChar: qrterminal.BLACK_WHITE,
+		},
+	)
 }
