@@ -10,6 +10,7 @@ import (
 	"os"
 	"strings"
 
+	"go.aporeto.io/a3s/internal/hasher"
 	"go.aporeto.io/a3s/internal/processors"
 	"go.aporeto.io/a3s/pkgs/api"
 	"go.aporeto.io/a3s/pkgs/authenticator"
@@ -48,7 +49,7 @@ func main() {
 		defer close()
 	}
 
-	m := bootstrap.MakeMongoManipulator(cfg.MongoConf)
+	m := bootstrap.MakeMongoManipulator(cfg.MongoConf, &hasher.Hasher{})
 	if err := indexes.Ensure(m, api.Manager(), "a3s"); err != nil {
 		zap.L().Fatal("Unable to ensure indexes", zap.Error(err))
 	}

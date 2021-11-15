@@ -20,7 +20,7 @@ func TestNewPushDispatcher(t *testing.T) {
 
 		m := maniptest.NewTestManipulator()
 		p := bahamut.NewLocalPubSubClient()
-		p.Connect(context.Background())
+		_ = p.Connect(context.Background())
 		r := permissions.NewRetriever(m)
 		a := New(context.Background(), r, p)
 		h := NewPushDispatchHandler(m, a)
@@ -39,7 +39,7 @@ func TestOnPushSessionInit(t *testing.T) {
 
 		m := maniptest.NewTestManipulator()
 		p := bahamut.NewLocalPubSubClient()
-		p.Connect(context.Background())
+		_ = p.Connect(context.Background())
 		r := permissions.NewMockRetriever()
 		a := New(context.Background(), r, p)
 		h := NewPushDispatchHandler(m, a)
@@ -121,7 +121,7 @@ func TestSummarizeEvent(t *testing.T) {
 
 		m := maniptest.NewTestManipulator()
 		p := bahamut.NewLocalPubSubClient()
-		p.Connect(context.Background())
+		_ = p.Connect(context.Background())
 		r := permissions.NewMockRetriever()
 		a := New(context.Background(), r, p)
 		h := NewPushDispatchHandler(m, a)
@@ -155,7 +155,7 @@ func TestShouldDispatch(t *testing.T) {
 
 		m := maniptest.NewTestManipulator()
 		p := bahamut.NewLocalPubSubClient()
-		p.Connect(context.Background())
+		_ = p.Connect(context.Background())
 		r := permissions.NewMockRetriever()
 		a := New(context.Background(), r, p)
 		h := NewPushDispatchHandler(m, a)

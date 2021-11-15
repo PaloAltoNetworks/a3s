@@ -52,7 +52,7 @@ func MakeNATSClient(cfg conf.NATSConf) bahamut.PubSubClient {
 // MakeMongoManipulator returns a configured mongo manipulator.
 // This function is not meant to be used outside of the platform. It will fatal
 // anytime it feels like it.
-func MakeMongoManipulator(cfg conf.MongoConf, additionalOptions ...manipmongo.Option) manipulate.TransactionalManipulator {
+func MakeMongoManipulator(cfg conf.MongoConf, hasher sharder.Hasher, additionalOptions ...manipmongo.Option) manipulate.TransactionalManipulator {
 
 	var consistency manipulate.ReadConsistency
 	switch cfg.MongoConsistency {
@@ -76,7 +76,7 @@ func MakeMongoManipulator(cfg conf.MongoConf, additionalOptions ...manipmongo.Op
 			manipmongo.OptionConnectionPoolLimit(cfg.MongoPoolSize),
 			manipmongo.OptionDefaultReadConsistencyMode(consistency),
 			manipmongo.OptionTranslateKeysFromModelManager(api.Manager()),
-			manipmongo.OptionSharder(sharder.New()),
+			manipmongo.OptionSharder(sharder.New(hasher)),
 			manipmongo.OptionDefaultRetryFunc(func(i manipulate.RetryInfo) error {
 				info := i.(manipmongo.RetryInfo)
 				zap.L().Debug("mongo manipulator retry",

@@ -8,6 +8,7 @@ import (
 
 	"github.com/globalsign/mgo/bson"
 	. "github.com/smartystreets/goconvey/convey"
+	"github.com/spaolacci/murmur3"
 	"go.aporeto.io/a3s/pkgs/api"
 	"go.aporeto.io/elemental"
 	testmodel "go.aporeto.io/elemental/test/model"
@@ -16,11 +17,49 @@ import (
 	"go.aporeto.io/manipulate/maniptest"
 )
 
+type testHasher struct{}
+
+func (t *testHasher) Zone(identity elemental.Identity) int {
+	return 0
+}
+
+func (t *testHasher) Hash(z Shardable) error {
+
+	z.SetZone(t.Zone(z.Identity()))
+
+	switch oo := z.(type) {
+
+	case *api.Namespace:
+		z.SetZHash(hash(oo.Name))
+	case *api.SparseNamespace:
+		z.SetZHash(hash(*oo.Name))
+
+	case *api.MTLSSource:
+		z.SetZHash(hash(fmt.Sprintf("%s:%s", oo.Namespace, oo.Name)))
+	case *api.SparseMTLSSource:
+		z.SetZHash(hash(fmt.Sprintf("%s:%s", *oo.Namespace, *oo.Name)))
+
+	case *api.LDAPSource:
+		z.SetZHash(hash(fmt.Sprintf("%s:%s", oo.Namespace, oo.Name)))
+	case *api.SparseLDAPSource:
+		z.SetZHash(hash(fmt.Sprintf("%s:%s", *oo.Namespace, *oo.Name)))
+
+	default:
+		z.SetZHash(hash(oo.Identifier()))
+	}
+
+	return nil
+}
+
+func hash(v string) int {
+	return int(murmur3.Sum64([]byte(v)) & 0x7FFFFFFFFFFFFFFF)
+}
+
 func TestShard(t *testing.T) {
 
 	Convey("Given I have a sharder", t, func() {
 
-		s := New()
+		s := New(&testHasher{})
 
 		So(s.OnShardedWrite(nil, nil, elemental.OperationCreate, nil), ShouldBeNil)
 
@@ -109,7 +148,7 @@ func TestFilterOne(t *testing.T) {
 	}{
 		{
 			"zonable with zhash",
-			&sharder{},
+			&sharder{hasher: &testHasher{}},
 			args{
 				maniptest.NewTestManipulator(),
 				manipulate.NewContext(context.Background()),
@@ -123,7 +162,7 @@ func TestFilterOne(t *testing.T) {
 		},
 		{
 			"zonable with no zhash",
-			&sharder{},
+			&sharder{hasher: &testHasher{}},
 			args{
 				maniptest.NewTestManipulator(),
 				manipulate.NewContext(context.Background()),
@@ -137,7 +176,7 @@ func TestFilterOne(t *testing.T) {
 		},
 		{
 			"zonable with zhash and mongo upsert for an Identifiable with custom sharding zhash",
-			&sharder{},
+			&sharder{hasher: &testHasher{}},
 			args{
 				maniptest.NewTestManipulator(),
 				manipulate.NewContext(context.Background(), manipmongo.ContextOptionUpsert(nil)),
@@ -154,7 +193,7 @@ func TestFilterOne(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s := &sharder{}
+			s := &sharder{hasher: &testHasher{}}
 			got, err := s.FilterOne(tt.args.m, tt.args.mctx, tt.args.o)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("sharder.FilterOne() error = %v, wantErr %v", err, tt.wantErr)
@@ -182,7 +221,7 @@ func TestFilterMany(t *testing.T) {
 	}{
 		{
 			"z0",
-			&sharder{},
+			&sharder{hasher: &testHasher{}},
 			args{
 				nil,
 				nil,
@@ -194,7 +233,7 @@ func TestFilterMany(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s := &sharder{}
+			s := &sharder{hasher: &testHasher{}}
 			got, err := s.FilterMany(tt.args.m, tt.args.mctx, tt.args.identity)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("sharder.FilterMany() error = %v, wantErr %v", err, tt.wantErr)

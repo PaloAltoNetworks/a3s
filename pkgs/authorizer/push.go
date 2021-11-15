@@ -135,7 +135,7 @@ func (g *PushDispatchHandler) ShouldDispatch(session bahamut.PushSession, event 
 		session.Claims(),
 		"get",
 		sessionNS,
-		string(event.Identity),
+		event.Identity,
 		OptionCheckRestrictions(restrictions),
 		OptionCheckSourceIP(session.ClientIP()),
 	)
