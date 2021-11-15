@@ -247,6 +247,7 @@ github.com/mitchellh/cli v1.0.0/go.mod h1:hNIlj7HEI86fIcpObd7a0FcrxTWetlwJDGcceT
 github.com/mitchellh/copystructure v1.2.0 h1:vpKXTN4ewci03Vljg/q9QvCGUDttBOGBIa15WveJJGw=
 github.com/mitchellh/copystructure v1.2.0/go.mod h1:qLl+cE2AmVv+CoeAwDPye/v+N2HKCj9FbZEVFJRxO9s=
 github.com/mitchellh/go-homedir v1.0.0/go.mod h1:SfyaCUpYCn1Vlf4IUYiD9fPX4A5wJrkLzIz1N1q0pr0=
+github.com/mitchellh/go-homedir v1.1.0 h1:lukF9ziXFxDFPkA1vsr5zpc1XuPDn/wFntq5mG+4E0Y=
 github.com/mitchellh/go-homedir v1.1.0/go.mod h1:SfyaCUpYCn1Vlf4IUYiD9fPX4A5wJrkLzIz1N1q0pr0=
 github.com/mitchellh/go-testing-interface v1.0.0/go.mod h1:kRemZodwjscx+RGhAo8eIhFbs2+BFgRtFPeD/KE+zxI=
 github.com/mitchellh/go-wordwrap v1.0.0/go.mod h1:ZXFpozHsX6DPmq2I0TCekCxypsnAUbP2oI0UX1GXzOo=
@@ -430,12 +431,6 @@ go.aporeto.io/elemental v1.100.1-0.20211029010343-e264f153acc2 h1:8pdxeWS8/DCDjW
 go.aporeto.io/elemental v1.100.1-0.20211029010343-e264f153acc2/go.mod h1:1WRCDolBBhyTFah5tpf9DNVHaJefug7lV9V9UzPNDAE=
 go.aporeto.io/gaia v1.94.1-0.20210929011522-0c987cd02a79/go.mod h1:lFVigkDQE/hl4780Bd8TAv3dP0DtxbLByssU64eSpNU=
 go.aporeto.io/manipulate v1.121.1-0.20210923215151-405f83f82534/go.mod h1:ntkrA2H2dpjrImjHKHnOL/b4L4jDQ/lE2X9lcWazvPU=
-go.aporeto.io/manipulate v1.121.1-0.20211112224533-14967c3e143e h1:MpJHhp/hSC+hmSLBS6xPYpS7o6Cb6B3MA2S2kkea+aQ=
-go.aporeto.io/manipulate v1.121.1-0.20211112224533-14967c3e143e/go.mod h1:xARNK0W5YLm+IMOS97aLYAaQBG1iVFaUv8IFfU/QUR0=
-go.aporeto.io/manipulate v1.121.1-0.20211113191214-43b752ac0e48 h1:xjOS1EHNUqMFIGHTymvComd7JpdVsq//zG9tbHvkJSo=
-go.aporeto.io/manipulate v1.121.1-0.20211113191214-43b752ac0e48/go.mod h1:xARNK0W5YLm+IMOS97aLYAaQBG1iVFaUv8IFfU/QUR0=
-go.aporeto.io/manipulate v1.121.1-0.20211113192321-b31177f611ce h1:56uBIMQBip5+lCRyaNg9mfUDVyS0xXRoFjG7S4VMmhg=
-go.aporeto.io/manipulate v1.121.1-0.20211113192321-b31177f611ce/go.mod h1:xARNK0W5YLm+IMOS97aLYAaQBG1iVFaUv8IFfU/QUR0=
 go.aporeto.io/manipulate v1.121.1-0.20211114041619-4f940d7c35b0 h1:JrXTZDg4hlTSa5Rembyjw1od2YggSi3T/hv/Lq1rcKs=
 go.aporeto.io/manipulate v1.121.1-0.20211114041619-4f940d7c35b0/go.mod h1:xARNK0W5YLm+IMOS97aLYAaQBG1iVFaUv8IFfU/QUR0=
 go.aporeto.io/regolithe v1.50.1-0.20210528201106-653300479f97/go.mod h1:St1liiK+bGvmDNkVSfOP7iAlQmDkShfEcDZMXmFbyKk=
