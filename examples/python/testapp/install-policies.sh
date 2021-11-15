@@ -95,7 +95,7 @@ echo "Here is a command to get a token for john:"
 echo
 cat <<EOF
 	a3sctl auth mtls \\
-		--api https://127.0.0.1:44443 \\
+		--api $A3SCTL_API \\
 		--api-skip-verify \\
 		--audience testapp \\
 		--source-namespace /testapp \\
@@ -108,7 +108,7 @@ echo "Here is a command to get a token for michael:"
 echo
 cat <<EOF
 	a3sctl auth mtls \\
-		--api https://127.0.0.1:44443 \\
+		--api $A3SCTL_API \\
 		--api-skip-verify \\
 		--audience testapp \\
 		--source-namespace /testapp \\
