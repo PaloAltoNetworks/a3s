@@ -56,7 +56,6 @@ echo
 echo "* Creating authorization for /secret"
 a3sctl api create authorization -n "/testapp" \
 	--name "secret-access" \
-	--target-namespace "/testapp" \
 	--subject '[
 		[
 			"@sourcetype=mtls",
@@ -72,7 +71,6 @@ echo
 echo "* Creating authorization for /topsecret"
 a3sctl api create authorization -n "/testapp" \
 	--name "top-secret-access" \
-	--target-namespace "/testapp" \
 	--subject '[
 		[
 			"@sourcetype=mtls",

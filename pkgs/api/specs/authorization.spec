@@ -30,6 +30,12 @@ indexes:
 # Attributes
 attributes:
   v1:
+  - name: description
+    description: Description of the Authorization.
+    type: string
+    exposed: true
+    stored: true
+
   - name: disabled
     description: Set the authorization to be disabled.
     type: boolean
@@ -56,11 +62,6 @@ attributes:
     required: true
     example_value: my authorization
 
-  - name: description
-    description: Description of the Authorization.
-    type: string
-    exposed: true
-    stored: true
   - name: permissions
     description: A list of permissions.
     type: list
@@ -103,12 +104,12 @@ attributes:
     validations:
     - $cidr_list_optional
 
-  - name: targetNamespace
+  - name: targetNamespaces
     description: |-
       Defines the namespace or namespaces in which the permission for subject should
-      apply.
-    type: string
+      apply. If empty, the object's namespace will be used.
+    type: list
     exposed: true
+    subtype: string
     stored: true
-    required: true
     example_value: /my/namespace

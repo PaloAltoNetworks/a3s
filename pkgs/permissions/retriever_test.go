@@ -40,7 +40,7 @@ func TestIsAuthorizedWithToken(t *testing.T) {
 		apiauth.ID = "1"
 		apiauth.Namespace = "/a"
 		apiauth.Subject = [][]string{{"color=blue"}}
-		apiauth.TargetNamespace = "/a"
+		apiauth.TargetNamespaces = []string{"/a"}
 		apiauth.Permissions = perms
 		apiauth.Subnets = subnets
 		apiauth.FlattenedSubject = flattenTags(apiauth.Subject)
@@ -199,7 +199,7 @@ func TestIsAuthorizedWithToken(t *testing.T) {
 		Convey("When there is a policy matching with a bad targetNs", func() {
 
 			pol := makeAPIPol([]string{permSetAllowAll}, nil)
-			pol.TargetNamespace = "/az/b/c"
+			pol.TargetNamespaces = []string{"/az/b/c"}
 
 			m.MockRetrieveMany(t, func(mctx manipulate.Context, dest elemental.Identifiables) error {
 				*dest.(*api.AuthorizationsList) = append(
@@ -566,7 +566,7 @@ func TestPermissionsWithToken(t *testing.T) {
 		apiauth.ID = "1"
 		apiauth.Namespace = "/a"
 		apiauth.Subject = [][]string{{"color=blue"}}
-		apiauth.TargetNamespace = "/"
+		apiauth.TargetNamespaces = []string{"/"}
 		apiauth.Permissions = perms
 		apiauth.Subnets = subnets
 		apiauth.FlattenedSubject = flattenTags(apiauth.Subject)

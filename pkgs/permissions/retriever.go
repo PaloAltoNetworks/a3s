@@ -70,8 +70,15 @@ func (a *retriever) Permissions(ctx context.Context, claims []string, ns string,
 			continue
 		}
 
-		targetNS := p.TargetNamespace
-		if ns != targetNS && !elemental.IsNamespaceChildrenOfNamespace(ns, targetNS) {
+		var nsMatch bool
+		for _, targetNS := range p.TargetNamespaces {
+			if ns == targetNS || elemental.IsNamespaceChildrenOfNamespace(ns, targetNS) {
+				nsMatch = true
+				break
+			}
+		}
+
+		if !nsMatch {
 			continue
 		}
 

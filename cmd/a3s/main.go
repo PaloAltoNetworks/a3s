@@ -238,7 +238,7 @@ func initRootPermissions(ctx context.Context, m manipulate.Manipulator, caPath s
 	}
 	auth.FlattenedSubject = auth.Subject[0]
 	auth.Permissions = []string{"*:*"}
-	auth.TargetNamespace = "/"
+	auth.TargetNamespaces = []string{"/"}
 	auth.Hidden = true
 
 	if err := m.Create(manipulate.NewContext(ctx), auth); err != nil {

@@ -88,6 +88,10 @@ func (p *AuthorizationsProcessor) makePreHook(ctx bahamut.Context) crud.PreWrite
 		auth := obj.(*api.Authorization)
 		auth.FlattenedSubject = flattenTags(auth.Subject)
 
+		if len(auth.TargetNamespaces) == 0 {
+			auth.TargetNamespaces = []string{ctx.Request().Namespace}
+		}
+
 		req := ctx.Request()
 		token := token.FromRequest(req)
 
@@ -117,34 +121,36 @@ func (p *AuthorizationsProcessor) makePreHook(ctx bahamut.Context) crud.PreWrite
 			)
 		}
 
-		return validatePolicyTargetNamespace(auth.TargetNamespace, ctx.Request().Namespace)
+		return validatePolicyTargetNamespace(auth.TargetNamespaces, ctx.Request().Namespace)
 	}
 }
 
-func validatePolicyTargetNamespace(targetNamespace string, requestNamespace string) error {
+func validatePolicyTargetNamespace(targetNamespaces []string, requestNamespace string) error {
 
-	if targetNamespace == requestNamespace {
-		return nil
-	}
+	for _, targetNamespace := range targetNamespaces {
+		if targetNamespace == requestNamespace {
+			return nil
+		}
 
-	if elemental.IsNamespaceParentOfNamespace(targetNamespace, requestNamespace) {
-		return elemental.NewErrorWithData(
-			"Invalid Target Namespace",
-			"You cannot set TargetNamespace to a parent namespace",
-			"gaia",
-			http.StatusUnprocessableEntity,
-			map[string]interface{}{"attribute": "targetNamespace"},
-		)
-	}
+		if elemental.IsNamespaceParentOfNamespace(targetNamespace, requestNamespace) {
+			return elemental.NewErrorWithData(
+				"Invalid Target Namespace",
+				"You cannot set a target namespace to a parent namespace",
+				"gaia",
+				http.StatusUnprocessableEntity,
+				map[string]interface{}{"attribute": "targetNamespaces"},
+			)
+		}
 
-	if !elemental.IsNamespaceChildrenOfNamespace(targetNamespace, requestNamespace) {
-		return elemental.NewErrorWithData(
-			"Invalid Target Namespace",
-			"You cannot set TargetNamespace to a sibling namespace",
-			"gaia",
-			http.StatusUnprocessableEntity,
-			map[string]interface{}{"attribute": "targetNamespace"},
-		)
+		if !elemental.IsNamespaceChildrenOfNamespace(targetNamespace, requestNamespace) {
+			return elemental.NewErrorWithData(
+				"Invalid Target Namespace",
+				"You cannot set a target namespace to a sibling namespace",
+				"gaia",
+				http.StatusUnprocessableEntity,
+				map[string]interface{}{"attribute": "targetNamespaces"},
+			)
+		}
 	}
 
 	return nil

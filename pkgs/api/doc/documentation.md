@@ -652,7 +652,7 @@ TODO.
     "namespace,get,post,put",
     "authorization,get:1234567890"
   ],
-  "targetNamespace": "/my/namespace"
+  "targetNamespaces": "/my/namespace"
 }
 ```
 
@@ -743,12 +743,12 @@ Type: `[]string`
 If set, the API authorization will only be valid if the request comes from one
 the declared subnets.
 
-##### `targetNamespace` [`required`]
+##### `targetNamespaces`
 
-Type: `string`
+Type: `[]string`
 
 Defines the namespace or namespaces in which the permission for subject should
-apply.
+apply. If empty, the object's namespace will be used.
 
 ### Namespace
 

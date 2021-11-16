@@ -115,8 +115,8 @@ type Authorization struct {
 	Subnets []string `json:"subnets" msgpack:"subnets" bson:"subnets" mapstructure:"subnets,omitempty"`
 
 	// Defines the namespace or namespaces in which the permission for subject should
-	// apply.
-	TargetNamespace string `json:"targetNamespace" msgpack:"targetNamespace" bson:"targetnamespace" mapstructure:"targetNamespace,omitempty"`
+	// apply. If empty, the object's namespace will be used.
+	TargetNamespaces []string `json:"targetNamespaces" msgpack:"targetNamespaces" bson:"targetnamespaces" mapstructure:"targetNamespaces,omitempty"`
 
 	// Hash of the object used to shard the data.
 	ZHash int `json:"-" msgpack:"-" bson:"zhash" mapstructure:"-,omitempty"`
@@ -137,6 +137,7 @@ func NewAuthorization() *Authorization {
 		Propagate:        true,
 		Subject:          [][]string{},
 		Subnets:          []string{},
+		TargetNamespaces: []string{},
 	}
 }
 
@@ -181,7 +182,7 @@ func (o *Authorization) GetBSON() (interface{}, error) {
 	s.Propagate = o.Propagate
 	s.Subject = o.Subject
 	s.Subnets = o.Subnets
-	s.TargetNamespace = o.TargetNamespace
+	s.TargetNamespaces = o.TargetNamespaces
 	s.ZHash = o.ZHash
 	s.Zone = o.Zone
 
@@ -212,7 +213,7 @@ func (o *Authorization) SetBSON(raw bson.Raw) error {
 	o.Propagate = s.Propagate
 	o.Subject = s.Subject
 	o.Subnets = s.Subnets
-	o.TargetNamespace = s.TargetNamespace
+	o.TargetNamespaces = s.TargetNamespaces
 	o.ZHash = s.ZHash
 	o.Zone = s.Zone
 
@@ -326,7 +327,7 @@ func (o *Authorization) ToSparse(fields ...string) elemental.SparseIdentifiable 
 			Propagate:        &o.Propagate,
 			Subject:          &o.Subject,
 			Subnets:          &o.Subnets,
-			TargetNamespace:  &o.TargetNamespace,
+			TargetNamespaces: &o.TargetNamespaces,
 			ZHash:            &o.ZHash,
 			Zone:             &o.Zone,
 		}
@@ -357,8 +358,8 @@ func (o *Authorization) ToSparse(fields ...string) elemental.SparseIdentifiable 
 			sp.Subject = &(o.Subject)
 		case "subnets":
 			sp.Subnets = &(o.Subnets)
-		case "targetNamespace":
-			sp.TargetNamespace = &(o.TargetNamespace)
+		case "targetNamespaces":
+			sp.TargetNamespaces = &(o.TargetNamespaces)
 		case "zHash":
 			sp.ZHash = &(o.ZHash)
 		case "zone":
@@ -409,8 +410,8 @@ func (o *Authorization) Patch(sparse elemental.SparseIdentifiable) {
 	if so.Subnets != nil {
 		o.Subnets = *so.Subnets
 	}
-	if so.TargetNamespace != nil {
-		o.TargetNamespace = *so.TargetNamespace
+	if so.TargetNamespaces != nil {
+		o.TargetNamespaces = *so.TargetNamespaces
 	}
 	if so.ZHash != nil {
 		o.ZHash = *so.ZHash
@@ -469,10 +470,6 @@ func (o *Authorization) Validate() error {
 		errors = errors.Append(err)
 	}
 
-	if err := elemental.ValidateRequiredString("targetNamespace", o.TargetNamespace); err != nil {
-		requiredErrors = requiredErrors.Append(err)
-	}
-
 	if len(requiredErrors) > 0 {
 		return requiredErrors
 	}
@@ -529,8 +526,8 @@ func (o *Authorization) ValueForAttribute(name string) interface{} {
 		return o.Subject
 	case "subnets":
 		return o.Subnets
-	case "targetNamespace":
-		return o.TargetNamespace
+	case "targetNamespaces":
+		return o.TargetNamespaces
 	case "zHash":
 		return o.ZHash
 	case "zone":
@@ -672,17 +669,17 @@ the declared subnets.`,
 		SubType: "string",
 		Type:    "list",
 	},
-	"TargetNamespace": {
+	"TargetNamespaces": {
 		AllowedChoices: []string{},
-		BSONFieldName:  "targetnamespace",
-		ConvertedName:  "TargetNamespace",
+		BSONFieldName:  "targetnamespaces",
+		ConvertedName:  "TargetNamespaces",
 		Description: `Defines the namespace or namespaces in which the permission for subject should
-apply.`,
-		Exposed:  true,
-		Name:     "targetNamespace",
-		Required: true,
-		Stored:   true,
-		Type:     "string",
+apply. If empty, the object's namespace will be used.`,
+		Exposed: true,
+		Name:    "targetNamespaces",
+		Stored:  true,
+		SubType: "string",
+		Type:    "list",
 	},
 	"ZHash": {
 		AllowedChoices: []string{},
@@ -845,17 +842,17 @@ the declared subnets.`,
 		SubType: "string",
 		Type:    "list",
 	},
-	"targetnamespace": {
+	"targetnamespaces": {
 		AllowedChoices: []string{},
-		BSONFieldName:  "targetnamespace",
-		ConvertedName:  "TargetNamespace",
+		BSONFieldName:  "targetnamespaces",
+		ConvertedName:  "TargetNamespaces",
 		Description: `Defines the namespace or namespaces in which the permission for subject should
-apply.`,
-		Exposed:  true,
-		Name:     "targetNamespace",
-		Required: true,
-		Stored:   true,
-		Type:     "string",
+apply. If empty, the object's namespace will be used.`,
+		Exposed: true,
+		Name:    "targetNamespaces",
+		Stored:  true,
+		SubType: "string",
+		Type:    "list",
 	},
 	"zhash": {
 		AllowedChoices: []string{},
@@ -984,8 +981,8 @@ type SparseAuthorization struct {
 	Subnets *[]string `json:"subnets,omitempty" msgpack:"subnets,omitempty" bson:"subnets,omitempty" mapstructure:"subnets,omitempty"`
 
 	// Defines the namespace or namespaces in which the permission for subject should
-	// apply.
-	TargetNamespace *string `json:"targetNamespace,omitempty" msgpack:"targetNamespace,omitempty" bson:"targetnamespace,omitempty" mapstructure:"targetNamespace,omitempty"`
+	// apply. If empty, the object's namespace will be used.
+	TargetNamespaces *[]string `json:"targetNamespaces,omitempty" msgpack:"targetNamespaces,omitempty" bson:"targetnamespaces,omitempty" mapstructure:"targetNamespaces,omitempty"`
 
 	// Hash of the object used to shard the data.
 	ZHash *int `json:"-" msgpack:"-" bson:"zhash,omitempty" mapstructure:"-,omitempty"`
@@ -1069,8 +1066,8 @@ func (o *SparseAuthorization) GetBSON() (interface{}, error) {
 	if o.Subnets != nil {
 		s.Subnets = o.Subnets
 	}
-	if o.TargetNamespace != nil {
-		s.TargetNamespace = o.TargetNamespace
+	if o.TargetNamespaces != nil {
+		s.TargetNamespaces = o.TargetNamespaces
 	}
 	if o.ZHash != nil {
 		s.ZHash = o.ZHash
@@ -1127,8 +1124,8 @@ func (o *SparseAuthorization) SetBSON(raw bson.Raw) error {
 	if s.Subnets != nil {
 		o.Subnets = s.Subnets
 	}
-	if s.TargetNamespace != nil {
-		o.TargetNamespace = s.TargetNamespace
+	if s.TargetNamespaces != nil {
+		o.TargetNamespaces = s.TargetNamespaces
 	}
 	if s.ZHash != nil {
 		o.ZHash = s.ZHash
@@ -1183,8 +1180,8 @@ func (o *SparseAuthorization) ToPlain() elemental.PlainIdentifiable {
 	if o.Subnets != nil {
 		out.Subnets = *o.Subnets
 	}
-	if o.TargetNamespace != nil {
-		out.TargetNamespace = *o.TargetNamespace
+	if o.TargetNamespaces != nil {
+		out.TargetNamespaces = *o.TargetNamespaces
 	}
 	if o.ZHash != nil {
 		out.ZHash = *o.ZHash
@@ -1312,7 +1309,7 @@ type mongoAttributesAuthorization struct {
 	Propagate        bool          `bson:"propagate"`
 	Subject          [][]string    `bson:"subject"`
 	Subnets          []string      `bson:"subnets"`
-	TargetNamespace  string        `bson:"targetnamespace"`
+	TargetNamespaces []string      `bson:"targetnamespaces"`
 	ZHash            int           `bson:"zhash"`
 	Zone             int           `bson:"zone"`
 }
@@ -1328,7 +1325,7 @@ type mongoAttributesSparseAuthorization struct {
 	Propagate        *bool         `bson:"propagate,omitempty"`
 	Subject          *[][]string   `bson:"subject,omitempty"`
 	Subnets          *[]string     `bson:"subnets,omitempty"`
-	TargetNamespace  *string       `bson:"targetnamespace,omitempty"`
+	TargetNamespaces *[]string     `bson:"targetnamespaces,omitempty"`
 	ZHash            *int          `bson:"zhash,omitempty"`
 	Zone             *int          `bson:"zone,omitempty"`
 }
