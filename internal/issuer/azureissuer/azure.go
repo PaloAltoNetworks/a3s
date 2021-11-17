@@ -1,4 +1,4 @@
-package issuer
+package azureissuer
 
 import (
 	"context"
@@ -10,57 +10,43 @@ import (
 )
 
 const (
-	azureCertURL  = "https://login.microsoftonline.com/common/discovery/keys"
-	azureAudience = "https://management.azure.com/"
-	azureIssuer   = "https://sts.windows.net/65888785-a93c-4c8f-89eb-d42bf7d03244/"
+	azureJWTCertURL  = "https://login.microsoftonline.com/common/discovery/keys"
+	azureJWTAudience = "https://management.azure.com/"
+	azureJWTIssuer   = "https://sts.windows.net/65888785-a93c-4c8f-89eb-d42bf7d03244/"
 )
 
-// ErrAzure represents an error that happened
-// during operation related to Azure.
-type ErrAzure struct {
-	Err error
+func New(ctx context.Context, tokenString string) (token.Issuer, error) {
+
+	c := newAzureIssuer()
+	if err := c.fromToken(ctx, tokenString); err != nil {
+		return nil, err
+	}
+
+	return c, nil
 }
 
-func (e ErrAzure) Error() string {
-	return fmt.Sprintf("azure error: %s", e.Err)
-}
-
-func (e ErrAzure) Unwrap() error {
-	return e.Err
-}
-
-type azureJWT struct {
-	AIO      string `json:"aio"`
-	AppID    string `json:"appid"`
-	AppIDAcr string `json:"appidacr"`
-	IDP      string `json:"idp"`
-	OID      string `json:"oid"`
-	RH       string `json:"rh"`
-	TID      string `json:"tid"`
-	UTI      string `json:"uti"`
-	XmsMIRID string `json:"xms_mirid"`
-}
-
-// An AzureIssuer issues an IdentityToken from
-// an existing valid Azure token.
-type AzureIssuer struct {
+type azureIssuer struct {
 	token *token.IdentityToken
 }
 
-// NewAzureIssuer returns a new AzureIssuer.
-func NewAzureIssuer() *AzureIssuer {
-	return &AzureIssuer{
+func newAzureIssuer() *azureIssuer {
+	return &azureIssuer{
 		token: token.NewIdentityToken(token.Source{
 			Type: "azure",
 		}),
 	}
 }
 
-// FromAzureToken computes and verifies the given azure token.
-func (c *AzureIssuer) FromAzureToken(ctx context.Context, tokenString string) (err error) {
+// Issue returns the IdentityToken.
+func (c *azureIssuer) Issue() *token.IdentityToken {
 
-	ks := oidc.NewRemoteKeySet(ctx, azureCertURL)
-	verifier := oidc.NewVerifier(azureIssuer, ks, &oidc.Config{ClientID: azureAudience})
+	return c.token
+}
+
+func (c *azureIssuer) fromToken(ctx context.Context, tokenString string) (err error) {
+
+	ks := oidc.NewRemoteKeySet(ctx, azureJWTCertURL)
+	verifier := oidc.NewVerifier(azureJWTIssuer, ks, &oidc.Config{ClientID: azureJWTAudience})
 	idt, err := verifier.Verify(ctx, tokenString)
 	if err != nil {
 		return ErrAzure{Err: err}
@@ -74,12 +60,6 @@ func (c *AzureIssuer) FromAzureToken(ctx context.Context, tokenString string) (e
 	c.token.Identity = computeAzureClaims(atoken)
 
 	return nil
-}
-
-// Issue returns the IdentityToken.
-func (c *AzureIssuer) Issue() *token.IdentityToken {
-
-	return c.token
 }
 
 func computeAzureClaims(token azureJWT) []string {

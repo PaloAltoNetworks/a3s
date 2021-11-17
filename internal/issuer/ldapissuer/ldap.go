@@ -1,4 +1,4 @@
-package issuer
+package ldapissuer
 
 import (
 	"crypto/tls"
@@ -11,31 +11,24 @@ import (
 	"go.aporeto.io/a3s/pkgs/token"
 )
 
-// An ErrLDAP represents an error that can occur
-// during interactions with an LDAP server.
-type ErrLDAP struct {
-	Err error
+func New(source *api.LDAPSource, username string, password string) (token.Issuer, error) {
+
+	c := newLDAPIssuer(source)
+	if err := c.fromCredentials(username, password); err != nil {
+		return nil, err
+	}
+
+	return c, nil
 }
 
-func (e ErrLDAP) Error() string {
-	return fmt.Sprintf("ldap error: %s", e.Err)
-}
-
-func (e ErrLDAP) Unwrap() error {
-	return e.Err
-}
-
-// An LDAPIssuer issues identity token from an
-// LDAP authentication sources.
-type LDAPIssuer struct {
+type ldapIssuer struct {
 	token  *token.IdentityToken
 	source *api.LDAPSource
 }
 
-// NewLDAPIssuer returns a new LDAPIssuer.
-func NewLDAPIssuer(source *api.LDAPSource) *LDAPIssuer {
+func newLDAPIssuer(source *api.LDAPSource) *ldapIssuer {
 
-	return &LDAPIssuer{
+	return &ldapIssuer{
 		source: source,
 		token: token.NewIdentityToken(token.Source{
 			Type:      "ldap",
@@ -45,8 +38,12 @@ func NewLDAPIssuer(source *api.LDAPSource) *LDAPIssuer {
 	}
 }
 
-// FromCredentials computes the claims information based on the provided username and password.
-func (c *LDAPIssuer) FromCredentials(username string, password string) (err error) {
+func (c *ldapIssuer) Issue() *token.IdentityToken {
+
+	return c.token
+}
+
+func (c *ldapIssuer) fromCredentials(username string, password string) (err error) {
 
 	entry, dn, err := c.retrieveEntry(username, password)
 	if err != nil {
@@ -60,13 +57,7 @@ func (c *LDAPIssuer) FromCredentials(username string, password string) (err erro
 	return nil
 }
 
-// Issue issues the identity token.
-func (c *LDAPIssuer) Issue() *token.IdentityToken {
-
-	return c.token
-}
-
-func (c *LDAPIssuer) retrieveEntry(username string, password string) (*ldap.Entry, *ldap.DN, error) {
+func (c *ldapIssuer) retrieveEntry(username string, password string) (*ldap.Entry, *ldap.DN, error) {
 
 	var err error
 

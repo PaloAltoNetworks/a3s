@@ -1,4 +1,4 @@
-package issuer
+package mtlsissuer
 
 import (
 	"crypto"
@@ -87,13 +87,13 @@ func TestMTLSIssuer(t *testing.T) {
 			src.Name = "mysource"
 			src.Namespace = "/my/ns"
 			src.CertificateAuthority = string(pem.EncodeToMemory(block))
-			iss := NewMTLSIssuer(src)
+			iss := newMTLSIssuer(src)
 			So(iss.token, ShouldNotBeNil)
 			So(iss.source, ShouldEqual, src)
 
 			Convey("Calling FromCertificate with a valid user cert should work", func() {
 
-				err := iss.FromCertificate(usercert1)
+				err := iss.fromCertificate(usercert1)
 				So(err, ShouldBeNil)
 
 				Convey("Calling Issue should work", func() {
@@ -124,7 +124,7 @@ func TestMTLSIssuer(t *testing.T) {
 
 			Convey("Calling FromCertificate with a invalid user cert should work", func() {
 
-				err := iss.FromCertificate(usercert2)
+				err := iss.fromCertificate(usercert2)
 				So(err, ShouldNotBeNil)
 				So(err.Error(), ShouldStartWith, "unable Verify certificate: x509: certificate signed by unknown authority")
 			})

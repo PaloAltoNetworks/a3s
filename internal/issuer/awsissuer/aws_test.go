@@ -1,4 +1,4 @@
-package issuer
+package awsissuer
 
 import (
 	"fmt"
@@ -22,17 +22,17 @@ func TestErrAWSSTS(t *testing.T) {
 
 func TestNewAWSSTSIssuer(t *testing.T) {
 	Convey("Calling NewAWSSTSIssuer should work", t, func() {
-		iss := NewAWSSTSIssuer()
+		iss := newAWSIssuer()
 		So(iss.token, ShouldNotBeNil)
-		So(iss.token.Source.Type, ShouldEqual, "awssts")
+		So(iss.token.Source.Type, ShouldEqual, "aws")
 		So(iss.Issue(), ShouldEqual, iss.token)
 	})
 }
 
 func TestFromAWSSTS(t *testing.T) {
 	Convey("Given an AWSSTSIssuer", t, func() {
-		iss := NewAWSSTSIssuer()
-		err := iss.FromSTS("id", "secret", "token")
+		iss := newAWSIssuer()
+		err := iss.fromToken("id", "secret", "token")
 		So(err, ShouldNotBeNil)
 		So(err.Error(), ShouldStartWith, "aws error: unable to retrieve aws identity: InvalidClientTokenId: The security token included in the request is invalid.")
 	})

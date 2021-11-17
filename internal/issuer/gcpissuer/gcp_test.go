@@ -1,4 +1,4 @@
-package issuer
+package gcpissuer
 
 import (
 	"fmt"
@@ -19,15 +19,15 @@ func TestErrGCP(t *testing.T) {
 
 func TestNewGCPIssuer(t *testing.T) {
 	Convey("NewGCPIssuer should work", t, func() {
-		iss := NewGCPIssuer()
+		iss := newGCPIssuer()
 		So(iss.Issue().Source.Type, ShouldEqual, "gcp")
 	})
 }
 
 func TestGCPFromToken(t *testing.T) {
 	Convey("Call FromToken should work", t, func() {
-		iss := NewGCPIssuer()
-		err := iss.FromToken("not a token", "aud")
+		iss := newGCPIssuer()
+		err := iss.fromToken("not a token", "aud")
 		So(err, ShouldNotBeNil)
 	})
 }

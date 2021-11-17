@@ -8,7 +8,12 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v4"
-	"go.aporeto.io/a3s/internal/issuer"
+	"go.aporeto.io/a3s/internal/issuer/a3sissuer"
+	"go.aporeto.io/a3s/internal/issuer/awsissuer"
+	"go.aporeto.io/a3s/internal/issuer/azureissuer"
+	"go.aporeto.io/a3s/internal/issuer/gcpissuer"
+	"go.aporeto.io/a3s/internal/issuer/ldapissuer"
+	"go.aporeto.io/a3s/internal/issuer/mtlsissuer"
 	"go.aporeto.io/a3s/pkgs/api"
 	"go.aporeto.io/a3s/pkgs/permissions"
 	"go.aporeto.io/a3s/pkgs/token"
@@ -110,8 +115,8 @@ func (p *IssueProcessor) handleCertificateIssue(ctx context.Context, req *api.Is
 	src := out.(*api.MTLSSource)
 
 	userCert := tlsState.PeerCertificates[0]
-	iss := issuer.NewMTLSIssuer(src)
-	if err := iss.FromCertificate(userCert); err != nil {
+	iss, err := mtlsissuer.New(src, userCert)
+	if err != nil {
 		return nil, err
 	}
 
@@ -126,8 +131,8 @@ func (p *IssueProcessor) handleLDAPIssue(ctx context.Context, req *api.Issue) (t
 	}
 
 	src := out.(*api.LDAPSource)
-	iss := issuer.NewLDAPIssuer(src)
-	if err := iss.FromCredentials(req.InputLDAP.Username, req.InputLDAP.Password); err != nil {
+	iss, err := ldapissuer.New(src, req.InputLDAP.Username, req.InputLDAP.Password)
+	if err != nil {
 		return nil, err
 	}
 
@@ -136,8 +141,8 @@ func (p *IssueProcessor) handleLDAPIssue(ctx context.Context, req *api.Issue) (t
 
 func (p *IssueProcessor) handleAWSIssue(ctx context.Context, req *api.Issue) (token.Issuer, error) {
 
-	iss := issuer.NewAWSSTSIssuer()
-	if err := iss.FromSTS(req.InputAWSSTS.ID, req.InputAWSSTS.Secret, req.InputAWSSTS.Token); err != nil {
+	iss, err := awsissuer.New(req.InputAWSSTS.ID, req.InputAWSSTS.Secret, req.InputAWSSTS.Token)
+	if err != nil {
 		return nil, err
 	}
 
@@ -146,8 +151,8 @@ func (p *IssueProcessor) handleAWSIssue(ctx context.Context, req *api.Issue) (to
 
 func (p *IssueProcessor) handleAzureIssue(ctx context.Context, req *api.Issue) (token.Issuer, error) {
 
-	iss := issuer.NewAzureIssuer()
-	if err := iss.FromAzureToken(ctx, req.InputAzure.Token); err != nil {
+	iss, err := azureissuer.New(ctx, req.InputAzure.Token)
+	if err != nil {
 		return nil, err
 	}
 
@@ -156,8 +161,8 @@ func (p *IssueProcessor) handleAzureIssue(ctx context.Context, req *api.Issue) (
 
 func (p *IssueProcessor) handleGCPIssue(ctx context.Context, req *api.Issue) (token.Issuer, error) {
 
-	iss := issuer.NewGCPIssuer()
-	if err := iss.FromToken(req.InputGCP.Token, req.InputGCP.Audience); err != nil {
+	iss, err := gcpissuer.New(req.InputGCP.Token, req.InputGCP.Audience)
+	if err != nil {
 		return nil, err
 	}
 
@@ -165,8 +170,7 @@ func (p *IssueProcessor) handleGCPIssue(ctx context.Context, req *api.Issue) (to
 }
 func (p *IssueProcessor) handleTokenIssue(ctx context.Context, req *api.Issue, validity time.Duration) (token.Issuer, error) {
 
-	iss := issuer.NewTokenIssuer()
-	if err := iss.FromToken(
+	iss, err := a3sissuer.New(
 		req.InputToken.Token,
 		p.jwks,
 		p.issuer,
@@ -177,7 +181,8 @@ func (p *IssueProcessor) handleTokenIssue(ctx context.Context, req *api.Issue, v
 			Networks:    req.RestrictedNetworks,
 			Permissions: req.RestrictedPermissions,
 		},
-	); err != nil {
+	)
+	if err != nil {
 		return nil, err
 	}
 

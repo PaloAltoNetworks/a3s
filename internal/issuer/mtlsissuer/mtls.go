@@ -1,4 +1,4 @@
-package issuer
+package mtlsissuer
 
 import (
 	"crypto/sha1"
@@ -10,16 +10,24 @@ import (
 	"go.aporeto.io/a3s/pkgs/token"
 )
 
-// MTLSIssuer issues IdentityToken from a TLS certificate.
-type MTLSIssuer struct {
+func New(source *api.MTLSSource, cert *x509.Certificate) (token.Issuer, error) {
+
+	c := newMTLSIssuer(source)
+	if err := c.fromCertificate(cert); err != nil {
+		return nil, err
+	}
+
+	return c, nil
+}
+
+type mtlsIssuer struct {
 	token  *token.IdentityToken
 	source *api.MTLSSource
 }
 
-// NewMTLSIssuer returns a new MTLSIssuer.
-func NewMTLSIssuer(source *api.MTLSSource) *MTLSIssuer {
+func newMTLSIssuer(source *api.MTLSSource) *mtlsIssuer {
 
-	return &MTLSIssuer{
+	return &mtlsIssuer{
 		source: source,
 		token: token.NewIdentityToken(token.Source{
 			Type:      "mtls",
@@ -29,8 +37,7 @@ func NewMTLSIssuer(source *api.MTLSSource) *MTLSIssuer {
 	}
 }
 
-// FromCertificate prepares the issuer according to the provided x509.Certificate.
-func (c *MTLSIssuer) FromCertificate(cert *x509.Certificate) error {
+func (c *mtlsIssuer) fromCertificate(cert *x509.Certificate) error {
 
 	pool := x509.NewCertPool()
 	pool.AppendCertsFromPEM([]byte(c.source.CertificateAuthority))
@@ -125,7 +132,7 @@ func (c *MTLSIssuer) FromCertificate(cert *x509.Certificate) error {
 }
 
 // Issue issues the token.IdentityToken derived from the the user certificate.
-func (c *MTLSIssuer) Issue() *token.IdentityToken {
+func (c *mtlsIssuer) Issue() *token.IdentityToken {
 
 	return c.token
 }

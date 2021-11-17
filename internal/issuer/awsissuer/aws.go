@@ -1,4 +1,4 @@
-package issuer
+package awsissuer
 
 import (
 	"fmt"
@@ -12,37 +12,34 @@ import (
 	"go.aporeto.io/a3s/pkgs/token"
 )
 
-// A ErrAWSSTS represents an error during interactions
-// with AWS.
-type ErrAWSSTS struct {
-	Err error
+// New returns a new Issuer from the given information.
+func New(ID string, secret string, tokenString string) (token.Issuer, error) {
+
+	c := newAWSIssuer()
+	if err := c.fromToken(ID, secret, tokenString); err != nil {
+		return nil, err
+	}
+
+	return c, nil
 }
 
-func (e ErrAWSSTS) Error() string {
-	return fmt.Sprintf("aws error: %s", e.Err)
-}
-
-func (e ErrAWSSTS) Unwrap() error {
-	return e.Err
-}
-
-// An AWSSTSIssuer issues identity token from an AWS sts token.
-type AWSSTSIssuer struct {
+type awsIssuer struct {
 	token *token.IdentityToken
 }
 
-// NewAWSSTSIssuer returns a new AWSSTSIssuer.
-func NewAWSSTSIssuer() *AWSSTSIssuer {
-
-	return &AWSSTSIssuer{
+func newAWSIssuer() *awsIssuer {
+	return &awsIssuer{
 		token: token.NewIdentityToken(token.Source{
-			Type: "awssts",
+			Type: "aws",
 		}),
 	}
 }
 
-// FromSTS populates the identity token using the given aws STS token information.
-func (c *AWSSTSIssuer) FromSTS(ID string, secret string, token string) error {
+func (c *awsIssuer) Issue() *token.IdentityToken {
+	return c.token
+}
+
+func (c *awsIssuer) fromToken(ID string, secret string, token string) error {
 
 	config := &aws.Config{
 		Credentials:                   credentials.NewStaticCredentials(ID, secret, token),
@@ -79,11 +76,6 @@ func (c *AWSSTSIssuer) FromSTS(ID string, secret string, token string) error {
 	c.token.Identity = computeSTSClaims(out, parn)
 
 	return nil
-}
-
-// Issue returns the token.IdentityToken.
-func (c *AWSSTSIssuer) Issue() *token.IdentityToken {
-	return c.token
 }
 
 func computeSTSClaims(out *sts.GetCallerIdentityOutput, parn arn.ARN) (claims []string) {

@@ -1,4 +1,4 @@
-package issuer
+package azureissuer
 
 import (
 	"context"
@@ -20,15 +20,15 @@ func TestErrAzure(t *testing.T) {
 
 func TestNewAzureIssuer(t *testing.T) {
 	Convey("NewAzureIssuer should work", t, func() {
-		iss := NewAzureIssuer()
+		iss := newAzureIssuer()
 		So(iss.Issue().Source.Type, ShouldEqual, "azure")
 	})
 }
 
 func TestAzureFromToken(t *testing.T) {
 	Convey("Call FromAzureToken should work", t, func() {
-		iss := NewAzureIssuer()
-		err := iss.FromAzureToken(context.Background(), "not a token")
+		iss := newAzureIssuer()
+		err := iss.fromToken(context.Background(), "not a token")
 		So(err, ShouldNotBeNil)
 	})
 }

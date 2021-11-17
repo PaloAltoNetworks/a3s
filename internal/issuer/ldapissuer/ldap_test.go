@@ -1,4 +1,4 @@
-package issuer
+package ldapissuer
 
 import (
 	"fmt"
@@ -24,7 +24,7 @@ func TestNewLDAPIssuer(t *testing.T) {
 		src := api.NewLDAPSource()
 		src.Namespace = "/my/ns"
 		src.Name = "my-src"
-		iss := NewLDAPIssuer(src)
+		iss := newLDAPIssuer(src)
 		So(iss.source, ShouldEqual, src)
 		So(iss.token.Source.Type, ShouldEqual, "ldap")
 		So(iss.token.Source.Namespace, ShouldEqual, "/my/ns")
@@ -39,8 +39,8 @@ func TestFromCredential(t *testing.T) {
 		src := api.NewLDAPSource()
 		src.Namespace = "/my/ns"
 		src.Name = "my-src"
-		iss := NewLDAPIssuer(src)
-		err := iss.FromCredentials("", "")
+		iss := newLDAPIssuer(src)
+		err := iss.fromCredentials("", "")
 		So(err, ShouldNotBeNil)
 		So(err.Error(), ShouldEqual, `ldap error: cannot dial: LDAP Result Code 200 "Network Error": dial tcp: missing address`)
 	})
@@ -50,8 +50,8 @@ func TestFromCredential(t *testing.T) {
 		src.Namespace = "/my/ns"
 		src.Name = "my-src"
 		src.CertificateAuthority = "a-ca"
-		iss := NewLDAPIssuer(src)
-		err := iss.FromCredentials("", "")
+		iss := newLDAPIssuer(src)
+		err := iss.fromCredentials("", "")
 		So(err, ShouldNotBeNil)
 		So(err.Error(), ShouldEqual, `ldap error: cannot dial: LDAP Result Code 200 "Network Error": dial tcp: missing address`)
 	})
@@ -61,8 +61,8 @@ func TestFromCredential(t *testing.T) {
 		src.Namespace = "/my/ns"
 		src.Name = "my-src"
 		src.SecurityProtocol = api.LDAPSourceSecurityProtocolTLS
-		iss := NewLDAPIssuer(src)
-		err := iss.FromCredentials("", "")
+		iss := newLDAPIssuer(src)
+		err := iss.fromCredentials("", "")
 		So(err, ShouldNotBeNil)
 		So(err.Error(), ShouldEqual, `ldap error: cannot dial tls: LDAP Result Code 200 "Network Error": dial tcp: missing address`)
 	})

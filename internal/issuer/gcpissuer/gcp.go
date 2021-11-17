@@ -1,4 +1,4 @@
-package issuer
+package gcpissuer
 
 import (
 	"crypto/rsa"
@@ -16,52 +16,33 @@ const (
 	gcpClaimsRequiredIssuer = "https://accounts.google.com"
 )
 
-// ErrGCP represents an error that happened
-// during operations related to GCP.
-type ErrGCP struct {
-	Err error
+func New(tokenString string, audience string) (token.Issuer, error) {
+
+	c := newGCPIssuer()
+	if err := c.fromToken(tokenString, audience); err != nil {
+		return nil, err
+	}
+
+	return c, nil
 }
 
-func (e ErrGCP) Error() string {
-	return fmt.Sprintf("gcp error: %s", e.Err)
-}
-
-func (e ErrGCP) Unwrap() error {
-	return e.Err
-}
-
-type gcpJWT struct {
-	Google struct {
-		ComputeEngine struct {
-			ProjectID     string `json:"project_id"`
-			ProjectNumber int    `json:"project_number"`
-			Zone          string `json:"zone"`
-			InstanceID    string `json:"instance_id"`
-			InstanceName  string `json:"instance_name"`
-		} `json:"compute_engine"`
-	} `json:"google"`
-	Email         string `json:"email"`
-	EmailVerified bool   `json:"email_verified"`
-	jwt.RegisteredClaims
-}
-
-// A GCPIssuer can issue IdentityToken from a valid
-// GCP token.
-type GCPIssuer struct {
+type gcpIssuer struct {
 	token *token.IdentityToken
 }
 
-// NewGCPIssuer returns a new GCPIssuer.
-func NewGCPIssuer() *GCPIssuer {
-	return &GCPIssuer{
+func newGCPIssuer() *gcpIssuer {
+	return &gcpIssuer{
 		token: token.NewIdentityToken(token.Source{
 			Type: "gcp",
 		}),
 	}
 }
 
-// FromToken computes the identity claims from the given gcp token.
-func (c *GCPIssuer) FromToken(tokenString string, audience string) (err error) {
+func (c *gcpIssuer) Issue() *token.IdentityToken {
+	return c.token
+}
+
+func (c *gcpIssuer) fromToken(tokenString string, audience string) (err error) {
 
 	resp, err := http.Get(gcpClaimsCertURL)
 	if err != nil {
@@ -106,11 +87,6 @@ func (c *GCPIssuer) FromToken(tokenString string, audience string) (err error) {
 	c.token.Identity = computeGCPClaims(gcpToken)
 
 	return nil
-}
-
-// Issue returns the IdentityToken.
-func (c *GCPIssuer) Issue() *token.IdentityToken {
-	return c.token
 }
 
 func computeGCPClaims(token gcpJWT) []string {

@@ -1,8 +1,11 @@
-package issuer
+package a3sissuer
 
 import (
+	"crypto"
 	"crypto/sha1"
+	"crypto/x509"
 	"crypto/x509/pkix"
+	"encoding/pem"
 	"fmt"
 	"reflect"
 	"testing"
@@ -12,18 +15,39 @@ import (
 	. "github.com/smartystreets/goconvey/convey"
 	"go.aporeto.io/a3s/pkgs/permissions"
 	"go.aporeto.io/a3s/pkgs/token"
+	"go.aporeto.io/tg/tglib"
 )
 
-func TestNewTokenIssuer(t *testing.T) {
-	Convey("Given I call NewTokenIssuer", t, func() {
-		c := NewTokenIssuer()
+func getECCert(subject pkix.Name, opts ...tglib.IssueOption) (*x509.Certificate, crypto.PrivateKey) {
+
+	certBlock, keyBlock, err := tglib.Issue(subject, opts...)
+	if err != nil {
+		panic(err)
+	}
+
+	cert, err := tglib.ParseCertificate(pem.EncodeToMemory(certBlock))
+	if err != nil {
+		panic(err)
+	}
+
+	key, err := tglib.PEMToKey(keyBlock)
+	if err != nil {
+		panic(err)
+	}
+
+	return cert, key
+}
+
+func TestNewA3SIssuer(t *testing.T) {
+	Convey("Given I call newA3SIssuer", t, func() {
+		c := newA3SIssuer()
 		So(c, ShouldNotBeNil)
 	})
 }
 
 func TestIssue(t *testing.T) {
 	Convey("Given I call ToMidgardClaims", t, func() {
-		c := NewTokenIssuer()
+		c := newA3SIssuer()
 		ot := token.NewIdentityToken(token.Source{})
 		c.token = ot
 		So(c.Issue(), ShouldEqual, ot)
@@ -39,16 +63,16 @@ func TestFromToken(t *testing.T) {
 
 	Convey("Using a token with an bad restrictions", t, func() {
 		token := `eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJyZWFsbSI6IlZpbmNlIiwiZGF0YSI6eyJhY2NvdW50IjoiYXBvbXV4IiwiZW1haWwiOiJhZG1pbkBhcG9tdXguY29tIiwiaWQiOiI1ZTFjZjNlZmEzNzAwMzhmYWY3Zjg3NzciLCJvcmdhbml6YXRpb24iOiJhcG9tdXgiLCJyZWFsbSI6InZpbmNlIiwic3ViamVjdCI6ImFwb211eCJ9LCJyZXN0cmljdGlvbnMiOnsibmV0d29ya3MiOiIxMjcuMC4wLjEvMzIifSwiZXhwIjoxNTkwMDQzMjA1LCJpYXQiOjE1ODk5NTMyMDUsImlzcyI6Imh0dHBzOi8vbG9jYWxob3N0OjQ0NDMiLCJzdWIiOiJhcG9tdXgifQ.dIsnGMSEy961FqXgJH-TBVw8_9VrzH_j4xcQJG4JY0--ekwNuMpLr0CyOJFj_XFuVsY-ZS8Lwj5yJCYHv7TS8Q`
-		c := NewTokenIssuer()
-		err := c.FromToken(token, keychain, "", "", 0, permissions.Restrictions{})
+		c := newA3SIssuer()
+		err := c.fromToken(token, keychain, "", "", 0, permissions.Restrictions{})
 		So(err, ShouldNotBeNil)
 		So(err.Error(), ShouldEqual, `unable to compute restrictions: unable to compute authz restrictions from token: json: cannot unmarshal string into Go struct field Restrictions.restrictions.networks of type []string`)
 	})
 
 	Convey("Using a token that is missing kid", t, func() {
 		token := `eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJyZWFsbSI6IlZpbmNlIiwiZGF0YSI6eyJhY2NvdW50IjoiYXBvbXV4IiwiZW1haWwiOiJhZG1pbkBhcG9tdXguY29tIiwiaWQiOiI1ZTFjZjNlZmEzNzAwMzhmYWY3Zjg3NzciLCJvcmdhbml6YXRpb24iOiJhcG9tdXgiLCJyZWFsbSI6InZpbmNlIiwic3ViamVjdCI6ImFwb211eCJ9LCJyZXN0cmljdGlvbnMiOnt9LCJleHAiOjE1OTAzMDQzNDgsImlhdCI6MTU5MDIxNDM0OCwiaXNzIjoiaHR0cHM6Ly9sb2NhbGhvc3Q6NDQ0MyIsInN1YiI6ImFwb211eCJ9.7TZEEG-M-Ed-pKTzEGVZnKKZ1fvG0P7kN-VIKnVn_4TkTR2PX0EaToNZViGgcIs6pYXm7SByzjMl63ZiriSYkg`
-		c := NewTokenIssuer()
-		err := c.FromToken(token, keychain, "", "", 0, permissions.Restrictions{})
+		c := newA3SIssuer()
+		err := c.fromToken(token, keychain, "", "", 0, permissions.Restrictions{})
 		So(err, ShouldNotBeNil)
 		So(err.Error(), ShouldEqual, `unable to parse input token: unable to parse jwt: token has no KID in its header`)
 	})
@@ -60,8 +84,8 @@ func TestFromToken(t *testing.T) {
 		mc.Issuer = "iss"
 
 		token, _ := mc.JWT(key, kid, "iss", jwt.ClaimStrings{"aud"}, time.Time{}, nil)
-		c := NewTokenIssuer()
-		err := c.FromToken(token, keychain, "iss", "aud", 0, permissions.Restrictions{})
+		c := newA3SIssuer()
+		err := c.fromToken(token, keychain, "iss", "aud", 0, permissions.Restrictions{})
 
 		So(err, ShouldBeNil)
 		So(c.token.Restrictions, ShouldBeNil)
@@ -79,8 +103,8 @@ func TestFromToken(t *testing.T) {
 		}
 
 		token, _ := mc.JWT(key, kid, "iss", jwt.ClaimStrings{"aud"}, time.Time{}, nil)
-		c := NewTokenIssuer()
-		err := c.FromToken(token, keychain, "iss", "aud", 0, permissions.Restrictions{
+		c := newA3SIssuer()
+		err := c.fromToken(token, keychain, "iss", "aud", 0, permissions.Restrictions{
 			Namespace:   "/a/b",
 			Networks:    []string{"1.1.0.0/16"},
 			Permissions: []string{"res:get"},
@@ -105,8 +129,8 @@ func TestFromToken(t *testing.T) {
 		}
 
 		token, _ := mc.JWT(key, kid, "iss", jwt.ClaimStrings{"aud"}, time.Time{}, nil)
-		c := NewTokenIssuer()
-		err := c.FromToken(token, keychain, "iss", "aud", 0, permissions.Restrictions{
+		c := newA3SIssuer()
+		err := c.fromToken(token, keychain, "iss", "aud", 0, permissions.Restrictions{
 			Namespace:   "/",
 			Networks:    []string{"1.1.0.0/16"},
 			Permissions: []string{"res:post"},
@@ -128,8 +152,8 @@ func TestFromToken(t *testing.T) {
 		}
 
 		token, _ := mc.JWT(key, kid, "iss", jwt.ClaimStrings{"aud"}, time.Time{}, nil)
-		c := NewTokenIssuer()
-		err := c.FromToken(token, keychain, "iss", "aud", 0, permissions.Restrictions{
+		c := newA3SIssuer()
+		err := c.fromToken(token, keychain, "iss", "aud", 0, permissions.Restrictions{
 			Namespace:   "/a",
 			Networks:    []string{"10.1.0.0/16"},
 			Permissions: []string{"res:get"},
@@ -151,8 +175,8 @@ func TestFromToken(t *testing.T) {
 		}
 
 		token, _ := mc.JWT(key, kid, "iss", jwt.ClaimStrings{"aud"}, time.Time{}, nil)
-		c := NewTokenIssuer()
-		err := c.FromToken(token, keychain, "iss", "iss", 0, permissions.Restrictions{
+		c := newA3SIssuer()
+		err := c.fromToken(token, keychain, "iss", "iss", 0, permissions.Restrictions{
 			Namespace:   "/a",
 			Networks:    []string{"1.1.0.0/16"},
 			Permissions: []string{"@auth:role=namespace.administrator"},

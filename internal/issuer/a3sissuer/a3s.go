@@ -1,4 +1,4 @@
-package issuer
+package a3sissuer
 
 import (
 	"fmt"
@@ -9,45 +9,39 @@ import (
 	"go.aporeto.io/a3s/pkgs/token"
 )
 
-// An ErrComputeRestrictions represents a generic
-// restrictions computation error.
-type ErrComputeRestrictions struct {
-	Err error
+func New(
+	tokenString string,
+	keychain *token.JWKS,
+	issuer string,
+	audience string,
+	validity time.Duration,
+	restrictions permissions.Restrictions,
+) (token.Issuer, error) {
+
+	c := newA3SIssuer()
+	if err := c.fromToken(
+		tokenString,
+		keychain,
+		issuer,
+		audience,
+		validity,
+		restrictions,
+	); err != nil {
+		return nil, err
+	}
+
+	return c, nil
 }
 
-func (e ErrComputeRestrictions) Error() string {
-	return fmt.Sprintf("unable to compute restrictions: %s", e.Err)
-}
-
-func (e ErrComputeRestrictions) Unwrap() error {
-	return e.Err
-}
-
-// An ErrInputToken represents a generic input token error.
-type ErrInputToken struct {
-	Err error
-}
-
-func (e ErrInputToken) Error() string {
-	return fmt.Sprintf("unable to parse input token: %s", e.Err)
-}
-
-func (e ErrInputToken) Unwrap() error {
-	return e.Err
-}
-
-// TokenIssuer represents the claims from a PCC token.
-type TokenIssuer struct {
+type a3sIssuer struct {
 	token *token.IdentityToken
 }
 
-// NewTokenIssuer returns a new TokenIssuer.
-func NewTokenIssuer() *TokenIssuer {
-	return &TokenIssuer{}
+func newA3SIssuer() *a3sIssuer {
+	return &a3sIssuer{}
 }
 
-// FromToken reads the claims from original token.
-func (c *TokenIssuer) FromToken(
+func (c *a3sIssuer) fromToken(
 	tokenString string,
 	keychain *token.JWKS,
 	issuer string,
@@ -97,7 +91,7 @@ func (c *TokenIssuer) FromToken(
 }
 
 // Issue issues a token.IdentityToken derived from the initial token.
-func (c *TokenIssuer) Issue() *token.IdentityToken {
+func (c *a3sIssuer) Issue() *token.IdentityToken {
 
 	return c.token
 }
