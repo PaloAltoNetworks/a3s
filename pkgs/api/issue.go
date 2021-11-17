@@ -120,6 +120,12 @@ type Issue struct {
 	// Contains additional information for an AWS STS token source.
 	InputAWSSTS *IssueAWS `json:"inputAWSSTS,omitempty" msgpack:"inputAWSSTS,omitempty" bson:"-" mapstructure:"inputAWSSTS,omitempty"`
 
+	// Contains additional information for an Azure token source.
+	InputAzure *IssueAzure `json:"inputAzure,omitempty" msgpack:"inputAzure,omitempty" bson:"-" mapstructure:"inputAzure,omitempty"`
+
+	// Contains additional information for an GCP token source.
+	InputGCP *IssueGCP `json:"inputGCP,omitempty" msgpack:"inputGCP,omitempty" bson:"-" mapstructure:"inputGCP,omitempty"`
+
 	// Contains additional information for an LDAP source.
 	InputLDAP *IssueLDAP `json:"inputLDAP,omitempty" msgpack:"inputLDAP,omitempty" bson:"-" mapstructure:"inputLDAP,omitempty"`
 
@@ -189,8 +195,8 @@ func NewIssue() *Issue {
 
 	return &Issue{
 		ModelVersion:          1,
-		RestrictedNetworks:    []string{},
 		Audience:              []string{},
+		RestrictedNetworks:    []string{},
 		Opaque:                map[string]string{},
 		Cloak:                 []string{},
 		RestrictedPermissions: []string{},
@@ -283,6 +289,8 @@ func (o *Issue) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			Audience:              &o.Audience,
 			Cloak:                 &o.Cloak,
 			InputAWSSTS:           o.InputAWSSTS,
+			InputAzure:            o.InputAzure,
+			InputGCP:              o.InputGCP,
 			InputLDAP:             o.InputLDAP,
 			InputToken:            o.InputToken,
 			Opaque:                &o.Opaque,
@@ -306,6 +314,10 @@ func (o *Issue) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.Cloak = &(o.Cloak)
 		case "inputAWSSTS":
 			sp.InputAWSSTS = o.InputAWSSTS
+		case "inputAzure":
+			sp.InputAzure = o.InputAzure
+		case "inputGCP":
+			sp.InputGCP = o.InputGCP
 		case "inputLDAP":
 			sp.InputLDAP = o.InputLDAP
 		case "inputToken":
@@ -349,6 +361,12 @@ func (o *Issue) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.InputAWSSTS != nil {
 		o.InputAWSSTS = so.InputAWSSTS
+	}
+	if so.InputAzure != nil {
+		o.InputAzure = so.InputAzure
+	}
+	if so.InputGCP != nil {
+		o.InputGCP = so.InputGCP
 	}
 	if so.InputLDAP != nil {
 		o.InputLDAP = so.InputLDAP
@@ -418,6 +436,20 @@ func (o *Issue) Validate() error {
 	if o.InputAWSSTS != nil {
 		elemental.ResetDefaultForZeroValues(o.InputAWSSTS)
 		if err := o.InputAWSSTS.Validate(); err != nil {
+			errors = errors.Append(err)
+		}
+	}
+
+	if o.InputAzure != nil {
+		elemental.ResetDefaultForZeroValues(o.InputAzure)
+		if err := o.InputAzure.Validate(); err != nil {
+			errors = errors.Append(err)
+		}
+	}
+
+	if o.InputGCP != nil {
+		elemental.ResetDefaultForZeroValues(o.InputGCP)
+		if err := o.InputGCP.Validate(); err != nil {
 			errors = errors.Append(err)
 		}
 	}
@@ -497,6 +529,10 @@ func (o *Issue) ValueForAttribute(name string) interface{} {
 		return o.Cloak
 	case "inputAWSSTS":
 		return o.InputAWSSTS
+	case "inputAzure":
+		return o.InputAzure
+	case "inputGCP":
+		return o.InputGCP
 	case "inputLDAP":
 		return o.InputLDAP
 	case "inputToken":
@@ -553,6 +589,24 @@ know all of the claims.`,
 		Exposed:        true,
 		Name:           "inputAWSSTS",
 		SubType:        "issueaws",
+		Type:           "ref",
+	},
+	"InputAzure": {
+		AllowedChoices: []string{},
+		ConvertedName:  "InputAzure",
+		Description:    `Contains additional information for an Azure token source.`,
+		Exposed:        true,
+		Name:           "inputAzure",
+		SubType:        "issueazure",
+		Type:           "ref",
+	},
+	"InputGCP": {
+		AllowedChoices: []string{},
+		ConvertedName:  "InputGCP",
+		Description:    `Contains additional information for an GCP token source.`,
+		Exposed:        true,
+		Name:           "inputGCP",
+		SubType:        "issuegcp",
 		Type:           "ref",
 	},
 	"InputLDAP": {
@@ -711,6 +765,24 @@ know all of the claims.`,
 		Exposed:        true,
 		Name:           "inputAWSSTS",
 		SubType:        "issueaws",
+		Type:           "ref",
+	},
+	"inputazure": {
+		AllowedChoices: []string{},
+		ConvertedName:  "InputAzure",
+		Description:    `Contains additional information for an Azure token source.`,
+		Exposed:        true,
+		Name:           "inputAzure",
+		SubType:        "issueazure",
+		Type:           "ref",
+	},
+	"inputgcp": {
+		AllowedChoices: []string{},
+		ConvertedName:  "InputGCP",
+		Description:    `Contains additional information for an GCP token source.`,
+		Exposed:        true,
+		Name:           "inputGCP",
+		SubType:        "issuegcp",
 		Type:           "ref",
 	},
 	"inputldap": {
@@ -914,6 +986,12 @@ type SparseIssue struct {
 	// Contains additional information for an AWS STS token source.
 	InputAWSSTS *IssueAWS `json:"inputAWSSTS,omitempty" msgpack:"inputAWSSTS,omitempty" bson:"-" mapstructure:"inputAWSSTS,omitempty"`
 
+	// Contains additional information for an Azure token source.
+	InputAzure *IssueAzure `json:"inputAzure,omitempty" msgpack:"inputAzure,omitempty" bson:"-" mapstructure:"inputAzure,omitempty"`
+
+	// Contains additional information for an GCP token source.
+	InputGCP *IssueGCP `json:"inputGCP,omitempty" msgpack:"inputGCP,omitempty" bson:"-" mapstructure:"inputGCP,omitempty"`
+
 	// Contains additional information for an LDAP source.
 	InputLDAP *IssueLDAP `json:"inputLDAP,omitempty" msgpack:"inputLDAP,omitempty" bson:"-" mapstructure:"inputLDAP,omitempty"`
 
@@ -1047,6 +1125,12 @@ func (o *SparseIssue) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.InputAWSSTS != nil {
 		out.InputAWSSTS = o.InputAWSSTS
+	}
+	if o.InputAzure != nil {
+		out.InputAzure = o.InputAzure
+	}
+	if o.InputGCP != nil {
+		out.InputGCP = o.InputGCP
 	}
 	if o.InputLDAP != nil {
 		out.InputLDAP = o.InputLDAP

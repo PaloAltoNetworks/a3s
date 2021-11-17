@@ -45,6 +45,26 @@ attributes:
       noInit: true
       refMode: pointer
 
+  - name: inputAzure
+    description: Contains additional information for an Azure token source.
+    type: ref
+    exposed: true
+    subtype: issueazure
+    omit_empty: true
+    extensions:
+      noInit: true
+      refMode: pointer
+
+  - name: inputGCP
+    description: Contains additional information for an GCP token source.
+    type: ref
+    exposed: true
+    subtype: issuegcp
+    omit_empty: true
+    extensions:
+      noInit: true
+      refMode: pointer
+
   - name: inputLDAP
     description: Contains additional information for an LDAP source.
     type: ref

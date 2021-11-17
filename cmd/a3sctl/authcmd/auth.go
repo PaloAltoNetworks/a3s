@@ -115,6 +115,79 @@ func New(mmaker manipcli.ManipulatorMaker) *cobra.Command {
 	_ = cobra.MarkFlagRequired(mtlsCmd.Flags(), "cert")
 	_ = cobra.MarkFlagRequired(mtlsCmd.Flags(), "key")
 
+	azureCmd := &cobra.Command{
+		Use:              "azure",
+		Short:            "Use an Azure identity token.",
+		TraverseChildren: true,
+		RunE: func(cmd *cobra.Command, args []string) error {
+
+			fToken := viper.GetString("token")
+			fAudience := viper.GetStringSlice("audience")
+			fCloak := viper.GetStringSlice("cloak")
+			fQRCode := viper.GetBool("qrcode")
+
+			iss := api.NewIssue()
+			iss.SourceType = api.IssueSourceTypeAzureIdentityToken
+			iss.Audience = fAudience
+			iss.Cloak = fCloak
+			iss.InputAzure = &api.IssueAzure{
+				Token: fToken,
+			}
+
+			m, err := mmaker()
+			if err != nil {
+				return err
+			}
+
+			if err := m.Create(nil, iss); err != nil {
+				return err
+			}
+
+			printToken(iss.Token, fQRCode)
+
+			return nil
+		},
+	}
+	azureCmd.Flags().String("token", "", "Valid Azure token.")
+
+	gcpCmd := &cobra.Command{
+		Use:              "gcp",
+		Short:            "Use an GCP identity token.",
+		TraverseChildren: true,
+		RunE: func(cmd *cobra.Command, args []string) error {
+
+			fToken := viper.GetString("token")
+			fTokenAudience := viper.GetString("token-audience")
+			fAudience := viper.GetStringSlice("audience")
+			fCloak := viper.GetStringSlice("cloak")
+			fQRCode := viper.GetBool("qrcode")
+
+			iss := api.NewIssue()
+			iss.SourceType = api.IssueSourceTypeGCPIdentityToken
+			iss.Audience = fAudience
+			iss.Cloak = fCloak
+			iss.InputGCP = &api.IssueGCP{
+				Token:    fToken,
+				Audience: fTokenAudience,
+			}
+
+			m, err := mmaker()
+			if err != nil {
+				return err
+			}
+
+			if err := m.Create(nil, iss); err != nil {
+				return err
+			}
+
+			printToken(iss.Token, fQRCode)
+
+			return nil
+		},
+	}
+	gcpCmd.Flags().String("token", "", "Valid Azure token.")
+	gcpCmd.Flags().String("token-audience", "", "Required GCP token audience.")
+
 	ldapCmd := &cobra.Command{
 		Use:              "ldap",
 		Short:            "Use a configured LDAP authentication source.",
@@ -164,6 +237,8 @@ func New(mmaker manipcli.ManipulatorMaker) *cobra.Command {
 		checkCmd,
 		mtlsCmd,
 		ldapCmd,
+		azureCmd,
+		gcpCmd,
 	)
 
 	return rootCmd

@@ -63,6 +63,12 @@ func (p *IssueProcessor) ProcessCreate(bctx bahamut.Context) (err error) {
 	case api.IssueSourceTypeAWSSecurityToken:
 		issuer, err = p.handleAWSIssue(bctx.Context(), req)
 
+	case api.IssueSourceTypeAzureIdentityToken:
+		issuer, err = p.handleAzureIssue(bctx.Context(), req)
+
+	case api.IssueSourceTypeGCPIdentityToken:
+		issuer, err = p.handleGCPIssue(bctx.Context(), req)
+
 	case api.IssueSourceTypeA3SIdentityToken:
 		issuer, err = p.handleTokenIssue(bctx.Context(), req, validity)
 		// we reset to 0 to skip setting exp during issuing of the token
@@ -138,6 +144,25 @@ func (p *IssueProcessor) handleAWSIssue(ctx context.Context, req *api.Issue) (to
 	return iss, nil
 }
 
+func (p *IssueProcessor) handleAzureIssue(ctx context.Context, req *api.Issue) (token.Issuer, error) {
+
+	iss := issuer.NewAzureIssuer()
+	if err := iss.FromAzureToken(ctx, req.InputAzure.Token); err != nil {
+		return nil, err
+	}
+
+	return iss, nil
+}
+
+func (p *IssueProcessor) handleGCPIssue(ctx context.Context, req *api.Issue) (token.Issuer, error) {
+
+	iss := issuer.NewGCPIssuer()
+	if err := iss.FromToken(req.InputGCP.Token, req.InputGCP.Audience); err != nil {
+		return nil, err
+	}
+
+	return iss, nil
+}
 func (p *IssueProcessor) handleTokenIssue(ctx context.Context, req *api.Issue, validity time.Duration) (token.Issuer, error) {
 
 	iss := issuer.NewTokenIssuer()

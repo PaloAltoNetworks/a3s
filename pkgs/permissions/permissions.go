@@ -32,7 +32,6 @@ func Parse(authStrings []string, targetID string) PermissionMap {
 			resource = segments[0]
 			actions = segments[1]
 			ids = segments[2]
-
 		}
 
 		if len(ids) > 0 {

@@ -40,6 +40,52 @@ Type: `string`
 
 The original token.
 
+### IssueAzure
+
+Additional issuing information for Azure identity token source.
+
+#### Example
+
+```json
+{
+  "token": "valid.jwt.token"
+}
+```
+
+#### Attributes
+
+##### `token` [`required`]
+
+Type: `string`
+
+The original token.
+
+### IssueGCP
+
+Additional issuing information for GCP identity token source.
+
+#### Example
+
+```json
+{
+  "token": "valid.jwt.token"
+}
+```
+
+#### Attributes
+
+##### `audience`
+
+Type: `string`
+
+The required audience.
+
+##### `token` [`required`]
+
+Type: `string`
+
+The original token.
+
 ### IssueLDAP
 
 Additional issuing information for the LDAP source.
@@ -533,6 +579,18 @@ know all of the claims.
 Type: [`issueaws`](#issueaws)
 
 Contains additional information for an AWS STS token source.
+
+##### `inputAzure`
+
+Type: [`issueazure`](#issueazure)
+
+Contains additional information for an Azure token source.
+
+##### `inputGCP`
+
+Type: [`issuegcp`](#issuegcp)
+
+Contains additional information for an GCP token source.
 
 ##### `inputLDAP`
 
