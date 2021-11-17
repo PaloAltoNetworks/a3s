@@ -6,6 +6,7 @@ import requests
 
 app = Flask(__name__)
 
+
 def authenticate(f):
     @wraps(f)
     def wrapper(*args, **kwargs):
@@ -16,7 +17,7 @@ def authenticate(f):
             "https://127.0.0.1:44443/authz",
             verify=False,
             headers={'Content-Type': 'application/json'},
-            json = {
+            json={
                 'token': auth.password,
                 'action': request.method,
                 'resource': request.path,
@@ -28,20 +29,23 @@ def authenticate(f):
         return f(*args, **kwargs)
     return wrapper
 
+
 @app.route("/")
-def public(): 
+def public():
     return "This is public. try to access /secret or /topsecret"
 
 
 @app.route("/secret")
 @authenticate
-def secret(): 
+def secret():
     return "This is secret! Noice!"
+
 
 @app.route("/topsecret")
 @authenticate
-def topsecret(): 
+def topsecret():
     return "This is top secret! Awesome!"
+
 
 if __name__ == "__main__":
     app.run(ssl_context='adhoc')
