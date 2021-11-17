@@ -11,6 +11,7 @@ import (
 	"go.aporeto.io/a3s/pkgs/token"
 )
 
+// New returns a new LDAP issuer.
 func New(source *api.LDAPSource, username string, password string) (token.Issuer, error) {
 
 	c := newLDAPIssuer(source)

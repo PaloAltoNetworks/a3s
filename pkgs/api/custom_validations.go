@@ -140,17 +140,25 @@ func ValidatePEM(attribute string, pemdata string) error {
 func ValidateIssue(iss *Issue) error {
 
 	switch iss.SourceType {
-	case IssueSourceTypeA3SIdentityToken:
+	case IssueSourceTypeA3S:
 		if iss.InputToken == nil {
 			return makeErr("inputToken", "You must set inputToken for the requested sourceType")
 		}
-	case IssueSourceTypeAWSSecurityToken:
+	case IssueSourceTypeAWS:
 		if iss.InputAWSSTS == nil {
 			return makeErr("inputAWSSTS", "You must set inputAWSSTS for the requested sourceType")
 		}
 	case IssueSourceTypeLDAP:
 		if iss.InputLDAP == nil {
 			return makeErr("inputLDAP", "You must set inputLDAP for the requested sourceType")
+		}
+	case IssueSourceTypeGCP:
+		if iss.InputGCP == nil {
+			return makeErr("inputGCP", "You must set inputCGP for the requested sourceType")
+		}
+	case IssueSourceTypeAzure:
+		if iss.InputAzure == nil {
+			return makeErr("inputAzure", "You must set inputAzure for the requested sourceType")
 		}
 	}
 

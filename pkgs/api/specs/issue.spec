@@ -170,14 +170,14 @@ attributes:
     exposed: true
     required: true
     allowed_choices:
-    - AWSSecurityToken
+    - AWS
     - MTLS
     - LDAP
-    - GCPIdentityToken
-    - AzureIdentityToken
+    - GCP
+    - Azure
     - OIDC
     - SAML
-    - A3SIdentityToken
+    - A3S
     example_value: OIDC
 
   - name: token

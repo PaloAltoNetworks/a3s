@@ -127,7 +127,7 @@ func New(mmaker manipcli.ManipulatorMaker) *cobra.Command {
 			fQRCode := viper.GetBool("qrcode")
 
 			iss := api.NewIssue()
-			iss.SourceType = api.IssueSourceTypeAzureIdentityToken
+			iss.SourceType = api.IssueSourceTypeAzure
 			iss.Audience = fAudience
 			iss.Cloak = fCloak
 			iss.InputAzure = &api.IssueAzure{
@@ -163,7 +163,7 @@ func New(mmaker manipcli.ManipulatorMaker) *cobra.Command {
 			fQRCode := viper.GetBool("qrcode")
 
 			iss := api.NewIssue()
-			iss.SourceType = api.IssueSourceTypeGCPIdentityToken
+			iss.SourceType = api.IssueSourceTypeGCP
 			iss.Audience = fAudience
 			iss.Cloak = fCloak
 			iss.InputGCP = &api.IssueGCP{

@@ -9,6 +9,7 @@ import (
 	"go.aporeto.io/a3s/pkgs/token"
 )
 
+// New retrurns new A3S issuer.
 func New(
 	tokenString string,
 	keychain *token.JWKS,

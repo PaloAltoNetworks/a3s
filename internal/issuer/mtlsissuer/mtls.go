@@ -10,6 +10,7 @@ import (
 	"go.aporeto.io/a3s/pkgs/token"
 )
 
+// New returns a new MTLS issuer.
 func New(source *api.MTLSSource, cert *x509.Certificate) (token.Issuer, error) {
 
 	c := newMTLSIssuer(source)

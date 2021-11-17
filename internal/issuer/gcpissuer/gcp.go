@@ -16,6 +16,7 @@ const (
 	gcpClaimsRequiredIssuer = "https://accounts.google.com"
 )
 
+// New returns a new GCP issuer.
 func New(tokenString string, audience string) (token.Issuer, error) {
 
 	c := newGCPIssuer()

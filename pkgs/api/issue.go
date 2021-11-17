@@ -12,17 +12,17 @@ import (
 type IssueSourceTypeValue string
 
 const (
-	// IssueSourceTypeA3SIdentityToken represents the value A3SIdentityToken.
-	IssueSourceTypeA3SIdentityToken IssueSourceTypeValue = "A3SIdentityToken"
+	// IssueSourceTypeA3S represents the value A3S.
+	IssueSourceTypeA3S IssueSourceTypeValue = "A3S"
 
-	// IssueSourceTypeAWSSecurityToken represents the value AWSSecurityToken.
-	IssueSourceTypeAWSSecurityToken IssueSourceTypeValue = "AWSSecurityToken"
+	// IssueSourceTypeAWS represents the value AWS.
+	IssueSourceTypeAWS IssueSourceTypeValue = "AWS"
 
-	// IssueSourceTypeAzureIdentityToken represents the value AzureIdentityToken.
-	IssueSourceTypeAzureIdentityToken IssueSourceTypeValue = "AzureIdentityToken"
+	// IssueSourceTypeAzure represents the value Azure.
+	IssueSourceTypeAzure IssueSourceTypeValue = "Azure"
 
-	// IssueSourceTypeGCPIdentityToken represents the value GCPIdentityToken.
-	IssueSourceTypeGCPIdentityToken IssueSourceTypeValue = "GCPIdentityToken"
+	// IssueSourceTypeGCP represents the value GCP.
+	IssueSourceTypeGCP IssueSourceTypeValue = "GCP"
 
 	// IssueSourceTypeLDAP represents the value LDAP.
 	IssueSourceTypeLDAP IssueSourceTypeValue = "LDAP"
@@ -476,7 +476,7 @@ func (o *Issue) Validate() error {
 		requiredErrors = requiredErrors.Append(err)
 	}
 
-	if err := elemental.ValidateStringInList("sourceType", string(o.SourceType), []string{"AWSSecurityToken", "MTLS", "LDAP", "GCPIdentityToken", "AzureIdentityToken", "OIDC", "SAML", "A3SIdentityToken"}, false); err != nil {
+	if err := elemental.ValidateStringInList("sourceType", string(o.SourceType), []string{"AWS", "MTLS", "LDAP", "GCP", "Azure", "OIDC", "SAML", "A3S"}, false); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -704,7 +704,7 @@ engine has no effect and may end up making the token unusable.`,
 		Type:           "string",
 	},
 	"SourceType": {
-		AllowedChoices: []string{"AWSSecurityToken", "MTLS", "LDAP", "GCPIdentityToken", "AzureIdentityToken", "OIDC", "SAML", "A3SIdentityToken"},
+		AllowedChoices: []string{"AWS", "MTLS", "LDAP", "GCP", "Azure", "OIDC", "SAML", "A3S"},
 		ConvertedName:  "SourceType",
 		Description: `The authentication source. This will define how to verify
 credentials from internal or external source of authentication.`,
@@ -880,7 +880,7 @@ engine has no effect and may end up making the token unusable.`,
 		Type:           "string",
 	},
 	"sourcetype": {
-		AllowedChoices: []string{"AWSSecurityToken", "MTLS", "LDAP", "GCPIdentityToken", "AzureIdentityToken", "OIDC", "SAML", "A3SIdentityToken"},
+		AllowedChoices: []string{"AWS", "MTLS", "LDAP", "GCP", "Azure", "OIDC", "SAML", "A3S"},
 		ConvertedName:  "SourceType",
 		Description: `The authentication source. This will define how to verify
 credentials from internal or external source of authentication.`,

@@ -701,7 +701,7 @@ func TestValidateIssue(t *testing.T) {
 			func(*testing.T) args {
 				return args{
 					&Issue{
-						SourceType: IssueSourceTypeA3SIdentityToken,
+						SourceType: IssueSourceTypeA3S,
 						InputToken: nil,
 					},
 				}
@@ -714,7 +714,7 @@ func TestValidateIssue(t *testing.T) {
 			func(*testing.T) args {
 				return args{
 					&Issue{
-						SourceType: IssueSourceTypeA3SIdentityToken,
+						SourceType: IssueSourceTypeA3S,
 						InputToken: &IssueToken{},
 					},
 				}
@@ -727,7 +727,7 @@ func TestValidateIssue(t *testing.T) {
 			func(*testing.T) args {
 				return args{
 					&Issue{
-						SourceType:  IssueSourceTypeAWSSecurityToken,
+						SourceType:  IssueSourceTypeAWS,
 						InputAWSSTS: nil,
 					},
 				}
@@ -740,7 +740,7 @@ func TestValidateIssue(t *testing.T) {
 			func(*testing.T) args {
 				return args{
 					&Issue{
-						SourceType:  IssueSourceTypeAWSSecurityToken,
+						SourceType:  IssueSourceTypeAWS,
 						InputAWSSTS: &IssueAWS{},
 					},
 				}
@@ -762,12 +762,64 @@ func TestValidateIssue(t *testing.T) {
 			nil,
 		},
 		{
-			"test aws present",
+			"test ldap present",
 			func(*testing.T) args {
 				return args{
 					&Issue{
 						SourceType: IssueSourceTypeLDAP,
 						InputLDAP:  &IssueLDAP{},
+					},
+				}
+			},
+			false,
+			nil,
+		},
+		{
+			"test gcp missing",
+			func(*testing.T) args {
+				return args{
+					&Issue{
+						SourceType: IssueSourceTypeGCP,
+						InputGCP:   nil,
+					},
+				}
+			},
+			true,
+			nil,
+		},
+		{
+			"test gcp present",
+			func(*testing.T) args {
+				return args{
+					&Issue{
+						SourceType: IssueSourceTypeGCP,
+						InputGCP:   &IssueGCP{},
+					},
+				}
+			},
+			false,
+			nil,
+		},
+		{
+			"test azure missing",
+			func(*testing.T) args {
+				return args{
+					&Issue{
+						SourceType: IssueSourceTypeAzure,
+						InputAzure: nil,
+					},
+				}
+			},
+			true,
+			nil,
+		},
+		{
+			"test azure present",
+			func(*testing.T) args {
+				return args{
+					&Issue{
+						SourceType: IssueSourceTypeAzure,
+						InputAzure: &IssueAzure{},
 					},
 				}
 			},

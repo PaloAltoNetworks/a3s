@@ -15,6 +15,7 @@ const (
 	azureJWTIssuer   = "https://sts.windows.net/65888785-a93c-4c8f-89eb-d42bf7d03244/"
 )
 
+// New returns a new Azure issuer.
 func New(ctx context.Context, tokenString string) (token.Issuer, error) {
 
 	c := newAzureIssuer()

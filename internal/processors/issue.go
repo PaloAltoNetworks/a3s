@@ -65,16 +65,16 @@ func (p *IssueProcessor) ProcessCreate(bctx bahamut.Context) (err error) {
 	case api.IssueSourceTypeLDAP:
 		issuer, err = p.handleLDAPIssue(bctx.Context(), req)
 
-	case api.IssueSourceTypeAWSSecurityToken:
+	case api.IssueSourceTypeAWS:
 		issuer, err = p.handleAWSIssue(bctx.Context(), req)
 
-	case api.IssueSourceTypeAzureIdentityToken:
+	case api.IssueSourceTypeAzure:
 		issuer, err = p.handleAzureIssue(bctx.Context(), req)
 
-	case api.IssueSourceTypeGCPIdentityToken:
+	case api.IssueSourceTypeGCP:
 		issuer, err = p.handleGCPIssue(bctx.Context(), req)
 
-	case api.IssueSourceTypeA3SIdentityToken:
+	case api.IssueSourceTypeA3S:
 		issuer, err = p.handleTokenIssue(bctx.Context(), req, validity)
 		// we reset to 0 to skip setting exp during issuing of the token
 		// as the token issers already caps it.

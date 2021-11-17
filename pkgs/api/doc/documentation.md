@@ -667,7 +667,7 @@ The namespace of the source to use.
 
 ##### `sourceType` [`required`]
 
-Type: `enum(AWSSecurityToken | MTLS | LDAP | GCPIdentityToken | AzureIdentityToken | OIDC | SAML | A3SIdentityToken)`
+Type: `enum(AWS | MTLS | LDAP | GCP | Azure | OIDC | SAML | A3S)`
 
 The authentication source. This will define how to verify
 credentials from internal or external source of authentication.
