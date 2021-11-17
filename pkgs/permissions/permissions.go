@@ -10,12 +10,12 @@ type Permissions map[string]bool
 // A PermissionMap represents a map of resource to Permissions
 type PermissionMap map[string]Permissions
 
-// Parse parses the given list of permission string in the form
-// resource,action1,action2:targetID1,targetID2 and returns the
+// Parse parses the given list of permission strings in the form
+// resource:action1,...,actionN:id1,...,idN and returns the
 // PermissionMap.
 func Parse(authStrings []string, targetID string) PermissionMap {
 
-	auths := PermissionMap{}
+	perms := PermissionMap{}
 
 	for _, item := range authStrings {
 
@@ -57,19 +57,19 @@ func Parse(authStrings []string, targetID string) PermissionMap {
 
 		parts := strings.Split(actions, ",")
 
-		if _, ok := auths[resource]; !ok {
-			auths[resource] = map[string]bool{}
+		if _, ok := perms[resource]; !ok {
+			perms[resource] = map[string]bool{}
 		}
 
 		for _, action := range parts {
-			auths[resource][action] = true
+			perms[resource][action] = true
 		}
 	}
 
-	return auths
+	return perms
 }
 
-// Copy returns a copy of the perms
+// Copy returns a copy of the receiver.
 func (p PermissionMap) Copy() PermissionMap {
 
 	var copy = make(PermissionMap, len(p))
@@ -83,8 +83,8 @@ func (p PermissionMap) Copy() PermissionMap {
 	return copy
 }
 
-// Contains returns true if the given Authorization is equal or lesser
-// than the receiver.
+// Contains returns true if the receiver inclusively contains the given
+// PermissionsMap.
 func (p PermissionMap) Contains(other PermissionMap) bool {
 
 	if len(p) == 0 {
@@ -113,7 +113,7 @@ func (p PermissionMap) Contains(other PermissionMap) bool {
 	return true
 }
 
-// Intersect returns the intersection between first set and second set.
+// Intersect returns the intersection between the receiver and the given PermissionMap.
 func (p PermissionMap) Intersect(other PermissionMap) PermissionMap {
 
 	// If one or the other are empty, the intersection is nil.
@@ -205,35 +205,34 @@ func (p PermissionMap) Intersect(other PermissionMap) PermissionMap {
 	return candidate
 }
 
-// Allows returns true if the given operation on the given identity is allowed in the
-// given perms.
+// Allows returns true if the given operation on the given identity is allowed.
 func (p PermissionMap) Allows(operation string, resource string) bool {
 
-	allowed := func(p Permissions, m string) bool {
-		if authorized := p["*"]; authorized {
-			if authorized {
+	allowed := func(perms Permissions, m string) bool {
+		if ok := perms["*"]; ok {
+			if ok {
 				return true
 			}
 		}
 
-		if authorized := p[m]; authorized {
+		if ok := perms[m]; ok {
 			return true
 		}
 
 		return false
 	}
 
-	if p, ok := p["*"]; ok {
-		if allowed(p, operation) {
+	if perms, ok := p["*"]; ok {
+		if allowed(perms, operation) {
 			return true
 		}
 	}
 
-	for i, p := range p {
+	for i, perms := range p {
 		if resource != i {
 			continue
 		}
-		if allowed(p, operation) {
+		if allowed(perms, operation) {
 			return true
 		}
 	}

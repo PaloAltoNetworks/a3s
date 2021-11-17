@@ -6,9 +6,9 @@ require (
 	go.aporeto.io/addedeffect v1.77.0
 	go.aporeto.io/bahamut v1.112.1-0.20211117023701-80c7ccdfebee
 	go.aporeto.io/elemental v1.100.1-0.20211117023454-0c8e5dca0782
-	go.aporeto.io/manipulate v1.121.1-0.20211117024528-6177cfad7bac
+	go.aporeto.io/manipulate v1.121.1-0.20211117155611-29a14587dd12
 	go.aporeto.io/tg v1.34.1-0.20211101201333-f818ba4bc2b5
-	go.aporeto.io/wsc v1.36.1-0.20210528201141-2af38def4959
+	go.aporeto.io/wsc v1.36.1-0.20210528201141-2af38def4959 // indirect
 )
 
 require (
