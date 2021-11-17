@@ -35,7 +35,7 @@ attributes:
     - age=
     omit_empty: true
 
-  - name: inputAWSSTS
+  - name: inputAWS
     description: Contains additional information for an AWS STS token source.
     type: ref
     exposed: true
@@ -70,6 +70,16 @@ attributes:
     type: ref
     exposed: true
     subtype: issueldap
+    omit_empty: true
+    extensions:
+      noInit: true
+      refMode: pointer
+
+  - name: inputOIDC
+    description: Contains additional information for an OIDC source.
+    type: ref
+    exposed: true
+    subtype: issueoidc
     omit_empty: true
     extensions:
       noInit: true

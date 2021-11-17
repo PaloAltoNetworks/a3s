@@ -113,6 +113,36 @@ Type: `string`
 
 The LDAP username.
 
+### IssueOIDC
+
+Additional issuing information for the OIDC source.
+
+#### Attributes
+
+##### `code`
+
+Type: `string`
+
+OIDC ceremony code.
+
+##### `redirectErrorURL`
+
+Type: `string`
+
+OIDC redirect url in case of error.
+
+##### `redirectURL`
+
+Type: `string`
+
+OIDC redirect url.
+
+##### `state`
+
+Type: `string`
+
+OIDC ceremony state.
+
 ### IssueToken
 
 Additional issuing information for A3S token source.
@@ -574,7 +604,7 @@ Sets a list of identity claim prefix to allow in the final token. This can be
 used to hide some information when asking for a token as not all systems need to
 know all of the claims.
 
-##### `inputAWSSTS`
+##### `inputAWS`
 
 Type: [`issueaws`](#issueaws)
 
@@ -597,6 +627,12 @@ Contains additional information for an GCP token source.
 Type: [`issueldap`](#issueldap)
 
 Contains additional information for an LDAP source.
+
+##### `inputOIDC`
+
+Type: [`issueoidc`](#issueoidc)
+
+Contains additional information for an OIDC source.
 
 ##### `inputToken`
 

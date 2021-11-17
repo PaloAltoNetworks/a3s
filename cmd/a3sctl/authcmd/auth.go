@@ -188,6 +188,47 @@ func New(mmaker manipcli.ManipulatorMaker) *cobra.Command {
 	gcpCmd.Flags().String("token", "", "Valid Azure token.")
 	gcpCmd.Flags().String("token-audience", "", "Required GCP token audience.")
 
+	awsCmd := &cobra.Command{
+		Use:              "aws",
+		Short:            "Use an AWS identity token.",
+		TraverseChildren: true,
+		RunE: func(cmd *cobra.Command, args []string) error {
+
+			fToken := viper.GetString("token")
+			fAccessKeyID := viper.GetString("access-key-id")
+			fSecretAccessKey := viper.GetString("access-key-secret")
+			fAudience := viper.GetStringSlice("audience")
+			fCloak := viper.GetStringSlice("cloak")
+			fQRCode := viper.GetBool("qrcode")
+
+			iss := api.NewIssue()
+			iss.SourceType = api.IssueSourceTypeAWS
+			iss.Audience = fAudience
+			iss.Cloak = fCloak
+			iss.InputAWS = &api.IssueAWS{
+				Token:  fToken,
+				Secret: fSecretAccessKey,
+				ID:     fAccessKeyID,
+			}
+
+			m, err := mmaker()
+			if err != nil {
+				return err
+			}
+
+			if err := m.Create(nil, iss); err != nil {
+				return err
+			}
+
+			printToken(iss.Token, fQRCode)
+
+			return nil
+		},
+	}
+	awsCmd.Flags().String("token", "", "Valid Azure token.")
+	awsCmd.Flags().String("access-key-id", "", "Access key ID for the token.")
+	awsCmd.Flags().String("access-key-secret", "", "Secret for access key.")
+
 	ldapCmd := &cobra.Command{
 		Use:              "ldap",
 		Short:            "Use a configured LDAP authentication source.",
@@ -239,6 +280,7 @@ func New(mmaker manipcli.ManipulatorMaker) *cobra.Command {
 		ldapCmd,
 		azureCmd,
 		gcpCmd,
+		awsCmd,
 	)
 
 	return rootCmd

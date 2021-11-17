@@ -118,7 +118,7 @@ type Issue struct {
 	Cloak []string `json:"cloak,omitempty" msgpack:"cloak,omitempty" bson:"-" mapstructure:"cloak,omitempty"`
 
 	// Contains additional information for an AWS STS token source.
-	InputAWSSTS *IssueAWS `json:"inputAWSSTS,omitempty" msgpack:"inputAWSSTS,omitempty" bson:"-" mapstructure:"inputAWSSTS,omitempty"`
+	InputAWS *IssueAWS `json:"inputAWS,omitempty" msgpack:"inputAWS,omitempty" bson:"-" mapstructure:"inputAWS,omitempty"`
 
 	// Contains additional information for an Azure token source.
 	InputAzure *IssueAzure `json:"inputAzure,omitempty" msgpack:"inputAzure,omitempty" bson:"-" mapstructure:"inputAzure,omitempty"`
@@ -128,6 +128,9 @@ type Issue struct {
 
 	// Contains additional information for an LDAP source.
 	InputLDAP *IssueLDAP `json:"inputLDAP,omitempty" msgpack:"inputLDAP,omitempty" bson:"-" mapstructure:"inputLDAP,omitempty"`
+
+	// Contains additional information for an OIDC source.
+	InputOIDC *IssueOIDC `json:"inputOIDC,omitempty" msgpack:"inputOIDC,omitempty" bson:"-" mapstructure:"inputOIDC,omitempty"`
 
 	// Contains additional information for an A3S token source.
 	InputToken *IssueToken `json:"inputToken,omitempty" msgpack:"inputToken,omitempty" bson:"-" mapstructure:"inputToken,omitempty"`
@@ -195,10 +198,10 @@ func NewIssue() *Issue {
 
 	return &Issue{
 		ModelVersion:          1,
-		Audience:              []string{},
-		RestrictedNetworks:    []string{},
 		Opaque:                map[string]string{},
 		Cloak:                 []string{},
+		RestrictedNetworks:    []string{},
+		Audience:              []string{},
 		RestrictedPermissions: []string{},
 		Validity:              "24h",
 	}
@@ -288,10 +291,11 @@ func (o *Issue) ToSparse(fields ...string) elemental.SparseIdentifiable {
 		return &SparseIssue{
 			Audience:              &o.Audience,
 			Cloak:                 &o.Cloak,
-			InputAWSSTS:           o.InputAWSSTS,
+			InputAWS:              o.InputAWS,
 			InputAzure:            o.InputAzure,
 			InputGCP:              o.InputGCP,
 			InputLDAP:             o.InputLDAP,
+			InputOIDC:             o.InputOIDC,
 			InputToken:            o.InputToken,
 			Opaque:                &o.Opaque,
 			RestrictedNamespace:   &o.RestrictedNamespace,
@@ -312,14 +316,16 @@ func (o *Issue) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.Audience = &(o.Audience)
 		case "cloak":
 			sp.Cloak = &(o.Cloak)
-		case "inputAWSSTS":
-			sp.InputAWSSTS = o.InputAWSSTS
+		case "inputAWS":
+			sp.InputAWS = o.InputAWS
 		case "inputAzure":
 			sp.InputAzure = o.InputAzure
 		case "inputGCP":
 			sp.InputGCP = o.InputGCP
 		case "inputLDAP":
 			sp.InputLDAP = o.InputLDAP
+		case "inputOIDC":
+			sp.InputOIDC = o.InputOIDC
 		case "inputToken":
 			sp.InputToken = o.InputToken
 		case "opaque":
@@ -359,8 +365,8 @@ func (o *Issue) Patch(sparse elemental.SparseIdentifiable) {
 	if so.Cloak != nil {
 		o.Cloak = *so.Cloak
 	}
-	if so.InputAWSSTS != nil {
-		o.InputAWSSTS = so.InputAWSSTS
+	if so.InputAWS != nil {
+		o.InputAWS = so.InputAWS
 	}
 	if so.InputAzure != nil {
 		o.InputAzure = so.InputAzure
@@ -370,6 +376,9 @@ func (o *Issue) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.InputLDAP != nil {
 		o.InputLDAP = so.InputLDAP
+	}
+	if so.InputOIDC != nil {
+		o.InputOIDC = so.InputOIDC
 	}
 	if so.InputToken != nil {
 		o.InputToken = so.InputToken
@@ -433,9 +442,9 @@ func (o *Issue) Validate() error {
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
-	if o.InputAWSSTS != nil {
-		elemental.ResetDefaultForZeroValues(o.InputAWSSTS)
-		if err := o.InputAWSSTS.Validate(); err != nil {
+	if o.InputAWS != nil {
+		elemental.ResetDefaultForZeroValues(o.InputAWS)
+		if err := o.InputAWS.Validate(); err != nil {
 			errors = errors.Append(err)
 		}
 	}
@@ -457,6 +466,13 @@ func (o *Issue) Validate() error {
 	if o.InputLDAP != nil {
 		elemental.ResetDefaultForZeroValues(o.InputLDAP)
 		if err := o.InputLDAP.Validate(); err != nil {
+			errors = errors.Append(err)
+		}
+	}
+
+	if o.InputOIDC != nil {
+		elemental.ResetDefaultForZeroValues(o.InputOIDC)
+		if err := o.InputOIDC.Validate(); err != nil {
 			errors = errors.Append(err)
 		}
 	}
@@ -527,14 +543,16 @@ func (o *Issue) ValueForAttribute(name string) interface{} {
 		return o.Audience
 	case "cloak":
 		return o.Cloak
-	case "inputAWSSTS":
-		return o.InputAWSSTS
+	case "inputAWS":
+		return o.InputAWS
 	case "inputAzure":
 		return o.InputAzure
 	case "inputGCP":
 		return o.InputGCP
 	case "inputLDAP":
 		return o.InputLDAP
+	case "inputOIDC":
+		return o.InputOIDC
 	case "inputToken":
 		return o.InputToken
 	case "opaque":
@@ -582,12 +600,12 @@ know all of the claims.`,
 		SubType: "string",
 		Type:    "list",
 	},
-	"InputAWSSTS": {
+	"InputAWS": {
 		AllowedChoices: []string{},
-		ConvertedName:  "InputAWSSTS",
+		ConvertedName:  "InputAWS",
 		Description:    `Contains additional information for an AWS STS token source.`,
 		Exposed:        true,
-		Name:           "inputAWSSTS",
+		Name:           "inputAWS",
 		SubType:        "issueaws",
 		Type:           "ref",
 	},
@@ -616,6 +634,15 @@ know all of the claims.`,
 		Exposed:        true,
 		Name:           "inputLDAP",
 		SubType:        "issueldap",
+		Type:           "ref",
+	},
+	"InputOIDC": {
+		AllowedChoices: []string{},
+		ConvertedName:  "InputOIDC",
+		Description:    `Contains additional information for an OIDC source.`,
+		Exposed:        true,
+		Name:           "inputOIDC",
+		SubType:        "issueoidc",
 		Type:           "ref",
 	},
 	"InputToken": {
@@ -758,12 +785,12 @@ know all of the claims.`,
 		SubType: "string",
 		Type:    "list",
 	},
-	"inputawssts": {
+	"inputaws": {
 		AllowedChoices: []string{},
-		ConvertedName:  "InputAWSSTS",
+		ConvertedName:  "InputAWS",
 		Description:    `Contains additional information for an AWS STS token source.`,
 		Exposed:        true,
-		Name:           "inputAWSSTS",
+		Name:           "inputAWS",
 		SubType:        "issueaws",
 		Type:           "ref",
 	},
@@ -792,6 +819,15 @@ know all of the claims.`,
 		Exposed:        true,
 		Name:           "inputLDAP",
 		SubType:        "issueldap",
+		Type:           "ref",
+	},
+	"inputoidc": {
+		AllowedChoices: []string{},
+		ConvertedName:  "InputOIDC",
+		Description:    `Contains additional information for an OIDC source.`,
+		Exposed:        true,
+		Name:           "inputOIDC",
+		SubType:        "issueoidc",
 		Type:           "ref",
 	},
 	"inputtoken": {
@@ -984,7 +1020,7 @@ type SparseIssue struct {
 	Cloak *[]string `json:"cloak,omitempty" msgpack:"cloak,omitempty" bson:"-" mapstructure:"cloak,omitempty"`
 
 	// Contains additional information for an AWS STS token source.
-	InputAWSSTS *IssueAWS `json:"inputAWSSTS,omitempty" msgpack:"inputAWSSTS,omitempty" bson:"-" mapstructure:"inputAWSSTS,omitempty"`
+	InputAWS *IssueAWS `json:"inputAWS,omitempty" msgpack:"inputAWS,omitempty" bson:"-" mapstructure:"inputAWS,omitempty"`
 
 	// Contains additional information for an Azure token source.
 	InputAzure *IssueAzure `json:"inputAzure,omitempty" msgpack:"inputAzure,omitempty" bson:"-" mapstructure:"inputAzure,omitempty"`
@@ -994,6 +1030,9 @@ type SparseIssue struct {
 
 	// Contains additional information for an LDAP source.
 	InputLDAP *IssueLDAP `json:"inputLDAP,omitempty" msgpack:"inputLDAP,omitempty" bson:"-" mapstructure:"inputLDAP,omitempty"`
+
+	// Contains additional information for an OIDC source.
+	InputOIDC *IssueOIDC `json:"inputOIDC,omitempty" msgpack:"inputOIDC,omitempty" bson:"-" mapstructure:"inputOIDC,omitempty"`
 
 	// Contains additional information for an A3S token source.
 	InputToken *IssueToken `json:"inputToken,omitempty" msgpack:"inputToken,omitempty" bson:"-" mapstructure:"inputToken,omitempty"`
@@ -1123,8 +1162,8 @@ func (o *SparseIssue) ToPlain() elemental.PlainIdentifiable {
 	if o.Cloak != nil {
 		out.Cloak = *o.Cloak
 	}
-	if o.InputAWSSTS != nil {
-		out.InputAWSSTS = o.InputAWSSTS
+	if o.InputAWS != nil {
+		out.InputAWS = o.InputAWS
 	}
 	if o.InputAzure != nil {
 		out.InputAzure = o.InputAzure
@@ -1134,6 +1173,9 @@ func (o *SparseIssue) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.InputLDAP != nil {
 		out.InputLDAP = o.InputLDAP
+	}
+	if o.InputOIDC != nil {
+		out.InputOIDC = o.InputOIDC
 	}
 	if o.InputToken != nil {
 		out.InputToken = o.InputToken

@@ -145,8 +145,8 @@ func ValidateIssue(iss *Issue) error {
 			return makeErr("inputToken", "You must set inputToken for the requested sourceType")
 		}
 	case IssueSourceTypeAWS:
-		if iss.InputAWSSTS == nil {
-			return makeErr("inputAWSSTS", "You must set inputAWSSTS for the requested sourceType")
+		if iss.InputAWS == nil {
+			return makeErr("inputAWS", "You must set inputAWS for the requested sourceType")
 		}
 	case IssueSourceTypeLDAP:
 		if iss.InputLDAP == nil {

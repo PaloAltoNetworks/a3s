@@ -93,7 +93,10 @@ func (p *IssueProcessor) ProcessCreate(bctx bahamut.Context) (err error) {
 	}
 
 	req.InputLDAP = nil
-	req.InputAWSSTS = nil
+	req.InputAWS = nil
+	req.InputAzure = nil
+	req.InputGCP = nil
+	req.InputOIDC = nil
 	req.InputToken = nil
 	req.Validity = time.Until(idt.ExpiresAt.Time).Round(time.Second).String()
 
@@ -141,7 +144,7 @@ func (p *IssueProcessor) handleLDAPIssue(ctx context.Context, req *api.Issue) (t
 
 func (p *IssueProcessor) handleAWSIssue(ctx context.Context, req *api.Issue) (token.Issuer, error) {
 
-	iss, err := awsissuer.New(req.InputAWSSTS.ID, req.InputAWSSTS.Secret, req.InputAWSSTS.Token)
+	iss, err := awsissuer.New(req.InputAWS.ID, req.InputAWS.Secret, req.InputAWS.Token)
 	if err != nil {
 		return nil, err
 	}

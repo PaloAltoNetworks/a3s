@@ -727,8 +727,8 @@ func TestValidateIssue(t *testing.T) {
 			func(*testing.T) args {
 				return args{
 					&Issue{
-						SourceType:  IssueSourceTypeAWS,
-						InputAWSSTS: nil,
+						SourceType: IssueSourceTypeAWS,
+						InputAWS:   nil,
 					},
 				}
 			},
@@ -740,8 +740,8 @@ func TestValidateIssue(t *testing.T) {
 			func(*testing.T) args {
 				return args{
 					&Issue{
-						SourceType:  IssueSourceTypeAWS,
-						InputAWSSTS: &IssueAWS{},
+						SourceType: IssueSourceTypeAWS,
+						InputAWS:   &IssueAWS{},
 					},
 				}
 			},
