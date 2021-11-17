@@ -50,6 +50,14 @@ relations:
   create:
     description: Creates a new namespace.
 
+- rest_name: oidcsource
+  get:
+    description: Retrieves the list of oidcsources.
+    global_parameters:
+    - $queryable
+  create:
+    description: Creates a new oidcsource.
+
 - rest_name: permissions
   create:
     description: Sends a permissions request.

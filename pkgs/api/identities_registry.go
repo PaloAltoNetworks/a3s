@@ -11,6 +11,7 @@ var (
 		"ldapsource":  LDAPSourceIdentity,
 		"mtlssource":  MTLSSourceIdentity,
 		"namespace":   NamespaceIdentity,
+		"oidcsource":  OIDCSourceIdentity,
 		"permissions": PermissionsIdentity,
 		"root":        RootIdentity,
 	}
@@ -23,6 +24,7 @@ var (
 		"ldapsources": LDAPSourceIdentity,
 		"mtlssources": MTLSSourceIdentity,
 		"namespaces":  NamespaceIdentity,
+		"oidcsources": OIDCSourceIdentity,
 		"permissions": PermissionsIdentity,
 		"root":        RootIdentity,
 	}
@@ -57,6 +59,12 @@ var (
 			{"namespace"},
 			{"namespace", "ID"},
 			{"name"},
+		},
+		"oidcsource": {
+			{"namespace", "name"},
+			{":shard", ":unique", "zone", "zHash"},
+			{"namespace"},
+			{"namespace", "ID"},
 		},
 		"permissions": nil,
 		"root":        nil,
@@ -112,6 +120,8 @@ func (f modelManager) Identifiable(identity elemental.Identity) elemental.Identi
 		return NewMTLSSource()
 	case NamespaceIdentity:
 		return NewNamespace()
+	case OIDCSourceIdentity:
+		return NewOIDCSource()
 	case PermissionsIdentity:
 		return NewPermissions()
 	case RootIdentity:
@@ -137,6 +147,8 @@ func (f modelManager) SparseIdentifiable(identity elemental.Identity) elemental.
 		return NewSparseMTLSSource()
 	case NamespaceIdentity:
 		return NewSparseNamespace()
+	case OIDCSourceIdentity:
+		return NewSparseOIDCSource()
 	case PermissionsIdentity:
 		return NewSparsePermissions()
 	default:
@@ -170,6 +182,8 @@ func (f modelManager) Identifiables(identity elemental.Identity) elemental.Ident
 		return &MTLSSourcesList{}
 	case NamespaceIdentity:
 		return &NamespacesList{}
+	case OIDCSourceIdentity:
+		return &OIDCSourcesList{}
 	case PermissionsIdentity:
 		return &PermissionsList{}
 	default:
@@ -193,6 +207,8 @@ func (f modelManager) SparseIdentifiables(identity elemental.Identity) elemental
 		return &SparseMTLSSourcesList{}
 	case NamespaceIdentity:
 		return &SparseNamespacesList{}
+	case OIDCSourceIdentity:
+		return &SparseOIDCSourcesList{}
 	case PermissionsIdentity:
 		return &SparsePermissionsList{}
 	default:
@@ -229,6 +245,7 @@ func AllIdentities() []elemental.Identity {
 		LDAPSourceIdentity,
 		MTLSSourceIdentity,
 		NamespaceIdentity,
+		OIDCSourceIdentity,
 		PermissionsIdentity,
 		RootIdentity,
 	}
@@ -249,6 +266,8 @@ func AliasesForIdentity(identity elemental.Identity) []string {
 	case MTLSSourceIdentity:
 		return []string{}
 	case NamespaceIdentity:
+		return []string{}
+	case OIDCSourceIdentity:
 		return []string{}
 	case PermissionsIdentity:
 		return []string{}
