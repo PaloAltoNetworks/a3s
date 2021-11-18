@@ -158,6 +158,191 @@ terminal. To exit:
 
 	env-kill
 
+## Obtaining identity tokens
+
+This section describes how to use the various sources of authentication. and how
+to retrieve a token from them.
+
+All these example will assume to work in the namespace `/tutorial`. To create
+it, you can run:
+
+	a3sctl api create namespace --name tutorial --namespace /
+	export A3SCTL_NAMESPACE=/tutorial
+
+> NOTE: the env variable will tell a3sctl which namespace to target without
+> having to pass the `--namespace` flag every time.
+
+> NOTE: Some auth commands will require to pass the namespace of the auth
+> source. You can either set `--source-namespace` or leave it empty to fallback on
+> the value set by `--namespace`.
+
+> NOTE: you can also get more info about a ressource by using the `-h` flag. This
+> will list all the possible properies the api supports
+
+### MTLS
+
+The MTLS source uses mutual TLS to authenticate a client.  The client must
+present a client certificate (usage set to auth client) that is signed by the CA
+provided in the designed MTLS auth source.
+
+#### Create an MTLS source
+
+You first need to have a CA that can issue certificates for your user. In this
+example, we use `tg`, but you can use any PKI tool you like.
+
+	tg cert --name myca --is-ca 
+	tg cert --name user1 \
+		--signing-cert myca-cert.pem \ 
+		--signing-cert-key myca-key.pem
+
+NOTE: Not protecting a private key with a passphrase is bad. Don't do this in
+production.
+
+Then we need to create the MTLS auth source:
+
+	a3sctl api create mtlssource \
+		--name my-mtls-source \
+		--certificate-auhority $(cat myca-cert.pem)
+
+#### Obtain a token
+
+To obtain a token from the newly created source:
+
+	a3sctl auth mtls \
+		--source-name my-mtls-source \
+		--source-namespace /tutorial \
+		--cert user1-cert.pem \
+		--key user1-key.pem
+
+### LDAP
+
+A3s supports using a remote LDAP as authentication source. The LDAP server must
+be accessible from a3s. A3s will refuse to connect to an LDAP with no form of
+encryption (TLS or STARTTLS).
+
+#### Create an LDAP source
+
+To create an LDAP source, run:
+
+	a3sctl api create ldapsource \
+		--name my-ldap-source \
+		--base-dn dc=universe,dc=io \
+		--bind-dn cn=readonly,dc=universe,dc=io \
+		--bind-password password
+
+* The `base-dn` is the DN to use to search for users.
+* Yhe `bind-dn` is the account a3s will use to connect to the ldap. It should be
+	a readonly account.
+* The `bind-password` is the password associated to the `bind-dn`.
+
+You can also use `--certificate-auhority` to pass a custom CA if the
+certificates used by the server are not trusted by the host running a3s.
+
+#### Obtain a token
+
+To obtain a token from the newly created source:
+
+	a3sctl auth ldap \
+		--source-name my-ldap-source \
+		--namespace /tutorial \
+		--user bob \
+		--pass s3cr3t
+
+### OIDC
+
+A3s can retrieve an identity token from an existing OIDC provider in order to
+deliver normalized identiy tokens.
+
+#### Create an OIDC source
+
+Configuring a valid OIDC provider is beyond the scope of this document. However,
+they will all work the same and will give you a client ID, a client secret and
+an endpoint.
+
+It is however important to set the allowed redirect URL to be
+`http://localhost:65333` on your provider if you plan to use a3sctl to
+authenticate.
+
+Once you have this information, create an OIDC source:
+
+	a3sctl api create oidcsource \
+		--name my-oidc-source \
+		--client-id <client id> \
+		--client-secret <client secret> \
+		--endpoint https://accounts.google.com \
+		--scopes '["email", "given_name"]'
+
+The scopes indicate the OIDC provider which claim to return. This will vary
+depending on your provider.
+
+You can also use `--certificate-auhority` to pass a custom CA if the
+certificates used by the server are not trusted by the host running a3s.
+
+#### Obtain a token
+
+While all the other sources can be used easily with curl for instance, the OIDC
+source necessitate to run a http server and needs to perform a dance that is
+painful to do manually. A3sctl will do all of this transparently.
+
+To obtain a token from the newly created source:
+
+	a3sctl auth oidc \
+		--source-name my-oidc-source \
+		--source-namespace /tutorial
+
+This will print an URL to open in your browser to authenticate against the OIDC
+provider. Once done, the provider will call back a3sctl and the token will be
+displayed.
+
+
+### Amazon STS
+
+This authentication source does not need custom source creation as it uses AWS
+broadly. How to retrieve a token from AWS is beyond the scope of this document.
+However, if you run a3sctl from an EC2 instance that has an IAM role assigned, it
+will retrieve one for you, if you don't pass any additional information
+
+If you are not running the command on AWS:
+
+	a3sctl auth aws \
+		--access-key-id <kid> \
+		--access-key-secret <secret> \
+		--access-token <token>
+
+However, if you are running it from an AWS EC2 instance, you just need to run:
+
+	a3sctl auth aws
+
+### Google Cloud Platform token
+
+This authentication source does not need custom source creation as it uses GCP
+broadly. How to retrieve a token from GCP is beyond the scope of this document.
+However, if you run a3sctl from a GCP instance, it will retrieve one for you, if
+you don't pass any additional information
+
+If you are not running the command on GCP:
+
+	a3sctl auth gcp --access-token <token>
+
+However, if you are running it from an GCP instance, you just need to run:
+
+	a3sctl auth gcp
+
+###  Azure token
+
+This authentication source does not need custom source creation as it uses Azure
+broadly. How to retrieve a token from Azure is beyond the scope of this document.
+However, if you run a3sctl from a Azure instance, it will retrieve one for you, if
+you don't pass any additional information
+
+If you are not running the command on GCP:
+
+	a3sctl auth azure --access-token <token>
+
+However, if you are running it from an Azure instance, you just need to run:
+
+	a3sctl auth azure
+
 ## Support
 
 Please read [SUPPORT.md](SUPPORT.md) for details on how to get support for this

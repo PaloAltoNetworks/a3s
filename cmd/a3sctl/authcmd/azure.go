@@ -17,7 +17,7 @@ func makeAzureCmd(mmaker manipcli.ManipulatorMaker) *cobra.Command {
 		TraverseChildren: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
 
-			fToken := viper.GetString("token")
+			fToken := viper.GetString("access-token")
 			fAudience := viper.GetStringSlice("audience")
 			fCloak := viper.GetStringSlice("cloak")
 			fQRCode := viper.GetBool("qrcode")
@@ -44,7 +44,7 @@ func makeAzureCmd(mmaker manipcli.ManipulatorMaker) *cobra.Command {
 		},
 	}
 
-	cmd.Flags().String("token", "", "Valid Azure token.")
+	cmd.Flags().String("access-token", "", "Valid Azure token.")
 
 	return cmd
 }

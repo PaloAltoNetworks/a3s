@@ -32,6 +32,10 @@ func makeOIDCCmd(mmaker manipcli.ManipulatorMaker) *cobra.Command {
 			fCloak := viper.GetStringSlice("cloak")
 			fQRCode := viper.GetBool("qrcode")
 
+			if fSourceNamespace == "" {
+				fSourceNamespace = viper.GetString("namespace")
+			}
+
 			srvCtx, srvCancel := context.WithCancel(context.Background())
 			defer srvCancel()
 

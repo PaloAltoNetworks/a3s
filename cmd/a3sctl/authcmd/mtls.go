@@ -28,6 +28,10 @@ func makeMTLSCmd(mmaker manipcli.ManipulatorMaker) *cobra.Command {
 			fCloak := viper.GetStringSlice("cloak")
 			fQRCode := viper.GetBool("qrcode")
 
+			if fSourceNamespace == "" {
+				fSourceNamespace = viper.GetString("namespace")
+			}
+
 			cert, key, err := tglib.ReadCertificatePEM(fCert, fKey, fPass)
 			if err != nil {
 				return err

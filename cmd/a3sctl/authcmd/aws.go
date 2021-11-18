@@ -17,7 +17,7 @@ func makeAWSCmd(mmaker manipcli.ManipulatorMaker) *cobra.Command {
 		TraverseChildren: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
 
-			fToken := viper.GetString("token")
+			fToken := viper.GetString("access-token")
 			fAccessKeyID := viper.GetString("access-key-id")
 			fSecretAccessKey := viper.GetString("access-key-secret")
 			fAudience := viper.GetStringSlice("audience")
@@ -48,7 +48,7 @@ func makeAWSCmd(mmaker manipcli.ManipulatorMaker) *cobra.Command {
 		},
 	}
 
-	cmd.Flags().String("token", "", "Valid Azure token.")
+	cmd.Flags().String("access-token", "", "Valid AWS token.")
 	cmd.Flags().String("access-key-id", "", "Access key ID for the token.")
 	cmd.Flags().String("access-key-secret", "", "Secret for access key.")
 

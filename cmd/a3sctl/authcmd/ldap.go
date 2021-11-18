@@ -26,6 +26,10 @@ func makeLDAPCmd(mmaker manipcli.ManipulatorMaker) *cobra.Command {
 			fCloak := viper.GetStringSlice("cloak")
 			fQRCode := viper.GetBool("qrcode")
 
+			if fSourceNamespace == "" {
+				fSourceNamespace = viper.GetString("namespace")
+			}
+
 			m, err := mmaker()
 			if err != nil {
 				return err

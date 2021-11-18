@@ -17,7 +17,7 @@ func makeGCPCmd(mmaker manipcli.ManipulatorMaker) *cobra.Command {
 		TraverseChildren: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
 
-			fToken := viper.GetString("token")
+			fToken := viper.GetString("access-token")
 			fTokenAudience := viper.GetString("token-audience")
 			fAudience := viper.GetStringSlice("audience")
 			fCloak := viper.GetStringSlice("cloak")
@@ -46,7 +46,7 @@ func makeGCPCmd(mmaker manipcli.ManipulatorMaker) *cobra.Command {
 		},
 	}
 
-	cmd.Flags().String("token", "", "Valid GCP token.")
+	cmd.Flags().String("access-token", "", "Valid GCP token.")
 	cmd.Flags().String("token-audience", "a3s", "Required GCP token audience.")
 
 	return cmd
