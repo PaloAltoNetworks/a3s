@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/coreos/go-oidc/v3/oidc"
 	"github.com/golang-jwt/jwt/v4"
 	"go.aporeto.io/a3s/internal/issuer/a3sissuer"
 	"go.aporeto.io/a3s/internal/issuer/awsissuer"
@@ -14,12 +15,15 @@ import (
 	"go.aporeto.io/a3s/internal/issuer/gcpissuer"
 	"go.aporeto.io/a3s/internal/issuer/ldapissuer"
 	"go.aporeto.io/a3s/internal/issuer/mtlsissuer"
+	"go.aporeto.io/a3s/internal/issuer/oidcissuer"
+	"go.aporeto.io/a3s/internal/oidcceremony"
 	"go.aporeto.io/a3s/pkgs/api"
 	"go.aporeto.io/a3s/pkgs/permissions"
 	"go.aporeto.io/a3s/pkgs/token"
 	"go.aporeto.io/bahamut"
 	"go.aporeto.io/elemental"
 	"go.aporeto.io/manipulate"
+	"golang.org/x/oauth2"
 )
 
 // A IssueProcessor is a bahamut processor for Issue.
@@ -74,6 +78,12 @@ func (p *IssueProcessor) ProcessCreate(bctx bahamut.Context) (err error) {
 	case api.IssueSourceTypeGCP:
 		issuer, err = p.handleGCPIssue(bctx.Context(), req)
 
+	case api.IssueSourceTypeOIDC:
+		issuer, err = p.handleOIDCIssue(bctx, req)
+		if issuer == nil && err == nil {
+			return nil
+		}
+
 	case api.IssueSourceTypeA3S:
 		issuer, err = p.handleTokenIssue(bctx.Context(), req, validity)
 		// we reset to 0 to skip setting exp during issuing of the token
@@ -92,13 +102,13 @@ func (p *IssueProcessor) ProcessCreate(bctx bahamut.Context) (err error) {
 		return err
 	}
 
+	req.Validity = time.Until(idt.ExpiresAt.Time).Round(time.Second).String()
 	req.InputLDAP = nil
 	req.InputAWS = nil
 	req.InputAzure = nil
 	req.InputGCP = nil
 	req.InputOIDC = nil
 	req.InputToken = nil
-	req.Validity = time.Until(idt.ExpiresAt.Time).Round(time.Second).String()
 
 	bctx.SetOutputData(req)
 
@@ -171,6 +181,7 @@ func (p *IssueProcessor) handleGCPIssue(ctx context.Context, req *api.Issue) (to
 
 	return iss, nil
 }
+
 func (p *IssueProcessor) handleTokenIssue(ctx context.Context, req *api.Issue, validity time.Duration) (token.Issuer, error) {
 
 	iss, err := a3sissuer.New(
@@ -192,7 +203,181 @@ func (p *IssueProcessor) handleTokenIssue(ctx context.Context, req *api.Issue, v
 	return iss, nil
 }
 
-func retrieveSource(ctx context.Context, m manipulate.Manipulator, namespace string, name string, identity elemental.Identity) (elemental.Identifiable, error) {
+func (p *IssueProcessor) handleOIDCIssue(bctx bahamut.Context, req *api.Issue) (token.Issuer, error) {
+
+	state := req.InputOIDC.State
+	code := req.InputOIDC.Code
+
+	if code == "" && state == "" {
+
+		out, err := retrieveSource(
+			bctx.Context(),
+			p.manipulator,
+			req.SourceNamespace,
+			req.SourceName,
+			api.OIDCSourceIdentity,
+		)
+		if err != nil {
+			return nil, err
+		}
+		src := out.(*api.OIDCSource)
+
+		client, err := oidcceremony.MakeOIDCProviderClient(src.CertificateAuthority)
+		if err != nil {
+			return nil, oidcceremony.RedirectErrorEventually(
+				bctx,
+				req.InputOIDC.RedirectErrorURL,
+				elemental.NewError(
+					"Bad Request",
+					err.Error(),
+					"a3s:authn",
+					http.StatusBadRequest,
+				),
+			)
+		}
+
+		oidcCtx := oidc.ClientContext(bctx.Context(), client)
+		provider, err := oidc.NewProvider(oidcCtx, src.Endpoint)
+		if err != nil {
+			return nil, oidcceremony.RedirectErrorEventually(
+				bctx,
+				req.InputOIDC.RedirectErrorURL,
+				elemental.NewError(
+					"Bad Request",
+					err.Error(),
+					"a3s:authn",
+					http.StatusBadRequest,
+				),
+			)
+		}
+
+		oauth2Config := oauth2.Config{
+			ClientID:     src.ClientID,
+			ClientSecret: src.ClientSecret,
+			RedirectURL:  req.InputOIDC.RedirectURL,
+			Endpoint:     provider.Endpoint(),
+			Scopes:       append([]string{oidc.ScopeOpenID}, src.Scopes...),
+		}
+
+		state, err = oidcceremony.GenerateNonce(12)
+		if err != nil {
+			return nil, oidcceremony.RedirectErrorEventually(
+				bctx,
+				req.InputOIDC.RedirectErrorURL,
+				err,
+			)
+		}
+
+		cacheItem := &oidcceremony.CacheItem{
+			State:            state,
+			ProviderEndpoint: src.Endpoint,
+			CA:               src.CertificateAuthority,
+			ClientID:         src.ClientID,
+			OAuth2Config:     oauth2Config,
+		}
+
+		if err := oidcceremony.Set(p.manipulator, cacheItem); err != nil {
+			return nil, oidcceremony.RedirectErrorEventually(
+				bctx,
+				req.InputOIDC.RedirectErrorURL,
+				err,
+			)
+		}
+
+		authURL := oauth2Config.AuthCodeURL(state)
+
+		if req.InputOIDC.NoAuthRedirect {
+			req.InputOIDC.AuthURL = authURL
+			bctx.SetOutputData(req)
+		} else {
+			bctx.SetRedirect(authURL)
+		}
+
+		return nil, nil
+	}
+
+	oidcReq, err := oidcceremony.Get(p.manipulator, state)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := oidcceremony.Delete(p.manipulator, state); err != nil {
+		return nil, err
+	}
+
+	client, err := oidcceremony.MakeOIDCProviderClient(oidcReq.CA)
+	if err != nil {
+		return nil, fmt.Errorf("unable to create oidc http client: %s", err)
+	}
+
+	oidcctx := oidc.ClientContext(bctx.Context(), client)
+
+	oauth2Token, err := oidcReq.OAuth2Config.Exchange(oidcctx, code)
+	if err != nil {
+		return nil, elemental.NewError(
+			"OAuth2 Error",
+			err.Error(),
+			"a3s:authn",
+			http.StatusNotAcceptable,
+		)
+	}
+
+	rawIDToken, ok := oauth2Token.Extra("id_token").(string)
+	if !ok {
+		return nil, fmt.Errorf("missing ID token")
+	}
+
+	provider, err := oidc.NewProvider(oidcctx, oidcReq.ProviderEndpoint)
+	if err != nil {
+		return nil, elemental.NewError(
+			"OIDC Error",
+			err.Error(),
+			"a3s:authn",
+			http.StatusUnauthorized,
+		)
+	}
+
+	verifier := provider.Verifier(
+		&oidc.Config{
+			ClientID: oidcReq.ClientID,
+		},
+	)
+
+	idToken, err := verifier.Verify(oidcctx, rawIDToken)
+	if err != nil {
+		return nil, elemental.NewError(
+			"OAuth2 Verification Error",
+			err.Error(),
+			"a3s:authn",
+			http.StatusNotAcceptable,
+		)
+	}
+
+	claims := map[string]interface{}{}
+	if err := idToken.Claims(&claims); err != nil {
+		return nil, elemental.NewError(
+			"Claims Decoding Error",
+			err.Error(),
+			"a3s:authn",
+			http.StatusNotAcceptable,
+		)
+	}
+
+	iss, err := oidcissuer.New(claims)
+	if err != nil {
+		return nil, err
+	}
+
+	return iss, nil
+}
+
+func retrieveSource(
+	ctx context.Context,
+	m manipulate.Manipulator,
+	namespace string,
+	name string,
+	identity elemental.Identity,
+) (elemental.Identifiable, error) {
 
 	if namespace == "" {
 		return nil, elemental.NewError(

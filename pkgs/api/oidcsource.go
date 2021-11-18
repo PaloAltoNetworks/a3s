@@ -422,10 +422,6 @@ func (o *OIDCSource) Validate() error {
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
-	if err := elemental.ValidateRequiredString("certificateAuthority", o.CertificateAuthority); err != nil {
-		requiredErrors = requiredErrors.Append(err)
-	}
-
 	if err := ValidatePEM("certificateAuthority", o.CertificateAuthority); err != nil {
 		errors = errors.Append(err)
 	}
@@ -532,11 +528,10 @@ var OIDCSourceAttributesMap = map[string]elemental.AttributeSpecification{
 		Description: `The Certificate authority to use to validate the authenticity of the OIDC
 server. If left empty, the system trust stroe will be used. In most of the
 cases, you don't need to set this.`,
-		Exposed:  true,
-		Name:     "certificateAuthority",
-		Required: true,
-		Stored:   true,
-		Type:     "string",
+		Exposed: true,
+		Name:    "certificateAuthority",
+		Stored:  true,
+		Type:    "string",
 	},
 	"ClientID": {
 		AllowedChoices: []string{},
@@ -674,11 +669,10 @@ var OIDCSourceLowerCaseAttributesMap = map[string]elemental.AttributeSpecificati
 		Description: `The Certificate authority to use to validate the authenticity of the OIDC
 server. If left empty, the system trust stroe will be used. In most of the
 cases, you don't need to set this.`,
-		Exposed:  true,
-		Name:     "certificateAuthority",
-		Required: true,
-		Stored:   true,
-		Type:     "string",
+		Exposed: true,
+		Name:    "certificateAuthority",
+		Stored:  true,
+		Type:    "string",
 	},
 	"clientid": {
 		AllowedChoices: []string{},

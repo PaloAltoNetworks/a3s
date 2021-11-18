@@ -10,8 +10,15 @@ import (
 
 // IssueOIDC represents the model of a issueoidc
 type IssueOIDC struct {
+	// Contains the auth URL is noAuthRedirect is set to true.
+	AuthURL string `json:"authURL,omitempty" msgpack:"authURL,omitempty" bson:"-" mapstructure:"authURL,omitempty"`
+
 	// OIDC ceremony code.
 	Code string `json:"code" msgpack:"code" bson:"-" mapstructure:"code,omitempty"`
+
+	// If set, instruct the server to return the OIDC auth url in authURL instead of
+	// performing an HTTP redirection.
+	NoAuthRedirect bool `json:"noAuthRedirect" msgpack:"noAuthRedirect" bson:"-" mapstructure:"noAuthRedirect,omitempty"`
 
 	// OIDC redirect url in case of error.
 	RedirectErrorURL string `json:"redirectErrorURL" msgpack:"redirectErrorURL" bson:"-" mapstructure:"redirectErrorURL,omitempty"`

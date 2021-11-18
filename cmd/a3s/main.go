@@ -9,7 +9,9 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"time"
 
+	"github.com/globalsign/mgo"
 	"go.aporeto.io/a3s/internal/hasher"
 	"go.aporeto.io/a3s/internal/processors"
 	"go.aporeto.io/a3s/pkgs/api"
@@ -24,6 +26,7 @@ import (
 	"go.aporeto.io/bahamut"
 	"go.aporeto.io/elemental"
 	"go.aporeto.io/manipulate"
+	"go.aporeto.io/manipulate/manipmongo"
 	"go.aporeto.io/tg/tglib"
 	"go.uber.org/zap"
 )
@@ -52,6 +55,14 @@ func main() {
 	m := bootstrap.MakeMongoManipulator(cfg.MongoConf, &hasher.Hasher{})
 	if err := indexes.Ensure(m, api.Manager(), "a3s"); err != nil {
 		zap.L().Fatal("Unable to ensure indexes", zap.Error(err))
+	}
+
+	if err := manipmongo.EnsureIndex(m, elemental.MakeIdentity("oidccache", "oidccache"), mgo.Index{
+		Key:         []string{"time"},
+		ExpireAfter: 1 * time.Minute,
+		Name:        "index_expiration_exp",
+	}); err != nil {
+		zap.L().Fatal("Unable to create exp expiration index for oidccache", zap.Error(err))
 	}
 
 	if err := createRootNamespaceIfNeeded(m); err != nil {

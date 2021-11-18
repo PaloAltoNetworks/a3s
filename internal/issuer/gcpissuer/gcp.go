@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/golang-jwt/jwt/v4"
 	"go.aporeto.io/a3s/pkgs/token"
@@ -73,6 +74,10 @@ func (c *gcpIssuer) fromToken(tokenString string, audience string) (err error) {
 		}); err == nil {
 			break
 		}
+	}
+
+	if ok := gcpToken.VerifyExpiresAt(time.Now(), true); !ok {
+		return ErrGCP{Err: fmt.Errorf("GCP token is expired since %s", time.Since(gcpToken.ExpiresAt.Time))}
 	}
 
 	if gcpToken.Issuer != gcpClaimsRequiredIssuer {
