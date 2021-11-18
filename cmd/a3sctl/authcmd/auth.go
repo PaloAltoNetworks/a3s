@@ -20,7 +20,7 @@ func New(mmaker manipcli.ManipulatorMaker) *cobra.Command {
 	}
 	rootCmd.PersistentFlags().StringSlice("audience", nil, "Requested audience for the token.")
 	rootCmd.PersistentFlags().String("source-name", "default", "The name of the auth source.")
-	rootCmd.PersistentFlags().String("source-namespace", "", "The namespace of the auth source. If ommited, --namespace will be used")
+	rootCmd.PersistentFlags().String("source-namespace", "", "The namespace of the auth source. If omitted, --namespace will be used")
 	rootCmd.PersistentFlags().StringSlice("cloak", nil, "Cloak identity claims. Only claims with a prefix matching of of the given string will be used in the token.")
 	rootCmd.PersistentFlags().Bool("qrcode", false, "If passed, display the token as a QR code.")
 

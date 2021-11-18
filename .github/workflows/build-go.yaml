@@ -1,0 +1,46 @@
+name: build-go
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
+defaults:
+  run:
+    shell: bash
+
+env:
+  GO111MODULE: on
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        go:
+          - 1.17
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-go@v2
+        with:
+          go-version: ${{ matrix.go }}
+
+      - name: setup
+        run: |
+          go version
+          go get github.com/securego/gosec/cmd/gosec
+          go get github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+          go get github.com/axw/gocov/gocov
+          go get github.com/AlekSi/gocov-xml
+
+      - name: build
+        run: |
+          make
+
+      - name: coverage
+        uses: codacy/codacy-coverage-reporter-action@v1
+        with:
+          project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
+          coverage-reports: "./coverage.xml"

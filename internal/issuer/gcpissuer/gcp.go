@@ -77,7 +77,7 @@ func (c *gcpIssuer) fromToken(tokenString string, audience string) (err error) {
 	}
 
 	if ok := gcpToken.VerifyExpiresAt(time.Now(), true); !ok {
-		return ErrGCP{Err: fmt.Errorf("GCP token is expired since %s", time.Since(gcpToken.ExpiresAt.Time))}
+		return ErrGCP{Err: fmt.Errorf("GCP token is expired")}
 	}
 
 	if gcpToken.Issuer != gcpClaimsRequiredIssuer {

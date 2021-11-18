@@ -6,7 +6,7 @@ DOCKER_TAG ?= "dev"
 
 export GO111MODULE = on
 
-default: lint test
+default: lint test a3s cli
 
 lint:
 	golangci-lint run \
@@ -41,13 +41,19 @@ sec:
 codegen:
 	cd pkgs/api && make codegen
 
-build_linux:
+a3s:
+	cd cmd/a3s && CGO_ENABLED=0 go build -ldflags="-w -s"
+
+a3s_linux:
 	cd cmd/a3s && CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-w -s"
 
 cli:
 	cd cmd/a3sctl && CGO_ENABLED=0 go install -ldflags="-w -s"
 
-docker: build_linux
+cli_linux:
+	cd cmd/a3sctl && CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go install -ldflags="-w -s"
+
+docker: a3s_linux
 	mkdir -p docker/in
 	cp cmd/a3s/a3s docker/in
 	cd docker && docker build -t ${DOCKER_REPO}/${DOCKER_IMAGE}:${DOCKER_TAG} .
