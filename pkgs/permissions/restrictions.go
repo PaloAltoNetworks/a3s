@@ -49,6 +49,11 @@ func GetRestrictions(tokenString string) (Restrictions, error) {
 	return s.R, nil
 }
 
+// Zero returns true if the Restrictions is zero value.
+func (r Restrictions) Zero() bool {
+	return len(r.Permissions) == 0 && len(r.Networks) == 0 && r.Namespace == ""
+}
+
 // RestrictNamespace returns the namespace to use based on the
 // receiver and the new requested one.
 func (r Restrictions) RestrictNamespace(requested string) (string, error) {

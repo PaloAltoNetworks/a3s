@@ -638,3 +638,69 @@ func TestErrRestrictionsViolations(t *testing.T) {
 
 	})
 }
+
+func TestRestrictions_Zero(t *testing.T) {
+	tests := []struct {
+		name    string
+		init    func(t *testing.T) Restrictions
+		inspect func(r Restrictions, t *testing.T) //inspects receiver after test run
+
+		want1 bool
+	}{
+		{
+			"non zero with ns",
+			func(*testing.T) Restrictions {
+				return Restrictions{Namespace: "/hello"}
+			},
+			nil,
+			false,
+		},
+		{
+			"non zero with perms",
+			func(*testing.T) Restrictions {
+				return Restrictions{Permissions: []string{"hello"}}
+			},
+			nil,
+			false,
+		},
+		{
+			"non zero with nets",
+			func(*testing.T) Restrictions {
+				return Restrictions{Networks: []string{"hello"}}
+			},
+			nil,
+			false,
+		},
+		{
+			"zero",
+			func(*testing.T) Restrictions {
+				return Restrictions{}
+			},
+			nil,
+			true,
+		},
+		{
+			"zero with empty arrays",
+			func(*testing.T) Restrictions {
+				return Restrictions{Permissions: []string{}, Networks: []string{}}
+			},
+			nil,
+			true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			receiver := tt.init(t)
+			got1 := receiver.Zero()
+
+			if tt.inspect != nil {
+				tt.inspect(receiver, t)
+			}
+
+			if !reflect.DeepEqual(got1, tt.want1) {
+				t.Errorf("Restrictions.Zero got1 = %v, want1: %v", got1, tt.want1)
+			}
+		})
+	}
+}
