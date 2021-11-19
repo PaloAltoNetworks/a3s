@@ -6,10 +6,11 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"go.aporeto.io/a3s/pkgs/authlib"
+	"go.aporeto.io/a3s/pkgs/permissions"
 	"go.aporeto.io/manipulate/manipcli"
 )
 
-func makeGCPCmd(mmaker manipcli.ManipulatorMaker) *cobra.Command {
+func makeGCPCmd(mmaker manipcli.ManipulatorMaker, restrictions *permissions.Restrictions) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:              "gcp",
@@ -22,9 +23,6 @@ func makeGCPCmd(mmaker manipcli.ManipulatorMaker) *cobra.Command {
 			fAudience := viper.GetStringSlice("audience")
 			fCloak := viper.GetStringSlice("cloak")
 			fQRCode := viper.GetBool("qrcode")
-			fRestrictedPermissions := viper.GetStringSlice("restricted-permissions")
-			fRestrictedNetworks := viper.GetStringSlice("restricted-networks")
-			fRestrictedNamespace := viper.GetString("restricted-namespace")
 
 			m, err := mmaker()
 			if err != nil {
@@ -38,9 +36,7 @@ func makeGCPCmd(mmaker manipcli.ManipulatorMaker) *cobra.Command {
 				fTokenAudience,
 				authlib.OptAudience(fAudience...),
 				authlib.OptCloak(fCloak...),
-				authlib.OptRestrictNamespace(fRestrictedNamespace),
-				authlib.OptRestrictPermissions(fRestrictedPermissions),
-				authlib.OptRestrictNetworks(fRestrictedNetworks),
+				authlib.OptRestrictions(*restrictions),
 			)
 			if err != nil {
 				return err

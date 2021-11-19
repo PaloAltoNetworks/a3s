@@ -6,10 +6,11 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"go.aporeto.io/a3s/pkgs/authlib"
+	"go.aporeto.io/a3s/pkgs/permissions"
 	"go.aporeto.io/manipulate/manipcli"
 )
 
-func makeLDAPCmd(mmaker manipcli.ManipulatorMaker) *cobra.Command {
+func makeLDAPCmd(mmaker manipcli.ManipulatorMaker, restrictions *permissions.Restrictions) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:              "ldap",
@@ -25,9 +26,6 @@ func makeLDAPCmd(mmaker manipcli.ManipulatorMaker) *cobra.Command {
 			fPass := viper.GetString("pass")
 			fCloak := viper.GetStringSlice("cloak")
 			fQRCode := viper.GetBool("qrcode")
-			fRestrictedPermissions := viper.GetStringSlice("restricted-permissions")
-			fRestrictedNetworks := viper.GetStringSlice("restricted-networks")
-			fRestrictedNamespace := viper.GetString("restricted-namespace")
 
 			if fSourceNamespace == "" {
 				fSourceNamespace = viper.GetString("namespace")
@@ -47,9 +45,7 @@ func makeLDAPCmd(mmaker manipcli.ManipulatorMaker) *cobra.Command {
 				fSourceName,
 				authlib.OptAudience(fAudience...),
 				authlib.OptCloak(fCloak...),
-				authlib.OptRestrictNamespace(fRestrictedNamespace),
-				authlib.OptRestrictPermissions(fRestrictedPermissions),
-				authlib.OptRestrictNetworks(fRestrictedNetworks),
+				authlib.OptRestrictions(*restrictions),
 			)
 			if err != nil {
 				return err

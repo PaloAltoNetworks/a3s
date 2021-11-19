@@ -1,15 +1,17 @@
 package authlib
 
-import "time"
+import (
+	"time"
+
+	"go.aporeto.io/a3s/pkgs/permissions"
+)
 
 type config struct {
-	validity              time.Duration
-	opaque                map[string]string
-	audience              []string
-	restrictedNamespace   string
-	restrictedPermissions []string
-	restrictedNetworks    []string
-	cloak                 []string
+	validity     time.Duration
+	opaque       map[string]string
+	audience     []string
+	restrictions permissions.Restrictions
+	cloak        []string
 }
 
 func newConfig() config {
@@ -55,26 +57,9 @@ func OptAudience(audience ...string) Option {
 	}
 }
 
-// OptRestrictNamespace asks for a restricted token on the given namespace.
-func OptRestrictNamespace(namespace string) Option {
-
+// OptRestrictions sets the request restrictions for the token.
+func OptRestrictions(restrictions permissions.Restrictions) Option {
 	return func(opts *config) {
-		opts.restrictedNamespace = namespace
-	}
-}
-
-// OptRestrictPermissions asks for a restricted token on the given permissions.
-func OptRestrictPermissions(permissions []string) Option {
-
-	return func(opts *config) {
-		opts.restrictedPermissions = permissions
-	}
-}
-
-// OptRestrictNetworks asks for a restricted token on the given networks.
-func OptRestrictNetworks(networks []string) Option {
-
-	return func(opts *config) {
-		opts.restrictedNetworks = networks
+		opts.restrictions = restrictions
 	}
 }

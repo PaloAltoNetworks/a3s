@@ -6,6 +6,7 @@ import (
 
 	"github.com/mdp/qrterminal"
 	"github.com/spf13/cobra"
+	"go.aporeto.io/a3s/pkgs/permissions"
 	"go.aporeto.io/manipulate/manipcli"
 )
 
@@ -23,19 +24,23 @@ func New(mmaker manipcli.ManipulatorMaker) *cobra.Command {
 	rootCmd.PersistentFlags().String("source-namespace", "", "The namespace of the auth source. If omitted, --namespace will be used")
 	rootCmd.PersistentFlags().StringSlice("cloak", nil, "Cloak identity claims. Only claims with a prefix matching of of the given string will be used in the token.")
 	rootCmd.PersistentFlags().Bool("qrcode", false, "If passed, display the token as a QR code.")
-	rootCmd.PersistentFlags().StringSlice("restricted-permissions", nil, "Restrict the permissions to what is given")
-	rootCmd.PersistentFlags().StringSlice("restricted-networks", nil, "Rrestrict the origin networks from which the token can be used")
-	rootCmd.PersistentFlags().String("restricted-namespace", "", "Rrestrict the namespace from which the token can be used")
+
+	// Freaking pglags and its non configurable split char
+	// and missing GetStringArray...
+	restrictions := &permissions.Restrictions{}
+	rootCmd.PersistentFlags().StringArrayVar(&restrictions.Permissions, "restricted-permissions", nil, "Restrict the permissions to what is given")
+	rootCmd.PersistentFlags().StringArrayVar(&restrictions.Networks, "restricted-networks", nil, "Rrestrict the origin networks from which the token can be used")
+	rootCmd.PersistentFlags().StringVar(&restrictions.Namespace, "restricted-namespace", "", "Rrestrict the namespace from which the token can be used")
 
 	rootCmd.AddCommand(
 		makeCheckCmd(),
-		makeMTLSCmd(mmaker),
-		makeLDAPCmd(mmaker),
-		makeAzureCmd(mmaker),
-		makeGCPCmd(mmaker),
-		makeAWSCmd(mmaker),
-		makeOIDCCmd(mmaker),
-		makeA3SCmd(mmaker),
+		makeMTLSCmd(mmaker, restrictions),
+		makeLDAPCmd(mmaker, restrictions),
+		makeAzureCmd(mmaker, restrictions),
+		makeGCPCmd(mmaker, restrictions),
+		makeAWSCmd(mmaker, restrictions),
+		makeOIDCCmd(mmaker, restrictions),
+		makeA3SCmd(mmaker, restrictions),
 	)
 
 	return rootCmd

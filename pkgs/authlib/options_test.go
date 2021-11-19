@@ -5,6 +5,7 @@ import (
 	"time"
 
 	. "github.com/smartystreets/goconvey/convey"
+	"go.aporeto.io/a3s/pkgs/permissions"
 )
 
 func TestBahamut_Options(t *testing.T) {
@@ -30,18 +31,13 @@ func TestBahamut_Options(t *testing.T) {
 		So(c.audience, ShouldResemble, []string{"audience"})
 	})
 
-	Convey("Calling OptRestrictNamespace should work", t, func() {
-		OptRestrictNamespace("/ns")(&c)
-		So(c.restrictedNamespace, ShouldEqual, "/ns")
-	})
-
-	Convey("Calling OptRestrictPermissions should work", t, func() {
-		OptRestrictPermissions([]string{"@auth:role=toto", "test,get,post,put"})(&c)
-		So(c.restrictedPermissions, ShouldResemble, []string{"@auth:role=toto", "test,get,post,put"})
-	})
-
-	Convey("Calling OptRestrictNetworks should work", t, func() {
-		OptRestrictNetworks([]string{"1.0.0.0/8", "2.0.0.0/8"})(&c)
-		So(c.restrictedNetworks, ShouldResemble, []string{"1.0.0.0/8", "2.0.0.0/8"})
+	Convey("Calling OptRestrictions should work", t, func() {
+		r := permissions.Restrictions{
+			Namespace:   "/ns",
+			Networks:    []string{"10.0.0.1/32"},
+			Permissions: []string{"r:a1,a2"},
+		}
+		OptRestrictions(r)(&c)
+		So(c.restrictions, ShouldResemble, r)
 	})
 }

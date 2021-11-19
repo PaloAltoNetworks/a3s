@@ -6,12 +6,13 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"go.aporeto.io/a3s/pkgs/authlib"
+	"go.aporeto.io/a3s/pkgs/permissions"
 	"go.aporeto.io/manipulate/manipcli"
 	"go.aporeto.io/manipulate/maniphttp"
 	"go.aporeto.io/tg/tglib"
 )
 
-func makeMTLSCmd(mmaker manipcli.ManipulatorMaker) *cobra.Command {
+func makeMTLSCmd(mmaker manipcli.ManipulatorMaker, restrictions *permissions.Restrictions) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:              "mtls",
@@ -27,9 +28,6 @@ func makeMTLSCmd(mmaker manipcli.ManipulatorMaker) *cobra.Command {
 			fAudience := viper.GetStringSlice("audience")
 			fCloak := viper.GetStringSlice("cloak")
 			fQRCode := viper.GetBool("qrcode")
-			fRestrictedPermissions := viper.GetStringSlice("restricted-permissions")
-			fRestrictedNetworks := viper.GetStringSlice("restricted-networks")
-			fRestrictedNamespace := viper.GetString("restricted-namespace")
 
 			if fSourceNamespace == "" {
 				fSourceNamespace = viper.GetString("namespace")
@@ -57,9 +55,7 @@ func makeMTLSCmd(mmaker manipcli.ManipulatorMaker) *cobra.Command {
 				fSourceName,
 				authlib.OptAudience(fAudience...),
 				authlib.OptCloak(fCloak...),
-				authlib.OptRestrictNamespace(fRestrictedNamespace),
-				authlib.OptRestrictPermissions(fRestrictedPermissions),
-				authlib.OptRestrictNetworks(fRestrictedNetworks),
+				authlib.OptRestrictions(*restrictions),
 			)
 			if err != nil {
 				return err

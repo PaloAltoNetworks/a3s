@@ -239,7 +239,7 @@ func applyOptions(req *api.Issue, cfg config) {
 	req.Cloak = cfg.cloak
 	req.Opaque = cfg.opaque
 	req.Audience = cfg.audience
-	req.RestrictedPermissions = cfg.restrictedPermissions
-	req.RestrictedNamespace = cfg.restrictedNamespace
-	req.RestrictedNetworks = cfg.restrictedNetworks
+	req.RestrictedPermissions = cfg.restrictions.Permissions
+	req.RestrictedNamespace = cfg.restrictions.Namespace
+	req.RestrictedNetworks = cfg.restrictions.Networks
 }
