@@ -202,7 +202,7 @@ Then we need to create the MTLS auth source:
 
 	a3sctl api create mtlssource \
 		--name my-mtls-source \
-		--certificate-auhority $(cat myca-cert.pem)
+		--certificate-auhority "$(cat myca-cert.pem)"
 
 #### Obtain a token
 
@@ -227,6 +227,7 @@ To create an LDAP source, run:
 	a3sctl api create ldapsource \
 		--name my-ldap-source \
 		--address 127.0.0.1:389 \
+		--certificate-authority "$(cat ldap-ce-cert.pem)" \
 		--base-dn dc=universe,dc=io \
 		--bind-dn cn=readonly,dc=universe,dc=io \
 		--bind-password password
