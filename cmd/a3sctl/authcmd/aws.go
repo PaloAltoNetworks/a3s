@@ -23,6 +23,9 @@ func makeAWSCmd(mmaker manipcli.ManipulatorMaker) *cobra.Command {
 			fAudience := viper.GetStringSlice("audience")
 			fCloak := viper.GetStringSlice("cloak")
 			fQRCode := viper.GetBool("qrcode")
+			fRestrictedPermissions := viper.GetStringSlice("restricted-permissions")
+			fRestrictedNetworks := viper.GetStringSlice("restricted-networks")
+			fRestrictedNamespace := viper.GetString("restricted-namespace")
 
 			m, err := mmaker()
 			if err != nil {
@@ -37,6 +40,9 @@ func makeAWSCmd(mmaker manipcli.ManipulatorMaker) *cobra.Command {
 				fToken,
 				authlib.OptAudience(fAudience...),
 				authlib.OptCloak(fCloak...),
+				authlib.OptRestrictNamespace(fRestrictedNamespace),
+				authlib.OptRestrictPermissions(fRestrictedPermissions),
+				authlib.OptRestrictNetworks(fRestrictedNetworks),
 			)
 			if err != nil {
 				return err

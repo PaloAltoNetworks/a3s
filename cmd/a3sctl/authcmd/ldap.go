@@ -25,6 +25,9 @@ func makeLDAPCmd(mmaker manipcli.ManipulatorMaker) *cobra.Command {
 			fPass := viper.GetString("pass")
 			fCloak := viper.GetStringSlice("cloak")
 			fQRCode := viper.GetBool("qrcode")
+			fRestrictedPermissions := viper.GetStringSlice("restricted-permissions")
+			fRestrictedNetworks := viper.GetStringSlice("restricted-networks")
+			fRestrictedNamespace := viper.GetString("restricted-namespace")
 
 			if fSourceNamespace == "" {
 				fSourceNamespace = viper.GetString("namespace")
@@ -44,6 +47,9 @@ func makeLDAPCmd(mmaker manipcli.ManipulatorMaker) *cobra.Command {
 				fSourceName,
 				authlib.OptAudience(fAudience...),
 				authlib.OptCloak(fCloak...),
+				authlib.OptRestrictNamespace(fRestrictedNamespace),
+				authlib.OptRestrictPermissions(fRestrictedPermissions),
+				authlib.OptRestrictNetworks(fRestrictedNetworks),
 			)
 			if err != nil {
 				return err

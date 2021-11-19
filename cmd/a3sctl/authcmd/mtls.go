@@ -27,6 +27,9 @@ func makeMTLSCmd(mmaker manipcli.ManipulatorMaker) *cobra.Command {
 			fAudience := viper.GetStringSlice("audience")
 			fCloak := viper.GetStringSlice("cloak")
 			fQRCode := viper.GetBool("qrcode")
+			fRestrictedPermissions := viper.GetStringSlice("restricted-permissions")
+			fRestrictedNetworks := viper.GetStringSlice("restricted-networks")
+			fRestrictedNamespace := viper.GetString("restricted-namespace")
 
 			if fSourceNamespace == "" {
 				fSourceNamespace = viper.GetString("namespace")
@@ -54,6 +57,9 @@ func makeMTLSCmd(mmaker manipcli.ManipulatorMaker) *cobra.Command {
 				fSourceName,
 				authlib.OptAudience(fAudience...),
 				authlib.OptCloak(fCloak...),
+				authlib.OptRestrictNamespace(fRestrictedNamespace),
+				authlib.OptRestrictPermissions(fRestrictedPermissions),
+				authlib.OptRestrictNetworks(fRestrictedNetworks),
 			)
 			if err != nil {
 				return err

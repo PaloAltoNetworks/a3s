@@ -27,9 +27,9 @@ func (e ErrRestrictionsViolation) Unwrap() error {
 // that the policy engine should apply for authz based
 // on the token
 type Restrictions struct {
-	Namespace   string   `json:"namespace"`
-	Permissions []string `json:"perms"`
-	Networks    []string `json:"networks"`
+	Namespace   string   `json:"namespace,omitempty"`
+	Permissions []string `json:"perms,omitempty"`
+	Networks    []string `json:"networks,omitempty"`
 }
 
 // GetRestrictions returns the eventual Restrictions

@@ -23,6 +23,9 @@ func New(mmaker manipcli.ManipulatorMaker) *cobra.Command {
 	rootCmd.PersistentFlags().String("source-namespace", "", "The namespace of the auth source. If omitted, --namespace will be used")
 	rootCmd.PersistentFlags().StringSlice("cloak", nil, "Cloak identity claims. Only claims with a prefix matching of of the given string will be used in the token.")
 	rootCmd.PersistentFlags().Bool("qrcode", false, "If passed, display the token as a QR code.")
+	rootCmd.PersistentFlags().StringSlice("restricted-permissions", nil, "Restrict the permissions to what is given")
+	rootCmd.PersistentFlags().StringSlice("restricted-networks", nil, "Rrestrict the origin networks from which the token can be used")
+	rootCmd.PersistentFlags().String("restricted-namespace", "", "Rrestrict the namespace from which the token can be used")
 
 	rootCmd.AddCommand(
 		makeCheckCmd(),

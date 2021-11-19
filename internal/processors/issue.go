@@ -96,8 +96,22 @@ func (p *IssueProcessor) ProcessCreate(bctx bahamut.Context) (err error) {
 	}
 
 	idt := issuer.Issue()
-	k := p.jwks.GetLast()
 
+	// The a3s source realm already deal with its restrictions.
+	if req.SourceType != api.IssueSourceTypeA3S {
+
+		if len(req.RestrictedPermissions) > 0 ||
+			len(req.RestrictedNetworks) > 0 ||
+			req.RestrictedNamespace != "" {
+			idt.Restrictions = &permissions.Restrictions{
+				Namespace:   req.RestrictedNamespace,
+				Permissions: req.RestrictedPermissions,
+				Networks:    req.RestrictedNetworks,
+			}
+		}
+	}
+
+	k := p.jwks.GetLast()
 	if req.Token, err = idt.JWT(k.PrivateKey(), k.KID, p.issuer, audience, exp, req.Cloak); err != nil {
 		return err
 	}

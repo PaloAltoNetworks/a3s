@@ -31,6 +31,9 @@ func makeOIDCCmd(mmaker manipcli.ManipulatorMaker) *cobra.Command {
 			fAudience := viper.GetStringSlice("audience")
 			fCloak := viper.GetStringSlice("cloak")
 			fQRCode := viper.GetBool("qrcode")
+			fRestrictedPermissions := viper.GetStringSlice("restricted-permissions")
+			fRestrictedNetworks := viper.GetStringSlice("restricted-networks")
+			fRestrictedNamespace := viper.GetString("restricted-namespace")
 
 			if fSourceNamespace == "" {
 				fSourceNamespace = viper.GetString("namespace")
@@ -73,6 +76,9 @@ func makeOIDCCmd(mmaker manipcli.ManipulatorMaker) *cobra.Command {
 				authD.state,
 				authlib.OptAudience(fAudience...),
 				authlib.OptCloak(fCloak...),
+				authlib.OptRestrictNamespace(fRestrictedNamespace),
+				authlib.OptRestrictPermissions(fRestrictedPermissions),
+				authlib.OptRestrictNetworks(fRestrictedNetworks),
 			)
 			if err != nil {
 				return err
@@ -83,8 +89,6 @@ func makeOIDCCmd(mmaker manipcli.ManipulatorMaker) *cobra.Command {
 			return nil
 		},
 	}
-
-	cmd.Flags().StringP("open-with", "", "", "Specify an application to open the webpage with, i.e. 'Google Chrome'. (Safari sometimes causes problems.)")
 
 	return cmd
 }
