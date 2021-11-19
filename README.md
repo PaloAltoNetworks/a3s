@@ -226,6 +226,7 @@ To create an LDAP source, run:
 
 	a3sctl api create ldapsource \
 		--name my-ldap-source \
+		--address 127.0.0.1:389 \
 		--base-dn dc=universe,dc=io \
 		--bind-dn cn=readonly,dc=universe,dc=io \
 		--bind-password password
