@@ -28,6 +28,7 @@ func makeMTLSCmd(mmaker manipcli.ManipulatorMaker, restrictions *permissions.Res
 			fAudience := viper.GetStringSlice("audience")
 			fCloak := viper.GetStringSlice("cloak")
 			fQRCode := viper.GetBool("qrcode")
+			fValidity := viper.GetDuration("validity")
 
 			if fSourceNamespace == "" {
 				fSourceNamespace = viper.GetString("namespace")
@@ -56,6 +57,7 @@ func makeMTLSCmd(mmaker manipcli.ManipulatorMaker, restrictions *permissions.Res
 				authlib.OptAudience(fAudience...),
 				authlib.OptCloak(fCloak...),
 				authlib.OptRestrictions(*restrictions),
+				authlib.OptValidity(fValidity),
 			)
 			if err != nil {
 				return err

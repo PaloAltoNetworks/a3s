@@ -19,18 +19,19 @@ func New(mmaker manipcli.ManipulatorMaker) *cobra.Command {
 		Short:            "Authenticate and retrieve a token.",
 		TraverseChildren: true,
 	}
+	rootCmd.PersistentFlags().Duration("validity", 0, "The validity of the requested token.")
 	rootCmd.PersistentFlags().StringSlice("audience", nil, "Requested audience for the token.")
 	rootCmd.PersistentFlags().String("source-name", "default", "The name of the auth source.")
-	rootCmd.PersistentFlags().String("source-namespace", "", "The namespace of the auth source. If omitted, --namespace will be used")
+	rootCmd.PersistentFlags().String("source-namespace", "", "The namespace of the auth source. If omitted, --namespace will be used.")
 	rootCmd.PersistentFlags().StringSlice("cloak", nil, "Cloak identity claims. Only claims with a prefix matching of of the given string will be used in the token.")
 	rootCmd.PersistentFlags().Bool("qrcode", false, "If passed, display the token as a QR code.")
 
 	// Freaking pglags and its non configurable split char
 	// and missing GetStringArray...
 	restrictions := &permissions.Restrictions{}
-	rootCmd.PersistentFlags().StringArrayVar(&restrictions.Permissions, "restricted-permissions", nil, "Restrict the permissions to what is given")
-	rootCmd.PersistentFlags().StringArrayVar(&restrictions.Networks, "restricted-networks", nil, "Rrestrict the origin networks from which the token can be used")
-	rootCmd.PersistentFlags().StringVar(&restrictions.Namespace, "restricted-namespace", "", "Rrestrict the namespace from which the token can be used")
+	rootCmd.PersistentFlags().StringArrayVar(&restrictions.Permissions, "restrict-permissions", nil, "Restrict the permissions to what is given.")
+	rootCmd.PersistentFlags().StringArrayVar(&restrictions.Networks, "restrict-network", nil, "Rrestrict the origin networks from which the token can be used.")
+	rootCmd.PersistentFlags().StringVar(&restrictions.Namespace, "restrict-namespace", "", "Rrestrict the namespace from which the token can be used.")
 
 	rootCmd.AddCommand(
 		makeCheckCmd(),

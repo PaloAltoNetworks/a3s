@@ -22,6 +22,7 @@ func makeA3SCmd(mmaker manipcli.ManipulatorMaker, restrictions *permissions.Rest
 			fAudience := viper.GetStringSlice("audience")
 			fCloak := viper.GetStringSlice("cloak")
 			fQRCode := viper.GetBool("qrcode")
+			fValidity := viper.GetDuration("validity")
 
 			if fToken == "" {
 				fToken = viper.GetString("token")
@@ -39,6 +40,7 @@ func makeA3SCmd(mmaker manipcli.ManipulatorMaker, restrictions *permissions.Rest
 				authlib.OptAudience(fAudience...),
 				authlib.OptCloak(fCloak...),
 				authlib.OptRestrictions(*restrictions),
+				authlib.OptValidity(fValidity),
 			)
 			if err != nil {
 				return err
