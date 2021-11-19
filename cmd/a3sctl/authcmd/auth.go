@@ -35,6 +35,7 @@ func New(mmaker manipcli.ManipulatorMaker) *cobra.Command {
 		makeGCPCmd(mmaker),
 		makeAWSCmd(mmaker),
 		makeOIDCCmd(mmaker),
+		makeA3SCmd(mmaker),
 	)
 
 	return rootCmd

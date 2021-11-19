@@ -42,7 +42,6 @@ func makeCheckCmd() *cobra.Command {
 	}
 
 	cmd.Flags().String("token", "", "The token to verify.")
-	_ = cobra.MarkFlagRequired(cmd.Flags(), "token")
 
 	return cmd
 }
