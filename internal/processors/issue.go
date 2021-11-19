@@ -51,7 +51,11 @@ func NewIssueProcessor(manipulator manipulate.Manipulator, jwks *token.JWKS, max
 func (p *IssueProcessor) ProcessCreate(bctx bahamut.Context) (err error) {
 
 	req := bctx.InputData().(*api.Issue)
+
 	validity, _ := time.ParseDuration(req.Validity) // elemental already validated this
+	if validity > p.maxValidity {
+		validity = p.maxValidity
+	}
 	exp := time.Now().Add(validity)
 
 	audience := req.Audience
@@ -97,18 +101,17 @@ func (p *IssueProcessor) ProcessCreate(bctx bahamut.Context) (err error) {
 
 	idt := issuer.Issue()
 
-	// The a3s source realm already deal with its restrictions.
-	if req.SourceType != api.IssueSourceTypeA3S {
-
-		if len(req.RestrictedPermissions) > 0 ||
-			len(req.RestrictedNetworks) > 0 ||
-			req.RestrictedNamespace != "" {
-			idt.Restrictions = &permissions.Restrictions{
-				Namespace:   req.RestrictedNamespace,
-				Permissions: req.RestrictedPermissions,
-				Networks:    req.RestrictedNetworks,
-			}
-		}
+	if err := idt.Restrict(permissions.Restrictions{
+		Namespace:   req.RestrictedNamespace,
+		Networks:    req.RestrictedNetworks,
+		Permissions: req.RestrictedPermissions,
+	}); err != nil {
+		return elemental.NewError(
+			"Restrictions Error",
+			err.Error(),
+			"a3s:authn",
+			http.StatusBadRequest,
+		)
 	}
 
 	k := p.jwks.GetLast()

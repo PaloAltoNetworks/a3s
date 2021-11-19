@@ -56,36 +56,17 @@ func (c *a3sIssuer) fromToken(
 		return ErrComputeRestrictions{Err: err}
 	}
 
-	restrictedNamespace, err := orest.RestrictNamespace(restrictions.Namespace)
-	if err != nil {
-		return ErrComputeRestrictions{Err: err}
-	}
-
-	restrictedNetworks, err := orest.RestrictNetworks(restrictions.Networks)
-	if err != nil {
-		return ErrComputeRestrictions{Err: err}
-	}
-
-	restrictedPermissions, err := orest.RestrictPermissions(restrictions.Permissions)
-	if err != nil {
-		return ErrComputeRestrictions{Err: err}
-	}
-
 	if c.token, err = token.Parse(tokenString, keychain, issuer, audience); err != nil {
 		return ErrInputToken{Err: err}
+	}
+
+	if !orest.Zero() {
+		c.token.Restrictions = &orest
 	}
 
 	c.token.ExpiresAt, err = computeNewValidity(c.token.ExpiresAt, validity)
 	if err != nil {
 		return ErrComputeRestrictions{Err: err}
-	}
-
-	if restrictedNamespace != "" || len(restrictedPermissions) > 0 || len(restrictedNetworks) > 0 {
-		c.token.Restrictions = &permissions.Restrictions{
-			Namespace:   restrictedNamespace,
-			Networks:    restrictedNetworks,
-			Permissions: restrictedPermissions,
-		}
 	}
 
 	return nil

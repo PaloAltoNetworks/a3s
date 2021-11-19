@@ -121,3 +121,32 @@ func (t *IdentityToken) JWT(key crypto.PrivateKey, kid string, iss string, aud j
 
 	return j.SignedString(key)
 }
+
+// Restrict applies the given permissions to the token. If the token is not already restricted
+// the restrictions will be applied as is. If it is already restricted, the new restrictions will
+// be applied over the existing ones, and the function will return an error if the requested
+// restrictions break the limits of the current ones.
+func (t *IdentityToken) Restrict(restrictions permissions.Restrictions) (err error) {
+
+	if t.Restrictions == nil {
+		t.Restrictions = &permissions.Restrictions{}
+	}
+
+	if t.Restrictions.Namespace, err = t.Restrictions.RestrictNamespace(restrictions.Namespace); err != nil {
+		return err
+	}
+
+	if t.Restrictions.Networks, err = t.Restrictions.RestrictNetworks(restrictions.Networks); err != nil {
+		return err
+	}
+
+	if t.Restrictions.Permissions, err = t.Restrictions.RestrictPermissions(restrictions.Permissions); err != nil {
+		return err
+	}
+
+	if t.Restrictions.Zero() {
+		t.Restrictions = nil
+	}
+
+	return nil
+}

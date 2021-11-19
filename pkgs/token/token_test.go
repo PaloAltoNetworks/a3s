@@ -7,11 +7,13 @@ import (
 	"crypto/x509/pkix"
 	"encoding/pem"
 	"fmt"
+	"reflect"
 	"testing"
 	"time"
 
 	"github.com/golang-jwt/jwt/v4"
 	. "github.com/smartystreets/goconvey/convey"
+	"go.aporeto.io/a3s/pkgs/permissions"
 	"go.aporeto.io/tg/tglib"
 )
 
@@ -161,4 +163,300 @@ func TestParse(t *testing.T) {
 			So(err.Error(), ShouldEqual, "unable to parse jwt: unexpected signing method: HS256")
 		})
 	})
+}
+
+func TestIdentityToken_Restrict(t *testing.T) {
+	type args struct {
+		restrictions permissions.Restrictions
+	}
+	tests := []struct {
+		name    string
+		init    func(t *testing.T) *IdentityToken
+		inspect func(r *IdentityToken, t *testing.T) //inspects receiver after test run
+
+		args func(t *testing.T) args
+
+		wantErr    bool
+		inspectErr func(err error, t *testing.T) //use for more precise error evaluation after test
+	}{
+		{
+			"empty existing restrictions, zero requested",
+			func(*testing.T) *IdentityToken {
+				return &IdentityToken{
+					Restrictions: nil,
+				}
+			},
+			func(r *IdentityToken, t *testing.T) {
+				if r.Restrictions != nil {
+					t.Fail()
+				}
+			},
+			func(*testing.T) args {
+				return args{
+					permissions.Restrictions{},
+				}
+			},
+			false,
+			nil,
+		},
+		{
+			"zero existing restrictions, zero requested",
+			func(*testing.T) *IdentityToken {
+				return &IdentityToken{
+					Restrictions: &permissions.Restrictions{},
+				}
+			},
+			func(r *IdentityToken, t *testing.T) {
+				if r.Restrictions != nil {
+					t.Fail()
+				}
+			},
+			func(*testing.T) args {
+				return args{
+					permissions.Restrictions{},
+				}
+			},
+			false,
+			nil,
+		},
+		{
+			"zero existing restrictions, requested",
+			func(*testing.T) *IdentityToken {
+				return &IdentityToken{
+					Restrictions: &permissions.Restrictions{},
+				}
+			},
+			func(r *IdentityToken, t *testing.T) {
+				want := &permissions.Restrictions{
+					Namespace:   "/the/ns",
+					Networks:    []string{"10.0.0.0/24"},
+					Permissions: []string{"dog:get,put"},
+				}
+				if !reflect.DeepEqual(r.Restrictions, want) {
+					t.Logf("want %v got %v", want, r)
+					t.Fail()
+				}
+			},
+			func(*testing.T) args {
+				return args{
+					permissions.Restrictions{
+						Namespace:   "/the/ns",
+						Networks:    []string{"10.0.0.0/24"},
+						Permissions: []string{"dog:get,put"},
+					},
+				}
+			},
+			false,
+			nil,
+		},
+		{
+			"existing restrictions, zero requested",
+			func(*testing.T) *IdentityToken {
+				return &IdentityToken{
+					Restrictions: &permissions.Restrictions{
+						Namespace:   "/the/ns",
+						Networks:    []string{"10.0.0.0/24"},
+						Permissions: []string{"dog:get,put"},
+					},
+				}
+			},
+			func(r *IdentityToken, t *testing.T) {
+				want := &permissions.Restrictions{
+					Namespace:   "/the/ns",
+					Networks:    []string{"10.0.0.0/24"},
+					Permissions: []string{"dog:get,put"},
+				}
+				if !reflect.DeepEqual(r.Restrictions, want) {
+					t.Logf("want %v got %v", want, r)
+					t.Fail()
+				}
+			},
+			func(*testing.T) args {
+				return args{
+					permissions.Restrictions{},
+				}
+			},
+			false,
+			nil,
+		},
+		{
+			"identical",
+			func(*testing.T) *IdentityToken {
+				return &IdentityToken{
+					Restrictions: &permissions.Restrictions{
+						Namespace:   "/the/ns",
+						Networks:    []string{"10.0.0.0/24"},
+						Permissions: []string{"dog:get,put"},
+					},
+				}
+			},
+			func(r *IdentityToken, t *testing.T) {
+				want := &permissions.Restrictions{
+					Namespace:   "/the/ns",
+					Networks:    []string{"10.0.0.0/24"},
+					Permissions: []string{"dog:get,put"},
+				}
+				if !reflect.DeepEqual(r.Restrictions, want) {
+					t.Logf("want %v got %v", want, r)
+					t.Fail()
+				}
+			},
+			func(*testing.T) args {
+				return args{
+					permissions.Restrictions{
+						Namespace:   "/the/ns",
+						Networks:    []string{"10.0.0.0/24"},
+						Permissions: []string{"dog:get,put"},
+					},
+				}
+			},
+			false,
+			nil,
+		},
+		{
+			"requested contained in existing",
+			func(*testing.T) *IdentityToken {
+				return &IdentityToken{
+					Restrictions: &permissions.Restrictions{
+						Namespace:   "/the/ns",
+						Networks:    []string{"10.0.0.0/24"},
+						Permissions: []string{"dog:get,put"},
+					},
+				}
+			},
+			func(r *IdentityToken, t *testing.T) {
+				want := &permissions.Restrictions{
+					Namespace:   "/the/ns/2",
+					Networks:    []string{"10.0.0.0/32"},
+					Permissions: []string{"dog:get"},
+				}
+				if !reflect.DeepEqual(r.Restrictions, want) {
+					t.Logf("want %v got %v", want, r)
+					t.Fail()
+				}
+			},
+			func(*testing.T) args {
+				return args{
+					permissions.Restrictions{
+						Namespace:   "/the/ns/2",
+						Networks:    []string{"10.0.0.0/32"},
+						Permissions: []string{"dog:get"},
+					},
+				}
+			},
+			false,
+			nil,
+		},
+		{
+			"breaking namespace",
+			func(*testing.T) *IdentityToken {
+				return &IdentityToken{
+					Restrictions: &permissions.Restrictions{
+						Namespace:   "/the/ns",
+						Networks:    []string{"10.0.0.0/24"},
+						Permissions: []string{"dog:get,put"},
+					},
+				}
+			},
+			nil,
+			func(*testing.T) args {
+				return args{
+					permissions.Restrictions{
+						Namespace:   "/the",
+						Networks:    []string{"10.0.0.0/24"},
+						Permissions: []string{"dog:get,put"},
+					},
+				}
+			},
+			true,
+			func(err error, t *testing.T) {
+				want := "restriction violation: restricted namespace must be empty, '/the/ns' or one of its children"
+				if err.Error() != want {
+					t.Logf("want error %s, got %s", want, err)
+					t.Fail()
+				}
+			},
+		},
+		{
+			"breaking networks",
+			func(*testing.T) *IdentityToken {
+				return &IdentityToken{
+					Restrictions: &permissions.Restrictions{
+						Namespace:   "/the/ns",
+						Networks:    []string{"10.0.0.0/24"},
+						Permissions: []string{"dog:get,put"},
+					},
+				}
+			},
+			nil,
+			func(*testing.T) args {
+				return args{
+					permissions.Restrictions{
+						Namespace:   "/the/ns",
+						Networks:    []string{"11.0.0.0/24"},
+						Permissions: []string{"dog:get,put"},
+					},
+				}
+			},
+			true,
+			func(err error, t *testing.T) {
+				want := "restriction violation: restricted networks must not overlap the current ones"
+				if err.Error() != want {
+					t.Logf("want error %s, got %s", want, err)
+					t.Fail()
+				}
+			},
+		},
+		{
+			"breaking permissions",
+			func(*testing.T) *IdentityToken {
+				return &IdentityToken{
+					Restrictions: &permissions.Restrictions{
+						Namespace:   "/the/ns",
+						Networks:    []string{"10.0.0.0/24"},
+						Permissions: []string{"dog:get,put"},
+					},
+				}
+			},
+			nil,
+			func(*testing.T) args {
+				return args{
+					permissions.Restrictions{
+						Namespace:   "/the/ns",
+						Networks:    []string{"10.0.0.0/24"},
+						Permissions: []string{"dog:get,put,create"},
+					},
+				}
+			},
+			true,
+			func(err error, t *testing.T) {
+				want := "restriction violation: restricted permissions must not be more permissive than the current ones"
+				if err.Error() != want {
+					t.Logf("want error %s, got %s", want, err)
+					t.Fail()
+				}
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tArgs := tt.args(t)
+
+			receiver := tt.init(t)
+			err := receiver.Restrict(tArgs.restrictions)
+
+			if tt.inspect != nil {
+				tt.inspect(receiver, t)
+			}
+
+			if (err != nil) != tt.wantErr {
+				t.Fatalf("IdentityToken.Restrict error = %v, wantErr: %t", err, tt.wantErr)
+			}
+
+			if tt.inspectErr != nil {
+				tt.inspectErr(err, t)
+			}
+		})
+	}
 }
