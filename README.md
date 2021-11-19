@@ -179,6 +179,31 @@ it, you can run:
 > NOTE: you can also get more info about a ressource by using the `-h` flag. This
 > will list all the possible properies the api supports
 
+Whichever authentication source you are using, you can always ask for a restricted
+token. A restricted token contains additional user requested restrictions
+preventing actions that would normally be possible to do based on the
+euthorizations associated to the claims.
+
+* `--restrict-namespace`: a namespace restricted token will only be valid if used on the
+    restricted namespace or one of its children
+* `--restrict-network`: a network restricted token can only be used if the
+    source network from which it is used is contained in one of the restricted networks.
+* `--restrict-permissions`: limits what permissions the token will have. For instance if your
+    authorization set grants `dog:eat,sleep`, you may ask for a token that will only work
+    for `dog:eat`.
+
+It is also possible to limit the amount of identity claims that will be emebeded
+into the identity token by using the `--cloak` flag. This can be useful for
+privacy. For instance if a party request you to have `color=blue` and that is
+the only claim that matters, you can hide the rest of your claims by passing
+
+    --cloak color=blue
+
+Cloaking uses prefix matching. So you can decide to only embbed the color
+and size claims (if you have multiple of them) by doing:
+
+    --cloak color= --cloak size=
+
 ### MTLS
 
 The MTLS source uses mutual TLS to authenticate a client.  The client must
@@ -344,6 +369,22 @@ If you are not running the command on GCP:
 However, if you are running it from an Azure instance, you just need to run:
 
 	a3sctl auth azure
+
+### Existing A3S Identity token
+
+You can use an existing a3s identity token to ask for another one. Note that is
+not a renew mechanism. The requested token cannot expire later than the original
+one. The goal of this authentication source is to ask for a more restricted
+and/or cloaked version of the original. 
+
+This authentication souurce does not need custom source creation.
+
+To get obtain a token:
+
+    a3sctl auth a3s --token <token> \
+        --restrict-namespace /a/child/ns \
+        --restrict-network 10.0.1.1/32 \
+        --restrict-permissions "dog:eat,sleep" 
 
 ## Support
 
