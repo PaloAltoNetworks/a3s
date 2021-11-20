@@ -21,6 +21,36 @@ Basically, an authorization policy allows a subset of users, defined by claims
 retrieved from an authentication source, to perform actions in a particular
 namespace and all of its children.
 
+<!-- vim-markdown-toc GFM -->
+
+* [Quick start](#quick-start)
+* [Using the system](#using-the-system)
+	* [Install a3sctl](#install-a3sctl)
+	* [Obtain a root token](#obtain-a-root-token)
+	* [Test with the example](#test-with-the-example)
+* [Dev environment](#dev-environment)
+	* [Prerequesites](#prerequesites)
+	* [Initialize the environment](#initialize-the-environment)
+	* [Start everything](#start-everything)
+* [Obtaining identity tokens](#obtaining-identity-tokens)
+	* [MTLS](#mtls)
+		* [Create an MTLS source](#create-an-mtls-source)
+		* [Obtain a token](#obtain-a-token)
+	* [LDAP](#ldap)
+		* [Create an LDAP source](#create-an-ldap-source)
+		* [Obtain a token](#obtain-a-token-1)
+	* [OIDC](#oidc)
+		* [Create an OIDC source](#create-an-oidc-source)
+		* [Obtain a token](#obtain-a-token-2)
+	* [Amazon STS](#amazon-sts)
+	* [Google Cloud Platform token](#google-cloud-platform-token)
+	* [Azure token](#azure-token)
+	* [Existing A3S Identity token](#existing-a3s-identity-token)
+* [Support](#support)
+* [Contributing](#contributing)
+
+<!-- vim-markdown-toc -->
+
 ## Quick start
 
 The easiest way to get started is to use the `docker-compose.yaml` in the `dev`
