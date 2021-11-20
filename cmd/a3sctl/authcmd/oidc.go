@@ -44,7 +44,7 @@ func makeOIDCCmd(mmaker manipcli.ManipulatorMaker, restrictions *permissions.Res
 
 			go startOIDCCallbackServer(srvCtx, authDataCh)
 
-			ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+			ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 			defer cancel()
 
 			m, err := mmaker()
