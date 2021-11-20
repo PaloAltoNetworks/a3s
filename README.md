@@ -6,20 +6,27 @@ a3s (stands for Auth As A Service) is an authentication and ABAC authorization
 server.
 
 It allows to normalize various sources of authentication like OIDC,
-AWS/Azure/GCP Identity tokens, LDAP and more into a generic authentication token
+AWS/Azure/GCP tokens, LDAP and more into a generic identity token
 that contains identity claims (rather than scopes). These claims can be used by
-authorization policies to give a particular subset of users various permissions.
+some authorization policies to give a particular subset of bearers various
+permissions.
 
-These authorization policies match a set of users based on a logical claim
-expression (like `group=red and color=blue or group=admin`) and apply to a
+These authorization policies match a set of bearers based on a logical claim
+expression (like `group=red and color=blue or group=admin`) and they apply to a
 namespace.
 
 A namespace is a node that is part of hierarchical tree that represent an
-abstract organizational unit.
+abstract organizational unit. The root namespace is named `/`.
 
 Basically, an authorization policy allows a subset of users, defined by claims
 retrieved from an authentication source, to perform actions in a particular
 namespace and all of its children.
+
+Apps can receive a request alongside a delivered identity token then check with
+a3s if the current bearer is allowed to perform a particular action in a
+particular namespace.
+
+![flowchart](docs/imgs/Diagram2.png)
 
 ## Table of contents
 
@@ -29,7 +36,7 @@ namespace and all of its children.
 * [Using the system](#using-the-system)
 	* [Install a3sctl](#install-a3sctl)
 	* [Obtain a root token](#obtain-a-root-token)
-	* [Test with the example](#test-with-the-example)
+	* [Test with the sample app](#test-with-the-sample-app)
 * [Obtaining identity tokens](#obtaining-identity-tokens)
 	* [MTLS](#mtls)
 		* [Create an MTLS source](#create-an-mtls-source)
@@ -138,11 +145,11 @@ If you want to check the content of a token, you can use:
 
 You can omit `--token` if you have set `$A3SCTL_TOKEN`.
 
-### Test with the example
+### Test with the sample app
 
 There is a very small python Flask server located in `/example/python/testapp`.
 This comes with a script that you can inspect that will create a namespace to
-handle this application, an MTLS source and two authorizations.
+handle this application: an MTLS source and two authorizations.
 
 You can take a look at the [README](examples/python/testapp/README.md) in that
 folder to get started.
@@ -152,7 +159,7 @@ folder to get started.
 This section describes how to use the various sources of authentication. and how
 to retrieve a token from them.
 
-All these example will assume to work in the namespace `/tutorial`. To create
+All following examples will assume to work in the namespace `/tutorial`. To create
 it, you can run:
 
 	a3sctl api create namespace --name tutorial --namespace /
@@ -183,7 +190,7 @@ euthorizations associated to the claims.
 
 It is also possible to limit the amount of identity claims that will be emebeded
 into the identity token by using the `--cloak` flag. This can be useful for
-privacy. For instance if a party request you to have `color=blue` and that is
+privacy reasons. For instance if a party request you to have `color=blue` and that is
 the only claim that matters, you can hide the rest of your claims by passing
 
     --cloak color=blue
