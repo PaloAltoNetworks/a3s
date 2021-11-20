@@ -52,8 +52,9 @@ func NewIdentityToken(source Source) *IdentityToken {
 }
 
 // Parse returns a validated IdentityToken from the given token string using the given JWKS, mandatory trusted issuer
-// and requiredAudience.
-// The token must contain the "kid" header, and that ID must match an existing key in JWKS.
+// and requiredAudience. The token must contain the "kid" header, and that ID must match an existing key in JWKS.
+// The function will populate the identity token's source using the @source* claims.
+// The claim @sourcetype is mandatory and the function will return an error if it is missing.
 func Parse(tokenString string, keychain *JWKS, trustedIssuer string, requiredAudience string) (*IdentityToken, error) {
 
 	t := &IdentityToken{}
@@ -90,7 +91,15 @@ func Parse(tokenString string, keychain *JWKS, trustedIssuer string, requiredAud
 	return t, nil
 }
 
-// JWT returns the signed JWT string.
+// JWT returns the signed JWT string signed by the given crypto.PrivateKey.
+// The given kid must match the ID of the public key.
+// The JWT iss and aud will be set to the provided
+// issuer and audience, whatever was any current values.
+// The iat field will be set time.Now(), also  ignoring current values.
+// The exp field will be set to the provided time.Time. If it is a zero value time.Time,
+// then any current value will be kept (potentially ending in an already expired token if the current value is
+// also zero).
+// cloak, if not empty, will remove any identity claims that are not prefixed with any string from the array.
 func (t *IdentityToken) JWT(key crypto.PrivateKey, kid string, issuer string, audience jwt.ClaimStrings, exp time.Time, cloak []string) (string, error) {
 
 	t.ID = uuid.Must(uuid.NewV4()).String()
