@@ -43,7 +43,7 @@ func NewIdentityToken(source Source) *IdentityToken {
 }
 
 // Parse returns a validated IdentityToken from the given token string.
-func Parse(tokenString string, keychain *JWKS, issuer string, audience string) (*IdentityToken, error) {
+func Parse(tokenString string, keychain *JWKS, trustedIssuer string, requiredAudience string) (*IdentityToken, error) {
 
 	t := &IdentityToken{}
 	token, err := jwt.ParseWithClaims(tokenString, t, makeKeyFunc(keychain))
@@ -64,24 +64,28 @@ func Parse(tokenString string, keychain *JWKS, issuer string, audience string) (
 		}
 	}
 
-	if claims.Issuer != issuer {
-		return nil, fmt.Errorf("issuer '%s' is not acceptable. want '%s'", claims.Issuer, issuer)
+	if claims.Source.Type == "" {
+		return nil, fmt.Errorf("invalid token: missing @sourcetype in identity claims")
 	}
 
-	if !claims.VerifyAudience(audience, false) {
-		return nil, fmt.Errorf("audience '%s' is not acceptable. want '%s'", claims.Audience, audience)
+	if claims.Issuer != trustedIssuer {
+		return nil, fmt.Errorf("issuer '%s' is not acceptable. want '%s'", claims.Issuer, trustedIssuer)
+	}
+
+	if !claims.VerifyAudience(requiredAudience, false) {
+		return nil, fmt.Errorf("audience '%s' is not acceptable. want '%s'", claims.Audience, requiredAudience)
 	}
 
 	return t, nil
 }
 
 // JWT returns the signed JWT string.
-func (t *IdentityToken) JWT(key crypto.PrivateKey, kid string, iss string, aud jwt.ClaimStrings, exp time.Time, cloak []string) (string, error) {
+func (t *IdentityToken) JWT(key crypto.PrivateKey, kid string, issuer string, audience jwt.ClaimStrings, exp time.Time, cloak []string) (string, error) {
 
 	t.ID = uuid.Must(uuid.NewV4()).String()
 	t.IssuedAt = jwt.NewNumericDate(time.Now())
-	t.Issuer = iss
-	t.Audience = aud
+	t.Issuer = issuer
+	t.Audience = audience
 
 	if !exp.IsZero() {
 		t.ExpiresAt = jwt.NewNumericDate(exp)

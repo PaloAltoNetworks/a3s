@@ -132,6 +132,25 @@ func TestParse(t *testing.T) {
 			So(err.Error(), ShouldEqual, "issuer 'iss' is not acceptable. want 'iss2'")
 		})
 
+		Convey("When I call Parse on a token missing the @sourcetype claim", func() {
+
+			// Overwrite the test token
+			claims := jwt.NewWithClaims(
+				jwt.SigningMethodES256,
+				jwt.MapClaims{
+					"iss": "iss2",
+				},
+			)
+			claims.Header["kid"] = kid
+
+			token, _ := claims.SignedString(key)
+
+			token2, err := Parse(token, keychain, "iss2", "aud")
+
+			So(token2, ShouldBeNil)
+			So(err, ShouldNotBeNil)
+			So(err.Error(), ShouldEqual, "invalid token: missing @sourcetype in identity claims")
+		})
 		Convey("When I call Parse using the wrong audience", func() {
 
 			token2, err := Parse(token, keychain, "iss", "aud2")

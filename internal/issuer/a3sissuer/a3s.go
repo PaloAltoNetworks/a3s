@@ -13,8 +13,8 @@ import (
 func New(
 	tokenString string,
 	keychain *token.JWKS,
-	issuer string,
-	audience string,
+	requiredIssuer string,
+	requiredAudience string,
 	validity time.Duration,
 	restrictions permissions.Restrictions,
 ) (token.Issuer, error) {
@@ -23,8 +23,8 @@ func New(
 	if err := c.fromToken(
 		tokenString,
 		keychain,
-		issuer,
-		audience,
+		requiredIssuer,
+		requiredAudience,
 		validity,
 		restrictions,
 	); err != nil {

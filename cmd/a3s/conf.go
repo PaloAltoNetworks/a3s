@@ -45,7 +45,7 @@ func newConf() Conf {
 
 // JWTConf holds the configuration related to jwt management.
 type JWTConf struct {
-	JWTAudience    string        `mapstructure:"jwt-audience"         desc:"Value used for audience jwt field"`
+	JWTAudience    string        `mapstructure:"jwt-audience"         desc:"Default audience for delivered jwt"`
 	JWTCertPath    string        `mapstructure:"jwt-cert"             desc:"Secret to use to sign the JWT"                         secret:"true" file:"true"`
 	JWTIssuer      string        `mapstructure:"jwt-issuer"           desc:"Value used for issuer jwt field"`
 	JWTKeyPass     string        `mapstructure:"jwt-key-pass"         desc:"JWT certificate key password"                          secret:"true" file:"true"`
