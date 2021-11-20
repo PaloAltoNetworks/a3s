@@ -44,6 +44,11 @@ namespace and all of its children.
 	* [Google Cloud Platform token](#google-cloud-platform-token)
 	* [Azure token](#azure-token)
 	* [Existing A3S Identity token](#existing-a3s-identity-token)
+* [Writing authorizations](#writing-authorizations)
+	* [Subject](#subject)
+	* [Permissions](#permissions)
+	* [Target namespaces](#target-namespaces)
+		* [Examples](#examples)
 * [Dev environment](#dev-environment)
 	* [Prerequesites](#prerequesites)
 	* [Initialize the environment](#initialize-the-environment)
@@ -369,6 +374,108 @@ To get obtain a token:
         --restrict-namespace /a/child/ns \
         --restrict-network 10.0.1.1/32 \
         --restrict-permissions "dog:eat,sleep" 
+
+## Writing authorizations
+
+The Authorizations allows to match a set of users (subjects) based on a claim expression and
+assign them permissions. Authorizations work on white list model. Everything that
+is not explicitely allowed is forbidden.
+
+### Subject
+
+A matching expression can be described as a basic boolean sequence like
+`(org=acme && group=finance) || group=admin`. They are represented by a
+2-dimensional array. As such, the expression above is written:
+
+	[
+		[ "org=admin", "group=finance" ],
+		[ "group=admin" ]
+	]
+
+The first dimension represents `or` clauses and the second represents `and`
+clauses.
+
+As there are many source of authorizations and delivered claims can overlap,
+potentially given way broader permissions than expected, the identity token
+always contains additional claims allowing to discriminate bearer based on the
+authentication source they used.
+
+* `@sourcetype`: The type of source that was used to deliver the token.
+* `@sourcenamespace`: The namespace of the source that was used.
+* `@sourcename`: The name of the source.
+
+This way, you can differentiate `name=bob` based on which Bob we are aiming. A
+safe subject to use in that case:
+
+	[
+		["@sourcetype=ldap", "@sourcenamespace=/my/ns", "name=bob"]
+	]
+
+This way, the authorization will only match Bob that got a token from any LDAP
+authentication source that has been declared in `/my/ns`. Another Bob from
+another namespace or coming from an OIDC source will not match.
+
+### Permissions
+
+Authorizations have then a set of permissions that describes what the matching
+bearers can do. They are generic (ie they don't make assumptions about the
+underlying protocol you are using) and are represented by a string of the form:
+
+	"resource:action1,...,actionN[:id2,...idN]"
+
+For instance, this allows bearer to walk and pet the dogs:
+
+	"dogs:pet,walk"
+
+This allows bearer to GET /admin:
+
+	"/admin:get"
+
+This allows to get and put authorizations with ID 1 or 2:
+
+	"authorizations:get,put:1,2"
+
+Permissions can use the `*` as resource or actions to match any. As such, the
+following permission gives the bearer admin access:
+
+	"*:*"
+
+An authorization contains an array of permissions, granting the bearer the
+union of them. If multiple authorizations match the bearer identity token, then
+the union of all their permissions will be granted.
+
+### Target namespaces
+
+An authorization lives in a nanmespace and can target the current namespace of
+some of their children. Authorizations propagate down the namespace hierarchy
+starting from where it applied. It can not affect parents or sibling namespaces.
+
+#### Examples
+
+We can create the authorizations describe above with the following command:
+
+	a3sctl api create authorization
+		--namespace /my/namespace \
+		--name my-auth \
+		--target-namespaces '["/my/namespace/app1"]' \
+		--subject '[
+			[
+				"@sourcetype=oidc",
+				"@sourcenamespace=/my/namespace",
+				"org=admin",
+				"group=finance",
+			],
+			[
+				"@sourcetype=mtls",
+				"@sourcenamespace=/my",
+				"@sourcename=admins",
+				"group=admin",
+			]
+		]' \
+		--permissions '["dogs:pet,walk"]'
+
+> NOTE: If you ommit target-namespace, then the authorization applies to its own
+> namespace and children.
 
 ## Dev environment
 
