@@ -146,6 +146,7 @@ type JWKSKey struct {
 	x       *big.Int
 	y       *big.Int
 	private crypto.PrivateKey
+	public  crypto.PublicKey
 }
 
 // Curve returns the curve used by the key.
@@ -168,20 +169,25 @@ func (k *JWKSKey) Curve() elliptic.Curve {
 // PublicKey returns a ready to use crypto.PublicKey.
 func (k *JWKSKey) PublicKey() crypto.PublicKey {
 
+	if k.public != nil {
+		return k.public
+	}
+
 	switch k.KTY {
 	case "EC":
-		return &ecdsa.PublicKey{
+		k.public = &ecdsa.PublicKey{
 			X:     k.x,
 			Y:     k.y,
 			Curve: k.Curve(),
 		}
+		return k.public
 	default:
 		return nil
 	}
 }
 
 // PrivateKey returns the crypto.PrivateKey associated to
-// the public key, if it was given during adding it.
+// the public key, if it was given it was added to the JWKS.
 func (k *JWKSKey) PrivateKey() crypto.PrivateKey {
 	return k.private
 }
