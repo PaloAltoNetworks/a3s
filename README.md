@@ -48,7 +48,7 @@ namespace and all of its children.
 	* [Subject](#subject)
 	* [Permissions](#permissions)
 	* [Target namespaces](#target-namespaces)
-		* [Examples](#examples)
+	* [Examples](#examples)
 * [Dev environment](#dev-environment)
 	* [Prerequesites](#prerequesites)
 	* [Initialize the environment](#initialize-the-environment)
@@ -450,7 +450,7 @@ An authorization lives in a nanmespace and can target the current namespace of
 some of their children. Authorizations propagate down the namespace hierarchy
 starting from where it applied. It can not affect parents or sibling namespaces.
 
-#### Examples
+### Examples
 
 We can create the authorizations describe above with the following command:
 
