@@ -26,10 +26,19 @@ type Source struct {
 
 // An IdentityToken represents a normalized identity token.
 type IdentityToken struct {
-	Identity     []string                  `json:"identity"`
-	Opaque       map[string]string         `json:"opaque,omitempty"`
+
+	// The identity claims of the token.
+	Identity []string `json:"identity"`
+
+	// Opaque user information transmitted in the token.
+	Opaque map[string]string `json:"opaque,omitempty"`
+
+	// Restrictions applied on dynamically computed permissions.
 	Restrictions *permissions.Restrictions `json:"restrictions,omitempty"`
-	Source       Source                    `json:"-"`
+
+	// Information relative to the autentication source used to
+	// validate bearer's Identity.
+	Source Source `json:"-"`
 
 	jwt.RegisteredClaims
 }
@@ -42,7 +51,9 @@ func NewIdentityToken(source Source) *IdentityToken {
 	}
 }
 
-// Parse returns a validated IdentityToken from the given token string.
+// Parse returns a validated IdentityToken from the given token string using the given JWKS, mandatory trusted issuer
+// and requiredAudience.
+// The token must contain the "kid" header, and that ID must match an existing key in JWKS.
 func Parse(tokenString string, keychain *JWKS, trustedIssuer string, requiredAudience string) (*IdentityToken, error) {
 
 	t := &IdentityToken{}
@@ -72,7 +83,7 @@ func Parse(tokenString string, keychain *JWKS, trustedIssuer string, requiredAud
 		return nil, fmt.Errorf("issuer '%s' is not acceptable. want '%s'", claims.Issuer, trustedIssuer)
 	}
 
-	if !claims.VerifyAudience(requiredAudience, false) {
+	if !claims.VerifyAudience(requiredAudience, true) {
 		return nil, fmt.Errorf("audience '%s' is not acceptable. want '%s'", claims.Audience, requiredAudience)
 	}
 
