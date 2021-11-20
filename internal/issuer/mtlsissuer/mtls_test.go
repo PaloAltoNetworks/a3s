@@ -91,6 +91,13 @@ func TestMTLSIssuer(t *testing.T) {
 			So(iss.token, ShouldNotBeNil)
 			So(iss.source, ShouldEqual, src)
 
+			Convey("Calling FromCertificate with a source missing a CA", func() {
+				iss.source.CertificateAuthority = ""
+				err := iss.fromCertificate(usercert2)
+				So(err, ShouldNotBeNil)
+				So(err.Error(), ShouldStartWith, "unable to prepare x509 verifier: could not append cert from source.CertificateAuthority")
+			})
+
 			Convey("Calling FromCertificate with a valid user cert should work", func() {
 
 				err := iss.fromCertificate(usercert1)
