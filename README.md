@@ -21,6 +21,8 @@ Basically, an authorization policy allows a subset of users, defined by claims
 retrieved from an authentication source, to perform actions in a particular
 namespace and all of its children.
 
+## Table of contents
+
 <!-- vim-markdown-toc GFM -->
 
 * [Quick start](#quick-start)
@@ -28,10 +30,6 @@ namespace and all of its children.
 	* [Install a3sctl](#install-a3sctl)
 	* [Obtain a root token](#obtain-a-root-token)
 	* [Test with the example](#test-with-the-example)
-* [Dev environment](#dev-environment)
-	* [Prerequesites](#prerequesites)
-	* [Initialize the environment](#initialize-the-environment)
-	* [Start everything](#start-everything)
 * [Obtaining identity tokens](#obtaining-identity-tokens)
 	* [MTLS](#mtls)
 		* [Create an MTLS source](#create-an-mtls-source)
@@ -46,6 +44,10 @@ namespace and all of its children.
 	* [Google Cloud Platform token](#google-cloud-platform-token)
 	* [Azure token](#azure-token)
 	* [Existing A3S Identity token](#existing-a3s-identity-token)
+* [Dev environment](#dev-environment)
+	* [Prerequesites](#prerequesites)
+	* [Initialize the environment](#initialize-the-environment)
+	* [Start everything](#start-everything)
 * [Support](#support)
 * [Contributing](#contributing)
 
@@ -139,54 +141,6 @@ handle this application, an MTLS source and two authorizations.
 
 You can take a look at the [README](examples/python/testapp/README.md) in that
 folder to get started.
-
-## Dev environment
-
-### Prerequesites
-
-First, clone this repository and make sure you have the following installed:
-
-- go
-- mongodb
-- nats-server
-- tmux & tmuxinator
-
-### Initialize the environment
-
-If this is the first time you start the environment, you need to initialize
-various things.  
-
-First, initialize the needed certificates:
-
-	dev/certs-init
-
-Then initialize the database:
-
-	dev/mongo-init
-
-All the development data stored stored in `./dev/.data`. If you delete this
-folder, you can reinitialize the environment.
-
-All of a3s configuration is defined as env variables from `dev/env`
-
-Finally, you must initialize the root permissions. a3s has no exception or
-hardcoded or weak credentials, so we must add an auth source and an
-authorization.
-
-To do so, you run:
-
-    dev/a3s-run --init --init-root-ca dev/.data/certificates/ca-acme-cert.pem
-
-### Start everything
-
-Once initialized, start the tmux session by running:
-
-	dev/env-run
-
-This will launch a tmux session starting everything and giving you a working
-terminal. To exit:
-
-	env-kill
 
 ## Obtaining identity tokens
 
@@ -415,6 +369,54 @@ To get obtain a token:
         --restrict-namespace /a/child/ns \
         --restrict-network 10.0.1.1/32 \
         --restrict-permissions "dog:eat,sleep" 
+
+## Dev environment
+
+### Prerequesites
+
+First, clone this repository and make sure you have the following installed:
+
+- go
+- mongodb
+- nats-server
+- tmux & tmuxinator
+
+### Initialize the environment
+
+If this is the first time you start the environment, you need to initialize
+various things.  
+
+First, initialize the needed certificates:
+
+	dev/certs-init
+
+Then initialize the database:
+
+	dev/mongo-init
+
+All the development data stored stored in `./dev/.data`. If you delete this
+folder, you can reinitialize the environment.
+
+All of a3s configuration is defined as env variables from `dev/env`
+
+Finally, you must initialize the root permissions. a3s has no exception or
+hardcoded or weak credentials, so we must add an auth source and an
+authorization.
+
+To do so, you run:
+
+    dev/a3s-run --init --init-root-ca dev/.data/certificates/ca-acme-cert.pem
+
+### Start everything
+
+Once initialized, start the tmux session by running:
+
+	dev/env-run
+
+This will launch a tmux session starting everything and giving you a working
+terminal. To exit:
+
+	env-kill
 
 ## Support
 
