@@ -46,8 +46,10 @@ func main() {
 			if err := viper.BindPFlags(cmd.Flags()); err != nil {
 				return err
 			}
-			if err := handleAutoAuth(mmaker); err != nil {
-				return fmt.Errorf("unable to handle autoauth: %w", err)
+			if cmd.Name() == "api" {
+				if err := handleAutoAuth(mmaker); err != nil {
+					return fmt.Errorf("unable to handle autoauth: %w", err)
+				}
 			}
 			return nil
 		},
