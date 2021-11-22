@@ -6,6 +6,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"go.aporeto.io/a3s/cmd/a3sctl/helpers"
 	"go.aporeto.io/a3s/pkgs/authlib"
 	"go.aporeto.io/a3s/pkgs/permissions"
 	"go.aporeto.io/manipulate/manipcli"
@@ -23,7 +24,7 @@ func makeMTLSCmd(mmaker manipcli.ManipulatorMaker, restrictions *permissions.Res
 
 			fCert := viper.GetString("cert")
 			fKey := viper.GetString("key")
-			fPass := viper.GetString("pass")
+			fPass := helpers.ReadFlag("passphrase: ", "pass", true)
 			fSourceName := viper.GetString("source-name")
 			fSourceNamespace := viper.GetString("source-namespace")
 			fAudience := viper.GetStringSlice("audience")
@@ -60,8 +61,6 @@ func makeMTLSCmd(mmaker manipcli.ManipulatorMaker, restrictions *permissions.Res
 	cmd.Flags().String("cert", "", "Path to the certificate in PEM format.")
 	cmd.Flags().String("key", "", "Path to the certificate key in PEM format.")
 	cmd.Flags().String("pass", "", "Passphrase for the certificate key.")
-	_ = cobra.MarkFlagRequired(cmd.Flags(), "cert")
-	_ = cobra.MarkFlagRequired(cmd.Flags(), "key")
 
 	return cmd
 }
@@ -76,7 +75,7 @@ func GetMTLSToken(
 	sourceNamespace string,
 	sourceName string,
 	audience []string,
-	fCloak []string,
+	cloak []string,
 	validity time.Duration,
 	restrictions *permissions.Restrictions,
 ) (string, error) {
@@ -98,7 +97,7 @@ func GetMTLSToken(
 
 	opts := []authlib.Option{
 		authlib.OptAudience(audience...),
-		authlib.OptCloak(fCloak...),
+		authlib.OptCloak(cloak...),
 		authlib.OptValidity(validity),
 	}
 

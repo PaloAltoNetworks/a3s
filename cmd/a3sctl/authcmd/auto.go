@@ -10,10 +10,23 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/viper"
+	"go.aporeto.io/a3s/cmd/a3sctl/helpers"
 	"go.aporeto.io/a3s/pkgs/token"
 	"go.aporeto.io/manipulate/manipcli"
 )
 
+// HandleAutoAuth handles automatic retrieval of tokens based on
+// the current config file.
+// If will check for `autoauth.enable` to retrieve desired auto auth
+// method. Setting it to empty will disable auto auth.
+// Support:
+//
+// autoauth.enable: mtls
+//      autoauth.mtls.cert: path to the client certificate
+//      autoauth.mtls.key: path to the client certificate key
+//      autoauth.mtls.keyPass: optional passphrase to the certificate.
+//      autoauth.mtls.source.name: the name of the MTLS source to use.
+//      autoauth.mtls.source.namespace: the namespace of the MTLS source to use.
 func HandleAutoAuth(mmaker manipcli.ManipulatorMaker) error {
 
 	if viper.GetString("token") != "" {
@@ -42,6 +55,7 @@ func HandleAutoAuth(mmaker manipcli.ManipulatorMaker) error {
 
 	tokenCache := path.Join(cache, fmt.Sprintf("token-%s-%x", method, sha256.Sum256([]byte(viper.GetString("api")))))
 	data, err := os.ReadFile(tokenCache)
+
 	if err != nil {
 		if !os.IsNotExist(err) {
 			return err
@@ -53,7 +67,7 @@ func HandleAutoAuth(mmaker manipcli.ManipulatorMaker) error {
 				mmaker,
 				viper.GetString("autoauth.mtls.cert"),
 				viper.GetString("autoauth.mtls.key"),
-				viper.GetString("autoauth.mtls.keyPass"),
+				helpers.ReadFlag("passphrase: ", "autoauth.mtls.passphrase", true),
 				viper.GetString("autoauth.mtls.source.namespace"),
 				viper.GetString("autoauth.mtls.source.name"),
 				viper.GetStringSlice("autoauth.mtls.audience"),
@@ -64,7 +78,23 @@ func HandleAutoAuth(mmaker manipcli.ManipulatorMaker) error {
 			if err != nil {
 				return fmt.Errorf("unable to retrieve token from autoauth info: %w", err)
 			}
+			data = []byte(t)
 
+		case "ldap", "LDAP":
+			t, err := GetLDAPToken(
+				mmaker,
+				helpers.ReadFlag("username: ", "autoauth.ldap.user", false),
+				helpers.ReadFlag("password: ", "autoauth.ldap.pass", true),
+				viper.GetString("autoauth.ldap.source.namespace"),
+				viper.GetString("autoauth.ldap.source.name"),
+				viper.GetStringSlice("autoauth.ldap.audience"),
+				viper.GetStringSlice("autoauth.ldap.cloak"),
+				24*time.Hour,
+				nil,
+			)
+			if err != nil {
+				return fmt.Errorf("unable to retrieve token from autoauth info: %w", err)
+			}
 			data = []byte(t)
 
 		case "":

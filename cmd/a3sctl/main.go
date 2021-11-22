@@ -51,7 +51,10 @@ func main() {
 		if err := rootCmd.PersistentPreRunE(cmd, args); err != nil {
 			return err
 		}
-		return authcmd.HandleAutoAuth(mmaker)
+		if err := authcmd.HandleAutoAuth(mmaker); err != nil {
+			return fmt.Errorf("auto auth error: %w", err)
+		}
+		return nil
 	}
 
 	authCmd := authcmd.New(mmaker)

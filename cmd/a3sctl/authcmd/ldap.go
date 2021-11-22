@@ -2,9 +2,11 @@ package authcmd
 
 import (
 	"context"
+	"time"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"go.aporeto.io/a3s/cmd/a3sctl/helpers"
 	"go.aporeto.io/a3s/pkgs/authlib"
 	"go.aporeto.io/a3s/pkgs/permissions"
 	"go.aporeto.io/manipulate/manipcli"
@@ -22,8 +24,8 @@ func makeLDAPCmd(mmaker manipcli.ManipulatorMaker, restrictions *permissions.Res
 			fSourceName, _ := flags.GetString("source-name")
 			fSourceNamespace, _ := flags.GetString("source-namespace")
 			fAudience := viper.GetStringSlice("audience")
-			fUser := viper.GetString("user")
-			fPass := viper.GetString("pass")
+			fUser := helpers.ReadFlag("username: ", "user", false)
+			fPass := helpers.ReadFlag("password: ", "pass", true)
 			fCloak := viper.GetStringSlice("cloak")
 			fQRCode := viper.GetBool("qrcode")
 			fValidity := viper.GetDuration("validity")
@@ -32,22 +34,16 @@ func makeLDAPCmd(mmaker manipcli.ManipulatorMaker, restrictions *permissions.Res
 				fSourceNamespace = viper.GetString("namespace")
 			}
 
-			m, err := mmaker()
-			if err != nil {
-				return err
-			}
-
-			client := authlib.NewClient(m)
-			t, err := client.AuthFromLDAP(
-				context.Background(),
+			t, err := GetLDAPToken(
+				mmaker,
 				fUser,
 				fPass,
 				fSourceNamespace,
 				fSourceName,
-				authlib.OptAudience(fAudience...),
-				authlib.OptCloak(fCloak...),
-				authlib.OptRestrictions(*restrictions),
-				authlib.OptValidity(fValidity),
+				fAudience,
+				fCloak,
+				fValidity,
+				restrictions,
 			)
 			if err != nil {
 				return err
@@ -61,9 +57,48 @@ func makeLDAPCmd(mmaker manipcli.ManipulatorMaker, restrictions *permissions.Res
 
 	cmd.Flags().String("user", "", "The LDAP username to use.")
 	cmd.Flags().String("pass", "", "The password associateds to the user.")
-	_ = cobra.MarkFlagRequired(cmd.Flags(), "user")
-	_ = cobra.MarkFlagRequired(cmd.Flags(), "pass")
 
 	return cmd
+}
 
+// GetLDAPToken retrieves a token using the
+// provided LDAP source.
+func GetLDAPToken(
+	mmaker manipcli.ManipulatorMaker,
+	user string,
+	pas string,
+	sourceNamespace string,
+	sourceName string,
+	audience []string,
+	cloak []string,
+	validity time.Duration,
+	restrictions *permissions.Restrictions,
+) (string, error) {
+
+	m, err := mmaker()
+	if err != nil {
+		return "", err
+	}
+
+	opts := []authlib.Option{
+		authlib.OptAudience(audience...),
+		authlib.OptCloak(cloak...),
+		authlib.OptValidity(validity),
+	}
+
+	if restrictions != nil {
+		opts = append(opts,
+			authlib.OptRestrictions(*restrictions),
+		)
+	}
+
+	client := authlib.NewClient(m)
+	return client.AuthFromLDAP(
+		context.Background(),
+		user,
+		pas,
+		sourceNamespace,
+		sourceName,
+		opts...,
+	)
 }
