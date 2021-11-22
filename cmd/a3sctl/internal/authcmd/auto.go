@@ -13,6 +13,7 @@ import (
 	"go.aporeto.io/a3s/cmd/a3sctl/internal/helpers"
 	"go.aporeto.io/a3s/pkgs/token"
 	"go.aporeto.io/manipulate/manipcli"
+	"go.uber.org/zap"
 )
 
 // HandleAutoAuth handles automatic retrieval of tokens based on
@@ -30,6 +31,7 @@ import (
 func HandleAutoAuth(mmaker manipcli.ManipulatorMaker) error {
 
 	if viper.GetString("token") != "" {
+		zap.L().Debug("autoauth: using --token")
 		return nil
 	}
 
@@ -63,6 +65,7 @@ func HandleAutoAuth(mmaker manipcli.ManipulatorMaker) error {
 
 		switch method {
 		case "mtls", "MTLS":
+			zap.L().Debug("autoauth: retrieving token using autoauth.mtls")
 			t, err := GetMTLSToken(
 				mmaker,
 				viper.GetString("autoauth.mtls.cert"),
@@ -81,6 +84,7 @@ func HandleAutoAuth(mmaker manipcli.ManipulatorMaker) error {
 			data = []byte(t)
 
 		case "ldap", "LDAP":
+			zap.L().Debug("autoauth: retrieving token using autoauth.ldap")
 			t, err := GetLDAPToken(
 				mmaker,
 				helpers.ReadFlag("username: ", "autoauth.ldap.user", false),
@@ -107,6 +111,7 @@ func HandleAutoAuth(mmaker manipcli.ManipulatorMaker) error {
 		if err := os.WriteFile(tokenCache, data, 0600); err != nil {
 			return fmt.Errorf("unable to write token cache: %w", err)
 		}
+		zap.L().Debug("autoauth: token cached", zap.String("path", tokenCache))
 	}
 
 	idt := &token.IdentityToken{}
@@ -116,12 +121,14 @@ func HandleAutoAuth(mmaker manipcli.ManipulatorMaker) error {
 	}
 
 	if time.Until(idt.ExpiresAt.Time) <= time.Duration(idt.ExpiresAt.Unix()/2) {
+		zap.L().Debug("autoauth: token about to expire. removing", zap.String("path", tokenCache))
 		if err := os.Remove(tokenCache); err != nil {
 			return fmt.Errorf("unable to clean currently cached token: %w", err)
 		}
 		return HandleAutoAuth(mmaker)
 	}
 
+	zap.L().Debug("autoauth: token set from cache", zap.String("path", tokenCache))
 	viper.Set("token", string(data))
 
 	return nil

@@ -7,7 +7,7 @@ import "fmt"
 // Load loads the documentation asset
 func Load(name string) string {
 
-	doc, err := Asset(fmt.Sprintf("../docs/%s.md", name))
+	doc, err := Asset(fmt.Sprintf("../../docs/%s.md", name))
 	if err != nil {
 		panic(err)
 	}

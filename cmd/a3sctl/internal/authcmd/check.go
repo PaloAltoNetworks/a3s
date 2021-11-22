@@ -7,14 +7,24 @@ import (
 	"github.com/hokaccha/go-prettyjson"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"go.aporeto.io/manipulate/manipcli"
 )
 
-func makeCheckCmd() *cobra.Command {
+func makeCheckCmd(mmaker manipcli.ManipulatorMaker) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:              "check",
 		Short:            "Check the token",
 		TraverseChildren: true,
+		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+			if err := cmd.Root().PersistentPreRunE(cmd, args); err != nil {
+				return err
+			}
+			if err := HandleAutoAuth(mmaker); err != nil {
+				return fmt.Errorf("auto auth error: %w", err)
+			}
+			return nil
+		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			fToken := viper.GetString("token")
 

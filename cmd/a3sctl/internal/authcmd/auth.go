@@ -36,7 +36,8 @@ func New(mmaker manipcli.ManipulatorMaker) *cobra.Command {
 	rootCmd.PersistentFlags().StringVar(&restrictions.Namespace, "restrict-namespace", "", "Rrestrict the namespace from which the token can be used.")
 
 	rootCmd.AddCommand(
-		makeCheckCmd(),
+		makeCheckCmd(mmaker),
+		makePermsCmd(mmaker),
 		makeMTLSCmd(mmaker, restrictions),
 		makeLDAPCmd(mmaker, restrictions),
 		makeAzureCmd(mmaker, restrictions),

@@ -6,7 +6,7 @@ require (
 	go.aporeto.io/addedeffect v1.77.0
 	go.aporeto.io/bahamut v1.112.1-0.20211117023701-80c7ccdfebee
 	go.aporeto.io/elemental v1.100.1-0.20211117023454-0c8e5dca0782
-	go.aporeto.io/manipulate v1.121.1-0.20211122224024-19d09567ccf5
+	go.aporeto.io/manipulate v1.121.1-0.20211122231932-ae06249c9ae4
 	go.aporeto.io/tg v1.34.1-0.20211101201333-f818ba4bc2b5
 	go.aporeto.io/wsc v1.36.1-0.20210528201141-2af38def4959 // indirect
 )
@@ -28,7 +28,7 @@ require (
 	github.com/fatih/color v1.7.0 // indirect
 	github.com/fatih/structs v1.1.0
 	github.com/fsnotify/fsnotify v1.4.7 // indirect
-	github.com/ghodss/yaml v1.0.0 // indirect
+	github.com/ghodss/yaml v1.0.0
 	github.com/globalsign/mgo v0.0.0-20181015135952-eeefdecb41b8
 	github.com/go-asn1-ber/asn1-ber v1.5.1 // indirect
 	github.com/go-ldap/ldap/v3 v3.4.1
