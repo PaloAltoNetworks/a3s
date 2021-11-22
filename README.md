@@ -56,7 +56,12 @@ particular namespace.
 	* [Permissions](#permissions)
 	* [Target namespaces](#target-namespaces)
 	* [Examples](#examples)
-* [a3sctl configuration](#a3sctl-configuration)
+* [Check for permissions from your app](#check-for-permissions-from-your-app)
+* [a3sctl](#a3sctl)
+	* [Completion](#completion)
+		* [Bash](#bash)
+		* [Zsh](#zsh)
+		* [Fish](#fish)
 	* [Configuration file](#configuration-file)
 	* [Auto authentication](#auto-authentication)
 * [Dev environment](#dev-environment)
@@ -81,7 +86,7 @@ This creates the needed certificates in `dev/.data/certificates` that the a3s
 container will mount (the same certificates will be used by the dev
 environment).
 
-Then build the docker container: 
+Then build the docker container:
 
 	make docker
 
@@ -105,7 +110,7 @@ To install the cli, run:
 This will install `a3sctl` into you`$GOBIN` folder. You should have this folder
 in your `$PATH` if you want to use the cli without using its full path.
 
-### Obtain a root token 
+### Obtain a root token
 
 In order to configure the system and create additional namespaces, additional
 namespaces, authorizations, etc, you need to obtain a root token to start
@@ -214,9 +219,9 @@ provided in the designed MTLS auth source.
 You first need to have a CA that can issue certificates for your user. In this
 example, we use `tg`, but you can use any PKI tool you like.
 
-	tg cert --name myca --is-ca 
+	tg cert --name myca --is-ca
 	tg cert --name user1 \
-		--signing-cert myca-cert.pem \ 
+		--signing-cert myca-cert.pem \
 		--signing-cert-key myca-key.pem
 
 NOTE: Not protecting a private key with a passphrase is bad. Don't do this in
@@ -380,7 +385,7 @@ However, if you are running it from an Azure instance, you just need to run:
 You can use an existing a3s identity token to ask for another one. Note that is
 not a renew mechanism. The requested token cannot expire later than the original
 one. The goal of this authentication source is to ask for a more restricted
-and/or cloaked version of the original. 
+and/or cloaked version of the original.
 
 This authentication souurce does not need custom source creation.
 
@@ -389,7 +394,7 @@ To get obtain a token:
     a3sctl auth a3s --token <token> \
         --restrict-namespace /a/child/ns \
         --restrict-network 10.0.1.1/32 \
-        --restrict-permissions "dog:eat,sleep" 
+        --restrict-permissions "dog:eat,sleep"
 
 ## Writing authorizations
 
@@ -493,7 +498,65 @@ We can create the authorizations describe above with the following command:
 > NOTE: If you ommit target-namespace, then the authorization applies to its own
 > namespace and children.
 
-## a3sctl configuration
+## Check for permissions from your app
+
+To verify a token bearer is allowed to performed some actions. The easiest way
+to implement this is to add an authentication middleware in whatever HTTP
+framework you are using to call a3s to verify a token and its permissions. This
+middleware can call the all-in-one check endpoint `/authz`. The following
+example uses curl, but you should use the HTTP communication layer currently
+used in your application.
+
+	curl -H "Content-Type: application/json" \
+		-d '{
+			"token": <token>,
+			"resource": "/dogs"
+			"action": "walk",
+			"namespace: /application/namespace",
+			"audience": "my-app",
+		}' \
+		https://127.0.0.1:44443/authz
+
+This would return `204` if the bearer is allowed to walk the dogs in
+`/application/namespace`, or `403` if either the token is invalid or the bearer
+is not allowed to perform such action.
+
+This method is the simplest but have a few drawbacks. For instance, you will
+make a3s validate the token everytime, you need to make a call everytime,
+and you need to transmit the bearer token at every call.
+
+A more optimized method will be described here soon, that allows to:
+
+* Validate token signature yourself locally
+* Retrieve the entire permissions set for a given token for caching
+* Validate the permissions locally
+* Be notified when cached permissions needs to be invalidated.
+
+> NOTE: This method requires the third party application to be able to
+> connect to the push channel, and hence will require to be authenticated.
+
+## a3sctl
+
+a3sctl is the command line that allows to use a3s API in a user friendly manner.
+It abstracts the ReST api and is self documenting. You can always get additional
+help by passing the flags `--help` (or `-h`) in any command or sub command.
+
+### Completion
+
+a3sctl supports auto completion:
+
+#### Bash
+
+	. <(a3sctl completion bash)
+
+#### Zsh
+
+	compdef _a3sctl a3sctl
+	. <(a3sctl completion zsh)
+
+#### Fish
+
+	. <(a3sctl completion fish)
 
 ### Configuration file
 
@@ -565,7 +628,7 @@ First, clone this repository and make sure you have the following installed:
 ### Initialize the environment
 
 If this is the first time you start the environment, you need to initialize
-various things.  
+various things.
 
 First, initialize the needed certificates:
 
@@ -609,4 +672,4 @@ project.
 We value your contributions! Please read
 [CONTRIBUTING.md](https://github.com/PaloAltoNetworks/.github/CONTRIBUTING.md)
 for details on how to contribute, and the process for submitting pull requests
-to us. 
+to us.
