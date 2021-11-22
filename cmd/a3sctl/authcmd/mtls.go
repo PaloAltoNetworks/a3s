@@ -2,6 +2,7 @@ package authcmd
 
 import (
 	"context"
+	"time"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -34,30 +35,17 @@ func makeMTLSCmd(mmaker manipcli.ManipulatorMaker, restrictions *permissions.Res
 				fSourceNamespace = viper.GetString("namespace")
 			}
 
-			cert, key, err := tglib.ReadCertificatePEM(fCert, fKey, fPass)
-			if err != nil {
-				return err
-			}
-
-			clientCert, err := tglib.ToTLSCertificate(cert, key)
-			if err != nil {
-				return err
-			}
-
-			m, err := mmaker(maniphttp.OptionTLSClientCertificates(clientCert))
-			if err != nil {
-				return err
-			}
-
-			client := authlib.NewClient(m)
-			t, err := client.AuthFromCertificate(
-				context.Background(),
+			t, err := GetMTLSToken(
+				mmaker,
+				fCert,
+				fKey,
+				fPass,
 				fSourceNamespace,
 				fSourceName,
-				authlib.OptAudience(fAudience...),
-				authlib.OptCloak(fCloak...),
-				authlib.OptRestrictions(*restrictions),
-				authlib.OptValidity(fValidity),
+				fAudience,
+				fCloak,
+				fValidity,
+				restrictions,
 			)
 			if err != nil {
 				return err
@@ -76,4 +64,55 @@ func makeMTLSCmd(mmaker manipcli.ManipulatorMaker, restrictions *permissions.Res
 	_ = cobra.MarkFlagRequired(cmd.Flags(), "key")
 
 	return cmd
+}
+
+// GetMTLSToken retrieves a token using
+// the provided MTLS source information.
+func GetMTLSToken(
+	mmaker manipcli.ManipulatorMaker,
+	certPath string,
+	keyPath string,
+	keyPass string,
+	sourceNamespace string,
+	sourceName string,
+	audience []string,
+	fCloak []string,
+	validity time.Duration,
+	restrictions *permissions.Restrictions,
+) (string, error) {
+
+	cert, key, err := tglib.ReadCertificatePEM(certPath, keyPath, keyPass)
+	if err != nil {
+		return "", err
+	}
+
+	clientCert, err := tglib.ToTLSCertificate(cert, key)
+	if err != nil {
+		return "", err
+	}
+
+	m, err := mmaker(maniphttp.OptionTLSClientCertificates(clientCert))
+	if err != nil {
+		return "", err
+	}
+
+	opts := []authlib.Option{
+		authlib.OptAudience(audience...),
+		authlib.OptCloak(fCloak...),
+		authlib.OptValidity(validity),
+	}
+
+	if restrictions != nil {
+		opts = append(opts,
+			authlib.OptRestrictions(*restrictions),
+		)
+	}
+
+	client := authlib.NewClient(m)
+	return client.AuthFromCertificate(
+		context.Background(),
+		sourceNamespace,
+		sourceName,
+		opts...,
+	)
 }
