@@ -168,7 +168,7 @@ it, you can run:
 > NOTE: the env variable will tell a3sctl which namespace to target without
 > having to pass the `--namespace` flag every time.
 
-> NOTE: Some auth commands will require to pass the namespace of the auth
+> NOTE: Some auth commands like ldap, mtls or oidc will require to pass the namespace of the auth
 > source. You can either set `--source-namespace` or leave it empty to fallback on
 > the value set by `--namespace`.
 
@@ -209,15 +209,14 @@ provided in the designed MTLS auth source.
 #### Create an MTLS source
 
 You first need to have a CA that can issue certificates for your user. In this
-example, we use `tg`, but you can use any PKI tool you like.
+example, we use a `tlsgen` library called [tg](https://github.com/PaloAltoNetworks/tg), but you can use any PKI tool you like.
 
 	tg cert --name myca --is-ca 
 	tg cert --name user1 \
 		--signing-cert myca-cert.pem \ 
 		--signing-cert-key myca-key.pem
 
-NOTE: Not protecting a private key with a passphrase is bad. Don't do this in
-production.
+> NOTE: Always protect your private key with a passphrase in production.
 
 Then we need to create the MTLS auth source:
 
@@ -304,7 +303,7 @@ certificates used by the server are not trusted by the host running a3s.
 #### Obtain a token
 
 While all the other sources can be used easily with curl for instance, the OIDC
-source necessitate to run a http server and needs to perform a dance that is
+source necessitates to run a http server and needs to perform a dance that is
 painful to do manually. A3sctl will do all of this transparently.
 
 To obtain a token from the newly created source:
@@ -313,7 +312,7 @@ To obtain a token from the newly created source:
 		--source-name my-oidc-source \
 		--source-namespace /tutorial
 
-This will print an URL to open in your browser to authenticate against the OIDC
+This will print a URL to open in your browser to authenticate against the OIDC
 provider. Once done, the provider will call back a3sctl and the token will be
 displayed.
 
@@ -436,7 +435,7 @@ For instance, this allows bearer to walk and pet the dogs:
 
 This allows bearer to GET /admin:
 
-	"/admin:get"
+	"admin:get"
 
 This allows to get and put authorizations with ID 1 or 2:
 
@@ -453,7 +452,7 @@ the union of all their permissions will be granted.
 
 ### Target namespaces
 
-An authorization lives in a nanmespace and can target the current namespace of
+An authorization lives in a namespace and can target the current namespace or
 some of their children. Authorizations propagate down the namespace hierarchy
 starting from where it applied. It can not affect parents or sibling namespaces.
 
@@ -504,6 +503,10 @@ First, initialize the needed certificates:
 
 	dev/certs-init
 
+Starts the mongo database using:
+
+	dev/mongo-run
+
 Then initialize the database:
 
 	dev/mongo-init
@@ -540,6 +543,6 @@ project.
 ## Contributing
 
 We value your contributions! Please read
-[CONTRIBUTING.md](https://github.com/PaloAltoNetworks/.github/CONTRIBUTING.md)
+[CONTRIBUTING.md](CONTRIBUTING.md)
 for details on how to contribute, and the process for submitting pull requests
 to us. 
