@@ -170,7 +170,7 @@ func handleAutoAuth(mmaker manipcli.ManipulatorMaker) error {
 			viper.GetString("autoauth.source.name"),
 			viper.GetStringSlice("autoauth.audience"),
 			viper.GetStringSlice("autoauth.cloak"),
-			10*time.Second,
+			24*time.Hour,
 			nil,
 		)
 		if err != nil {
