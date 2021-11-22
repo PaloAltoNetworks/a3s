@@ -67,7 +67,7 @@ func HandleAutoAuth(mmaker manipcli.ManipulatorMaker) error {
 				mmaker,
 				viper.GetString("autoauth.mtls.cert"),
 				viper.GetString("autoauth.mtls.key"),
-				helpers.ReadFlag("passphrase: ", "autoauth.mtls.passphrase", true),
+				helpers.ReadFlag("passphrase: ", "autoauth.mtls.pass", true),
 				viper.GetString("autoauth.mtls.source.namespace"),
 				viper.GetString("autoauth.mtls.source.name"),
 				viper.GetStringSlice("autoauth.mtls.audience"),

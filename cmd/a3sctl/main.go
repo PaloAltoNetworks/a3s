@@ -11,6 +11,7 @@ import (
 	"github.com/spf13/viper"
 	"go.aporeto.io/a3s/cmd/a3sctl/authcmd"
 	"go.aporeto.io/a3s/cmd/a3sctl/compcmd"
+	"go.aporeto.io/a3s/cmd/a3sctl/help"
 	"go.aporeto.io/a3s/internal/conf"
 	"go.aporeto.io/a3s/pkgs/api"
 	"go.aporeto.io/a3s/pkgs/bootstrap"
@@ -19,6 +20,7 @@ import (
 
 var (
 	cfgFile  string
+	cfgName  string
 	logLevel string
 )
 
@@ -29,6 +31,7 @@ func main() {
 	rootCmd := &cobra.Command{
 		Use:              "a3sctl",
 		Short:            "Controls a3s APIs",
+		Long:             help.Load("a3sctl"),
 		SilenceUsage:     true,
 		SilenceErrors:    true,
 		TraverseChildren: true,
@@ -43,6 +46,7 @@ func main() {
 	mmaker := manipcli.ManipulatorMakerFromFlags()
 
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default: $HOME/.config/a3sctl/default.yaml)")
+	rootCmd.PersistentFlags().StringVar(&cfgName, "config-name", "", "default config name (default: default.yaml)")
 	rootCmd.PersistentFlags().StringVar(&logLevel, "log-level", "warn", "Log level. Can be debug, info, warn or error")
 
 	apiCmd := manipcli.New(api.Manager(), mmaker)
@@ -120,7 +124,11 @@ func initCobra() {
 	viper.AddConfigPath("/usr/local/etc/a3sctl")
 	viper.AddConfigPath("/etc/a3sctl")
 
-	if cfgName := os.Getenv("A3SCTL_CONFIG_NAME"); cfgName != "" {
+	if cfgName == "" {
+		cfgName = os.Getenv("A3SCTL_CONFIG_NAME")
+	}
+
+	if cfgName != "" {
 		viper.SetConfigName(cfgName)
 	} else {
 		viper.SetConfigName("default")

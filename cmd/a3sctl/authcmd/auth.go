@@ -6,6 +6,7 @@ import (
 
 	"github.com/mdp/qrterminal"
 	"github.com/spf13/cobra"
+	"go.aporeto.io/a3s/cmd/a3sctl/help"
 	"go.aporeto.io/a3s/pkgs/permissions"
 	"go.aporeto.io/manipulate/manipcli"
 )
@@ -17,6 +18,7 @@ func New(mmaker manipcli.ManipulatorMaker) *cobra.Command {
 	rootCmd := &cobra.Command{
 		Use:              "auth",
 		Short:            "Authenticate and retrieve a token.",
+		Long:             help.Load("auth"),
 		TraverseChildren: true,
 	}
 	rootCmd.PersistentFlags().Duration("validity", 0, "The validity of the requested token.")

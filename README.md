@@ -57,7 +57,7 @@ particular namespace.
 	* [Target namespaces](#target-namespaces)
 	* [Examples](#examples)
 * [Check for permissions from your app](#check-for-permissions-from-your-app)
-* [a3sctl](#a3sctl)
+* [Using a3sctl](#using-a3sctl)
 	* [Completion](#completion)
 		* [Bash](#bash)
 		* [Zsh](#zsh)
@@ -535,7 +535,7 @@ A more optimized method will be described here soon, that allows to:
 > NOTE: This method requires the third party application to be able to
 > connect to the push channel, and hence will require to be authenticated.
 
-## a3sctl
+## Using a3sctl
 
 a3sctl is the command line that allows to use a3s API in a user friendly manner.
 It abstracts the ReST api and is self documenting. You can always get additional
@@ -600,7 +600,7 @@ For instance, in `~/.config/a3sctl/default.yaml`:
 		mtls:
 			cert: /path/to/user-cert.pem
 			key: /path/to/user-key.pem
-			passphrase: '-'
+			pass: '-'
 			source:
 				name: root
 				namespace: /

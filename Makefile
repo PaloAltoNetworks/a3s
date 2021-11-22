@@ -48,9 +48,11 @@ a3s_linux:
 	cd cmd/a3s && CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-w -s"
 
 cli:
+	go generate ./...
 	cd cmd/a3sctl && CGO_ENABLED=0 go install -ldflags="-w -s"
 
 cli_linux:
+	go generate ./...
 	cd cmd/a3sctl && CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go install -ldflags="-w -s"
 
 docker: a3s_linux
