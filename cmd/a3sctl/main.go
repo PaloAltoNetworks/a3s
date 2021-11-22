@@ -46,7 +46,7 @@ func main() {
 	mmaker := manipcli.ManipulatorMakerFromFlags()
 
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default: $HOME/.config/a3sctl/default.yaml)")
-	rootCmd.PersistentFlags().StringVar(&cfgName, "config-name", "", "default config name (default: default.yaml)")
+	rootCmd.PersistentFlags().StringVar(&cfgName, "config-name", "", "default config name (default: default)")
 	rootCmd.PersistentFlags().StringVar(&logLevel, "log-level", "warn", "Log level. Can be debug, info, warn or error")
 
 	apiCmd := manipcli.New(api.Manager(), mmaker)
