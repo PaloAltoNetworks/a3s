@@ -56,6 +56,9 @@ particular namespace.
 	* [Permissions](#permissions)
 	* [Target namespaces](#target-namespaces)
 	* [Examples](#examples)
+* [a3sctl configuration](#a3sctl-configuration)
+	* [Configuration file](#configuration-file)
+	* [Auto authentication](#auto-authentication)
 * [Dev environment](#dev-environment)
 	* [Prerequesites](#prerequesites)
 	* [Initialize the environment](#initialize-the-environment)
@@ -235,6 +238,9 @@ To obtain a token from the newly created source:
 		--cert user1-cert.pem \
 		--key user1-key.pem
 
+> NOTE: you can set `-` for '--pass`. In that case, a3sctl will ask for user
+> input from stdin.
+
 ### LDAP
 
 A3s supports using a remote LDAP as authentication source. The LDAP server must
@@ -270,6 +276,9 @@ To obtain a token from the newly created source:
 		--namespace /tutorial \
 		--user bob \
 		--pass s3cr3t
+
+> NOTE: you can set `-` for '--user` and/or `--pass`. In that case, a3sctl will
+> ask for user input from stdin.
 
 ### OIDC
 
@@ -483,6 +492,64 @@ We can create the authorizations describe above with the following command:
 
 > NOTE: If you ommit target-namespace, then the authorization applies to its own
 > namespace and children.
+
+## a3sctl configuration
+
+### Configuration file
+
+a3sctl can read the values of its flags from various places, and in that order:
+
+- A flag directly provided
+- Env variable (ie `$A3SCTL_SOURCE_NAME` for `--source-name`)
+- The config file (default: `~/.config/a3sctl/default.yaml`)
+
+You can choose the config file to user by setting the full path of the file
+using the flag `--config`.
+
+You can also pass the name of the config, without it's folder or it's extension
+through the variable `A3SCTL_CONFIG_NAME`. a3sctl will scan the following
+folder, in that order, to find a configuration file matching the name:
+
+* `~/.config/a3sctl/`
+* `/usr/local/etc/a3sctl/`
+* `/etc/a3sctl/`
+
+### Auto authentication
+
+In addition to one-to-one mapping of a3sctl flags in the config file, you can
+also add the key `autoauth` to automatically retrieve, cache, reuse and renew a
+token using a particular authentication source. This method works for mtls and
+ldap.
+
+For instance, in `~/.config/a3sctl/default.yaml`:
+
+	api: https://127.0.0.1:44443
+	namespace: /
+
+	autoauth:
+		enable: mtls
+		ldap:
+			user: okenobi
+			pass: '-'
+			source:
+				name: root
+				namespace: /
+		mtls:
+			cert: /path/to/user-cert.pem
+			key: /path/to/user-key.pem
+			passphrase: '-'
+			source:
+				name: root
+				namespace: /
+
+You can decide which source to use for auto authentication by setting the
+`enable` flag. Leave it empty to disable auto auth.
+
+The token is cached in `$XDG_HOME_CACHE/a3sctl/token-<src>-<api-hash>` and will
+automatically renew if it's past its half-life.
+
+> NOTE: using `-` for secrets will automatically prompt the user for input during
+> retrieval or renewing of the token.
 
 ## Dev environment
 
