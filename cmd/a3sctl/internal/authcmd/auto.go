@@ -10,7 +10,7 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/viper"
-	"go.aporeto.io/a3s/cmd/a3sctl/helpers"
+	"go.aporeto.io/a3s/cmd/a3sctl/internal/helpers"
 	"go.aporeto.io/a3s/pkgs/token"
 	"go.aporeto.io/manipulate/manipcli"
 )

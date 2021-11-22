@@ -6,7 +6,7 @@ import (
 
 	"github.com/mdp/qrterminal"
 	"github.com/spf13/cobra"
-	"go.aporeto.io/a3s/cmd/a3sctl/help"
+	"go.aporeto.io/a3s/cmd/a3sctl/internal/help"
 	"go.aporeto.io/a3s/pkgs/permissions"
 	"go.aporeto.io/manipulate/manipcli"
 )

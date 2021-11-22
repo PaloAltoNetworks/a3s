@@ -1,4 +1,4 @@
-//go:generate go-bindata -pkg help -o bindata.go ../docs
+//go:generate go-bindata -pkg help -o bindata.go ../../docs
 
 package help
 

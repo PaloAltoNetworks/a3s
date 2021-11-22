@@ -6,28 +6,26 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"go.aporeto.io/a3s/cmd/a3sctl/helpers"
+	"go.aporeto.io/a3s/cmd/a3sctl/internal/helpers"
 	"go.aporeto.io/a3s/pkgs/authlib"
 	"go.aporeto.io/a3s/pkgs/permissions"
 	"go.aporeto.io/manipulate/manipcli"
-	"go.aporeto.io/manipulate/maniphttp"
-	"go.aporeto.io/tg/tglib"
 )
 
-func makeMTLSCmd(mmaker manipcli.ManipulatorMaker, restrictions *permissions.Restrictions) *cobra.Command {
+func makeLDAPCmd(mmaker manipcli.ManipulatorMaker, restrictions *permissions.Restrictions) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:              "mtls",
-		Short:            "Use a configured MTLS authentication source.",
+		Use:              "ldap",
+		Short:            "Use a configured LDAP authentication source.",
 		TraverseChildren: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
 
-			fCert := viper.GetString("cert")
-			fKey := viper.GetString("key")
-			fPass := helpers.ReadFlag("passphrase: ", "pass", true)
-			fSourceName := viper.GetString("source-name")
-			fSourceNamespace := viper.GetString("source-namespace")
+			flags := cmd.Flags()
+			fSourceName, _ := flags.GetString("source-name")
+			fSourceNamespace, _ := flags.GetString("source-namespace")
 			fAudience := viper.GetStringSlice("audience")
+			fUser := helpers.ReadFlag("username: ", "user", false)
+			fPass := helpers.ReadFlag("password: ", "pass", true)
 			fCloak := viper.GetStringSlice("cloak")
 			fQRCode := viper.GetBool("qrcode")
 			fValidity := viper.GetDuration("validity")
@@ -36,10 +34,9 @@ func makeMTLSCmd(mmaker manipcli.ManipulatorMaker, restrictions *permissions.Res
 				fSourceNamespace = viper.GetString("namespace")
 			}
 
-			t, err := GetMTLSToken(
+			t, err := GetLDAPToken(
 				mmaker,
-				fCert,
-				fKey,
+				fUser,
 				fPass,
 				fSourceNamespace,
 				fSourceName,
@@ -58,20 +55,18 @@ func makeMTLSCmd(mmaker manipcli.ManipulatorMaker, restrictions *permissions.Res
 		},
 	}
 
-	cmd.Flags().String("cert", "", "Path to the certificate in PEM format.")
-	cmd.Flags().String("key", "", "Path to the certificate key in PEM format.")
-	cmd.Flags().String("pass", "", "Passphrase for the certificate key.")
+	cmd.Flags().String("user", "", "The LDAP username to use.")
+	cmd.Flags().String("pass", "", "The password associateds to the user.")
 
 	return cmd
 }
 
-// GetMTLSToken retrieves a token using
-// the provided MTLS source information.
-func GetMTLSToken(
+// GetLDAPToken retrieves a token using the
+// provided LDAP source.
+func GetLDAPToken(
 	mmaker manipcli.ManipulatorMaker,
-	certPath string,
-	keyPath string,
-	keyPass string,
+	user string,
+	pas string,
 	sourceNamespace string,
 	sourceName string,
 	audience []string,
@@ -80,17 +75,7 @@ func GetMTLSToken(
 	restrictions *permissions.Restrictions,
 ) (string, error) {
 
-	cert, key, err := tglib.ReadCertificatePEM(certPath, keyPath, keyPass)
-	if err != nil {
-		return "", err
-	}
-
-	clientCert, err := tglib.ToTLSCertificate(cert, key)
-	if err != nil {
-		return "", err
-	}
-
-	m, err := mmaker(maniphttp.OptionTLSClientCertificates(clientCert))
+	m, err := mmaker()
 	if err != nil {
 		return "", err
 	}
@@ -108,8 +93,10 @@ func GetMTLSToken(
 	}
 
 	client := authlib.NewClient(m)
-	return client.AuthFromCertificate(
+	return client.AuthFromLDAP(
 		context.Background(),
+		user,
+		pas,
 		sourceNamespace,
 		sourceName,
 		opts...,
