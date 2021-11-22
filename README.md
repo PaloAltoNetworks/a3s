@@ -499,9 +499,9 @@ We can create the authorizations describe above with the following command:
 
 a3sctl can read the values of its flags from various places, and in that order:
 
-- A flag directly provided
-- Env variable (ie `$A3SCTL_SOURCE_NAME` for `--source-name`)
-- The config file (default: `~/.config/a3sctl/default.yaml`)
+* A flag directly provided
+* Env variable (ie `$A3SCTL_SOURCE_NAME` for `--source-name`)
+* The config file (default: `~/.config/a3sctl/default.yaml`)
 
 You can choose the config file to user by setting the full path of the file
 using the flag `--config`.
@@ -557,10 +557,10 @@ automatically renew if it's past its half-life.
 
 First, clone this repository and make sure you have the following installed:
 
-- go
-- mongodb
-- nats-server
-- tmux & tmuxinator
+* go
+* mongodb
+* nats-server
+* tmux & tmuxinator
 
 ### Initialize the environment
 
