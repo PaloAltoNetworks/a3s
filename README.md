@@ -47,10 +47,13 @@ particular namespace.
 	* [OIDC](#oidc)
 		* [Create an OIDC source](#create-an-oidc-source)
 		* [Obtain a token](#obtain-a-token-2)
+	* [A3S remote identity token](#a3s-remote-identity-token)
+		* [Create an A3S source](#create-an-a3s-source)
+		* [Obtain a token](#obtain-a-token-3)
 	* [Amazon STS](#amazon-sts)
 	* [Google Cloud Platform token](#google-cloud-platform-token)
 	* [Azure token](#azure-token)
-	* [Existing A3S Identity token](#existing-a3s-identity-token)
+	* [A3S local identity token](#a3s-local-identity-token)
 * [Writing authorizations](#writing-authorizations)
 	* [Subject](#subject)
 	* [Permissions](#permissions)
@@ -139,13 +142,13 @@ If you want to check the content of a token, you can use:
 	  "exp": 1636830341,
 	  "iat": 1636743941,
 	  "identity": [
+		"@source:name=root"
+		"@source:namespace=/",
+		"@source:type=mtls",
 		"commonname=Jean-Michel",
-		"serialnumber=219959457279438724775594138274989969558",
 		"fingerprint=C8BB0E5FA7644DDC97FD54AEF09053E880EDA939",
 		"issuerchain=D98F838F491542CC238275763AA06B7DC949737D",
-		"@source:type=mtls",
-		"@source:namespace=/",
-		"@source:name=root"
+		"serialnumber=219959457279438724775594138274989969558",
 	  ],
 	  "iss": "https://127.0.0.1",
 	  "jti": "b2b441a0-5283-4586-baa7-4a45147aaf46"
@@ -331,6 +334,38 @@ This will print an URL to open in your browser to authenticate against the OIDC
 provider. Once done, the provider will call back a3sctl and the token will be
 displayed.
 
+### A3S remote identity token
+
+This authentication source allows to issue a token from another one issued by
+another a3s server. This allows to trust other a3s instances and issue local
+tokens from trusted ones.
+
+#### Create an A3S source
+
+You need to create an a3s source in order to validate the remote tokens. This
+source requires to pass the raw address of the remote a3s server, as it will use
+the well-known jwks URL to retrieve the keys and verify the token signature.
+
+To create an a3s source:
+
+	a3sctl api create a3ssource \
+		--name my-remote-a3s-source \
+		--issuer https://remote-a3s.com
+
+You can also use `--certificate-auhority` to pass a custom CA if the
+certificates used by the server are not trusted by the host running a3s.
+
+If the issuer is not the root URL of the remote a3s server, you can use the
+`--endpoint` flag to pass the actual URL.
+
+#### Obtain a token
+
+To obtain a token from the newly created source:
+
+	a3sctl auth remote-a3s \
+		--source-name my-remote-a3s-source \
+		--source-namespace /tutorial \
+		--input-token <token>
 
 ### Amazon STS
 
@@ -380,7 +415,7 @@ However, if you are running it from an Azure instance, you just need to run:
 
 	a3sctl auth azure
 
-### Existing A3S Identity token
+### A3S local identity token
 
 You can use an existing a3s identity token to ask for another one. Note that is
 not a renew mechanism. The requested token cannot expire later than the original
