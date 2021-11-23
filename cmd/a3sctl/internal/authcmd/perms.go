@@ -16,6 +16,7 @@ func makePermsCmd(mmaker manipcli.ManipulatorMaker) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:              "permissions",
+		Aliases:          []string{"perms", "perm"},
 		Short:            "Check the permissions",
 		TraverseChildren: true,
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {

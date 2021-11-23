@@ -14,6 +14,7 @@ func makeCheckCmd(mmaker manipcli.ManipulatorMaker) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:              "check",
+		Aliases:          []string{"verify"},
 		Short:            "Check the token",
 		TraverseChildren: true,
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
