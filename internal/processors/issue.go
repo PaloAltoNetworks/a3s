@@ -16,6 +16,7 @@ import (
 	"go.aporeto.io/a3s/internal/issuer/ldapissuer"
 	"go.aporeto.io/a3s/internal/issuer/mtlsissuer"
 	"go.aporeto.io/a3s/internal/issuer/oidcissuer"
+	"go.aporeto.io/a3s/internal/issuer/remotea3sissuer"
 	"go.aporeto.io/a3s/internal/oidcceremony"
 	"go.aporeto.io/a3s/pkgs/api"
 	"go.aporeto.io/a3s/pkgs/permissions"
@@ -82,6 +83,9 @@ func (p *IssueProcessor) ProcessCreate(bctx bahamut.Context) (err error) {
 	case api.IssueSourceTypeGCP:
 		issuer, err = p.handleGCPIssue(bctx.Context(), req)
 
+	case api.IssueSourceTypeRemoteA3S:
+		issuer, err = p.handleRemoteA3SIssue(bctx.Context(), req)
+
 	case api.IssueSourceTypeOIDC:
 		issuer, err = p.handleOIDCIssue(bctx, req)
 		if issuer == nil && err == nil {
@@ -125,7 +129,8 @@ func (p *IssueProcessor) ProcessCreate(bctx bahamut.Context) (err error) {
 	req.InputAzure = nil
 	req.InputGCP = nil
 	req.InputOIDC = nil
-	req.InputToken = nil
+	req.InputA3S = nil
+	req.InputRemoteA3S = nil
 
 	bctx.SetOutputData(req)
 
@@ -202,7 +207,7 @@ func (p *IssueProcessor) handleGCPIssue(ctx context.Context, req *api.Issue) (to
 func (p *IssueProcessor) handleTokenIssue(ctx context.Context, req *api.Issue, validity time.Duration) (token.Issuer, error) {
 
 	iss, err := a3sissuer.New(
-		req.InputToken.Token,
+		req.InputA3S.Token,
 		p.jwks,
 		p.issuer,
 		p.audience,
@@ -213,6 +218,22 @@ func (p *IssueProcessor) handleTokenIssue(ctx context.Context, req *api.Issue, v
 			Permissions: req.RestrictedPermissions,
 		},
 	)
+	if err != nil {
+		return nil, err
+	}
+
+	return iss, nil
+}
+
+func (p *IssueProcessor) handleRemoteA3SIssue(ctx context.Context, req *api.Issue) (token.Issuer, error) {
+
+	out, err := retrieveSource(ctx, p.manipulator, req.SourceNamespace, req.SourceName, api.A3SSourceIdentity)
+	if err != nil {
+		return nil, err
+	}
+
+	src := out.(*api.A3SSource)
+	iss, err := remotea3sissuer.New(ctx, src, req.InputRemoteA3S.Token)
 	if err != nil {
 		return nil, err
 	}
