@@ -38,22 +38,25 @@ particular namespace.
 	* [Obtain a root token](#obtain-a-root-token)
 	* [Test with the sample app](#test-with-the-sample-app)
 * [Obtaining identity tokens](#obtaining-identity-tokens)
-	* [MTLS](#mtls)
-		* [Create an MTLS source](#create-an-mtls-source)
-		* [Obtain a token](#obtain-a-token)
-	* [LDAP](#ldap)
-		* [Create an LDAP source](#create-an-ldap-source)
-		* [Obtain a token](#obtain-a-token-1)
-	* [OIDC](#oidc)
-		* [Create an OIDC source](#create-an-oidc-source)
-		* [Obtain a token](#obtain-a-token-2)
-	* [A3S remote identity token](#a3s-remote-identity-token)
-		* [Create an A3S source](#create-an-a3s-source)
-		* [Obtain a token](#obtain-a-token-3)
-	* [Amazon STS](#amazon-sts)
-	* [Google Cloud Platform token](#google-cloud-platform-token)
-	* [Azure token](#azure-token)
-	* [A3S local identity token](#a3s-local-identity-token)
+	* [Restrictions](#restrictions)
+	* [Cloaking](#cloaking)
+	* [Autentication sources](#autentication-sources)
+		* [MTLS](#mtls)
+			* [Create an MTLS source](#create-an-mtls-source)
+			* [Obtain a token](#obtain-a-token)
+		* [LDAP](#ldap)
+			* [Create an LDAP source](#create-an-ldap-source)
+			* [Obtain a token](#obtain-a-token-1)
+		* [OIDC](#oidc)
+			* [Create an OIDC source](#create-an-oidc-source)
+			* [Obtain a token](#obtain-a-token-2)
+		* [A3S remote identity token](#a3s-remote-identity-token)
+			* [Create an A3S source](#create-an-a3s-source)
+			* [Obtain a token](#obtain-a-token-3)
+		* [Amazon STS](#amazon-sts)
+		* [Google Cloud Platform token](#google-cloud-platform-token)
+		* [Azure token](#azure-token)
+		* [A3S local identity token](#a3s-local-identity-token)
 * [Writing authorizations](#writing-authorizations)
 	* [Subject](#subject)
 	* [Permissions](#permissions)
@@ -167,8 +170,8 @@ folder to get started.
 
 ## Obtaining identity tokens
 
-This section describes how to use the various sources of authentication. and how
-to retrieve a token from them.
+This section describes how to use the various sources of authentication and how
+to retrieve from them and apply restrictions or cloaking on it.
 
 All following examples will assume to work in the namespace `/tutorial`. To create
 it, you can run:
@@ -186,6 +189,8 @@ it, you can run:
 > NOTE: you can also get more info about a ressource by using the `-h` flag. This
 > will list all the possible properies the api supports
 
+### Restrictions
+
 Whichever authentication source you are using, you can always ask for a restricted
 token. A restricted token contains additional user requested restrictions
 preventing actions that would normally be possible to do based on the
@@ -199,6 +204,8 @@ euthorizations associated to the claims.
     authorization set grants `dog:eat,sleep`, you may ask for a token that will only work
     for `dog:eat`.
 
+### Cloaking
+
 It is also possible to limit the amount of identity claims that will be emebeded
 into the identity token by using the `--cloak` flag. This can be useful for
 privacy reasons. For instance if a party request you to have `color=blue` and that is
@@ -211,13 +218,20 @@ and size claims (if you have multiple of them) by doing:
 
     --cloak color= --cloak size=
 
-### MTLS
+### Autentication sources
+
+While a3s allows to verify the identity of a token bearer, it does not provide a
+way to store information about the users. In order to derive identity claims,
+a3s relies on third-party authentication sources, who hold the actual data about
+a bearer.
+
+#### MTLS
 
 The MTLS source uses mutual TLS to authenticate a client.  The client must
 present a client certificate (usage set to auth client) that is signed by the CA
 provided in the designed MTLS auth source.
 
-#### Create an MTLS source
+##### Create an MTLS source
 
 You first need to have a CA that can issue certificates for your user. In this
 example, we use `tg`, but you can use any PKI tool you like.
@@ -236,7 +250,7 @@ Then we need to create the MTLS auth source:
 		--name my-mtls-source \
 		--certificate-auhority "$(cat myca-cert.pem)"
 
-#### Obtain a token
+##### Obtain a token
 
 To obtain a token from the newly created source:
 
@@ -249,13 +263,13 @@ To obtain a token from the newly created source:
 > NOTE: you can set `-` for '--pass`. In that case, a3sctl will ask for user
 > input from stdin.
 
-### LDAP
+#### LDAP
 
 A3s supports using a remote LDAP as authentication source. The LDAP server must
 be accessible from a3s. A3s will refuse to connect to an LDAP with no form of
 encryption (TLS or STARTTLS).
 
-#### Create an LDAP source
+##### Create an LDAP source
 
 To create an LDAP source, run:
 
@@ -275,7 +289,7 @@ To create an LDAP source, run:
 You can also use `--certificate-auhority` to pass a custom CA if the
 certificates used by the server are not trusted by the host running a3s.
 
-#### Obtain a token
+##### Obtain a token
 
 To obtain a token from the newly created source:
 
@@ -288,12 +302,12 @@ To obtain a token from the newly created source:
 > NOTE: you can set `-` for '--user` and/or `--pass`. In that case, a3sctl will
 > ask for user input from stdin.
 
-### OIDC
+#### OIDC
 
 A3s can retrieve an identity token from an existing OIDC provider in order to
 deliver normalized identiy tokens.
 
-#### Create an OIDC source
+##### Create an OIDC source
 
 Configuring a valid OIDC provider is beyond the scope of this document. However,
 they will all work the same and will give you a client ID, a client secret and
@@ -318,7 +332,7 @@ depending on your provider.
 You can also use `--certificate-auhority` to pass a custom CA if the
 certificates used by the server are not trusted by the host running a3s.
 
-#### Obtain a token
+##### Obtain a token
 
 While all the other sources can be used easily with curl for instance, the OIDC
 source necessitate to run a http server and needs to perform a dance that is
@@ -334,13 +348,13 @@ This will print an URL to open in your browser to authenticate against the OIDC
 provider. Once done, the provider will call back a3sctl and the token will be
 displayed.
 
-### A3S remote identity token
+#### A3S remote identity token
 
 This authentication source allows to issue a token from another one issued by
 another a3s server. This allows to trust other a3s instances and issue local
 tokens from trusted ones.
 
-#### Create an A3S source
+##### Create an A3S source
 
 You need to create an a3s source in order to validate the remote tokens. This
 source requires to pass the raw address of the remote a3s server, as it will use
@@ -358,7 +372,7 @@ certificates used by the server are not trusted by the host running a3s.
 If the issuer is not the root URL of the remote a3s server, you can use the
 `--endpoint` flag to pass the actual URL.
 
-#### Obtain a token
+##### Obtain a token
 
 To obtain a token from the newly created source:
 
@@ -367,7 +381,7 @@ To obtain a token from the newly created source:
 		--source-namespace /tutorial \
 		--input-token <token>
 
-### Amazon STS
+#### Amazon STS
 
 This authentication source does not need custom source creation as it uses AWS
 broadly. How to retrieve a token from AWS is beyond the scope of this document.
@@ -385,7 +399,7 @@ However, if you are running it from an AWS EC2 instance, you just need to run:
 
 	a3sctl auth aws
 
-### Google Cloud Platform token
+#### Google Cloud Platform token
 
 This authentication source does not need custom source creation as it uses GCP
 broadly. How to retrieve a token from GCP is beyond the scope of this document.
@@ -400,7 +414,7 @@ However, if you are running it from an GCP instance, you just need to run:
 
 	a3sctl auth gcp
 
-###  Azure token
+####  Azure token
 
 This authentication source does not need custom source creation as it uses Azure
 broadly. How to retrieve a token from Azure is beyond the scope of this document.
@@ -415,7 +429,7 @@ However, if you are running it from an Azure instance, you just need to run:
 
 	a3sctl auth azure
 
-### A3S local identity token
+#### A3S local identity token
 
 You can use an existing a3s identity token to ask for another one. Note that is
 not a renew mechanism. The requested token cannot expire later than the original
