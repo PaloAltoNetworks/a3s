@@ -37,5 +37,5 @@ services:
       A3S_JWT_CERT: /certs/jwt-cert.pem
       A3S_JWT_KEY: /certs/jwt-key.pem
       A3S_JWT_KEY_PASS: password
-      A3S_JWT_ISSUER: https://127.0.0.1
-      A3S_JWT_AUDIENCE: https://127.0.0.1
+      A3S_JWT_ISSUER: https://127.0.0.1:44443
+      A3S_JWT_AUDIENCE: https://127.0.0.1:44443
