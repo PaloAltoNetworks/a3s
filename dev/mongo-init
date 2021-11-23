@@ -60,6 +60,7 @@ run 'db.getSiblingDB("admin").auth("root", "root");
 db.getSiblingDB("admin").grantRolesToUser("a3s",
     [
         { role: "dbOwner", db: "a3s" },
+        { role: "dbOwner", db: "a3s-alt" },
     ]
 );'
 
