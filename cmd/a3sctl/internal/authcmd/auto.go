@@ -9,12 +9,33 @@ import (
 
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/mitchellh/go-homedir"
+	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"go.aporeto.io/a3s/cmd/a3sctl/internal/helpers"
 	"go.aporeto.io/a3s/pkgs/token"
 	"go.aporeto.io/manipulate/manipcli"
 	"go.uber.org/zap"
 )
+
+func makeAutoCmd(mmaker manipcli.ManipulatorMaker) *cobra.Command {
+
+	cmd := &cobra.Command{
+		Use:              "auto",
+		Short:            "Use config file auto auth.",
+		TraverseChildren: true,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return HandleAutoAuth(
+				mmaker,
+				viper.GetString("auto-auth-method"),
+				true,
+			)
+		},
+	}
+
+	cmd.Flags().String("access-token", "", "Valid Azure token.")
+
+	return cmd
+}
 
 // HandleAutoAuth handles automatic retrieval of tokens based on
 // the current config file.
@@ -25,10 +46,15 @@ import (
 // autoauth.enable: mtls
 //      autoauth.mtls.cert: path to the client certificate
 //      autoauth.mtls.key: path to the client certificate key
-//      autoauth.mtls.keyPass: optional passphrase to the certificate.
+//      autoauth.mtls.pass: optional passphrase to the certificate.
 //      autoauth.mtls.source.name: the name of the MTLS source to use.
 //      autoauth.mtls.source.namespace: the namespace of the MTLS source to use.
-func HandleAutoAuth(mmaker manipcli.ManipulatorMaker, refresh bool) error {
+// autoauth.enable: ldap
+//      autoauth.ldap.user: the username.
+//      autoauth.ldap.pass: the password.
+//      autoauth.ldap.source.name: the name of the LDAP source to use.
+//      autoauth.ldap.source.namespace: the namespace of the LDAP source to use.
+func HandleAutoAuth(mmaker manipcli.ManipulatorMaker, method string, refresh bool) error {
 
 	if viper.GetString("token") != "" {
 		zap.L().Debug("autoauth: using --token")
@@ -53,7 +79,9 @@ func HandleAutoAuth(mmaker manipcli.ManipulatorMaker, refresh bool) error {
 		}
 	}
 
-	method := viper.GetString("autoauth.enable")
+	if method == "" {
+		method = viper.GetString("autoauth.enable")
+	}
 
 	tokenCache := path.Join(cache, fmt.Sprintf("token-%s-%x", method, sha256.Sum256([]byte(viper.GetString("api")))))
 
@@ -131,7 +159,7 @@ func HandleAutoAuth(mmaker manipcli.ManipulatorMaker, refresh bool) error {
 		if err := os.Remove(tokenCache); err != nil {
 			return fmt.Errorf("unable to clean currently cached token: %w", err)
 		}
-		return HandleAutoAuth(mmaker, false)
+		return HandleAutoAuth(mmaker, method, false)
 	}
 
 	zap.L().Debug("autoauth: token set from cache", zap.String("path", tokenCache))

@@ -49,6 +49,7 @@ func main() {
 	rootCmd.PersistentFlags().StringVar(&cfgName, "config-name", "", "default config name (default: default)")
 	rootCmd.PersistentFlags().StringVar(&logLevel, "log-level", "warn", "Log level. Can be debug, info, warn or error")
 	rootCmd.PersistentFlags().Bool("refresh-cached-token", false, "If set, the cached token will be refreshed")
+	rootCmd.PersistentFlags().String("auto-auth-method", "", "If set, override config's file autoauth.enable")
 
 	apiCmd := manipcli.New(api.Manager(), mmaker)
 	apiCmd.PersistentFlags().AddFlagSet(mflags)
@@ -56,7 +57,11 @@ func main() {
 		if err := rootCmd.PersistentPreRunE(cmd, args); err != nil {
 			return err
 		}
-		if err := authcmd.HandleAutoAuth(mmaker, viper.GetBool("refresh-cached-token")); err != nil {
+		if err := authcmd.HandleAutoAuth(
+			mmaker,
+			viper.GetString("auto-auth-method"),
+			viper.GetBool("refresh-cached-token"),
+		); err != nil {
 			return fmt.Errorf("auto auth error: %w", err)
 		}
 		return nil
