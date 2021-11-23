@@ -118,7 +118,7 @@ func TestNewRemoteJWKS(t *testing.T) {
 
 	Convey("Given I call the function with a missing context", t, func() {
 
-		jwks, err := NewRemoteJWKS(nil, nil, "toto://not-an-url")
+		jwks, err := NewRemoteJWKS(nil, nil, "toto://not-an-url") // nolint
 		So(jwks, ShouldBeNil)
 		So(err, ShouldNotBeNil)
 		So(errors.As(err, &ErrJWKSRemote{}), ShouldBeTrue)
@@ -162,7 +162,7 @@ func TestNewRemoteJWKS(t *testing.T) {
 			}
 
 			d, _ := json.Marshal(j)
-			w.Write(d)
+			w.Write(d) // nolint
 		}))
 
 		jwks, err := NewRemoteJWKS(context.Background(), nil, ts.URL)
@@ -184,7 +184,7 @@ func TestNewRemoteJWKS(t *testing.T) {
 			}
 
 			d, _ := json.Marshal(j)
-			w.Write(d)
+			w.Write(d) // nolint
 		}))
 
 		jwks, err := NewRemoteJWKS(context.Background(), nil, ts.URL)
@@ -207,7 +207,7 @@ func TestNewRemoteJWKS(t *testing.T) {
 			}
 
 			d, _ := json.Marshal(j)
-			w.Write(d)
+			w.Write(d) // nolint
 		}))
 
 		jwks, err := NewRemoteJWKS(context.Background(), nil, ts.URL)

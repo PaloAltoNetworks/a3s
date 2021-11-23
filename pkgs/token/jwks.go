@@ -74,7 +74,7 @@ func NewRemoteJWKS(ctx context.Context, client *http.Client, url string) (*JWKS,
 		return nil, ErrJWKSRemote{Err: fmt.Errorf("unable to send request: %w", err)}
 	}
 
-	defer resp.Body.Close()
+	defer resp.Body.Close() // nolint
 
 	jwks := NewJWKS()
 	data, err := io.ReadAll(resp.Body)
