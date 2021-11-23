@@ -702,7 +702,7 @@ func TestValidateIssue(t *testing.T) {
 				return args{
 					&Issue{
 						SourceType: IssueSourceTypeA3S,
-						InputToken: nil,
+						InputA3S:   nil,
 					},
 				}
 			},
@@ -715,7 +715,33 @@ func TestValidateIssue(t *testing.T) {
 				return args{
 					&Issue{
 						SourceType: IssueSourceTypeA3S,
-						InputToken: &IssueToken{},
+						InputA3S:   &IssueA3S{},
+					},
+				}
+			},
+			false,
+			nil,
+		},
+		{
+			"test remote token missing",
+			func(*testing.T) args {
+				return args{
+					&Issue{
+						SourceType:     IssueSourceTypeRemoteA3S,
+						InputRemoteA3S: nil,
+					},
+				}
+			},
+			true,
+			nil,
+		},
+		{
+			"test remote token present",
+			func(*testing.T) args {
+				return args{
+					&Issue{
+						SourceType:     IssueSourceTypeRemoteA3S,
+						InputRemoteA3S: &IssueRemoteA3S{},
 					},
 				}
 			},

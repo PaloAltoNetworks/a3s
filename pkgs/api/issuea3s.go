@@ -8,44 +8,44 @@ import (
 	"go.aporeto.io/elemental"
 )
 
-// IssueToken represents the model of a issuetoken
-type IssueToken struct {
+// IssueA3S represents the model of a issuea3s
+type IssueA3S struct {
 	// The original token.
 	Token string `json:"token" msgpack:"token" bson:"-" mapstructure:"token,omitempty"`
 
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
 }
 
-// NewIssueToken returns a new *IssueToken
-func NewIssueToken() *IssueToken {
+// NewIssueA3S returns a new *IssueA3S
+func NewIssueA3S() *IssueA3S {
 
-	return &IssueToken{
+	return &IssueA3S{
 		ModelVersion: 1,
 	}
 }
 
 // GetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *IssueToken) GetBSON() (interface{}, error) {
+func (o *IssueA3S) GetBSON() (interface{}, error) {
 
 	if o == nil {
 		return nil, nil
 	}
 
-	s := &mongoAttributesIssueToken{}
+	s := &mongoAttributesIssueA3S{}
 
 	return s, nil
 }
 
 // SetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *IssueToken) SetBSON(raw bson.Raw) error {
+func (o *IssueA3S) SetBSON(raw bson.Raw) error {
 
 	if o == nil {
 		return nil
 	}
 
-	s := &mongoAttributesIssueToken{}
+	s := &mongoAttributesIssueA3S{}
 	if err := raw.Unmarshal(s); err != nil {
 		return err
 	}
@@ -54,37 +54,37 @@ func (o *IssueToken) SetBSON(raw bson.Raw) error {
 }
 
 // BleveType implements the bleve.Classifier Interface.
-func (o *IssueToken) BleveType() string {
+func (o *IssueA3S) BleveType() string {
 
-	return "issuetoken"
+	return "issuea3s"
 }
 
-// DeepCopy returns a deep copy if the IssueToken.
-func (o *IssueToken) DeepCopy() *IssueToken {
+// DeepCopy returns a deep copy if the IssueA3S.
+func (o *IssueA3S) DeepCopy() *IssueA3S {
 
 	if o == nil {
 		return nil
 	}
 
-	out := &IssueToken{}
+	out := &IssueA3S{}
 	o.DeepCopyInto(out)
 
 	return out
 }
 
-// DeepCopyInto copies the receiver into the given *IssueToken.
-func (o *IssueToken) DeepCopyInto(out *IssueToken) {
+// DeepCopyInto copies the receiver into the given *IssueA3S.
+func (o *IssueA3S) DeepCopyInto(out *IssueA3S) {
 
 	target, err := copystructure.Copy(o)
 	if err != nil {
-		panic(fmt.Sprintf("Unable to deepcopy IssueToken: %s", err))
+		panic(fmt.Sprintf("Unable to deepcopy IssueA3S: %s", err))
 	}
 
-	*out = *target.(*IssueToken)
+	*out = *target.(*IssueA3S)
 }
 
 // Validate valides the current information stored into the structure.
-func (o *IssueToken) Validate() error {
+func (o *IssueA3S) Validate() error {
 
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
@@ -104,5 +104,5 @@ func (o *IssueToken) Validate() error {
 	return nil
 }
 
-type mongoAttributesIssueToken struct {
+type mongoAttributesIssueA3S struct {
 }

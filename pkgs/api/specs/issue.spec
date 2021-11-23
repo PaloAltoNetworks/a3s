@@ -35,6 +35,16 @@ attributes:
     - age=
     omit_empty: true
 
+  - name: inputA3S
+    description: Contains additional information for an A3S token source.
+    type: ref
+    exposed: true
+    subtype: issuea3s
+    omit_empty: true
+    extensions:
+      noInit: true
+      refMode: pointer
+
   - name: inputAWS
     description: Contains additional information for an AWS STS token source.
     type: ref
@@ -85,11 +95,11 @@ attributes:
       noInit: true
       refMode: pointer
 
-  - name: inputToken
-    description: Contains additional information for an A3S token source.
+  - name: inputRemoteA3S
+    description: Contains additional information for a remote A3S token source.
     type: ref
     exposed: true
-    subtype: issuetoken
+    subtype: issueremotea3s
     omit_empty: true
     extensions:
       noInit: true
@@ -188,6 +198,7 @@ attributes:
     - OIDC
     - SAML
     - A3S
+    - RemoteA3S
     example_value: OIDC
 
   - name: token

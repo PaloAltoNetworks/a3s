@@ -33,6 +33,9 @@ const (
 	// IssueSourceTypeOIDC represents the value OIDC.
 	IssueSourceTypeOIDC IssueSourceTypeValue = "OIDC"
 
+	// IssueSourceTypeRemoteA3S represents the value RemoteA3S.
+	IssueSourceTypeRemoteA3S IssueSourceTypeValue = "RemoteA3S"
+
 	// IssueSourceTypeSAML represents the value SAML.
 	IssueSourceTypeSAML IssueSourceTypeValue = "SAML"
 )
@@ -117,6 +120,9 @@ type Issue struct {
 	// know all of the claims.
 	Cloak []string `json:"cloak,omitempty" msgpack:"cloak,omitempty" bson:"-" mapstructure:"cloak,omitempty"`
 
+	// Contains additional information for an A3S token source.
+	InputA3S *IssueA3S `json:"inputA3S,omitempty" msgpack:"inputA3S,omitempty" bson:"-" mapstructure:"inputA3S,omitempty"`
+
 	// Contains additional information for an AWS STS token source.
 	InputAWS *IssueAWS `json:"inputAWS,omitempty" msgpack:"inputAWS,omitempty" bson:"-" mapstructure:"inputAWS,omitempty"`
 
@@ -132,8 +138,8 @@ type Issue struct {
 	// Contains additional information for an OIDC source.
 	InputOIDC *IssueOIDC `json:"inputOIDC,omitempty" msgpack:"inputOIDC,omitempty" bson:"-" mapstructure:"inputOIDC,omitempty"`
 
-	// Contains additional information for an A3S token source.
-	InputToken *IssueToken `json:"inputToken,omitempty" msgpack:"inputToken,omitempty" bson:"-" mapstructure:"inputToken,omitempty"`
+	// Contains additional information for a remote A3S token source.
+	InputRemoteA3S *IssueRemoteA3S `json:"inputRemoteA3S,omitempty" msgpack:"inputRemoteA3S,omitempty" bson:"-" mapstructure:"inputRemoteA3S,omitempty"`
 
 	// Opaque data that will be included in the issued token.
 	Opaque map[string]string `json:"opaque,omitempty" msgpack:"opaque,omitempty" bson:"-" mapstructure:"opaque,omitempty"`
@@ -199,9 +205,9 @@ func NewIssue() *Issue {
 	return &Issue{
 		ModelVersion:          1,
 		Opaque:                map[string]string{},
-		Cloak:                 []string{},
-		RestrictedNetworks:    []string{},
 		Audience:              []string{},
+		RestrictedNetworks:    []string{},
+		Cloak:                 []string{},
 		RestrictedPermissions: []string{},
 		Validity:              "24h",
 	}
@@ -291,12 +297,13 @@ func (o *Issue) ToSparse(fields ...string) elemental.SparseIdentifiable {
 		return &SparseIssue{
 			Audience:              &o.Audience,
 			Cloak:                 &o.Cloak,
+			InputA3S:              o.InputA3S,
 			InputAWS:              o.InputAWS,
 			InputAzure:            o.InputAzure,
 			InputGCP:              o.InputGCP,
 			InputLDAP:             o.InputLDAP,
 			InputOIDC:             o.InputOIDC,
-			InputToken:            o.InputToken,
+			InputRemoteA3S:        o.InputRemoteA3S,
 			Opaque:                &o.Opaque,
 			RestrictedNamespace:   &o.RestrictedNamespace,
 			RestrictedNetworks:    &o.RestrictedNetworks,
@@ -316,6 +323,8 @@ func (o *Issue) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.Audience = &(o.Audience)
 		case "cloak":
 			sp.Cloak = &(o.Cloak)
+		case "inputA3S":
+			sp.InputA3S = o.InputA3S
 		case "inputAWS":
 			sp.InputAWS = o.InputAWS
 		case "inputAzure":
@@ -326,8 +335,8 @@ func (o *Issue) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.InputLDAP = o.InputLDAP
 		case "inputOIDC":
 			sp.InputOIDC = o.InputOIDC
-		case "inputToken":
-			sp.InputToken = o.InputToken
+		case "inputRemoteA3S":
+			sp.InputRemoteA3S = o.InputRemoteA3S
 		case "opaque":
 			sp.Opaque = &(o.Opaque)
 		case "restrictedNamespace":
@@ -365,6 +374,9 @@ func (o *Issue) Patch(sparse elemental.SparseIdentifiable) {
 	if so.Cloak != nil {
 		o.Cloak = *so.Cloak
 	}
+	if so.InputA3S != nil {
+		o.InputA3S = so.InputA3S
+	}
 	if so.InputAWS != nil {
 		o.InputAWS = so.InputAWS
 	}
@@ -380,8 +392,8 @@ func (o *Issue) Patch(sparse elemental.SparseIdentifiable) {
 	if so.InputOIDC != nil {
 		o.InputOIDC = so.InputOIDC
 	}
-	if so.InputToken != nil {
-		o.InputToken = so.InputToken
+	if so.InputRemoteA3S != nil {
+		o.InputRemoteA3S = so.InputRemoteA3S
 	}
 	if so.Opaque != nil {
 		o.Opaque = *so.Opaque
@@ -442,6 +454,13 @@ func (o *Issue) Validate() error {
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
+	if o.InputA3S != nil {
+		elemental.ResetDefaultForZeroValues(o.InputA3S)
+		if err := o.InputA3S.Validate(); err != nil {
+			errors = errors.Append(err)
+		}
+	}
+
 	if o.InputAWS != nil {
 		elemental.ResetDefaultForZeroValues(o.InputAWS)
 		if err := o.InputAWS.Validate(); err != nil {
@@ -477,9 +496,9 @@ func (o *Issue) Validate() error {
 		}
 	}
 
-	if o.InputToken != nil {
-		elemental.ResetDefaultForZeroValues(o.InputToken)
-		if err := o.InputToken.Validate(); err != nil {
+	if o.InputRemoteA3S != nil {
+		elemental.ResetDefaultForZeroValues(o.InputRemoteA3S)
+		if err := o.InputRemoteA3S.Validate(); err != nil {
 			errors = errors.Append(err)
 		}
 	}
@@ -492,7 +511,7 @@ func (o *Issue) Validate() error {
 		requiredErrors = requiredErrors.Append(err)
 	}
 
-	if err := elemental.ValidateStringInList("sourceType", string(o.SourceType), []string{"AWS", "MTLS", "LDAP", "GCP", "Azure", "OIDC", "SAML", "A3S"}, false); err != nil {
+	if err := elemental.ValidateStringInList("sourceType", string(o.SourceType), []string{"AWS", "MTLS", "LDAP", "GCP", "Azure", "OIDC", "SAML", "A3S", "RemoteA3S"}, false); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -543,6 +562,8 @@ func (o *Issue) ValueForAttribute(name string) interface{} {
 		return o.Audience
 	case "cloak":
 		return o.Cloak
+	case "inputA3S":
+		return o.InputA3S
 	case "inputAWS":
 		return o.InputAWS
 	case "inputAzure":
@@ -553,8 +574,8 @@ func (o *Issue) ValueForAttribute(name string) interface{} {
 		return o.InputLDAP
 	case "inputOIDC":
 		return o.InputOIDC
-	case "inputToken":
-		return o.InputToken
+	case "inputRemoteA3S":
+		return o.InputRemoteA3S
 	case "opaque":
 		return o.Opaque
 	case "restrictedNamespace":
@@ -599,6 +620,15 @@ know all of the claims.`,
 		Name:    "cloak",
 		SubType: "string",
 		Type:    "list",
+	},
+	"InputA3S": {
+		AllowedChoices: []string{},
+		ConvertedName:  "InputA3S",
+		Description:    `Contains additional information for an A3S token source.`,
+		Exposed:        true,
+		Name:           "inputA3S",
+		SubType:        "issuea3s",
+		Type:           "ref",
 	},
 	"InputAWS": {
 		AllowedChoices: []string{},
@@ -645,13 +675,13 @@ know all of the claims.`,
 		SubType:        "issueoidc",
 		Type:           "ref",
 	},
-	"InputToken": {
+	"InputRemoteA3S": {
 		AllowedChoices: []string{},
-		ConvertedName:  "InputToken",
-		Description:    `Contains additional information for an A3S token source.`,
+		ConvertedName:  "InputRemoteA3S",
+		Description:    `Contains additional information for a remote A3S token source.`,
 		Exposed:        true,
-		Name:           "inputToken",
-		SubType:        "issuetoken",
+		Name:           "inputRemoteA3S",
+		SubType:        "issueremotea3s",
 		Type:           "ref",
 	},
 	"Opaque": {
@@ -731,7 +761,7 @@ engine has no effect and may end up making the token unusable.`,
 		Type:           "string",
 	},
 	"SourceType": {
-		AllowedChoices: []string{"AWS", "MTLS", "LDAP", "GCP", "Azure", "OIDC", "SAML", "A3S"},
+		AllowedChoices: []string{"AWS", "MTLS", "LDAP", "GCP", "Azure", "OIDC", "SAML", "A3S", "RemoteA3S"},
 		ConvertedName:  "SourceType",
 		Description: `The authentication source. This will define how to verify
 credentials from internal or external source of authentication.`,
@@ -785,6 +815,15 @@ know all of the claims.`,
 		SubType: "string",
 		Type:    "list",
 	},
+	"inputa3s": {
+		AllowedChoices: []string{},
+		ConvertedName:  "InputA3S",
+		Description:    `Contains additional information for an A3S token source.`,
+		Exposed:        true,
+		Name:           "inputA3S",
+		SubType:        "issuea3s",
+		Type:           "ref",
+	},
 	"inputaws": {
 		AllowedChoices: []string{},
 		ConvertedName:  "InputAWS",
@@ -830,13 +869,13 @@ know all of the claims.`,
 		SubType:        "issueoidc",
 		Type:           "ref",
 	},
-	"inputtoken": {
+	"inputremotea3s": {
 		AllowedChoices: []string{},
-		ConvertedName:  "InputToken",
-		Description:    `Contains additional information for an A3S token source.`,
+		ConvertedName:  "InputRemoteA3S",
+		Description:    `Contains additional information for a remote A3S token source.`,
 		Exposed:        true,
-		Name:           "inputToken",
-		SubType:        "issuetoken",
+		Name:           "inputRemoteA3S",
+		SubType:        "issueremotea3s",
 		Type:           "ref",
 	},
 	"opaque": {
@@ -916,7 +955,7 @@ engine has no effect and may end up making the token unusable.`,
 		Type:           "string",
 	},
 	"sourcetype": {
-		AllowedChoices: []string{"AWS", "MTLS", "LDAP", "GCP", "Azure", "OIDC", "SAML", "A3S"},
+		AllowedChoices: []string{"AWS", "MTLS", "LDAP", "GCP", "Azure", "OIDC", "SAML", "A3S", "RemoteA3S"},
 		ConvertedName:  "SourceType",
 		Description: `The authentication source. This will define how to verify
 credentials from internal or external source of authentication.`,
@@ -1019,6 +1058,9 @@ type SparseIssue struct {
 	// know all of the claims.
 	Cloak *[]string `json:"cloak,omitempty" msgpack:"cloak,omitempty" bson:"-" mapstructure:"cloak,omitempty"`
 
+	// Contains additional information for an A3S token source.
+	InputA3S *IssueA3S `json:"inputA3S,omitempty" msgpack:"inputA3S,omitempty" bson:"-" mapstructure:"inputA3S,omitempty"`
+
 	// Contains additional information for an AWS STS token source.
 	InputAWS *IssueAWS `json:"inputAWS,omitempty" msgpack:"inputAWS,omitempty" bson:"-" mapstructure:"inputAWS,omitempty"`
 
@@ -1034,8 +1076,8 @@ type SparseIssue struct {
 	// Contains additional information for an OIDC source.
 	InputOIDC *IssueOIDC `json:"inputOIDC,omitempty" msgpack:"inputOIDC,omitempty" bson:"-" mapstructure:"inputOIDC,omitempty"`
 
-	// Contains additional information for an A3S token source.
-	InputToken *IssueToken `json:"inputToken,omitempty" msgpack:"inputToken,omitempty" bson:"-" mapstructure:"inputToken,omitempty"`
+	// Contains additional information for a remote A3S token source.
+	InputRemoteA3S *IssueRemoteA3S `json:"inputRemoteA3S,omitempty" msgpack:"inputRemoteA3S,omitempty" bson:"-" mapstructure:"inputRemoteA3S,omitempty"`
 
 	// Opaque data that will be included in the issued token.
 	Opaque *map[string]string `json:"opaque,omitempty" msgpack:"opaque,omitempty" bson:"-" mapstructure:"opaque,omitempty"`
@@ -1162,6 +1204,9 @@ func (o *SparseIssue) ToPlain() elemental.PlainIdentifiable {
 	if o.Cloak != nil {
 		out.Cloak = *o.Cloak
 	}
+	if o.InputA3S != nil {
+		out.InputA3S = o.InputA3S
+	}
 	if o.InputAWS != nil {
 		out.InputAWS = o.InputAWS
 	}
@@ -1177,8 +1222,8 @@ func (o *SparseIssue) ToPlain() elemental.PlainIdentifiable {
 	if o.InputOIDC != nil {
 		out.InputOIDC = o.InputOIDC
 	}
-	if o.InputToken != nil {
-		out.InputToken = o.InputToken
+	if o.InputRemoteA3S != nil {
+		out.InputRemoteA3S = o.InputRemoteA3S
 	}
 	if o.Opaque != nil {
 		out.Opaque = *o.Opaque

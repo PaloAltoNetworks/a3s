@@ -141,8 +141,12 @@ func ValidateIssue(iss *Issue) error {
 
 	switch iss.SourceType {
 	case IssueSourceTypeA3S:
-		if iss.InputToken == nil {
-			return makeErr("inputToken", "You must set inputToken for the requested sourceType")
+		if iss.InputA3S == nil {
+			return makeErr("inputA3S", "You must set inputA3S for the requested sourceType")
+		}
+	case IssueSourceTypeRemoteA3S:
+		if iss.InputRemoteA3S == nil {
+			return makeErr("inputRemoteA3S", "You must set inputRemoteA3S for the requested sourceType")
 		}
 	case IssueSourceTypeAWS:
 		if iss.InputAWS == nil {

@@ -4,6 +4,7 @@ import "go.aporeto.io/elemental"
 
 var (
 	identityNamesMap = map[string]elemental.Identity{
+		"a3ssource":     A3SSourceIdentity,
 		"authorization": AuthorizationIdentity,
 		"authz":         AuthzIdentity,
 		"issue":         IssueIdentity,
@@ -17,6 +18,7 @@ var (
 	}
 
 	identitycategoriesMap = map[string]elemental.Identity{
+		"a3ssources":     A3SSourceIdentity,
 		"authorizations": AuthorizationIdentity,
 		"authz":          AuthzIdentity,
 		"issue":          IssueIdentity,
@@ -32,6 +34,12 @@ var (
 	aliasesMap = map[string]elemental.Identity{}
 
 	indexesMap = map[string][][]string{
+		"a3ssource": {
+			{"namespace", "name"},
+			{":shard", ":unique", "zone", "zHash"},
+			{"namespace"},
+			{"namespace", "ID"},
+		},
 		"authorization": {
 			{"namespace", "flattenedSubject", "disabled"},
 			{"namespace", "flattenedSubject", "propagate"},
@@ -108,6 +116,8 @@ func (f modelManager) Identifiable(identity elemental.Identity) elemental.Identi
 
 	switch identity {
 
+	case A3SSourceIdentity:
+		return NewA3SSource()
 	case AuthorizationIdentity:
 		return NewAuthorization()
 	case AuthzIdentity:
@@ -135,6 +145,8 @@ func (f modelManager) SparseIdentifiable(identity elemental.Identity) elemental.
 
 	switch identity {
 
+	case A3SSourceIdentity:
+		return NewSparseA3SSource()
 	case AuthorizationIdentity:
 		return NewSparseAuthorization()
 	case AuthzIdentity:
@@ -170,6 +182,8 @@ func (f modelManager) Identifiables(identity elemental.Identity) elemental.Ident
 
 	switch identity {
 
+	case A3SSourceIdentity:
+		return &A3SSourcesList{}
 	case AuthorizationIdentity:
 		return &AuthorizationsList{}
 	case AuthzIdentity:
@@ -195,6 +209,8 @@ func (f modelManager) SparseIdentifiables(identity elemental.Identity) elemental
 
 	switch identity {
 
+	case A3SSourceIdentity:
+		return &SparseA3SSourcesList{}
 	case AuthorizationIdentity:
 		return &SparseAuthorizationsList{}
 	case AuthzIdentity:
@@ -239,6 +255,7 @@ func Manager() elemental.ModelManager { return manager }
 func AllIdentities() []elemental.Identity {
 
 	return []elemental.Identity{
+		A3SSourceIdentity,
 		AuthorizationIdentity,
 		AuthzIdentity,
 		IssueIdentity,
@@ -255,6 +272,8 @@ func AllIdentities() []elemental.Identity {
 func AliasesForIdentity(identity elemental.Identity) []string {
 
 	switch identity {
+	case A3SSourceIdentity:
+		return []string{}
 	case AuthorizationIdentity:
 		return []string{}
 	case AuthzIdentity:

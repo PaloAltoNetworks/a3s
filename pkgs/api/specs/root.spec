@@ -10,6 +10,14 @@ model:
 
 # Relations
 relations:
+- rest_name: a3ssource
+  get:
+    description: Retrieves the list of a3ssources.
+    global_parameters:
+    - $queryable
+  create:
+    description: Creates a new a3ssource.
+
 - rest_name: authorization
   get:
     description: Retrieves the list of authorization.

@@ -1,8 +1,8 @@
 # Model
 model:
-  rest_name: issuetoken
-  resource_name: issuetoken
-  entity_name: IssueToken
+  rest_name: issuea3s
+  resource_name: issuea3s
+  entity_name: IssueA3S
   package: a3s
   group: authn
   description: Additional issuing information for A3S token source.
