@@ -49,6 +49,14 @@ tg cert \
 	--signing-cert-key "$TLSGEN_OUT/ca-intermediate-key.pem" \
 	--signing-cert-key-pass "password"
 
+tg cert \
+	--name "jwt-alt" \
+	--pass "password" \
+	--common-name "jwt-alt" \
+	--signing-cert "$TLSGEN_OUT/ca-intermediate-cert.pem" \
+	--signing-cert-key "$TLSGEN_OUT/ca-intermediate-key.pem" \
+	--signing-cert-key-pass "password"
+
 ## Test User Cert CA and Cert
 tg cert --name "ca-acme" \
 	--is-ca \
