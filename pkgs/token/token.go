@@ -54,7 +54,7 @@ func NewIdentityToken(source Source) *IdentityToken {
 // Parse returns a validated IdentityToken from the given token string using the given JWKS, mandatory trusted issuer
 // and requiredAudience. The token must contain the "kid" header, and that ID must match an existing key in JWKS.
 // The function will populate the identity token's source using the @source* claims.
-// The claim @sourcetype is mandatory and the function will return an error if it is missing.
+// The claim @source:type is mandatory and the function will return an error if it is missing.
 func Parse(tokenString string, keychain *JWKS, trustedIssuer string, requiredAudience string) (*IdentityToken, error) {
 
 	t := &IdentityToken{}
@@ -67,17 +67,17 @@ func Parse(tokenString string, keychain *JWKS, trustedIssuer string, requiredAud
 
 	for _, c := range claims.Identity {
 		switch {
-		case strings.HasPrefix(c, "@sourcename="):
-			claims.Source.Name = strings.TrimPrefix(c, "@sourcename=")
-		case strings.HasPrefix(c, "@sourcenamespace="):
-			claims.Source.Namespace = strings.TrimPrefix(c, "@sourcenamespace=")
-		case strings.HasPrefix(c, "@sourcetype="):
-			claims.Source.Type = strings.TrimPrefix(c, "@sourcetype=")
+		case strings.HasPrefix(c, "@source:name="):
+			claims.Source.Name = strings.TrimPrefix(c, "@source:name=")
+		case strings.HasPrefix(c, "@source:namespace="):
+			claims.Source.Namespace = strings.TrimPrefix(c, "@source:namespace=")
+		case strings.HasPrefix(c, "@source:type="):
+			claims.Source.Type = strings.TrimPrefix(c, "@source:type=")
 		}
 	}
 
 	if claims.Source.Type == "" {
-		return nil, fmt.Errorf("invalid token: missing @sourcetype in identity claims")
+		return nil, fmt.Errorf("invalid token: missing @source:type in identity claims")
 	}
 
 	if claims.Issuer != trustedIssuer {
@@ -127,14 +127,14 @@ func (t *IdentityToken) JWT(key crypto.PrivateKey, kid string, issuer string, au
 		return "", fmt.Errorf("invalid identity token: missing source type")
 	}
 
-	t.Identity = append(t.Identity, fmt.Sprintf("@sourcetype=%s", t.Source.Type))
+	t.Identity = append(t.Identity, fmt.Sprintf("@source:type=%s", t.Source.Type))
 
 	if t.Source.Namespace != "" {
-		t.Identity = append(t.Identity, fmt.Sprintf("@sourcenamespace=%s", t.Source.Namespace))
+		t.Identity = append(t.Identity, fmt.Sprintf("@source:namespace=%s", t.Source.Namespace))
 	}
 
 	if t.Source.Name != "" {
-		t.Identity = append(t.Identity, fmt.Sprintf("@sourcename=%s", t.Source.Name))
+		t.Identity = append(t.Identity, fmt.Sprintf("@source:name=%s", t.Source.Name))
 	}
 
 	j := jwt.NewWithClaims(jwt.SigningMethodES256, t)

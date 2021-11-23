@@ -82,7 +82,7 @@ func TestCommonAuth(t *testing.T) {
 		Convey("Calling commonAuth on a token signed by the signer should work", func() {
 
 			token := makeToken(
-				&token.IdentityToken{Identity: []string{"color=blue", "@sourcetype=test"}},
+				&token.IdentityToken{Identity: []string{"color=blue", "@source:type=test"}},
 				jwt.SigningMethodES256,
 				k,
 				kid1,
@@ -92,13 +92,13 @@ func TestCommonAuth(t *testing.T) {
 
 			So(err, ShouldBeNil)
 			So(action, ShouldEqual, bahamut.AuthActionContinue)
-			So(claims, ShouldResemble, []string{"color=blue", "@sourcetype=test"})
+			So(claims, ShouldResemble, []string{"color=blue", "@source:type=test"})
 		})
 
 		Convey("Calling commonAuth on a token signed by the wrong signer should fail", func() {
 
 			token := makeToken(
-				&token.IdentityToken{Identity: []string{"color=blue", "@sourcetype=test"}},
+				&token.IdentityToken{Identity: []string{"color=blue", "@source:type=test"}},
 				jwt.SigningMethodES256,
 				k2,
 				kid1,
@@ -154,7 +154,7 @@ func TestAuthenticateSession(t *testing.T) {
 
 			session := bahamut.NewMockSession()
 			session.MockToken = makeToken(
-				&token.IdentityToken{Identity: []string{"color=blue", "@sourcetype=test"}},
+				&token.IdentityToken{Identity: []string{"color=blue", "@source:type=test"}},
 				jwt.SigningMethodES256,
 				k,
 				kid1,
@@ -173,7 +173,7 @@ func TestAuthenticateSession(t *testing.T) {
 				"x-a3s-token": {
 					Name: "x-a3s-token",
 					Value: makeToken(
-						&token.IdentityToken{Identity: []string{"color=blue", "@sourcetype=test"}},
+						&token.IdentityToken{Identity: []string{"color=blue", "@source:type=test"}},
 						jwt.SigningMethodES256,
 						k,
 						kid1,
@@ -191,7 +191,7 @@ func TestAuthenticateSession(t *testing.T) {
 
 			session := bahamut.NewMockSession()
 			session.MockToken = makeToken(
-				&token.IdentityToken{Identity: []string{"color=blue", "@sourcetype=test"}},
+				&token.IdentityToken{Identity: []string{"color=blue", "@source:type=test"}},
 				jwt.SigningMethodES256,
 				k2,
 				kid1,
@@ -224,7 +224,7 @@ func TestAuthenticateRequest(t *testing.T) {
 			ctx.MockRequest = elemental.NewRequest()
 			ctx.Request().Username = "Bearer"
 			ctx.Request().Password = makeToken(
-				&token.IdentityToken{Identity: []string{"color=blue", "@sourcetype=test"}},
+				&token.IdentityToken{Identity: []string{"color=blue", "@source:type=test"}},
 				jwt.SigningMethodES256,
 				k,
 				kid1,
@@ -242,7 +242,7 @@ func TestAuthenticateRequest(t *testing.T) {
 			req.AddCookie(&http.Cookie{
 				Name: "x-a3s-token",
 				Value: makeToken(
-					&token.IdentityToken{Identity: []string{"color=blue", "@sourcetype=test"}},
+					&token.IdentityToken{Identity: []string{"color=blue", "@source:type=test"}},
 					jwt.SigningMethodES256,
 					k,
 					kid1,
@@ -262,7 +262,7 @@ func TestAuthenticateRequest(t *testing.T) {
 			ctx.MockRequest = elemental.NewRequest()
 			ctx.Request().Username = "Bearer"
 			ctx.Request().Password = makeToken(
-				&token.IdentityToken{Identity: []string{"color=blue", "@sourcetype=test"}},
+				&token.IdentityToken{Identity: []string{"color=blue", "@source:type=test"}},
 				jwt.SigningMethodES256,
 				k2,
 				kid1,

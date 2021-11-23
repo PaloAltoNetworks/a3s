@@ -143,9 +143,9 @@ If you want to check the content of a token, you can use:
 		"serialnumber=219959457279438724775594138274989969558",
 		"fingerprint=C8BB0E5FA7644DDC97FD54AEF09053E880EDA939",
 		"issuerchain=D98F838F491542CC238275763AA06B7DC949737D",
-		"@sourcetype=mtls",
-		"@sourcenamespace=/",
-		"@sourcename=root"
+		"@source:type=mtls",
+		"@source:namespace=/",
+		"@source:name=root"
 	  ],
 	  "iss": "https://127.0.0.1",
 	  "jti": "b2b441a0-5283-4586-baa7-4a45147aaf46"
@@ -421,15 +421,15 @@ potentially given way broader permissions than expected, the identity token
 always contains additional claims allowing to discriminate bearer based on the
 authentication source they used.
 
-* `@sourcetype`: The type of source that was used to deliver the token.
-* `@sourcenamespace`: The namespace of the source that was used.
-* `@sourcename`: The name of the source.
+* `@source:type`: The type of source that was used to deliver the token.
+* `@source:namespace`: The namespace of the source that was used.
+* `@source:name`: The name of the source.
 
 This way, you can differentiate `name=bob` based on which Bob we are aiming. A
 safe subject to use in that case:
 
 	[
-		["@sourcetype=ldap", "@sourcenamespace=/my/ns", "name=bob"]
+		["@source:type=ldap", "@source:namespace=/my/ns", "name=bob"]
 	]
 
 This way, the authorization will only match Bob that got a token from any LDAP
@@ -481,15 +481,15 @@ We can create the authorizations describe above with the following command:
 		--target-namespaces '["/my/namespace/app1"]' \
 		--subject '[
 			[
-				"@sourcetype=oidc",
-				"@sourcenamespace=/my/namespace",
+				"@source:type=oidc",
+				"@source:namespace=/my/namespace",
 				"org=admin",
 				"group=finance",
 			],
 			[
-				"@sourcetype=mtls",
-				"@sourcenamespace=/my",
-				"@sourcename=admins",
+				"@source:type=mtls",
+				"@source:namespace=/my",
+				"@source:name=admins",
 				"group=admin",
 			]
 		]' \

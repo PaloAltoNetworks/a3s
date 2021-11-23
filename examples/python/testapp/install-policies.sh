@@ -58,9 +58,9 @@ a3sctl api create authorization -n "/testapp" \
 	--name "secret-access" \
 	--subject '[
 		[
-			"@sourcetype=mtls",
-			"@sourcename=default",
-			"@sourcenamespace=/testapp",
+			"@source:type=mtls",
+			"@source:name=default",
+			"@source:namespace=/testapp",
 			"commonname=john"
 		]
 	]' \
@@ -73,9 +73,9 @@ a3sctl api create authorization -n "/testapp" \
 	--name "top-secret-access" \
 	--subject '[
 		[
-			"@sourcetype=mtls",
-			"@sourcename=default",
-			"@sourcenamespace=/testapp",
+			"@source:type=mtls",
+			"@source:name=default",
+			"@source:namespace=/testapp",
 			"commonname=michael"
 		]
 	]' \

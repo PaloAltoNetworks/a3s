@@ -243,9 +243,9 @@ func initRootPermissions(ctx context.Context, m manipulate.Manipulator, caPath s
 	auth.Description = "Root authorization for certificates issued from the CA declared  in the root auth mtls source."
 	auth.Subject = [][]string{
 		{
-			"@sourcetype=mtls",
-			"@sourcename=root",
-			"@sourcenamespace=/",
+			"@source:type=mtls",
+			"@source:name=root",
+			"@source:namespace=/",
 			fmt.Sprintf("issuerchain=%s", strings.Join(chain, ",")),
 		},
 	}

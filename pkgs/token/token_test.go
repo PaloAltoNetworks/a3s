@@ -97,9 +97,9 @@ func TestParse(t *testing.T) {
 			So(err, ShouldBeNil)
 			So(token3.Identity, ShouldResemble, []string{
 				"org=a3s.com",
-				"@sourcetype=certificate",
-				"@sourcenamespace=/my/ns",
-				"@sourcename=mysource",
+				"@source:type=certificate",
+				"@source:namespace=/my/ns",
+				"@source:name=mysource",
 			})
 		})
 
@@ -117,9 +117,9 @@ func TestParse(t *testing.T) {
 				"org=a3s.com",
 				"orgunit=admin",
 				"commonname=joe",
-				"@sourcetype=certificate",
-				"@sourcenamespace=/my/ns",
-				"@sourcename=mysource",
+				"@source:type=certificate",
+				"@source:namespace=/my/ns",
+				"@source:name=mysource",
 			})
 		})
 
@@ -132,7 +132,7 @@ func TestParse(t *testing.T) {
 			So(err.Error(), ShouldEqual, "issuer 'iss' is not acceptable. want 'iss2'")
 		})
 
-		Convey("When I call Parse on a token missing the @sourcetype claim", func() {
+		Convey("When I call Parse on a token missing the @source:type claim", func() {
 
 			// Overwrite the test token
 			claims := jwt.NewWithClaims(
@@ -149,7 +149,7 @@ func TestParse(t *testing.T) {
 
 			So(token2, ShouldBeNil)
 			So(err, ShouldNotBeNil)
-			So(err.Error(), ShouldEqual, "invalid token: missing @sourcetype in identity claims")
+			So(err.Error(), ShouldEqual, "invalid token: missing @source:type in identity claims")
 		})
 		Convey("When I call Parse using the wrong audience", func() {
 
