@@ -28,7 +28,7 @@ import (
 //      autoauth.mtls.keyPass: optional passphrase to the certificate.
 //      autoauth.mtls.source.name: the name of the MTLS source to use.
 //      autoauth.mtls.source.namespace: the namespace of the MTLS source to use.
-func HandleAutoAuth(mmaker manipcli.ManipulatorMaker) error {
+func HandleAutoAuth(mmaker manipcli.ManipulatorMaker, refresh bool) error {
 
 	if viper.GetString("token") != "" {
 		zap.L().Debug("autoauth: using --token")
@@ -56,8 +56,14 @@ func HandleAutoAuth(mmaker manipcli.ManipulatorMaker) error {
 	method := viper.GetString("autoauth.enable")
 
 	tokenCache := path.Join(cache, fmt.Sprintf("token-%s-%x", method, sha256.Sum256([]byte(viper.GetString("api")))))
-	data, err := os.ReadFile(tokenCache)
 
+	if refresh {
+		if err := os.Remove(tokenCache); err != nil {
+			return err
+		}
+	}
+
+	data, err := os.ReadFile(tokenCache)
 	if err != nil {
 		if !os.IsNotExist(err) {
 			return err
@@ -125,7 +131,7 @@ func HandleAutoAuth(mmaker manipcli.ManipulatorMaker) error {
 		if err := os.Remove(tokenCache); err != nil {
 			return fmt.Errorf("unable to clean currently cached token: %w", err)
 		}
-		return HandleAutoAuth(mmaker)
+		return HandleAutoAuth(mmaker, false)
 	}
 
 	zap.L().Debug("autoauth: token set from cache", zap.String("path", tokenCache))

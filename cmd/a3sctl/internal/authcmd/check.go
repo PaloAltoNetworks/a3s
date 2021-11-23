@@ -20,7 +20,7 @@ func makeCheckCmd(mmaker manipcli.ManipulatorMaker) *cobra.Command {
 			if err := cmd.Root().PersistentPreRunE(cmd, args); err != nil {
 				return err
 			}
-			if err := HandleAutoAuth(mmaker); err != nil {
+			if err := HandleAutoAuth(mmaker, viper.GetBool("refresh-cached-token")); err != nil {
 				return fmt.Errorf("auto auth error: %w", err)
 			}
 			return nil

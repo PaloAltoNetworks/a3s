@@ -48,6 +48,7 @@ func main() {
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default: $HOME/.config/a3sctl/default.yaml)")
 	rootCmd.PersistentFlags().StringVar(&cfgName, "config-name", "", "default config name (default: default)")
 	rootCmd.PersistentFlags().StringVar(&logLevel, "log-level", "warn", "Log level. Can be debug, info, warn or error")
+	rootCmd.PersistentFlags().Bool("refresh-cached-token", false, "If set, the cached token will be refreshed")
 
 	apiCmd := manipcli.New(api.Manager(), mmaker)
 	apiCmd.PersistentFlags().AddFlagSet(mflags)
@@ -55,7 +56,7 @@ func main() {
 		if err := rootCmd.PersistentPreRunE(cmd, args); err != nil {
 			return err
 		}
-		if err := authcmd.HandleAutoAuth(mmaker); err != nil {
+		if err := authcmd.HandleAutoAuth(mmaker, viper.GetBool("refresh-cached-token")); err != nil {
 			return fmt.Errorf("auto auth error: %w", err)
 		}
 		return nil
