@@ -100,11 +100,13 @@ func initCobra() {
 		zap.L().Fatal("unable to find home dir", zap.Error(err))
 	}
 
-	hpath := path.Join(home, ".config", "a3sctl")
-	if _, err := os.Stat(hpath); os.IsNotExist(err) {
-		if err := os.Mkdir(hpath, os.ModePerm); err != nil {
-			fmt.Printf("error: failed to create %s: %s\n", hpath, err)
-			return
+	configPath := path.Join(home, ".config", "a3sctl")
+	if _, err := os.Stat(configPath); os.IsNotExist(err) {
+		if err := os.Mkdir(configPath, os.ModePerm); err != nil {
+			zap.L().Fatal("unable to create config folder",
+				zap.String("path", configPath),
+				zap.Error(err),
+			)
 		}
 	}
 
@@ -113,23 +115,25 @@ func initCobra() {
 	}
 
 	if cfgFile != "" {
-
 		if _, err := os.Stat(cfgFile); os.IsNotExist(err) {
 			zap.L().Fatal("config file does not exist", zap.Error(err))
 		}
 
 		viper.SetConfigType("yaml")
 		viper.SetConfigFile(cfgFile)
-		zap.L().Debug("using config file", zap.String("path", cfgFile))
-		err = viper.ReadInConfig()
-		if err != nil {
-			zap.L().Fatal("unable to read config", zap.Error(err))
+
+		if err = viper.ReadInConfig(); err != nil {
+			zap.L().Fatal("unable to read config",
+				zap.String("path", cfgFile),
+				zap.Error(err),
+			)
 		}
 
+		zap.L().Debug("using config file", zap.String("path", cfgFile))
 		return
 	}
 
-	viper.AddConfigPath(hpath)
+	viper.AddConfigPath(configPath)
 	viper.AddConfigPath("/usr/local/etc/a3sctl")
 	viper.AddConfigPath("/etc/a3sctl")
 
@@ -137,17 +141,14 @@ func initCobra() {
 		cfgName = os.Getenv("A3SCTL_CONFIG_NAME")
 	}
 
-	if cfgName != "" {
-		zap.L().Debug("using config name", zap.String("name", cfgName))
-		viper.SetConfigName(cfgName)
-	} else {
-		zap.L().Debug("using default config name")
-		viper.SetConfigName("default")
+	if cfgName == "" {
+		cfgName = "default"
 	}
 
-	err = viper.ReadInConfig()
-	if err != nil {
+	viper.SetConfigName(cfgName)
+	zap.L().Debug("using config name", zap.String("name", cfgName))
+
+	if err = viper.ReadInConfig(); err != nil {
 		zap.L().Fatal("unable to read config", zap.Error(err))
 	}
-
 }
