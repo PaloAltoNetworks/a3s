@@ -55,7 +55,15 @@ cli_linux:
 	go generate ./...
 	cd cmd/a3sctl && CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go install -ldflags="-w -s"
 
-docker: a3s_linux
+docker: a3s_linux package_ca_certs
 	mkdir -p docker/in
 	cp cmd/a3s/a3s docker/in
 	cd docker && docker build -t ${DOCKER_REPO}/${DOCKER_IMAGE}:${DOCKER_TAG} .
+
+package_ca_certs:
+	mkdir -p docker/in
+	go install github.com/agl/extract-nss-root-certs
+	curl -s https://hg.mozilla.org/mozilla-central/raw-file/tip/security/nss/lib/ckfw/builtins/certdata.txt -o certdata.txt
+	mkdir -p docker/in
+	extract-nss-root-certs > docker/in/ca-certificates.pem
+	rm -f certdata.txt
