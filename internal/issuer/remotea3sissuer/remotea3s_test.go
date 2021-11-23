@@ -108,10 +108,6 @@ func TestNew(t *testing.T) {
 		So(err, ShouldBeNil)
 		So(iss.Issue().Identity, ShouldResemble, []string{
 			"remote=claim",
-			"sourcetype=mtls",
-			"sourcenamespace=/remotens",
-			"sourcename=remotename",
-			fmt.Sprintf("iss=%s", ts.URL),
 		})
 	})
 

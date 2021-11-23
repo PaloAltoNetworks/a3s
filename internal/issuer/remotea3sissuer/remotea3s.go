@@ -73,14 +73,19 @@ func (c *remoteA3SIssuer) fromToken(ctx context.Context, tokenString string) err
 	idt, err := token.Parse(tokenString, jwks, c.source.Issuer, c.source.Audience)
 	if err != nil {
 		return ErrRemoteA3S{Err: fmt.Errorf("unable to parse remote a3s token: %w", err)}
+
 	}
 
 	c.token.Identity = make([]string, len(idt.Identity))
-	for i, claim := range idt.Identity {
-		c.token.Identity[i] = strings.TrimLeft(claim, "@")
+	var i int
+	for _, claim := range idt.Identity {
+		if strings.HasPrefix(claim, "@") {
+			continue
+		}
+		c.token.Identity[i] = claim
+		i++
 	}
-
-	c.token.Identity = append(c.token.Identity, fmt.Sprintf("iss=%s", c.source.Issuer))
+	c.token.Identity = c.token.Identity[:i]
 
 	return nil
 }
