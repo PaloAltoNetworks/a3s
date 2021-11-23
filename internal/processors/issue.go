@@ -401,12 +401,7 @@ func (p *IssueProcessor) handleOIDCIssue(bctx bahamut.Context, req *api.Issue) (
 		)
 	}
 
-	iss, err := oidcissuer.New(claims)
-	if err != nil {
-		return nil, err
-	}
-
-	return iss, nil
+	return oidcissuer.New(claims), nil
 }
 
 func retrieveSource(
