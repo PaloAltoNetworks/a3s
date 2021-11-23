@@ -96,10 +96,10 @@ func TestParse(t *testing.T) {
 			token3, err := Parse(token2, keychain, "iss", "aud")
 			So(err, ShouldBeNil)
 			So(token3.Identity, ShouldResemble, []string{
-				"org=a3s.com",
-				"@source:type=certificate",
-				"@source:namespace=/my/ns",
 				"@source:name=mysource",
+				"@source:namespace=/my/ns",
+				"@source:type=certificate",
+				"org=a3s.com",
 			})
 		})
 
@@ -114,12 +114,12 @@ func TestParse(t *testing.T) {
 			So(token2.ExpiresAt, ShouldResemble, token1.ExpiresAt)
 			So(token2.IssuedAt, ShouldResemble, token1.IssuedAt)
 			So(token2.Identity, ShouldResemble, []string{
+				"@source:name=mysource",
+				"@source:namespace=/my/ns",
+				"@source:type=certificate",
+				"commonname=joe",
 				"org=a3s.com",
 				"orgunit=admin",
-				"commonname=joe",
-				"@source:type=certificate",
-				"@source:namespace=/my/ns",
-				"@source:name=mysource",
 			})
 		})
 

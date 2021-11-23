@@ -3,6 +3,7 @@ package token
 import (
 	"crypto"
 	"fmt"
+	"sort"
 	"strings"
 	"time"
 
@@ -142,6 +143,8 @@ func (t *IdentityToken) JWT(key crypto.PrivateKey, kid string, issuer string, au
 	if kid != "" {
 		j.Header["kid"] = kid
 	}
+
+	sort.Strings(t.Identity)
 
 	return j.SignedString(key)
 }
