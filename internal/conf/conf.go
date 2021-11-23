@@ -212,15 +212,15 @@ func (c *NATSConf) TLSConfig() (*tls.Config, error) {
 
 // NATSPublisherConf holds the config a Pubsub publisher.
 type NATSPublisherConf struct {
-	NATSPublishTopic string `mapstructure:"pubsub-publish-topic"        desc:"Topic to use to push events"                 default:"events"`
+	NATSPublishTopic string `mapstructure:"nats-publish-topic"        desc:"Topic to use to push events"                 default:"events"`
 
 	NATSConf `mapstructure:",squash"`
 }
 
 // NATSConsumerConf holds the config a Pubsub consumer.
 type NATSConsumerConf struct {
-	NATSGroupName    string `mapstructure:"pubsub-group-name"           desc:"Nats group name"                             default:"main"`
-	NATSComsumeTopic string `mapstructure:"pubsub-consume-topic"        desc:"Topic to use to push updates"                default:"override-me"`
+	NATSGroupName      string `mapstructure:"nats-group-name"           desc:"Nats group name"                             default:"main"`
+	NATSSubscribeTopic string `mapstructure:"nats-subscribe-topic"      desc:"Topic to use to receive updates"             default:"override-me"`
 
 	NATSConf `mapstructure:",squash"`
 }
