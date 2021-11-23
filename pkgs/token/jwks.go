@@ -1,6 +1,7 @@
 package token
 
 import (
+	"context"
 	"crypto"
 	"crypto/ecdsa"
 	"crypto/elliptic"
@@ -9,8 +10,12 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
+	"io"
 	"math/big"
+	"net/http"
 	"sync"
+
+	"go.aporeto.io/elemental"
 )
 
 // Various errors returned by a JWKS.
@@ -19,6 +24,20 @@ var (
 	ErrJWKSInvalidType = errors.New("certificate must be ecdsa")
 	ErrJWKSKeyExists   = errors.New("key with the same kid already exists")
 )
+
+// A ErrJWKSRemote represents an error while
+// interacting with a remote JWKS.
+type ErrJWKSRemote struct {
+	Err error
+}
+
+func (e ErrJWKSRemote) Error() string {
+	return fmt.Sprintf("remote jwks error: %s", e.Err)
+}
+
+func (e ErrJWKSRemote) Unwrap() error {
+	return e.Err
+}
 
 // A JWKS is a structure to manage a JSON Web Key Set.
 type JWKS struct {
@@ -34,6 +53,62 @@ func NewJWKS() *JWKS {
 	return &JWKS{
 		keyMap: map[string]*JWKSKey{},
 	}
+}
+
+// NewRemoteJWKS returns a JWKS prepulated with the
+// data found at the given URL using the provided http.Client.
+// If http.Client, the default client will be used.
+func NewRemoteJWKS(ctx context.Context, client *http.Client, url string) (*JWKS, error) {
+
+	if client == nil {
+		client = http.DefaultClient
+	}
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
+	if err != nil {
+		return nil, ErrJWKSRemote{Err: fmt.Errorf("unable to build request: %w", err)}
+	}
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, ErrJWKSRemote{Err: fmt.Errorf("unable to send request: %w", err)}
+	}
+
+	defer resp.Body.Close()
+
+	jwks := NewJWKS()
+	data, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, ErrJWKSRemote{Err: fmt.Errorf("unable to read response body: %w", err)}
+	}
+
+	if err := elemental.Decode(elemental.EncodingTypeJSON, data, jwks); err != nil {
+		return nil, ErrJWKSRemote{Err: fmt.Errorf("unable to parse response body: %w", err)}
+	}
+
+	for _, k := range jwks.Keys {
+
+		jwks.keyMap[k.KID] = k
+
+		if k.X != "" && k.Y != "" {
+
+			x, err := base64.RawURLEncoding.DecodeString(k.X)
+			if err != nil {
+				return nil, ErrJWKSRemote{Err: fmt.Errorf("unable to decode X: %w", err)}
+			}
+			k.x = &big.Int{}
+			k.x.SetBytes(x)
+
+			y, err := base64.RawURLEncoding.DecodeString(k.Y)
+			if err != nil {
+				return nil, ErrJWKSRemote{Err: fmt.Errorf("unable to decode Y: %w", err)}
+			}
+			k.y = &big.Int{}
+			k.y.SetBytes(y)
+		}
+	}
+
+	return jwks, nil
 }
 
 // Append appends a new certificate to the JWKS.

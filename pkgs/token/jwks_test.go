@@ -1,13 +1,19 @@
 package token
 
 import (
+	"context"
 	"crypto/ecdsa"
 	"crypto/elliptic"
 	"crypto/sha1"
 	"encoding/base64"
+	"encoding/json"
+	"errors"
 	"fmt"
 	"math/big"
+	"net/http"
+	"net/http/httptest"
 	"testing"
+	"time"
 
 	. "github.com/smartystreets/goconvey/convey"
 )
@@ -105,6 +111,112 @@ func TestJWKSCrud(t *testing.T) {
 				So(len(k.Keys), ShouldEqual, 1)
 			})
 		})
+	})
+}
+
+func TestNewRemoteJWKS(t *testing.T) {
+
+	Convey("Given I call the function with a missing context", t, func() {
+
+		jwks, err := NewRemoteJWKS(nil, nil, "toto://not-an-url")
+		So(jwks, ShouldBeNil)
+		So(err, ShouldNotBeNil)
+		So(errors.As(err, &ErrJWKSRemote{}), ShouldBeTrue)
+		So(err.Error(), ShouldEqual, `remote jwks error: unable to build request: net/http: nil Context`)
+		So(err.(ErrJWKSRemote).Unwrap().Error(), ShouldEqual, `unable to build request: net/http: nil Context`)
+	})
+
+	Convey("Given I call the function pointing to a non existing server", t, func() {
+
+		ctx, cancel := context.WithTimeout(context.Background(), 300*time.Millisecond)
+		defer cancel()
+
+		jwks, err := NewRemoteJWKS(ctx, nil, "https://122.33.33.33")
+		So(jwks, ShouldBeNil)
+		So(err, ShouldNotBeNil)
+		So(errors.As(err, &ErrJWKSRemote{}), ShouldBeTrue)
+		So(err.Error(), ShouldEqual, `remote jwks error: unable to send request: Get "https://122.33.33.33": context deadline exceeded`)
+	})
+
+	Convey("Given a http server that returns invalid body", t, func() {
+
+		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+			w.WriteHeader(http.StatusTeapot)
+		}))
+		jwks, err := NewRemoteJWKS(context.Background(), nil, ts.URL)
+		So(jwks, ShouldBeNil)
+		So(err, ShouldNotBeNil)
+		So(errors.As(err, &ErrJWKSRemote{}), ShouldBeTrue)
+		So(err.Error(), ShouldEqual, `remote jwks error: unable to parse response body: unable to decode application/json: EOF`)
+	})
+
+	Convey("Given a http server that returns invalid X", t, func() {
+
+		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+			j := NewJWKS()
+			j.Keys = []*JWKSKey{
+				{
+					X: "oh no..",
+					Y: "vs1LjF38O2OOSmy0Nbo45zfroQ1ME7GLuZ69uuiCOkk",
+				},
+			}
+
+			d, _ := json.Marshal(j)
+			w.Write(d)
+		}))
+
+		jwks, err := NewRemoteJWKS(context.Background(), nil, ts.URL)
+		So(jwks, ShouldBeNil)
+		So(err, ShouldNotBeNil)
+		So(errors.As(err, &ErrJWKSRemote{}), ShouldBeTrue)
+		So(err.Error(), ShouldEqual, `remote jwks error: unable to decode X: illegal base64 data at input byte 2`)
+	})
+
+	Convey("Given a http server that returns invalid X", t, func() {
+
+		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+			j := NewJWKS()
+			j.Keys = []*JWKSKey{
+				{
+					X: "vs1LjF38O2OOSmy0Nbo45zfroQ1ME7GLuZ69uuiCOkk",
+					Y: "oh no..",
+				},
+			}
+
+			d, _ := json.Marshal(j)
+			w.Write(d)
+		}))
+
+		jwks, err := NewRemoteJWKS(context.Background(), nil, ts.URL)
+		So(jwks, ShouldBeNil)
+		So(err, ShouldNotBeNil)
+		So(errors.As(err, &ErrJWKSRemote{}), ShouldBeTrue)
+		So(err.Error(), ShouldEqual, `remote jwks error: unable to decode Y: illegal base64 data at input byte 2`)
+	})
+
+	Convey("Given a http server that returns a valid JWKS", t, func() {
+
+		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+			j := NewJWKS()
+			j.Keys = []*JWKSKey{
+				{
+					KID: "kid",
+					X:   "vs1LjF38O2OOSmy0Nbo45zfroQ1ME7GLuZ69uuiCOkk",
+					Y:   "vs1LjF38O2OOSmy0Nbo45zfroQ1ME7GLuZ69uuiCOkk",
+				},
+			}
+
+			d, _ := json.Marshal(j)
+			w.Write(d)
+		}))
+
+		jwks, err := NewRemoteJWKS(context.Background(), nil, ts.URL)
+		So(err, ShouldBeNil)
+		So(len(jwks.Keys), ShouldEqual, 1)
+		So(len(jwks.keyMap), ShouldEqual, 1)
+		So(jwks.keyMap, ShouldContainKey, "kid")
+		So(jwks.Keys[0].x, ShouldHaveSameTypeAs, big.NewInt(42))
+		So(jwks.Keys[0].y, ShouldHaveSameTypeAs, big.NewInt(42))
 	})
 }
 
