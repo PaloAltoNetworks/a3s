@@ -10,15 +10,17 @@ import (
 	"go.aporeto.io/manipulate/manipcli"
 )
 
-func makeA3SCmd(mmaker manipcli.ManipulatorMaker, restrictions *permissions.Restrictions) *cobra.Command {
+func makeRemoteA3SCmd(mmaker manipcli.ManipulatorMaker, restrictions *permissions.Restrictions) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:              "a3s",
-		Short:            "Use an A3S identity token.",
+		Use:              "remote-a3s",
+		Short:            "Use a remote A3S identity token.",
 		TraverseChildren: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
 
 			fToken := viper.GetString("access-token")
+			fSourceName := viper.GetString("source-name")
+			fSourceNamespace := viper.GetString("source-namespace")
 			fAudience := viper.GetStringSlice("audience")
 			fCloak := viper.GetStringSlice("cloak")
 			fQRCode := viper.GetBool("qrcode")
@@ -34,9 +36,11 @@ func makeA3SCmd(mmaker manipcli.ManipulatorMaker, restrictions *permissions.Rest
 			}
 
 			client := authlib.NewClient(m)
-			t, err := client.AuthFromA3S(
+			t, err := client.AuthFromRemoteA3S(
 				context.Background(),
 				fToken,
+				fSourceNamespace,
+				fSourceName,
 				authlib.OptAudience(fAudience...),
 				authlib.OptCloak(fCloak...),
 				authlib.OptRestrictions(*restrictions),
@@ -52,7 +56,7 @@ func makeA3SCmd(mmaker manipcli.ManipulatorMaker, restrictions *permissions.Rest
 		},
 	}
 
-	cmd.Flags().String("access-token", "", "Valid Azure token.")
+	cmd.Flags().String("access-token", "", "Valid remote a3s token.")
 
 	return cmd
 }

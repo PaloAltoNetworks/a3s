@@ -26,6 +26,8 @@ func makePermsCmd(mmaker manipcli.ManipulatorMaker) *cobra.Command {
 			if err := HandleAutoAuth(
 				mmaker,
 				viper.GetString("auto-auth-method"),
+				nil,
+				nil,
 				viper.GetBool("refresh-cached-token"),
 			); err != nil {
 				return fmt.Errorf("auto auth error: %w", err)

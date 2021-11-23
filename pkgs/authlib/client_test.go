@@ -98,7 +98,7 @@ func TestAuthFromLDAP(t *testing.T) {
 	})
 }
 
-func TestAuthFromToken(t *testing.T) {
+func TestAuthFromA3S(t *testing.T) {
 
 	Convey("The function should work", t, func() {
 
@@ -113,7 +113,7 @@ func TestAuthFromToken(t *testing.T) {
 
 		cl := NewClient(m)
 
-		token, err := cl.AuthFromToken(
+		token, err := cl.AuthFromA3S(
 			context.Background(),
 			"token",
 			OptAudience("aud"),
@@ -125,7 +125,41 @@ func TestAuthFromToken(t *testing.T) {
 		So(expectedRequest.SourceName, ShouldEqual, "")
 		So(expectedRequest.Audience, ShouldResemble, []string{"aud"})
 		So(expectedRequest.Validity, ShouldEqual, time.Hour.String())
-		So(expectedRequest.InputToken.Token, ShouldEqual, "token")
+		So(expectedRequest.InputA3S.Token, ShouldEqual, "token")
+		So(token, ShouldEqual, "yeay!")
+	})
+}
+
+func TestAuthFromRemoteA3S(t *testing.T) {
+
+	Convey("The function should work", t, func() {
+
+		expectedRequest := api.NewIssue()
+
+		m := maniptest.NewTestManipulator()
+		m.MockCreate(t, func(mctx manipulate.Context, object elemental.Identifiable) error {
+			expectedRequest = object.(*api.Issue)
+			expectedRequest.Token = "yeay!"
+			return nil
+		})
+
+		cl := NewClient(m)
+
+		token, err := cl.AuthFromRemoteA3S(
+			context.Background(),
+			"token",
+			"/ns",
+			"name",
+			OptAudience("aud"),
+		)
+
+		So(err, ShouldBeNil)
+		So(expectedRequest.SourceType, ShouldEqual, api.IssueSourceTypeRemoteA3S)
+		So(expectedRequest.SourceNamespace, ShouldEqual, "/ns")
+		So(expectedRequest.SourceName, ShouldEqual, "name")
+		So(expectedRequest.Audience, ShouldResemble, []string{"aud"})
+		So(expectedRequest.Validity, ShouldEqual, time.Hour.String())
+		So(expectedRequest.InputRemoteA3S.Token, ShouldEqual, "token")
 		So(token, ShouldEqual, "yeay!")
 	})
 }

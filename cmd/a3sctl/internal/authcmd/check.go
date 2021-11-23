@@ -24,6 +24,8 @@ func makeCheckCmd(mmaker manipcli.ManipulatorMaker) *cobra.Command {
 			if err := HandleAutoAuth(
 				mmaker,
 				viper.GetString("auto-auth-method"),
+				nil,
+				nil,
 				viper.GetBool("refresh-cached-token"),
 			); err != nil {
 				return fmt.Errorf("auto auth error: %w", err)
@@ -32,6 +34,7 @@ func makeCheckCmd(mmaker manipcli.ManipulatorMaker) *cobra.Command {
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			fToken := viper.GetString("token")
+			fPrint := viper.GetBool("print")
 
 			claims := jwt.MapClaims{}
 			p := jwt.Parser{}
@@ -52,11 +55,17 @@ func makeCheckCmd(mmaker manipcli.ManipulatorMaker) *cobra.Command {
 
 			fmt.Println(string(data))
 
+			if fPrint {
+				fmt.Println()
+				fmt.Println(fToken)
+			}
+
 			return nil
 		},
 	}
 
 	cmd.Flags().String("token", "", "The token to verify.")
+	cmd.Flags().Bool("print", false, "Print the token string.")
 
 	return cmd
 }

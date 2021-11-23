@@ -61,6 +61,8 @@ func main() {
 		if err := authcmd.HandleAutoAuth(
 			mmaker,
 			viper.GetString("auto-auth-method"),
+			nil,
+			nil,
 			viper.GetBool("refresh-cached-token"),
 		); err != nil {
 			return fmt.Errorf("auto auth error: %w", err)

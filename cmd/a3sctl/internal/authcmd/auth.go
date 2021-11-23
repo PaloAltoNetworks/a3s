@@ -45,6 +45,7 @@ func New(mmaker manipcli.ManipulatorMaker) *cobra.Command {
 		makeGCPCmd(mmaker, restrictions),
 		makeAWSCmd(mmaker, restrictions),
 		makeOIDCCmd(mmaker, restrictions),
+		makeRemoteA3SCmd(mmaker, restrictions),
 		makeA3SCmd(mmaker, restrictions),
 	)
 

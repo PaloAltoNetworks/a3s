@@ -62,8 +62,8 @@ func (a *Client) AuthFromLDAP(ctx context.Context, username string, password str
 	return a.sendRequest(ctx, req)
 }
 
-// AuthFromToken requests a token using the provided token.
-func (a *Client) AuthFromToken(ctx context.Context, token string, options ...Option) (string, error) {
+// AuthFromA3S requests a token using the provided local a3s token.
+func (a *Client) AuthFromA3S(ctx context.Context, token string, options ...Option) (string, error) {
 
 	cfg := newConfig()
 	for _, opt := range options {
@@ -72,7 +72,29 @@ func (a *Client) AuthFromToken(ctx context.Context, token string, options ...Opt
 
 	req := api.NewIssue()
 	req.SourceType = api.IssueSourceTypeA3S
-	req.InputToken = &api.IssueToken{
+	req.InputA3S = &api.IssueA3S{
+		Token: token,
+	}
+
+	applyOptions(req, cfg)
+
+	return a.sendRequest(ctx, req)
+}
+
+// AuthFromRemoteA3S requests a token using the provided remote a3s token.
+func (a *Client) AuthFromRemoteA3S(ctx context.Context, token string, sourceNamespace string, sourceName string, options ...Option) (string, error) {
+
+	cfg := newConfig()
+	for _, opt := range options {
+		opt(&cfg)
+	}
+
+	req := api.NewIssue()
+	req.SourceType = api.IssueSourceTypeRemoteA3S
+	req.SourceNamespace = sourceNamespace
+	req.SourceName = sourceName
+
+	req.InputRemoteA3S = &api.IssueRemoteA3S{
 		Token: token,
 	}
 
