@@ -16,6 +16,7 @@ import (
 	"go.aporeto.io/a3s/pkgs/api"
 	"go.aporeto.io/a3s/pkgs/bootstrap"
 	"go.aporeto.io/manipulate/manipcli"
+	"go.uber.org/zap"
 )
 
 var (
@@ -96,8 +97,7 @@ func initCobra() {
 
 	home, err := homedir.Dir()
 	if err != nil {
-		fmt.Println("error: unable to find home dir:", err)
-		return
+		zap.L().Fatal("unable to find home dir", zap.Error(err))
 	}
 
 	hpath := path.Join(home, ".config", "a3sctl")
@@ -115,13 +115,16 @@ func initCobra() {
 	if cfgFile != "" {
 
 		if _, err := os.Stat(cfgFile); os.IsNotExist(err) {
-			fmt.Println("error: config file does not exist:", err)
-			os.Exit(1)
+			zap.L().Fatal("config file does not exist", zap.Error(err))
 		}
 
 		viper.SetConfigType("yaml")
 		viper.SetConfigFile(cfgFile)
-		_ = viper.ReadInConfig()
+		zap.L().Debug("using config file", zap.String("path", cfgFile))
+		err = viper.ReadInConfig()
+		if err != nil {
+			zap.L().Fatal("unable to read config", zap.Error(err))
+		}
 
 		return
 	}
@@ -135,10 +138,16 @@ func initCobra() {
 	}
 
 	if cfgName != "" {
+		zap.L().Debug("using config name", zap.String("name", cfgName))
 		viper.SetConfigName(cfgName)
 	} else {
+		zap.L().Debug("using default config name")
 		viper.SetConfigName("default")
 	}
 
-	_ = viper.ReadInConfig()
+	err = viper.ReadInConfig()
+	if err != nil {
+		zap.L().Fatal("unable to read config", zap.Error(err))
+	}
+
 }
