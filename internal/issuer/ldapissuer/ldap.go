@@ -173,7 +173,7 @@ func computeLDAPClaims(entry *ldap.Entry, dn *ldap.DN, inc map[string]struct{}, 
 
 		for _, v := range attr.Values {
 			if v != "" {
-				claims = append(claims, fmt.Sprintf("%s=%s", attr.Name, v))
+				claims = append(claims, fmt.Sprintf("%s=%s", strings.TrimLeft(attr.Name, "@"), v))
 			}
 		}
 	}

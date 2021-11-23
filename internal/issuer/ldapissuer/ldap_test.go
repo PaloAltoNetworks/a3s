@@ -92,6 +92,7 @@ func Test_computeLDAPClaims(t *testing.T) {
 							{Name: "objectClass", Values: []string{"skipped"}},
 							{Name: "comment", Values: []string{"skipped"}},
 							{Name: "key1", Values: []string{"value1-1", "value1-2", ""}},
+							{Name: "@@key2", Values: []string{"value1-1", ""}},
 							{Name: "novalues", Values: nil},
 						},
 					},
@@ -113,7 +114,7 @@ func Test_computeLDAPClaims(t *testing.T) {
 					nil,
 				}
 			},
-			[]string{"dn=hello", "ou=the-ou", "dc=the-dc", "key1=value1-1", "key1=value1-2"},
+			[]string{"dn=hello", "ou=the-ou", "dc=the-dc", "key1=value1-1", "key1=value1-2", "key2=value1-1"},
 		},
 		{
 			"with exclude keys",

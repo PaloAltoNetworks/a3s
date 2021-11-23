@@ -56,23 +56,23 @@ func computeOIDClaims(claims map[string]interface{}) []string {
 	for k, v := range claims {
 		switch claim := v.(type) {
 		case string:
-			out = append(out, fmt.Sprintf("%s=%s", k, claim))
+			out = append(out, fmt.Sprintf("%s=%s", strings.TrimLeft(k, "@"), claim))
 		case []string:
 			for _, item := range claim {
-				out = append(out, fmt.Sprintf("%s=%s", k, item))
+				out = append(out, fmt.Sprintf("%s=%s", strings.TrimLeft(k, "@"), item))
 			}
 		case int:
-			out = append(out, fmt.Sprintf("%s=%d", k, claim))
+			out = append(out, fmt.Sprintf("%s=%d", strings.TrimLeft(k, "@"), claim))
 		case []int:
 			for _, item := range claim {
-				out = append(out, fmt.Sprintf("%s=%d", k, item))
+				out = append(out, fmt.Sprintf("%s=%d", strings.TrimLeft(k, "@"), item))
 			}
 		case bool:
-			out = append(out, fmt.Sprintf("%s=%t", k, claim))
+			out = append(out, fmt.Sprintf("%s=%t", strings.TrimLeft(k, "@"), claim))
 		case []interface{}:
 			for _, item := range claim {
 				if claimValue, ok := item.(string); ok {
-					out = append(out, fmt.Sprintf("%s=%s", k, claimValue))
+					out = append(out, fmt.Sprintf("%s=%s", strings.TrimLeft(k, "@"), claimValue))
 				}
 			}
 		}
