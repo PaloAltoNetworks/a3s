@@ -1,6 +1,6 @@
 # a3s
 
-[![build-go](https://github.com/PaloAltoNetworks/a3s/actions/workflows/build-go.yaml/badge.svg)](https://github.com/PaloAltoNetworks/a3s/actions/workflows/build-go.yaml)
+[![build](https://github.com/PaloAltoNetworks/a3s/actions/workflows/build-go.yaml/badge.svg)](https://github.com/PaloAltoNetworks/a3s/actions/workflows/build-go.yaml)
 
 > NOTE: This is a work in progress.
 
