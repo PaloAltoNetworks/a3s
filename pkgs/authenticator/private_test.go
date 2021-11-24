@@ -3,11 +3,9 @@ package authenticator
 import (
 	"context"
 	"crypto"
-	"crypto/sha1"
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"encoding/pem"
-	"fmt"
 	"net/http"
 	"testing"
 
@@ -77,7 +75,7 @@ func TestCommonAuth(t *testing.T) {
 		_ = jwks.Append(c)
 		a := NewPrivate(jwks, "iss", "aud")
 
-		kid1 := fmt.Sprintf("%02X", sha1.Sum(c.Raw))
+		kid1 := token.Fingerprint(c)
 
 		Convey("Calling commonAuth on a token signed by the signer should work", func() {
 
@@ -148,7 +146,7 @@ func TestAuthenticateSession(t *testing.T) {
 		_ = jwks.Append(c)
 		a := NewPrivate(jwks, "iss", "aud")
 
-		kid1 := fmt.Sprintf("%02X", sha1.Sum(c.Raw))
+		kid1 := token.Fingerprint(c)
 
 		Convey("Calling AuthenticateSession on a session that has a valid token should work", func() {
 
@@ -216,7 +214,7 @@ func TestAuthenticateRequest(t *testing.T) {
 		_ = jwks.Append(c)
 		a := NewPrivate(jwks, "iss", "aud")
 
-		kid1 := fmt.Sprintf("%02X", sha1.Sum(c.Raw))
+		kid1 := token.Fingerprint(c)
 
 		Convey("Call AuthenticateSession with a valid token should work", func() {
 

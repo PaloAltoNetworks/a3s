@@ -100,7 +100,7 @@ func startOIDCCallbackServer(srvCtx context.Context, out chan oidcAuthData) {
 		}
 
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(`Authenticated. You can close this window`)) // nolint
+		_, _ = w.Write([]byte(`Authenticated. You can close this window`))
 	}))
 
 	server := &http.Server{
@@ -121,5 +121,5 @@ func startOIDCCallbackServer(srvCtx context.Context, out chan oidcAuthData) {
 	shutdownCtx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()
 
-	server.Shutdown(shutdownCtx) // nolint
+	_ = server.Shutdown(shutdownCtx) // nolint
 }

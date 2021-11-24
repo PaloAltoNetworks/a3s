@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"crypto/sha1"
 	"crypto/tls"
 	"errors"
 	"fmt"
@@ -222,7 +221,7 @@ func initRootPermissions(ctx context.Context, m manipulate.Manipulator, caPath s
 
 	chain := make([]string, len(caCerts))
 	for i, cert := range caCerts {
-		chain[i] = fmt.Sprintf("%02X", sha1.Sum(cert.Raw))
+		chain[i] = token.Fingerprint(cert)
 	}
 
 	source := api.NewMTLSSource()

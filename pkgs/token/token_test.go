@@ -2,7 +2,6 @@ package token
 
 import (
 	"crypto"
-	"crypto/sha1"
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"encoding/pem"
@@ -78,7 +77,7 @@ func TestParse(t *testing.T) {
 		keychain := NewJWKS()
 		_ = keychain.Append(cert)
 
-		kid := fmt.Sprintf("%02X", sha1.Sum(cert.Raw))
+		kid := Fingerprint(cert)
 
 		token, err := token1.JWT(key, kid, "iss", jwt.ClaimStrings{"aud"}, time.Now().Add(10*time.Second), nil)
 		So(err, ShouldBeNil)

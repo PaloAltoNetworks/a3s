@@ -4,11 +4,9 @@ import (
 	"context"
 	"crypto/ecdsa"
 	"crypto/elliptic"
-	"crypto/sha1"
 	"encoding/base64"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"math/big"
 	"net/http"
 	"net/http/httptest"
@@ -31,7 +29,7 @@ func TestJWKSCrud(t *testing.T) {
 	Convey("Given I have a new JWKS", t, func() {
 
 		cert1, key1 := getECCert()
-		kid1 := fmt.Sprintf("%02X", sha1.Sum(cert1.Raw))
+		kid1 := Fingerprint(cert1)
 		k := NewJWKS()
 		So(k.GetLast(), ShouldBeNil)
 

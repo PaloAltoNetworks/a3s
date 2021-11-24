@@ -2,7 +2,6 @@ package mtlsissuer
 
 import (
 	"crypto"
-	"crypto/sha1"
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"encoding/pem"
@@ -12,6 +11,7 @@ import (
 
 	. "github.com/smartystreets/goconvey/convey"
 	"go.aporeto.io/a3s/pkgs/api"
+	"go.aporeto.io/a3s/pkgs/token"
 	"go.aporeto.io/tg/tglib"
 )
 
@@ -124,8 +124,8 @@ func TestMTLSIssuer(t *testing.T) {
 					So(idt.Identity, ShouldContain, "streetaddress=13 Rue de Mogador")
 					So(idt.Identity, ShouldContain, "email=me@me.com")
 					So(idt.Identity, ShouldContain, "serialnumber=42")
-					So(idt.Identity, ShouldContain, fmt.Sprintf("fingerprint=%02X", sha1.Sum(usercert1.Raw)))
-					So(idt.Identity, ShouldContain, fmt.Sprintf("issuerchain=%02X", sha1.Sum(cacert1.Raw)))
+					So(idt.Identity, ShouldContain, fmt.Sprintf("fingerprint=%s", token.Fingerprint(usercert1)))
+					So(idt.Identity, ShouldContain, fmt.Sprintf("issuerchain=%s", token.Fingerprint(cacert1)))
 				})
 			})
 

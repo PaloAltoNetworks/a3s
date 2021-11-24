@@ -6,7 +6,7 @@ DOCKER_TAG ?= "dev"
 
 export GO111MODULE = on
 
-default: lint test a3s cli
+default: codegen lint sec test a3s cli
 
 lint:
 	golangci-lint run \
@@ -31,8 +31,6 @@ lint:
 
 test:
 	go test ./... -race -cover -covermode=atomic -coverprofile=unit_coverage.cov
-
-	@ echo "Converting the coverage file..."
 	gocov convert ./unit_coverage.cov | gocov-xml > ./coverage.xml
 
 sec:
@@ -42,18 +40,18 @@ codegen:
 	cd pkgs/api && make codegen
 
 a3s:
-	cd cmd/a3s && CGO_ENABLED=0 go build -ldflags="-w -s"
+	cd cmd/a3s && CGO_ENABLED=0 go build -ldflags="-w -s" -trimpath
 
 a3s_linux:
-	cd cmd/a3s && CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-w -s"
+	cd cmd/a3s && CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-w -s" -trimpath
 
 cli:
 	go generate ./...
-	cd cmd/a3sctl && CGO_ENABLED=0 go install -ldflags="-w -s"
+	cd cmd/a3sctl && CGO_ENABLED=0 go install -ldflags="-w -s" -trimpath
 
 cli_linux:
 	go generate ./...
-	cd cmd/a3sctl && CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go install -ldflags="-w -s"
+	cd cmd/a3sctl && CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go install -ldflags="-w -s" -trimpath
 
 docker: a3s_linux package_ca_certs
 	mkdir -p docker/in

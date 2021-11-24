@@ -1,7 +1,6 @@
 package mtlsissuer
 
 import (
-	"crypto/sha1"
 	"crypto/x509"
 	"fmt"
 	"strings"
@@ -62,7 +61,7 @@ func (c *mtlsIssuer) fromCertificate(cert *x509.Certificate) error {
 		for _, cert := range chain {
 			fingerprints = append(
 				fingerprints,
-				fmt.Sprintf("%02X", sha1.Sum(cert.Raw)),
+				token.Fingerprint(cert),
 			)
 		}
 	}

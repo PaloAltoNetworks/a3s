@@ -2,9 +2,11 @@ package token
 
 import (
 	"crypto/ecdsa"
-	"crypto/sha1"
+	"crypto/sha256"
+	"crypto/x509"
 	"fmt"
 	"net/http"
+	"reflect"
 	"testing"
 
 	"github.com/golang-jwt/jwt/v4"
@@ -122,7 +124,7 @@ func TestMakeKeyFunc(t *testing.T) {
 		Convey("Calling on token with valid kid", func() {
 			t := &jwt.Token{
 				Method: jwt.SigningMethodES256,
-				Header: map[string]interface{}{"kid": fmt.Sprintf("%02X", sha1.Sum(cert1.Raw))},
+				Header: map[string]interface{}{"kid": Fingerprint(cert1)},
 			}
 			k, err := f(t)
 			So(err, ShouldBeNil)
@@ -131,4 +133,39 @@ func TestMakeKeyFunc(t *testing.T) {
 
 		})
 	})
+}
+
+func TestFingerprint(t *testing.T) {
+	cert, _ := getECCert()
+	type args struct {
+		cert *x509.Certificate
+	}
+	tests := []struct {
+		name string
+		args func(t *testing.T) args
+
+		want1 string
+	}{
+		{
+			"standard",
+			func(*testing.T) args {
+				return args{
+					cert: cert,
+				}
+			},
+			fmt.Sprintf("%02X", sha256.Sum256(cert.Raw)),
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tArgs := tt.args(t)
+
+			got1 := Fingerprint(tArgs.cert)
+
+			if !reflect.DeepEqual(got1, tt.want1) {
+				t.Errorf("Fingerprint got1 = %v, want1: %v", got1, tt.want1)
+			}
+		})
+	}
 }

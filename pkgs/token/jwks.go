@@ -5,7 +5,6 @@ import (
 	"crypto"
 	"crypto/ecdsa"
 	"crypto/elliptic"
-	"crypto/sha1"
 	"crypto/x509"
 	"encoding/base64"
 	"errors"
@@ -127,7 +126,7 @@ func (j *JWKS) AppendWithPrivate(cert *x509.Certificate, private crypto.PrivateK
 		return ErrJWKSInvalidType
 	}
 
-	kid := fmt.Sprintf("%02X", sha1.Sum(cert.Raw))
+	kid := Fingerprint(cert)
 
 	if _, ok := j.keyMap[kid]; ok {
 		return ErrJWKSKeyExists

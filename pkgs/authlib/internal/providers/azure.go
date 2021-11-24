@@ -8,7 +8,7 @@ import (
 	"net/url"
 )
 
-var azureServiceTokenURL = "http://169.254.169.254/metadata/identity/oauth2/token"
+var azureServiceTokenURL = "http://169.254.169.254/metadata/identity/oauth2/token" // #nosec
 
 // AzureServiceIdentityToken will retrieve the service account token for
 // the VM using the Metadata Identity Service of Azure.

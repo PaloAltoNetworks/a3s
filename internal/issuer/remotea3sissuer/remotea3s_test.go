@@ -3,7 +3,6 @@ package remotea3sissuer
 import (
 	"context"
 	"crypto"
-	"crypto/sha1"
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"encoding/json"
@@ -68,7 +67,7 @@ func TestNew(t *testing.T) {
 	Convey("Given an http server and a A3SSource and everything is fine", t, func() {
 
 		remoteCert, remoteKey := getECCert(pkix.Name{CommonName: "local"})
-		kid := fmt.Sprintf("%02X", sha1.Sum(remoteCert.Raw))
+		kid := token.Fingerprint(remoteCert)
 
 		ts := httptest.NewServer(
 			http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
@@ -114,7 +113,7 @@ func TestNew(t *testing.T) {
 	Convey("Given an http server and a A3SSource but token signature is unknown", t, func() {
 
 		remoteCert, remoteKey := getECCert(pkix.Name{CommonName: "local"})
-		kid := fmt.Sprintf("%02X", sha1.Sum(remoteCert.Raw))
+		kid := token.Fingerprint(remoteCert)
 
 		ts := httptest.NewServer(
 			http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {

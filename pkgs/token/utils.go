@@ -1,6 +1,8 @@
 package token
 
 import (
+	"crypto/sha256"
+	"crypto/x509"
 	"fmt"
 
 	"github.com/golang-jwt/jwt/v4"
@@ -26,6 +28,12 @@ func FromSession(session bahamut.Session) string {
 		return cookie.Value
 	}
 	return session.Token()
+}
+
+// Fingerprint returns the fingerprint of the given certificate.
+func Fingerprint(cert *x509.Certificate) string {
+
+	return fmt.Sprintf("%02X", sha256.Sum256(cert.Raw)) // #nosec
 }
 
 func makeKeyFunc(keychain *JWKS) jwt.Keyfunc {
