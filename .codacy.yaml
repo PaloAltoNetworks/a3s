@@ -3,3 +3,4 @@ exclude_paths:
   - "pkgs/api/*"
   - "examples/*"
   - "**_test.go"
+  - "bindata.go"
