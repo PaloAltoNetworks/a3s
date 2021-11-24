@@ -1,6 +1,8 @@
 # a3s
 
 [![build](https://github.com/PaloAltoNetworks/a3s/actions/workflows/build-go.yaml/badge.svg)](https://github.com/PaloAltoNetworks/a3s/actions/workflows/build-go.yaml)
+[![grade](https://app.codacy.com/project/badge/Grade/ac9cca0885c34cdcae8116a4e34cc85c)](https://www.codacy.com/gh/PaloAltoNetworks/a3s/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=PaloAltoNetworks/a3s&amp;utm_campaign=Badge_Grade)
+[![cov](https://app.codacy.com/project/badge/Coverage/ac9cca0885c34cdcae8116a4e34cc85c)](https://www.codacy.com/gh/PaloAltoNetworks/a3s/dashboard?utm_source=github.com&utm_medium=referral&utm_content=PaloAltoNetworks/a3s&utm_campaign=Badge_Coverage)
 
 > NOTE: This is a work in progress.
 
