@@ -82,7 +82,7 @@ func HandleAutoAuth(mmaker manipcli.ManipulatorMaker, method string, overrideAud
 	}
 
 	if _, err := os.Stat(cache); os.IsNotExist(err) {
-		if err := os.Mkdir(cache, 0700); err != nil {
+		if err := os.MkdirAll(cache, 0700); err != nil {
 			return fmt.Errorf("failed to create cache %s: %w", cache, err)
 		}
 	}
