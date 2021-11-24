@@ -30,6 +30,7 @@ jobs:
       - name: setup
         run: |
           go version
+          go install github.com/aporeto-inc/go-bindata/go-bindata@master
           go install go.aporeto.io/elemental/cmd/elegen@master
           go install go.aporeto.io/regolithe/cmd/rego@master
           go install github.com/securego/gosec/cmd/gosec@latest
