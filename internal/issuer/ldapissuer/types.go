@@ -12,6 +12,7 @@ func (e ErrLDAP) Error() string {
 	return fmt.Sprintf("ldap error: %s", e.Err)
 }
 
+// Unwrap returns the warped error.
 func (e ErrLDAP) Unwrap() error {
 	return e.Err
 }

@@ -11,6 +11,7 @@ func (e ErrAWSSTS) Error() string {
 	return fmt.Sprintf("aws error: %s", e.Err)
 }
 
+// Unwrap returns the wrapped error.
 func (e ErrAWSSTS) Unwrap() error {
 	return e.Err
 }

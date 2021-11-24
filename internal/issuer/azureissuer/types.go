@@ -12,6 +12,7 @@ func (e ErrAzure) Error() string {
 	return fmt.Sprintf("azure error: %s", e.Err)
 }
 
+// Unwrap returns the warped error.
 func (e ErrAzure) Unwrap() error {
 	return e.Err
 }

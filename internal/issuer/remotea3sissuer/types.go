@@ -12,6 +12,7 @@ func (e ErrRemoteA3S) Error() string {
 	return fmt.Sprintf("remote a3s error: %s", e.Err)
 }
 
+// Unwrap returns the warped error.
 func (e ErrRemoteA3S) Unwrap() error {
 	return e.Err
 }

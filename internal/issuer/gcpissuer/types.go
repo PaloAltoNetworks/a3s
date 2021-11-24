@@ -16,6 +16,7 @@ func (e ErrGCP) Error() string {
 	return fmt.Sprintf("gcp error: %s", e.Err)
 }
 
+// Unwrap returns the warped error.
 func (e ErrGCP) Unwrap() error {
 	return e.Err
 }

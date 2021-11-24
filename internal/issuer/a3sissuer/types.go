@@ -25,6 +25,7 @@ func (e ErrInputToken) Error() string {
 	return fmt.Sprintf("unable to parse input token: %s", e.Err)
 }
 
+// Unwrap returns the wrapped error.
 func (e ErrInputToken) Unwrap() error {
 	return e.Err
 }
