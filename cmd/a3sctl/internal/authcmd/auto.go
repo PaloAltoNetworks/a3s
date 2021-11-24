@@ -25,6 +25,10 @@ func makeAutoCmd(mmaker manipcli.ManipulatorMaker) *cobra.Command {
 		TraverseChildren: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
 
+			if viper.ConfigFileUsed() == "" {
+				return fmt.Errorf("auto subcommand is available only when using a config file")
+			}
+
 			return HandleAutoAuth(
 				mmaker,
 				viper.GetString("auto-auth-method"),
@@ -35,7 +39,6 @@ func makeAutoCmd(mmaker manipcli.ManipulatorMaker) *cobra.Command {
 		},
 	}
 
-	cmd.Flags().String("access-token", "", "Valid Azure token.")
 	cmd.Flags().StringSlice("override-audience", nil, "Override audience")
 	cmd.Flags().StringSlice("override-cloak", nil, "Override cloak")
 
@@ -91,7 +94,7 @@ func HandleAutoAuth(mmaker manipcli.ManipulatorMaker, method string, overrideAud
 	tokenCache := path.Join(cache, fmt.Sprintf("token-%s-%x", method, sha256.Sum256([]byte(viper.GetString("api")))))
 
 	if refresh {
-		if err := os.Remove(tokenCache); err != nil {
+		if err := os.Remove(tokenCache); err != nil && !os.IsNotExist(err) {
 			return err
 		}
 	}

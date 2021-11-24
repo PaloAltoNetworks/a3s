@@ -149,11 +149,14 @@ func initCobra() {
 	}
 
 	viper.SetConfigName(cfgName)
-	zap.L().Debug("using config name", zap.String("name", cfgName))
 
 	if err = viper.ReadInConfig(); err != nil {
 		if !errors.As(err, &viper.ConfigFileNotFoundError{}) {
-			zap.L().Fatal("unable to read config", zap.Error(err))
+			zap.L().Fatal("unable to read config",
+				zap.Error(err),
+			)
 		}
 	}
+
+	zap.L().Debug("using config name", zap.String("name", cfgName))
 }
