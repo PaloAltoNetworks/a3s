@@ -54,6 +54,18 @@ attributes:
     exposed: true
     stored: true
 
+  - name: identityModifier
+    description: |-
+      Contains optional information about a remote service that can be used to modify
+      the claims that are about to be delivered using this authentication source.
+    type: ref
+    exposed: true
+    subtype: identitymodifier
+    omit_empty: true
+    extensions:
+      noInit: true
+      refMode: pointer
+
   - name: issuer
     description: The issuer that represents the remote a3s server.
     type: string

@@ -79,6 +79,13 @@ Type: `string`
 Endpoint of the remote a3s server, in case it is different from the issuer. If
 left empty, the issuer value will be used.
 
+##### `identityModifier`
+
+Type: [`identitymodifier`](#identitymodifier)
+
+Contains optional information about a remote service that can be used to modify
+the claims that are about to be delivered using this authentication source.
+
 ##### `issuer` [`required`]
 
 Type: `string`
@@ -96,6 +103,90 @@ The name of the source.
 Type: `string`
 
 The namespace of the object.
+
+### IdentityModifier
+
+Information about a remote endpoint to call to eventually modify the identity
+claims about to be issued when using the parent source.
+
+#### Example
+
+```json
+{
+  "URL": "https://modifier.acme.com/modify",
+  "certificate": "-----BEGIN CERTIFICATE-----
+MIIBPzCB5qADAgECAhEAwbx3c+QW24ePXyD94geytzAKBggqhkjOPQQDAjAPMQ0w
+CwYDVQQDEwR0b3RvMB4XDTE5MDIyMjIzNDA1MFoXDTI4MTIzMTIzNDA1MFowDzEN
+MAsGA1UEAxMEdG90bzBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABJi6CwRDeKks
+Xb3pDEslmFGR7k9Aeh5RK+XmdqKKPGb3NQWEFPGolnqOR34iVuf7KSxTuzaaVWfu
+XEa94faUQEqjIzAhMA4GA1UdDwEB/wQEAwIBBjAPBgNVHRMBAf8EBTADAQH/MAoG
+CCqGSM49BAMCA0gAMEUCIQD+nL9RF9EvQXHyYuJ31Lz9yWd9hsK91stnpAs890gS
+/AIgQIKjBBpiyQNZZWso5H04qke9QYMVPegiQQufFFBj32c=
+-----END CERTIFICATE-----",
+  "certificateAuthority": "-----BEGIN CERTIFICATE-----
+MIIBPzCB5qADAgECAhEAwbx3c+QW24ePXyD94geytzAKBggqhkjOPQQDAjAPMQ0w
+CwYDVQQDEwR0b3RvMB4XDTE5MDIyMjIzNDA1MFoXDTI4MTIzMTIzNDA1MFowDzEN
+MAsGA1UEAxMEdG90bzBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABJi6CwRDeKks
+Xb3pDEslmFGR7k9Aeh5RK+XmdqKKPGb3NQWEFPGolnqOR34iVuf7KSxTuzaaVWfu
+XEa94faUQEqjIzAhMA4GA1UdDwEB/wQEAwIBBjAPBgNVHRMBAf8EBTADAQH/MAoG
+CCqGSM49BAMCA0gAMEUCIQD+nL9RF9EvQXHyYuJ31Lz9yWd9hsK91stnpAs890gS
+/AIgQIKjBBpiyQNZZWso5H04qke9QYMVPegiQQufFFBj32c=
+-----END CERTIFICATE-----",
+  "key": "-----BEGIN PRIVATE KEY-----
+MIIBPzCB5qADAgECAhEAwbx3c+QW24ePXyD94geytzAKBggqhkjOPQQDAjAPMQ0w
+CwYDVQQDEwR0b3RvMB4XDTE5MDIyMjIzNDA1MFoXDTI4MTIzMTIzNDA1MFowDzEN
+MAsGA1UEAxMEdG90bzBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABJi6CwRDeKks
+Xb3pDEslmFGR7k9Aeh5RK+XmdqKKPGb3NQWEFPGolnqOR34iVuf7KSxTuzaaVWfu
+XEa94faUQEqjIzAhMA4GA1UdDwEB/wQEAwIBBjAPBgNVHRMBAf8EBTADAQH/MAoG
+CCqGSM49BAMCA0gAMEUCIQD+nL9RF9EvQXHyYuJ31Lz9yWd9hsK91stnpAs890gS
+/AIgQIKjBBpiyQNZZWso5H04qke9QYMVPegiQQufFFBj32c=
+-----END PRIVATE KEY-----",
+  "method": "POST"
+}
+```
+
+#### Attributes
+
+##### `URL` [`required`]
+
+Type: `string`
+
+URL of the remote service. This URL will receive a call containing the
+claims that are about to be delivered. It must reply with 204 if it does not
+wish to modify the claims, or 200 alongside a body containing the modified
+claims.
+
+##### `certificate` [`required`]
+
+Type: `string`
+
+Client certificate required to call URL. A3S will refuse to send data if the
+endpoint does not support client certificate authentication.
+
+##### `certificateAuthority`
+
+Type: `string`
+
+CA to use to validate the entity serving the URL.
+
+##### `key` [`required`]
+
+Type: `string`
+
+Key associated to the client certificate.
+
+##### `method` [`required`]
+
+Type: `enum(GET | POST | PUT | PATCH)`
+
+The HTTP method to use to call the endpoint. For POST/PUT/PATCH the remote
+server will receive the claims as a JSON encoded array in the body. For a GET, the claims will be passed as a query parameter named `claim`.
+
+Default value:
+
+```json
+"POST"
+```
 
 ### IssueA3S
 
@@ -408,6 +499,13 @@ Type: `string`
 
 The description of the object.
 
+##### `identityModifier`
+
+Type: [`identitymodifier`](#identitymodifier)
+
+Contains optional information about a remote service that can be used to modify
+the claims that are about to be delivered using this authentication source.
+
 ##### `ignoredKeys`
 
 Type: `[]string`
@@ -514,6 +612,13 @@ Type: `string`
 
 The description of the object.
 
+##### `identityModifier`
+
+Type: [`identitymodifier`](#identitymodifier)
+
+Contains optional information about a remote service that can be used to modify
+the claims that are about to be delivered using this authentication source.
+
 ##### `name` [`required`]
 
 Type: `string`
@@ -611,6 +716,13 @@ Type: `string`
 
 OIDC [discovery
 endpoint](https://openid.net/specs/openid-connect-discovery-1_0.html#IssuerDiscovery).
+
+##### `identityModifier`
+
+Type: [`identitymodifier`](#identitymodifier)
+
+Contains optional information about a remote service that can be used to modify
+the claims that are about to be delivered using this authentication source.
 
 ##### `name` [`required`]
 

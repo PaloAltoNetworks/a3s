@@ -97,6 +97,10 @@ type A3SSource struct {
 	// left empty, the issuer value will be used.
 	Endpoint string `json:"endpoint" msgpack:"endpoint" bson:"endpoint" mapstructure:"endpoint,omitempty"`
 
+	// Contains optional information about a remote service that can be used to modify
+	// the claims that are about to be delivered using this authentication source.
+	IdentityModifier *IdentityModifier `json:"identityModifier,omitempty" msgpack:"identityModifier,omitempty" bson:"-" mapstructure:"identityModifier,omitempty"`
+
 	// The issuer that represents the remote a3s server.
 	Issuer string `json:"issuer" msgpack:"issuer" bson:"issuer" mapstructure:"issuer,omitempty"`
 
@@ -283,6 +287,7 @@ func (o *A3SSource) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			CertificateAuthority: &o.CertificateAuthority,
 			Description:          &o.Description,
 			Endpoint:             &o.Endpoint,
+			IdentityModifier:     o.IdentityModifier,
 			Issuer:               &o.Issuer,
 			Name:                 &o.Name,
 			Namespace:            &o.Namespace,
@@ -304,6 +309,8 @@ func (o *A3SSource) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.Description = &(o.Description)
 		case "endpoint":
 			sp.Endpoint = &(o.Endpoint)
+		case "identityModifier":
+			sp.IdentityModifier = o.IdentityModifier
 		case "issuer":
 			sp.Issuer = &(o.Issuer)
 		case "name":
@@ -341,6 +348,9 @@ func (o *A3SSource) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.Endpoint != nil {
 		o.Endpoint = *so.Endpoint
+	}
+	if so.IdentityModifier != nil {
+		o.IdentityModifier = so.IdentityModifier
 	}
 	if so.Issuer != nil {
 		o.Issuer = *so.Issuer
@@ -391,6 +401,13 @@ func (o *A3SSource) Validate() error {
 
 	if err := ValidatePEM("certificateAuthority", o.CertificateAuthority); err != nil {
 		errors = errors.Append(err)
+	}
+
+	if o.IdentityModifier != nil {
+		elemental.ResetDefaultForZeroValues(o.IdentityModifier)
+		if err := o.IdentityModifier.Validate(); err != nil {
+			errors = errors.Append(err)
+		}
 	}
 
 	if err := elemental.ValidateRequiredString("issuer", o.Issuer); err != nil {
@@ -445,6 +462,8 @@ func (o *A3SSource) ValueForAttribute(name string) interface{} {
 		return o.Description
 	case "endpoint":
 		return o.Endpoint
+	case "identityModifier":
+		return o.IdentityModifier
 	case "issuer":
 		return o.Issuer
 	case "name":
@@ -519,6 +538,16 @@ left empty, the issuer value will be used.`,
 		Name:    "endpoint",
 		Stored:  true,
 		Type:    "string",
+	},
+	"IdentityModifier": {
+		AllowedChoices: []string{},
+		ConvertedName:  "IdentityModifier",
+		Description: `Contains optional information about a remote service that can be used to modify
+the claims that are about to be delivered using this authentication source.`,
+		Exposed: true,
+		Name:    "identityModifier",
+		SubType: "identitymodifier",
+		Type:    "ref",
 	},
 	"Issuer": {
 		AllowedChoices: []string{},
@@ -645,6 +674,16 @@ left empty, the issuer value will be used.`,
 		Name:    "endpoint",
 		Stored:  true,
 		Type:    "string",
+	},
+	"identitymodifier": {
+		AllowedChoices: []string{},
+		ConvertedName:  "IdentityModifier",
+		Description: `Contains optional information about a remote service that can be used to modify
+the claims that are about to be delivered using this authentication source.`,
+		Exposed: true,
+		Name:    "identityModifier",
+		SubType: "identitymodifier",
+		Type:    "ref",
 	},
 	"issuer": {
 		AllowedChoices: []string{},
@@ -791,6 +830,10 @@ type SparseA3SSource struct {
 	// Endpoint of the remote a3s server, in case it is different from the issuer. If
 	// left empty, the issuer value will be used.
 	Endpoint *string `json:"endpoint,omitempty" msgpack:"endpoint,omitempty" bson:"endpoint,omitempty" mapstructure:"endpoint,omitempty"`
+
+	// Contains optional information about a remote service that can be used to modify
+	// the claims that are about to be delivered using this authentication source.
+	IdentityModifier *IdentityModifier `json:"identityModifier,omitempty" msgpack:"identityModifier,omitempty" bson:"-" mapstructure:"identityModifier,omitempty"`
 
 	// The issuer that represents the remote a3s server.
 	Issuer *string `json:"issuer,omitempty" msgpack:"issuer,omitempty" bson:"issuer,omitempty" mapstructure:"issuer,omitempty"`
@@ -954,6 +997,9 @@ func (o *SparseA3SSource) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.Endpoint != nil {
 		out.Endpoint = *o.Endpoint
+	}
+	if o.IdentityModifier != nil {
+		out.IdentityModifier = o.IdentityModifier
 	}
 	if o.Issuer != nil {
 		out.Issuer = *o.Issuer

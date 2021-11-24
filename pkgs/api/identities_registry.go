@@ -7,7 +7,8 @@ var (
 		"a3ssource":     A3SSourceIdentity,
 		"authorization": AuthorizationIdentity,
 		"authz":         AuthzIdentity,
-		"issue":         IssueIdentity,
+
+		"issue": IssueIdentity,
 
 		"ldapsource":  LDAPSourceIdentity,
 		"mtlssource":  MTLSSourceIdentity,
@@ -21,7 +22,8 @@ var (
 		"a3ssources":     A3SSourceIdentity,
 		"authorizations": AuthorizationIdentity,
 		"authz":          AuthzIdentity,
-		"issue":          IssueIdentity,
+
+		"issue": IssueIdentity,
 
 		"ldapsources": LDAPSourceIdentity,
 		"mtlssources": MTLSSourceIdentity,

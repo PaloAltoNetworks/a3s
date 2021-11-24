@@ -101,6 +101,10 @@ type OIDCSource struct {
 	// endpoint](https://openid.net/specs/openid-connect-discovery-1_0.html#IssuerDiscovery).
 	Endpoint string `json:"endpoint" msgpack:"endpoint" bson:"endpoint" mapstructure:"endpoint,omitempty"`
 
+	// Contains optional information about a remote service that can be used to modify
+	// the claims that are about to be delivered using this authentication source.
+	IdentityModifier *IdentityModifier `json:"identityModifier,omitempty" msgpack:"identityModifier,omitempty" bson:"-" mapstructure:"identityModifier,omitempty"`
+
 	// The name of the source.
 	Name string `json:"name" msgpack:"name" bson:"name" mapstructure:"name,omitempty"`
 
@@ -291,6 +295,7 @@ func (o *OIDCSource) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			ClientSecret:         &o.ClientSecret,
 			Description:          &o.Description,
 			Endpoint:             &o.Endpoint,
+			IdentityModifier:     o.IdentityModifier,
 			Name:                 &o.Name,
 			Namespace:            &o.Namespace,
 			Scopes:               &o.Scopes,
@@ -314,6 +319,8 @@ func (o *OIDCSource) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.Description = &(o.Description)
 		case "endpoint":
 			sp.Endpoint = &(o.Endpoint)
+		case "identityModifier":
+			sp.IdentityModifier = o.IdentityModifier
 		case "name":
 			sp.Name = &(o.Name)
 		case "namespace":
@@ -374,6 +381,9 @@ func (o *OIDCSource) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.Endpoint != nil {
 		o.Endpoint = *so.Endpoint
+	}
+	if so.IdentityModifier != nil {
+		o.IdentityModifier = so.IdentityModifier
 	}
 	if so.Name != nil {
 		o.Name = *so.Name
@@ -438,6 +448,13 @@ func (o *OIDCSource) Validate() error {
 		requiredErrors = requiredErrors.Append(err)
 	}
 
+	if o.IdentityModifier != nil {
+		elemental.ResetDefaultForZeroValues(o.IdentityModifier)
+		if err := o.IdentityModifier.Validate(); err != nil {
+			errors = errors.Append(err)
+		}
+	}
+
 	if err := elemental.ValidateRequiredString("name", o.Name); err != nil {
 		requiredErrors = requiredErrors.Append(err)
 	}
@@ -488,6 +505,8 @@ func (o *OIDCSource) ValueForAttribute(name string) interface{} {
 		return o.Description
 	case "endpoint":
 		return o.Endpoint
+	case "identityModifier":
+		return o.IdentityModifier
 	case "name":
 		return o.Name
 	case "namespace":
@@ -577,6 +596,16 @@ endpoint](https://openid.net/specs/openid-connect-discovery-1_0.html#IssuerDisco
 		Required: true,
 		Stored:   true,
 		Type:     "string",
+	},
+	"IdentityModifier": {
+		AllowedChoices: []string{},
+		ConvertedName:  "IdentityModifier",
+		Description: `Contains optional information about a remote service that can be used to modify
+the claims that are about to be delivered using this authentication source.`,
+		Exposed: true,
+		Name:    "identityModifier",
+		SubType: "identitymodifier",
+		Type:    "ref",
 	},
 	"Name": {
 		AllowedChoices: []string{},
@@ -718,6 +747,16 @@ endpoint](https://openid.net/specs/openid-connect-discovery-1_0.html#IssuerDisco
 		Required: true,
 		Stored:   true,
 		Type:     "string",
+	},
+	"identitymodifier": {
+		AllowedChoices: []string{},
+		ConvertedName:  "IdentityModifier",
+		Description: `Contains optional information about a remote service that can be used to modify
+the claims that are about to be delivered using this authentication source.`,
+		Exposed: true,
+		Name:    "identityModifier",
+		SubType: "identitymodifier",
+		Type:    "ref",
 	},
 	"name": {
 		AllowedChoices: []string{},
@@ -868,6 +907,10 @@ type SparseOIDCSource struct {
 	// OIDC [discovery
 	// endpoint](https://openid.net/specs/openid-connect-discovery-1_0.html#IssuerDiscovery).
 	Endpoint *string `json:"endpoint,omitempty" msgpack:"endpoint,omitempty" bson:"endpoint,omitempty" mapstructure:"endpoint,omitempty"`
+
+	// Contains optional information about a remote service that can be used to modify
+	// the claims that are about to be delivered using this authentication source.
+	IdentityModifier *IdentityModifier `json:"identityModifier,omitempty" msgpack:"identityModifier,omitempty" bson:"-" mapstructure:"identityModifier,omitempty"`
 
 	// The name of the source.
 	Name *string `json:"name,omitempty" msgpack:"name,omitempty" bson:"name,omitempty" mapstructure:"name,omitempty"`
@@ -1040,6 +1083,9 @@ func (o *SparseOIDCSource) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.Endpoint != nil {
 		out.Endpoint = *o.Endpoint
+	}
+	if o.IdentityModifier != nil {
+		out.IdentityModifier = o.IdentityModifier
 	}
 	if o.Name != nil {
 		out.Name = *o.Name

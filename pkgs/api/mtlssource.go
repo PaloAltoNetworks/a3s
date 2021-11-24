@@ -89,6 +89,10 @@ type MTLSSource struct {
 	// The description of the object.
 	Description string `json:"description" msgpack:"description" bson:"description" mapstructure:"description,omitempty"`
 
+	// Contains optional information about a remote service that can be used to modify
+	// the claims that are about to be delivered using this authentication source.
+	IdentityModifier *IdentityModifier `json:"identityModifier,omitempty" msgpack:"identityModifier,omitempty" bson:"-" mapstructure:"identityModifier,omitempty"`
+
 	// The name of the source.
 	Name string `json:"name" msgpack:"name" bson:"name" mapstructure:"name,omitempty"`
 
@@ -264,6 +268,7 @@ func (o *MTLSSource) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			ID:                   &o.ID,
 			CertificateAuthority: &o.CertificateAuthority,
 			Description:          &o.Description,
+			IdentityModifier:     o.IdentityModifier,
 			Name:                 &o.Name,
 			Namespace:            &o.Namespace,
 			ZHash:                &o.ZHash,
@@ -280,6 +285,8 @@ func (o *MTLSSource) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.CertificateAuthority = &(o.CertificateAuthority)
 		case "description":
 			sp.Description = &(o.Description)
+		case "identityModifier":
+			sp.IdentityModifier = o.IdentityModifier
 		case "name":
 			sp.Name = &(o.Name)
 		case "namespace":
@@ -309,6 +316,9 @@ func (o *MTLSSource) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.Description != nil {
 		o.Description = *so.Description
+	}
+	if so.IdentityModifier != nil {
+		o.IdentityModifier = so.IdentityModifier
 	}
 	if so.Name != nil {
 		o.Name = *so.Name
@@ -362,6 +372,13 @@ func (o *MTLSSource) Validate() error {
 		errors = errors.Append(err)
 	}
 
+	if o.IdentityModifier != nil {
+		elemental.ResetDefaultForZeroValues(o.IdentityModifier)
+		if err := o.IdentityModifier.Validate(); err != nil {
+			errors = errors.Append(err)
+		}
+	}
+
 	if err := elemental.ValidateRequiredString("name", o.Name); err != nil {
 		requiredErrors = requiredErrors.Append(err)
 	}
@@ -406,6 +423,8 @@ func (o *MTLSSource) ValueForAttribute(name string) interface{} {
 		return o.CertificateAuthority
 	case "description":
 		return o.Description
+	case "identityModifier":
+		return o.IdentityModifier
 	case "name":
 		return o.Name
 	case "namespace":
@@ -457,6 +476,16 @@ var MTLSSourceAttributesMap = map[string]elemental.AttributeSpecification{
 		Name:           "description",
 		Stored:         true,
 		Type:           "string",
+	},
+	"IdentityModifier": {
+		AllowedChoices: []string{},
+		ConvertedName:  "IdentityModifier",
+		Description: `Contains optional information about a remote service that can be used to modify
+the claims that are about to be delivered using this authentication source.`,
+		Exposed: true,
+		Name:    "identityModifier",
+		SubType: "identitymodifier",
+		Type:    "ref",
 	},
 	"Name": {
 		AllowedChoices: []string{},
@@ -551,6 +580,16 @@ var MTLSSourceLowerCaseAttributesMap = map[string]elemental.AttributeSpecificati
 		Name:           "description",
 		Stored:         true,
 		Type:           "string",
+	},
+	"identitymodifier": {
+		AllowedChoices: []string{},
+		ConvertedName:  "IdentityModifier",
+		Description: `Contains optional information about a remote service that can be used to modify
+the claims that are about to be delivered using this authentication source.`,
+		Exposed: true,
+		Name:    "identityModifier",
+		SubType: "identitymodifier",
+		Type:    "ref",
 	},
 	"name": {
 		AllowedChoices: []string{},
@@ -678,6 +717,10 @@ type SparseMTLSSource struct {
 
 	// The description of the object.
 	Description *string `json:"description,omitempty" msgpack:"description,omitempty" bson:"description,omitempty" mapstructure:"description,omitempty"`
+
+	// Contains optional information about a remote service that can be used to modify
+	// the claims that are about to be delivered using this authentication source.
+	IdentityModifier *IdentityModifier `json:"identityModifier,omitempty" msgpack:"identityModifier,omitempty" bson:"-" mapstructure:"identityModifier,omitempty"`
 
 	// The name of the source.
 	Name *string `json:"name,omitempty" msgpack:"name,omitempty" bson:"name,omitempty" mapstructure:"name,omitempty"`
@@ -814,6 +857,9 @@ func (o *SparseMTLSSource) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.Description != nil {
 		out.Description = *o.Description
+	}
+	if o.IdentityModifier != nil {
+		out.IdentityModifier = o.IdentityModifier
 	}
 	if o.Name != nil {
 		out.Name = *o.Name

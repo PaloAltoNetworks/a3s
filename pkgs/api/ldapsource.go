@@ -119,6 +119,10 @@ type LDAPSource struct {
 	// The description of the object.
 	Description string `json:"description" msgpack:"description" bson:"description" mapstructure:"description,omitempty"`
 
+	// Contains optional information about a remote service that can be used to modify
+	// the claims that are about to be delivered using this authentication source.
+	IdentityModifier *IdentityModifier `json:"identityModifier,omitempty" msgpack:"identityModifier,omitempty" bson:"-" mapstructure:"identityModifier,omitempty"`
+
 	// A list of keys that must not be imported into the identity token. If
 	// `includedKeys` is also set, and a key is in both lists, the key will be ignored.
 	IgnoredKeys []string `json:"ignoredKeys,omitempty" msgpack:"ignoredKeys,omitempty" bson:"ignoredkeys,omitempty" mapstructure:"ignoredKeys,omitempty"`
@@ -330,6 +334,7 @@ func (o *LDAPSource) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			BindSearchFilter:     &o.BindSearchFilter,
 			CertificateAuthority: &o.CertificateAuthority,
 			Description:          &o.Description,
+			IdentityModifier:     o.IdentityModifier,
 			IgnoredKeys:          &o.IgnoredKeys,
 			IncludedKeys:         &o.IncludedKeys,
 			Name:                 &o.Name,
@@ -359,6 +364,8 @@ func (o *LDAPSource) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.CertificateAuthority = &(o.CertificateAuthority)
 		case "description":
 			sp.Description = &(o.Description)
+		case "identityModifier":
+			sp.IdentityModifier = o.IdentityModifier
 		case "ignoredKeys":
 			sp.IgnoredKeys = &(o.IgnoredKeys)
 		case "includedKeys":
@@ -430,6 +437,9 @@ func (o *LDAPSource) Patch(sparse elemental.SparseIdentifiable) {
 	if so.Description != nil {
 		o.Description = *so.Description
 	}
+	if so.IdentityModifier != nil {
+		o.IdentityModifier = so.IdentityModifier
+	}
 	if so.IgnoredKeys != nil {
 		o.IgnoredKeys = *so.IgnoredKeys
 	}
@@ -495,6 +505,13 @@ func (o *LDAPSource) Validate() error {
 		requiredErrors = requiredErrors.Append(err)
 	}
 
+	if o.IdentityModifier != nil {
+		elemental.ResetDefaultForZeroValues(o.IdentityModifier)
+		if err := o.IdentityModifier.Validate(); err != nil {
+			errors = errors.Append(err)
+		}
+	}
+
 	if err := elemental.ValidateRequiredString("name", o.Name); err != nil {
 		requiredErrors = requiredErrors.Append(err)
 	}
@@ -553,6 +570,8 @@ func (o *LDAPSource) ValueForAttribute(name string) interface{} {
 		return o.CertificateAuthority
 	case "description":
 		return o.Description
+	case "identityModifier":
+		return o.IdentityModifier
 	case "ignoredKeys":
 		return o.IgnoredKeys
 	case "includedKeys":
@@ -672,6 +691,16 @@ certificate authority that signed the LDAP server's certificate.`,
 		Name:           "description",
 		Stored:         true,
 		Type:           "string",
+	},
+	"IdentityModifier": {
+		AllowedChoices: []string{},
+		ConvertedName:  "IdentityModifier",
+		Description: `Contains optional information about a remote service that can be used to modify
+the claims that are about to be delivered using this authentication source.`,
+		Exposed: true,
+		Name:    "identityModifier",
+		SubType: "identitymodifier",
+		Type:    "ref",
 	},
 	"IgnoredKeys": {
 		AllowedChoices: []string{},
@@ -864,6 +893,16 @@ certificate authority that signed the LDAP server's certificate.`,
 		Stored:         true,
 		Type:           "string",
 	},
+	"identitymodifier": {
+		AllowedChoices: []string{},
+		ConvertedName:  "IdentityModifier",
+		Description: `Contains optional information about a remote service that can be used to modify
+the claims that are about to be delivered using this authentication source.`,
+		Exposed: true,
+		Name:    "identityModifier",
+		SubType: "identitymodifier",
+		Type:    "ref",
+	},
 	"ignoredkeys": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "ignoredkeys",
@@ -1044,6 +1083,10 @@ type SparseLDAPSource struct {
 
 	// The description of the object.
 	Description *string `json:"description,omitempty" msgpack:"description,omitempty" bson:"description,omitempty" mapstructure:"description,omitempty"`
+
+	// Contains optional information about a remote service that can be used to modify
+	// the claims that are about to be delivered using this authentication source.
+	IdentityModifier *IdentityModifier `json:"identityModifier,omitempty" msgpack:"identityModifier,omitempty" bson:"-" mapstructure:"identityModifier,omitempty"`
 
 	// A list of keys that must not be imported into the identity token. If
 	// `includedKeys` is also set, and a key is in both lists, the key will be ignored.
@@ -1254,6 +1297,9 @@ func (o *SparseLDAPSource) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.Description != nil {
 		out.Description = *o.Description
+	}
+	if o.IdentityModifier != nil {
+		out.IdentityModifier = o.IdentityModifier
 	}
 	if o.IgnoredKeys != nil {
 		out.IgnoredKeys = *o.IgnoredKeys
