@@ -85,6 +85,13 @@ func makeOIDCCmd(mmaker manipcli.ManipulatorMaker, restrictions *permissions.Res
 			return nil
 		},
 	}
+	cmd.Flags().String("source-name", "default", "The name of the auth source.")
+	cmd.Flags().String("source-namespace", "", "The namespace of the auth source. If omitted, uses --namespace.")
+
+	cmd.SetHelpFunc(func(cmd *cobra.Command, args []string) {
+		cmd.Flags().MarkHidden("token")
+		cmd.Parent().HelpFunc()(cmd, args)
+	})
 
 	return cmd
 }

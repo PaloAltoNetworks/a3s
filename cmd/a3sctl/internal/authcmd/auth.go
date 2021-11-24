@@ -14,28 +14,26 @@ import (
 // New returns a new auth command.
 func New(mmaker manipcli.ManipulatorMaker) *cobra.Command {
 
-	// rootCmd is the root cmd for authentication subcommand.
-	rootCmd := &cobra.Command{
+	// cmd is the root cmd for authentication subcommand.
+	cmd := &cobra.Command{
 		Use:              "auth",
 		Short:            "Authenticate and retrieve a token.",
 		Long:             help.Load("auth"),
 		TraverseChildren: true,
 	}
-	rootCmd.PersistentFlags().Duration("validity", 0, "The validity of the requested token.")
-	rootCmd.PersistentFlags().StringSlice("audience", nil, "Requested audience for the token.")
-	rootCmd.PersistentFlags().String("source-name", "default", "The name of the auth source.")
-	rootCmd.PersistentFlags().String("source-namespace", "", "The namespace of the auth source. If omitted, --namespace will be used.")
-	rootCmd.PersistentFlags().StringSlice("cloak", nil, "Cloak identity claims. Only claims with a prefix matching of of the given string will be used in the token.")
-	rootCmd.PersistentFlags().Bool("qrcode", false, "If passed, display the token as a QR code.")
+	cmd.PersistentFlags().Duration("validity", 0, "The validity of the requested token.")
+	cmd.PersistentFlags().StringSlice("audience", nil, "Requested audience for the token.")
+	cmd.PersistentFlags().StringSlice("cloak", nil, "Cloak identity claims. Only claims with a prefix matching of of the given string will be used in the token.")
+	cmd.PersistentFlags().Bool("qrcode", false, "If passed, display the token as a QR code.")
 
 	// Freaking pglags and its non configurable split char
 	// and missing GetStringArray...
 	restrictions := &permissions.Restrictions{}
-	rootCmd.PersistentFlags().StringArrayVar(&restrictions.Permissions, "restrict-permissions", nil, "Restrict the permissions to what is given.")
-	rootCmd.PersistentFlags().StringArrayVar(&restrictions.Networks, "restrict-network", nil, "Rrestrict the origin networks from which the token can be used.")
-	rootCmd.PersistentFlags().StringVar(&restrictions.Namespace, "restrict-namespace", "", "Rrestrict the namespace from which the token can be used.")
+	cmd.PersistentFlags().StringArrayVar(&restrictions.Permissions, "restrict-permissions", nil, "Restrict the permissions to what is given.")
+	cmd.PersistentFlags().StringArrayVar(&restrictions.Networks, "restrict-network", nil, "Rrestrict the origin networks from which the token can be used.")
+	cmd.PersistentFlags().StringVar(&restrictions.Namespace, "restrict-namespace", "", "Rrestrict the namespace from which the token can be used.")
 
-	rootCmd.AddCommand(
+	cmd.AddCommand(
 		makeCheckCmd(mmaker),
 		makePermsCmd(mmaker),
 		makeAutoCmd(mmaker),
@@ -49,7 +47,7 @@ func New(mmaker manipcli.ManipulatorMaker) *cobra.Command {
 		makeA3SCmd(mmaker, restrictions),
 	)
 
-	return rootCmd
+	return cmd
 }
 
 func printToken(token string, qrCode bool) {

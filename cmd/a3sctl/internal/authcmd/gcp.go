@@ -53,5 +53,11 @@ func makeGCPCmd(mmaker manipcli.ManipulatorMaker, restrictions *permissions.Rest
 	cmd.Flags().String("access-token", "", "Valid GCP token.")
 	cmd.Flags().String("token-audience", "a3s", "Required GCP token audience.")
 
+	cmd.SetHelpFunc(func(cmd *cobra.Command, args []string) {
+		cmd.Flags().MarkHidden("namespace")
+		cmd.Flags().MarkHidden("token")
+		cmd.Parent().HelpFunc()(cmd, args)
+	})
+
 	return cmd
 }

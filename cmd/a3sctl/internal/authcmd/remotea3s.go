@@ -56,7 +56,9 @@ func makeRemoteA3SCmd(mmaker manipcli.ManipulatorMaker, restrictions *permission
 		},
 	}
 
-	cmd.Flags().String("access-token", "", "Valid remote a3s token.")
+	cmd.Flags().String("access-token", "", "Valid remote a3s token. If omitted, uses --token.")
+	cmd.Flags().String("source-name", "default", "The name of the auth source.")
+	cmd.Flags().String("source-namespace", "", "The namespace of the auth source. If omitted, uses --namespace.")
 
 	return cmd
 }

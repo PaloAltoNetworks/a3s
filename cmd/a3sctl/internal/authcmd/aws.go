@@ -56,5 +56,11 @@ func makeAWSCmd(mmaker manipcli.ManipulatorMaker, restrictions *permissions.Rest
 	cmd.Flags().String("access-key-id", "", "Access key ID for the token.")
 	cmd.Flags().String("access-key-secret", "", "Secret for access key.")
 
+	cmd.SetHelpFunc(func(cmd *cobra.Command, args []string) {
+		cmd.Flags().MarkHidden("namespace")
+		cmd.Flags().MarkHidden("token")
+		cmd.Parent().HelpFunc()(cmd, args)
+	})
+
 	return cmd
 }

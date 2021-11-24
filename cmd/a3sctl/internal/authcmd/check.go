@@ -23,49 +23,66 @@ func makeCheckCmd(mmaker manipcli.ManipulatorMaker) *cobra.Command {
 			}
 			if err := HandleAutoAuth(
 				mmaker,
-				viper.GetString("auto-auth-method"),
+				"",
 				nil,
 				nil,
-				viper.GetBool("refresh-cached-token"),
+				false,
 			); err != nil {
 				return fmt.Errorf("auto auth error: %w", err)
 			}
+
 			return nil
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			fToken := viper.GetString("token")
 			fPrint := viper.GetBool("print")
+			fQRCode := viper.GetBool("qrcode")
 
-			claims := jwt.MapClaims{}
-			p := jwt.Parser{}
-
-			t, _, err := p.ParseUnverified(fToken, &claims)
-			if err != nil {
-				return err
-			}
-
-			data, err := prettyjson.Marshal(claims)
-			if err != nil {
-				return err
-			}
-
-			fmt.Println("alg:", t.Method.Alg())
-			fmt.Println("kid:", t.Header["kid"])
-			fmt.Println()
-
-			fmt.Println(string(data))
-
-			if fPrint {
-				fmt.Println()
-				fmt.Println(fToken)
-			}
-
-			return nil
+			return CheckToken(fToken, fPrint, fQRCode)
 		},
 	}
 
-	cmd.Flags().String("token", "", "The token to verify.")
 	cmd.Flags().Bool("print", false, "Print the token string.")
 
+	cmd.SetHelpFunc(func(cmd *cobra.Command, args []string) {
+		cmd.Flags().MarkHidden("namespace")
+		cmd.Flags().MarkHidden("audience")
+		cmd.Flags().MarkHidden("cloak")
+		cmd.Flags().MarkHidden("validity")
+		cmd.Flags().MarkHidden("encoding")
+		cmd.Flags().MarkHidden("restrict-namespace")
+		cmd.Flags().MarkHidden("restrict-permissions")
+		cmd.Flags().MarkHidden("restrict-network")
+		cmd.Parent().HelpFunc()(cmd, args)
+	})
+
 	return cmd
+}
+
+func CheckToken(token string, printRaw bool, qrcode bool) error {
+	claims := jwt.MapClaims{}
+	p := jwt.Parser{}
+
+	t, _, err := p.ParseUnverified(token, &claims)
+	if err != nil {
+		return err
+	}
+
+	data, err := prettyjson.Marshal(claims)
+	if err != nil {
+		return err
+	}
+
+	fmt.Println("alg:", t.Method.Alg())
+	fmt.Println("kid:", t.Header["kid"])
+	fmt.Println()
+
+	fmt.Println(string(data))
+
+	if printRaw {
+		fmt.Println()
+		printToken(token, qrcode)
+	}
+
+	return nil
 }

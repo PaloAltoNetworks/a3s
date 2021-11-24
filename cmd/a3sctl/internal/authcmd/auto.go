@@ -11,6 +11,7 @@ import (
 	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"go.aporeto.io/a3s/cmd/a3sctl/internal/flagsets"
 	"go.aporeto.io/a3s/cmd/a3sctl/internal/helpers"
 	"go.aporeto.io/a3s/pkgs/token"
 	"go.aporeto.io/manipulate/manipcli"
@@ -21,7 +22,7 @@ func makeAutoCmd(mmaker manipcli.ManipulatorMaker) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:              "auto",
-		Short:            "Use config file auto auth.",
+		Short:            "Use config file auto auth and cache a token",
 		TraverseChildren: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
 
@@ -29,18 +30,36 @@ func makeAutoCmd(mmaker manipcli.ManipulatorMaker) *cobra.Command {
 				return fmt.Errorf("auto subcommand is available only when using a config file")
 			}
 
-			return HandleAutoAuth(
+			if err := HandleAutoAuth(
 				mmaker,
 				viper.GetString("auto-auth-method"),
-				viper.GetStringSlice("override-audience"),
-				viper.GetStringSlice("override-cloak"),
+				viper.GetStringSlice("audience"),
+				viper.GetStringSlice("cloak"),
 				true,
-			)
+			); err != nil {
+				return err
+			}
+
+			fCheck := viper.GetBool("check")
+			if !fCheck {
+				return nil
+			}
+
+			fToken := viper.GetString("token")
+			fQRCode := viper.GetBool("qrcode")
+			return CheckToken(fToken, true, fQRCode)
 		},
 	}
 
-	cmd.Flags().StringSlice("override-audience", nil, "Override audience")
-	cmd.Flags().StringSlice("override-cloak", nil, "Override cloak")
+	cmd.Flags().Bool("check", false, "Display information about the newly delivered token")
+	cmd.Flags().AddFlagSet(flagsets.MakeAutoAuthFlags())
+
+	cmd.SetHelpFunc(func(cmd *cobra.Command, args []string) {
+		cmd.Flags().MarkHidden("namespace")
+		cmd.Flags().MarkHidden("refresh-cached-token")
+		cmd.Flags().MarkHidden("token")
+		cmd.Parent().HelpFunc()(cmd, args)
+	})
 
 	return cmd
 }

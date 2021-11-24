@@ -52,7 +52,11 @@ func makeA3SCmd(mmaker manipcli.ManipulatorMaker, restrictions *permissions.Rest
 		},
 	}
 
-	cmd.Flags().String("access-token", "", "Valid Azure token.")
+	cmd.Flags().String("access-token", "", "Valid a3s token. If ommited, uses --token.")
+	cmd.SetHelpFunc(func(cmd *cobra.Command, args []string) {
+		cmd.Flags().MarkHidden("namespace")
+		cmd.Parent().HelpFunc()(cmd, args)
+	})
 
 	return cmd
 }

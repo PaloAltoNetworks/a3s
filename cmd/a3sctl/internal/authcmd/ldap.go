@@ -55,8 +55,15 @@ func makeLDAPCmd(mmaker manipcli.ManipulatorMaker, restrictions *permissions.Res
 		},
 	}
 
-	cmd.Flags().String("user", "", "The LDAP username to use.")
-	cmd.Flags().String("pass", "", "The password associateds to the user.")
+	cmd.Flags().String("user", "", "The LDAP username to use. Use '-' to prompt.")
+	cmd.Flags().String("pass", "", "The password associateds to the user. Use '-' to prompt.")
+	cmd.Flags().String("source-name", "default", "The name of the auth source.")
+	cmd.Flags().String("source-namespace", "", "The namespace of the auth source. If omitted, uses --namespace.")
+
+	cmd.SetHelpFunc(func(cmd *cobra.Command, args []string) {
+		cmd.Flags().MarkHidden("token")
+		cmd.Parent().HelpFunc()(cmd, args)
+	})
 
 	return cmd
 }

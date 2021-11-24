@@ -50,5 +50,11 @@ func makeAzureCmd(mmaker manipcli.ManipulatorMaker, restrictions *permissions.Re
 
 	cmd.Flags().String("access-token", "", "Valid Azure token.")
 
+	cmd.SetHelpFunc(func(cmd *cobra.Command, args []string) {
+		cmd.Flags().MarkHidden("namespace")
+		cmd.Flags().MarkHidden("token")
+		cmd.Parent().HelpFunc()(cmd, args)
+	})
+
 	return cmd
 }

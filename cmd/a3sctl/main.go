@@ -12,6 +12,7 @@ import (
 	"github.com/spf13/viper"
 	"go.aporeto.io/a3s/cmd/a3sctl/internal/authcmd"
 	"go.aporeto.io/a3s/cmd/a3sctl/internal/compcmd"
+	"go.aporeto.io/a3s/cmd/a3sctl/internal/flagsets"
 	"go.aporeto.io/a3s/cmd/a3sctl/internal/help"
 	"go.aporeto.io/a3s/internal/conf"
 	"go.aporeto.io/a3s/pkgs/api"
@@ -50,11 +51,10 @@ func main() {
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default: $HOME/.config/a3sctl/default.yaml)")
 	rootCmd.PersistentFlags().StringVar(&cfgName, "config-name", "", "default config name (default: default)")
 	rootCmd.PersistentFlags().StringVar(&logLevel, "log-level", "warn", "Log level. Can be debug, info, warn or error")
-	rootCmd.PersistentFlags().Bool("refresh-cached-token", false, "If set, the cached token will be refreshed")
-	rootCmd.PersistentFlags().String("auto-auth-method", "", "If set, override config's file autoauth.enable")
 
 	apiCmd := manipcli.New(api.Manager(), mmaker)
 	apiCmd.PersistentFlags().AddFlagSet(mflags)
+	apiCmd.PersistentFlags().AddFlagSet(flagsets.MakeAutoAuthFlags())
 	apiCmd.PersistentPreRunE = func(cmd *cobra.Command, args []string) error {
 		if err := rootCmd.PersistentPreRunE(cmd, args); err != nil {
 			return err

@@ -74,8 +74,8 @@ func makePermsCmd(mmaker manipcli.ManipulatorMaker) *cobra.Command {
 			return nil
 		},
 	}
-
-	cmd.Flags().String("token", "", "The token to verify")
+	cmd.Flags().Bool("refresh-cached-token", false, "If set, the cached token will be refreshed")
+	cmd.Flags().String("auto-auth-method", "", "If set, override config's file autoauth.enable")
 
 	return cmd
 }
