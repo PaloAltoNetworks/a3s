@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"path"
@@ -151,6 +152,8 @@ func initCobra() {
 	zap.L().Debug("using config name", zap.String("name", cfgName))
 
 	if err = viper.ReadInConfig(); err != nil {
-		zap.L().Fatal("unable to read config", zap.Error(err))
+		if !errors.As(err, &viper.ConfigFileNotFoundError{}) {
+			zap.L().Fatal("unable to read config", zap.Error(err))
+		}
 	}
 }
