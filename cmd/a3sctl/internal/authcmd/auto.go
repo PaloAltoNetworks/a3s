@@ -47,7 +47,7 @@ func makeAutoCmd(mmaker manipcli.ManipulatorMaker) *cobra.Command {
 
 			fToken := viper.GetString("token")
 			fQRCode := viper.GetBool("qrcode")
-			return CheckToken(fToken, true, fQRCode)
+			return DisplayToken(fToken, true, fQRCode)
 		},
 	}
 
@@ -55,9 +55,9 @@ func makeAutoCmd(mmaker manipcli.ManipulatorMaker) *cobra.Command {
 	cmd.Flags().AddFlagSet(flagsets.MakeAutoAuthFlags())
 
 	cmd.SetHelpFunc(func(cmd *cobra.Command, args []string) {
-		cmd.Flags().MarkHidden("namespace")
-		cmd.Flags().MarkHidden("refresh-cached-token")
-		cmd.Flags().MarkHidden("token")
+		_ = cmd.Flags().MarkHidden("namespace")
+		_ = cmd.Flags().MarkHidden("refresh-cached-token")
+		_ = cmd.Flags().MarkHidden("token")
 		cmd.Parent().HelpFunc()(cmd, args)
 	})
 

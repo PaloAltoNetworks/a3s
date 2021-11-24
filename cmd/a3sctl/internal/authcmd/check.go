@@ -38,28 +38,30 @@ func makeCheckCmd(mmaker manipcli.ManipulatorMaker) *cobra.Command {
 			fPrint := viper.GetBool("print")
 			fQRCode := viper.GetBool("qrcode")
 
-			return CheckToken(fToken, fPrint, fQRCode)
+			return DisplayToken(fToken, fPrint, fQRCode)
 		},
 	}
 
 	cmd.Flags().Bool("print", false, "Print the token string.")
 
 	cmd.SetHelpFunc(func(cmd *cobra.Command, args []string) {
-		cmd.Flags().MarkHidden("namespace")
-		cmd.Flags().MarkHidden("audience")
-		cmd.Flags().MarkHidden("cloak")
-		cmd.Flags().MarkHidden("validity")
-		cmd.Flags().MarkHidden("encoding")
-		cmd.Flags().MarkHidden("restrict-namespace")
-		cmd.Flags().MarkHidden("restrict-permissions")
-		cmd.Flags().MarkHidden("restrict-network")
+		_ = cmd.Flags().MarkHidden("namespace")
+		_ = cmd.Flags().MarkHidden("audience")
+		_ = cmd.Flags().MarkHidden("cloak")
+		_ = cmd.Flags().MarkHidden("validity")
+		_ = cmd.Flags().MarkHidden("encoding")
+		_ = cmd.Flags().MarkHidden("restrict-namespace")
+		_ = cmd.Flags().MarkHidden("restrict-permissions")
+		_ = cmd.Flags().MarkHidden("restrict-network")
 		cmd.Parent().HelpFunc()(cmd, args)
 	})
 
 	return cmd
 }
 
-func CheckToken(token string, printRaw bool, qrcode bool) error {
+// DisplayToken displays information about the token.
+// It does not verify its signature or validity.
+func DisplayToken(token string, printRaw bool, qrcode bool) error {
 	claims := jwt.MapClaims{}
 	p := jwt.Parser{}
 

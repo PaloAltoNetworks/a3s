@@ -25,10 +25,10 @@ func makePermsCmd(mmaker manipcli.ManipulatorMaker) *cobra.Command {
 			}
 			if err := HandleAutoAuth(
 				mmaker,
-				viper.GetString("auto-auth-method"),
+				"",
 				nil,
 				nil,
-				viper.GetBool("refresh-cached-token"),
+				false,
 			); err != nil {
 				return fmt.Errorf("auto auth error: %w", err)
 			}
@@ -36,8 +36,12 @@ func makePermsCmd(mmaker manipcli.ManipulatorMaker) *cobra.Command {
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 
-			fToken := viper.GetString("token")
+			fToken := viper.GetString("access-token")
 			fNamespace := viper.GetString("namespace")
+
+			if fToken == "" {
+				fToken = viper.GetString("token")
+			}
 
 			idt := &token.IdentityToken{}
 			p := jwt.Parser{}
@@ -74,8 +78,18 @@ func makePermsCmd(mmaker manipcli.ManipulatorMaker) *cobra.Command {
 			return nil
 		},
 	}
-	cmd.Flags().Bool("refresh-cached-token", false, "If set, the cached token will be refreshed")
-	cmd.Flags().String("auto-auth-method", "", "If set, override config's file autoauth.enable")
+
+	cmd.Flags().String("access-token", "", "Valid remote a3s token. If omitted, uses --token.")
+
+	cmd.SetHelpFunc(func(cmd *cobra.Command, args []string) {
+		_ = cmd.Flags().MarkHidden("audience")
+		_ = cmd.Flags().MarkHidden("cloak")
+		_ = cmd.Flags().MarkHidden("validity")
+		_ = cmd.Flags().MarkHidden("restrict-namespace")
+		_ = cmd.Flags().MarkHidden("restrict-permissions")
+		_ = cmd.Flags().MarkHidden("restrict-network")
+		cmd.Parent().HelpFunc()(cmd, args)
+	})
 
 	return cmd
 }
