@@ -34,6 +34,7 @@ func (e ErrJWKSRemote) Error() string {
 	return fmt.Sprintf("remote jwks error: %s", e.Err)
 }
 
+// Unwrap returns the warped error.
 func (e ErrJWKSRemote) Unwrap() error {
 	return e.Err
 }

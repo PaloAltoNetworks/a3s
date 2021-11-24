@@ -16,6 +16,7 @@ func (e ErrPreWriteHook) Error() string {
 	return fmt.Sprintf("unable to run pre-write hook: %s", e.Err)
 }
 
+// Unwrap returns the warped error.
 func (e ErrPreWriteHook) Unwrap() error {
 	return e.Err
 }

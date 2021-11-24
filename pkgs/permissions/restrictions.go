@@ -19,6 +19,7 @@ func (e ErrRestrictionsViolation) Error() string {
 	return fmt.Sprintf("restriction violation: %s", e.Err)
 }
 
+// Unwrap returns the warped error.
 func (e ErrRestrictionsViolation) Unwrap() error {
 	return e.Err
 }
