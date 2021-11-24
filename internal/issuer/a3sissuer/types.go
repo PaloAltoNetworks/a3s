@@ -12,6 +12,7 @@ func (e ErrComputeRestrictions) Error() string {
 	return fmt.Sprintf("unable to compute restrictions: %s", e.Err)
 }
 
+// Unwrap returns the wrapped error.
 func (e ErrComputeRestrictions) Unwrap() error {
 	return e.Err
 }
