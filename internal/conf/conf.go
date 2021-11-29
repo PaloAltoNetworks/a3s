@@ -155,7 +155,7 @@ func (c *MongoConf) TLSConfig() (*tls.Config, error) {
 type NATSConf struct {
 	NATSClientID       string `mapstructure:"nats-client-id"        desc:"Nats client ID"`
 	NATSClusterID      string `mapstructure:"nats-cluster-id"       desc:"Nats cluster ID"                                default:"test-cluster"`
-	NATSGWTopic        string `mapstructure:"nats-gateway-topic"    desc:"Topic to use for gateway services discovery"  default:"aporeto.gateway.services.default"`
+	NATSGWTopic        string `mapstructure:"nats-gateway-topic"    desc:"Topic to use for gateway services discovery"`
 	NATSPassword       string `mapstructure:"nats-pass"             desc:"Password to use to connect to Nats"             secret:"true" file:"true"`
 	NATSTLSCA          string `mapstructure:"nats-tls-ca"           desc:"Path to the CA used by Nats"`
 	NATSTLSCertificate string `mapstructure:"nats-tls-cert"         desc:"Path to the client certificate"`
