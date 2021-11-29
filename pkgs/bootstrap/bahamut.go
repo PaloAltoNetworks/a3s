@@ -8,8 +8,8 @@ import (
 
 	"github.com/fatih/structs"
 	"github.com/opentracing/opentracing-go"
-	"go.aporeto.io/a3s/internal/conf"
 	"go.aporeto.io/a3s/pkgs/api"
+	"go.aporeto.io/a3s/pkgs/conf"
 	"go.aporeto.io/bahamut"
 	"go.aporeto.io/bahamut/authorizer/simple"
 	"go.aporeto.io/bahamut/gateway/upstreamer/push"

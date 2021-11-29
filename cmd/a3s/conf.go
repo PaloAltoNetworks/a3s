@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"time"
 
-	"go.aporeto.io/a3s/internal/conf"
+	"go.aporeto.io/a3s/pkgs/conf"
 	"go.aporeto.io/addedeffect/lombric"
 	"go.aporeto.io/tg/tglib"
 )

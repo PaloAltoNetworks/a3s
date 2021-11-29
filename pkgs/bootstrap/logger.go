@@ -7,7 +7,7 @@ import (
 	"syscall"
 	"time"
 
-	"go.aporeto.io/a3s/internal/conf"
+	"go.aporeto.io/a3s/pkgs/conf"
 	"go.aporeto.io/addedeffect/tracer"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"

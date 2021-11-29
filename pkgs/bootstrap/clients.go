@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"time"
 
-	"go.aporeto.io/a3s/internal/conf"
 	"go.aporeto.io/a3s/pkgs/api"
+	"go.aporeto.io/a3s/pkgs/conf"
 	"go.aporeto.io/a3s/pkgs/sharder"
 	"go.aporeto.io/bahamut"
 	"go.aporeto.io/elemental"
