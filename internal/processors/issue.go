@@ -243,8 +243,11 @@ func (p *IssueProcessor) handleRemoteA3SIssue(ctx context.Context, req *api.Issu
 
 func (p *IssueProcessor) handleOIDCIssue(bctx bahamut.Context, req *api.Issue) (token.Issuer, error) {
 
-	state := req.InputOIDC.State
-	code := req.InputOIDC.Code
+	var state, code string
+	if req.InputOIDC != nil {
+		state = req.InputOIDC.State
+		code = req.InputOIDC.Code
+	}
 
 	if code == "" && state == "" {
 
