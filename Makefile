@@ -60,7 +60,7 @@ docker: a3s_linux package_ca_certs
 
 package_ca_certs:
 	mkdir -p docker/in
-	go install github.com/agl/extract-nss-root-certs
+	go install github.com/agl/extract-nss-root-certs@latest
 	curl -s https://hg.mozilla.org/mozilla-central/raw-file/tip/security/nss/lib/ckfw/builtins/certdata.txt -o certdata.txt
 	mkdir -p docker/in
 	extract-nss-root-certs > docker/in/ca-certificates.pem
