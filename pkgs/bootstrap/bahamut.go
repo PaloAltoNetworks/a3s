@@ -12,6 +12,7 @@ import (
 	"go.aporeto.io/a3s/pkgs/api"
 	"go.aporeto.io/bahamut"
 	"go.aporeto.io/bahamut/authorizer/simple"
+	"go.aporeto.io/bahamut/gateway/upstreamer/push"
 	"go.aporeto.io/elemental"
 	"go.aporeto.io/manipulate"
 	"go.uber.org/zap"
@@ -125,6 +126,40 @@ func ConfigureBahamut(
 			bahamut.OptPushServerEnableSubjectHierarchies(),
 		)
 	}
+
+	return opts
+}
+
+// MakeBahamutGatewayNotifier returns the bahamut options needed
+// to make A3S announce itself to a bahamut gateway.
+func MakeBahamutGatewayNotifier(
+	ctx context.Context,
+	pubsub bahamut.PubSubClient,
+	gatewayTopic string,
+	anouncedAddress string,
+	nopts ...push.NotifierOption,
+) []bahamut.Option {
+
+	opts := []bahamut.Option{}
+
+	if gatewayTopic == "" {
+		return nil
+	}
+
+	nw := push.NewNotifier(
+		pubsub,
+		gatewayTopic,
+		"a3s",
+		anouncedAddress,
+		nopts...,
+	)
+
+	opts = append(opts,
+		bahamut.OptPostStartHook(nw.MakeStartHook(ctx)),
+		bahamut.OptPreStopHook(nw.MakeStopHook()),
+	)
+
+	zap.L().Info("Gateway topic set", zap.String("topic", gatewayTopic))
 
 	return opts
 }

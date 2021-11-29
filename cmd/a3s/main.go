@@ -5,6 +5,7 @@ import (
 	"crypto/tls"
 	"errors"
 	"fmt"
+	"net"
 	"net/http"
 	"os"
 	"strings"
@@ -111,31 +112,43 @@ func main() {
 		authorizer.OptionIgnoredResources(publicResources...),
 	)
 
-	server := bahamut.New(
-		append(
-			bootstrap.ConfigureBahamut(
-				ctx,
-				cfg,
-				pubsub,
-				nil,
-				[]bahamut.RequestAuthenticator{
-					authenticator.NewPublic(publicResources...),
-					pauthn,
-				},
-				[]bahamut.SessionAuthenticator{
-					pauthn,
-				},
-				[]bahamut.Authorizer{
-					pauthz,
-				},
-			),
-			bahamut.OptPushDispatchHandler(authorizer.NewPushDispatchHandler(m, pauthz)),
-			bahamut.OptPushPublishHandler(bootstrap.MakePublishHandler(nil)),
-			bahamut.OptMTLS(nil, tls.RequestClientCert),
-			bahamut.OptErrorTransformer(errorTransformer),
-			bahamut.OptIdentifiableRetriever(bootstrap.MakeIdentifiableRetriever(m)),
-		)...,
+	opts := append(
+		bootstrap.ConfigureBahamut(
+			ctx,
+			cfg,
+			pubsub,
+			nil,
+			[]bahamut.RequestAuthenticator{
+				authenticator.NewPublic(publicResources...),
+				pauthn,
+			},
+			[]bahamut.SessionAuthenticator{
+				pauthn,
+			},
+			[]bahamut.Authorizer{
+				pauthz,
+			},
+		),
+		bahamut.OptPushDispatchHandler(authorizer.NewPushDispatchHandler(m, pauthz)),
+		bahamut.OptPushPublishHandler(bootstrap.MakePublishHandler(nil)),
+		bahamut.OptMTLS(nil, tls.RequestClientCert),
+		bahamut.OptErrorTransformer(errorTransformer),
+		bahamut.OptIdentifiableRetriever(bootstrap.MakeIdentifiableRetriever(m)),
 	)
+
+	if cfg.NATSGWTopic != "" {
+		opts = append(
+			opts,
+			bootstrap.MakeBahamutGatewayNotifier(
+				ctx,
+				pubsub,
+				cfg.NATSGWTopic,
+				getNotifierEndpoint(cfg.ListenAddress),
+			)...,
+		)
+	}
+
+	server := bahamut.New(opts...)
 
 	if err := server.RegisterCustomRouteHandler("/.well-known/jwks.json", makeJWKSHandler(jwks)); err != nil {
 		zap.L().Fatal("Unable to install jwks handler", zap.Error(err))
@@ -299,4 +312,41 @@ func makeNamespaceCleaner(ctx context.Context, m manipulate.Manipulator) notific
 			}
 		}
 	}
+}
+
+func getNotifierEndpoint(listenAddress string) string {
+
+	_, port, err := net.SplitHostPort(listenAddress)
+	if err != nil {
+		zap.L().Fatal("Unable to parse listen address", zap.Error(err))
+	}
+
+	host, err := os.Hostname()
+	if err != nil {
+		zap.L().Fatal("Unable to retrieve hostname", zap.Error(err))
+	}
+
+	addrs, err := net.LookupHost(host)
+	if err != nil {
+		zap.L().Fatal("Unable to resolve hostname", zap.Error(err))
+	}
+
+	if len(addrs) == 0 {
+		zap.L().Fatal("Unable to find any IP in resolved hostname")
+	}
+
+	var endpoint string
+	for _, addr := range addrs {
+		ip := net.ParseIP(addr)
+		if len(ip.To4()) == net.IPv4len {
+			endpoint = addr
+			break
+		}
+	}
+
+	if endpoint == "" {
+		endpoint = addrs[0]
+	}
+
+	return fmt.Sprintf("%s:%s", endpoint, port)
 }
