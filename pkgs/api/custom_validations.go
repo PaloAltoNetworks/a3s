@@ -164,6 +164,10 @@ func ValidateIssue(iss *Issue) error {
 		if iss.InputAzure == nil {
 			return makeErr("inputAzure", "You must set inputAzure for the requested sourceType")
 		}
+	case IssueSourceTypeOIDC:
+		if iss.InputOIDC == nil {
+			return makeErr("inputOIDC", "You must set inputOIDC for the requested sourceType")
+		}
 	}
 
 	return nil

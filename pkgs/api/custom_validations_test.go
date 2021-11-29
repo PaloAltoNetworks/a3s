@@ -852,6 +852,32 @@ func TestValidateIssue(t *testing.T) {
 			false,
 			nil,
 		},
+		{
+			"test oidc missing",
+			func(*testing.T) args {
+				return args{
+					&Issue{
+						SourceType: IssueSourceTypeOIDC,
+						InputOIDC:  nil,
+					},
+				}
+			},
+			true,
+			nil,
+		},
+		{
+			"test oidc present",
+			func(*testing.T) args {
+				return args{
+					&Issue{
+						SourceType: IssueSourceTypeOIDC,
+						InputOIDC:  &IssueOIDC{},
+					},
+				}
+			},
+			false,
+			nil,
+		},
 	}
 
 	for _, tt := range tests {
