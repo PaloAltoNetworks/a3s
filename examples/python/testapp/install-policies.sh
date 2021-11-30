@@ -49,7 +49,7 @@ echo
 echo "* Creating mtlssource"
 a3sctl api create mtlssource -n "/testapp" \
 	--name "default" \
-	--certificate-authority "$(cat certs/a3s-test-authority-cert.pem)" ||
+	--ca "$(cat certs/a3s-test-authority-cert.pem)" ||
 	die "unable to create mtls resource"
 
 echo
