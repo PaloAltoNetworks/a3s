@@ -107,5 +107,79 @@ func (o *IssueGCP) Validate() error {
 	return nil
 }
 
+// SpecificationForAttribute returns the AttributeSpecification for the given attribute name key.
+func (*IssueGCP) SpecificationForAttribute(name string) elemental.AttributeSpecification {
+
+	if v, ok := IssueGCPAttributesMap[name]; ok {
+		return v
+	}
+
+	// We could not find it, so let's check on the lower case indexed spec map
+	return IssueGCPLowerCaseAttributesMap[name]
+}
+
+// AttributeSpecifications returns the full attribute specifications map.
+func (*IssueGCP) AttributeSpecifications() map[string]elemental.AttributeSpecification {
+
+	return IssueGCPAttributesMap
+}
+
+// ValueForAttribute returns the value for the given attribute.
+// This is a very advanced function that you should not need but in some
+// very specific use cases.
+func (o *IssueGCP) ValueForAttribute(name string) interface{} {
+
+	switch name {
+	case "audience":
+		return o.Audience
+	case "token":
+		return o.Token
+	}
+
+	return nil
+}
+
+// IssueGCPAttributesMap represents the map of attribute for IssueGCP.
+var IssueGCPAttributesMap = map[string]elemental.AttributeSpecification{
+	"Audience": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Audience",
+		Description:    `The required audience.`,
+		Exposed:        true,
+		Name:           "audience",
+		Type:           "string",
+	},
+	"Token": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Token",
+		Description:    `The original token.`,
+		Exposed:        true,
+		Name:           "token",
+		Required:       true,
+		Type:           "string",
+	},
+}
+
+// IssueGCPLowerCaseAttributesMap represents the map of attribute for IssueGCP.
+var IssueGCPLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
+	"audience": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Audience",
+		Description:    `The required audience.`,
+		Exposed:        true,
+		Name:           "audience",
+		Type:           "string",
+	},
+	"token": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Token",
+		Description:    `The original token.`,
+		Exposed:        true,
+		Name:           "token",
+		Required:       true,
+		Type:           "string",
+	},
+}
+
 type mongoAttributesIssueGCP struct {
 }

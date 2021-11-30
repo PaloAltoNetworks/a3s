@@ -118,5 +118,101 @@ func (o *IssueAWS) Validate() error {
 	return nil
 }
 
+// SpecificationForAttribute returns the AttributeSpecification for the given attribute name key.
+func (*IssueAWS) SpecificationForAttribute(name string) elemental.AttributeSpecification {
+
+	if v, ok := IssueAWSAttributesMap[name]; ok {
+		return v
+	}
+
+	// We could not find it, so let's check on the lower case indexed spec map
+	return IssueAWSLowerCaseAttributesMap[name]
+}
+
+// AttributeSpecifications returns the full attribute specifications map.
+func (*IssueAWS) AttributeSpecifications() map[string]elemental.AttributeSpecification {
+
+	return IssueAWSAttributesMap
+}
+
+// ValueForAttribute returns the value for the given attribute.
+// This is a very advanced function that you should not need but in some
+// very specific use cases.
+func (o *IssueAWS) ValueForAttribute(name string) interface{} {
+
+	switch name {
+	case "ID":
+		return o.ID
+	case "secret":
+		return o.Secret
+	case "token":
+		return o.Token
+	}
+
+	return nil
+}
+
+// IssueAWSAttributesMap represents the map of attribute for IssueAWS.
+var IssueAWSAttributesMap = map[string]elemental.AttributeSpecification{
+	"ID": {
+		AllowedChoices: []string{},
+		ConvertedName:  "ID",
+		Description:    `The ID of the AWS STS token.`,
+		Exposed:        true,
+		Name:           "ID",
+		Required:       true,
+		Type:           "string",
+	},
+	"Secret": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Secret",
+		Description:    `The secret associated to the AWS STS token.`,
+		Exposed:        true,
+		Name:           "secret",
+		Required:       true,
+		Type:           "string",
+	},
+	"Token": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Token",
+		Description:    `The original token.`,
+		Exposed:        true,
+		Name:           "token",
+		Required:       true,
+		Type:           "string",
+	},
+}
+
+// IssueAWSLowerCaseAttributesMap represents the map of attribute for IssueAWS.
+var IssueAWSLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
+	"id": {
+		AllowedChoices: []string{},
+		ConvertedName:  "ID",
+		Description:    `The ID of the AWS STS token.`,
+		Exposed:        true,
+		Name:           "ID",
+		Required:       true,
+		Type:           "string",
+	},
+	"secret": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Secret",
+		Description:    `The secret associated to the AWS STS token.`,
+		Exposed:        true,
+		Name:           "secret",
+		Required:       true,
+		Type:           "string",
+	},
+	"token": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Token",
+		Description:    `The original token.`,
+		Exposed:        true,
+		Name:           "token",
+		Required:       true,
+		Type:           "string",
+	},
+}
+
 type mongoAttributesIssueAWS struct {
 }

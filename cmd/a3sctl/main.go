@@ -14,9 +14,9 @@ import (
 	"go.aporeto.io/a3s/cmd/a3sctl/internal/compcmd"
 	"go.aporeto.io/a3s/cmd/a3sctl/internal/flagsets"
 	"go.aporeto.io/a3s/cmd/a3sctl/internal/help"
-	"go.aporeto.io/a3s/internal/conf"
 	"go.aporeto.io/a3s/pkgs/api"
 	"go.aporeto.io/a3s/pkgs/bootstrap"
+	"go.aporeto.io/a3s/pkgs/conf"
 	"go.aporeto.io/manipulate/manipcli"
 	"go.uber.org/zap"
 )

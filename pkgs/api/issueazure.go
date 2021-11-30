@@ -104,5 +104,61 @@ func (o *IssueAzure) Validate() error {
 	return nil
 }
 
+// SpecificationForAttribute returns the AttributeSpecification for the given attribute name key.
+func (*IssueAzure) SpecificationForAttribute(name string) elemental.AttributeSpecification {
+
+	if v, ok := IssueAzureAttributesMap[name]; ok {
+		return v
+	}
+
+	// We could not find it, so let's check on the lower case indexed spec map
+	return IssueAzureLowerCaseAttributesMap[name]
+}
+
+// AttributeSpecifications returns the full attribute specifications map.
+func (*IssueAzure) AttributeSpecifications() map[string]elemental.AttributeSpecification {
+
+	return IssueAzureAttributesMap
+}
+
+// ValueForAttribute returns the value for the given attribute.
+// This is a very advanced function that you should not need but in some
+// very specific use cases.
+func (o *IssueAzure) ValueForAttribute(name string) interface{} {
+
+	switch name {
+	case "token":
+		return o.Token
+	}
+
+	return nil
+}
+
+// IssueAzureAttributesMap represents the map of attribute for IssueAzure.
+var IssueAzureAttributesMap = map[string]elemental.AttributeSpecification{
+	"Token": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Token",
+		Description:    `The original token.`,
+		Exposed:        true,
+		Name:           "token",
+		Required:       true,
+		Type:           "string",
+	},
+}
+
+// IssueAzureLowerCaseAttributesMap represents the map of attribute for IssueAzure.
+var IssueAzureLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
+	"token": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Token",
+		Description:    `The original token.`,
+		Exposed:        true,
+		Name:           "token",
+		Required:       true,
+		Type:           "string",
+	},
+}
+
 type mongoAttributesIssueAzure struct {
 }

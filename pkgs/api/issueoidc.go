@@ -116,5 +116,153 @@ func (o *IssueOIDC) Validate() error {
 	return nil
 }
 
+// SpecificationForAttribute returns the AttributeSpecification for the given attribute name key.
+func (*IssueOIDC) SpecificationForAttribute(name string) elemental.AttributeSpecification {
+
+	if v, ok := IssueOIDCAttributesMap[name]; ok {
+		return v
+	}
+
+	// We could not find it, so let's check on the lower case indexed spec map
+	return IssueOIDCLowerCaseAttributesMap[name]
+}
+
+// AttributeSpecifications returns the full attribute specifications map.
+func (*IssueOIDC) AttributeSpecifications() map[string]elemental.AttributeSpecification {
+
+	return IssueOIDCAttributesMap
+}
+
+// ValueForAttribute returns the value for the given attribute.
+// This is a very advanced function that you should not need but in some
+// very specific use cases.
+func (o *IssueOIDC) ValueForAttribute(name string) interface{} {
+
+	switch name {
+	case "authURL":
+		return o.AuthURL
+	case "code":
+		return o.Code
+	case "noAuthRedirect":
+		return o.NoAuthRedirect
+	case "redirectErrorURL":
+		return o.RedirectErrorURL
+	case "redirectURL":
+		return o.RedirectURL
+	case "state":
+		return o.State
+	}
+
+	return nil
+}
+
+// IssueOIDCAttributesMap represents the map of attribute for IssueOIDC.
+var IssueOIDCAttributesMap = map[string]elemental.AttributeSpecification{
+	"AuthURL": {
+		AllowedChoices: []string{},
+		ConvertedName:  "AuthURL",
+		Description:    `Contains the auth URL is noAuthRedirect is set to true.`,
+		Exposed:        true,
+		Name:           "authURL",
+		ReadOnly:       true,
+		Type:           "string",
+	},
+	"Code": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Code",
+		Description:    `OIDC ceremony code.`,
+		Exposed:        true,
+		Name:           "code",
+		Type:           "string",
+	},
+	"NoAuthRedirect": {
+		AllowedChoices: []string{},
+		ConvertedName:  "NoAuthRedirect",
+		Description: `If set, instruct the server to return the OIDC auth url in authURL instead of
+performing an HTTP redirection.`,
+		Exposed: true,
+		Name:    "noAuthRedirect",
+		Type:    "boolean",
+	},
+	"RedirectErrorURL": {
+		AllowedChoices: []string{},
+		ConvertedName:  "RedirectErrorURL",
+		Description:    `OIDC redirect url in case of error.`,
+		Exposed:        true,
+		Name:           "redirectErrorURL",
+		Type:           "string",
+	},
+	"RedirectURL": {
+		AllowedChoices: []string{},
+		ConvertedName:  "RedirectURL",
+		Description:    `OIDC redirect url.`,
+		Exposed:        true,
+		Name:           "redirectURL",
+		Type:           "string",
+	},
+	"State": {
+		AllowedChoices: []string{},
+		ConvertedName:  "State",
+		Description:    `OIDC ceremony state.`,
+		Exposed:        true,
+		Name:           "state",
+		Type:           "string",
+	},
+}
+
+// IssueOIDCLowerCaseAttributesMap represents the map of attribute for IssueOIDC.
+var IssueOIDCLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
+	"authurl": {
+		AllowedChoices: []string{},
+		ConvertedName:  "AuthURL",
+		Description:    `Contains the auth URL is noAuthRedirect is set to true.`,
+		Exposed:        true,
+		Name:           "authURL",
+		ReadOnly:       true,
+		Type:           "string",
+	},
+	"code": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Code",
+		Description:    `OIDC ceremony code.`,
+		Exposed:        true,
+		Name:           "code",
+		Type:           "string",
+	},
+	"noauthredirect": {
+		AllowedChoices: []string{},
+		ConvertedName:  "NoAuthRedirect",
+		Description: `If set, instruct the server to return the OIDC auth url in authURL instead of
+performing an HTTP redirection.`,
+		Exposed: true,
+		Name:    "noAuthRedirect",
+		Type:    "boolean",
+	},
+	"redirecterrorurl": {
+		AllowedChoices: []string{},
+		ConvertedName:  "RedirectErrorURL",
+		Description:    `OIDC redirect url in case of error.`,
+		Exposed:        true,
+		Name:           "redirectErrorURL",
+		Type:           "string",
+	},
+	"redirecturl": {
+		AllowedChoices: []string{},
+		ConvertedName:  "RedirectURL",
+		Description:    `OIDC redirect url.`,
+		Exposed:        true,
+		Name:           "redirectURL",
+		Type:           "string",
+	},
+	"state": {
+		AllowedChoices: []string{},
+		ConvertedName:  "State",
+		Description:    `OIDC ceremony state.`,
+		Exposed:        true,
+		Name:           "state",
+		Type:           "string",
+	},
+}
+
 type mongoAttributesIssueOIDC struct {
 }

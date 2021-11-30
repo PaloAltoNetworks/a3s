@@ -104,5 +104,61 @@ func (o *IssueRemoteA3S) Validate() error {
 	return nil
 }
 
+// SpecificationForAttribute returns the AttributeSpecification for the given attribute name key.
+func (*IssueRemoteA3S) SpecificationForAttribute(name string) elemental.AttributeSpecification {
+
+	if v, ok := IssueRemoteA3SAttributesMap[name]; ok {
+		return v
+	}
+
+	// We could not find it, so let's check on the lower case indexed spec map
+	return IssueRemoteA3SLowerCaseAttributesMap[name]
+}
+
+// AttributeSpecifications returns the full attribute specifications map.
+func (*IssueRemoteA3S) AttributeSpecifications() map[string]elemental.AttributeSpecification {
+
+	return IssueRemoteA3SAttributesMap
+}
+
+// ValueForAttribute returns the value for the given attribute.
+// This is a very advanced function that you should not need but in some
+// very specific use cases.
+func (o *IssueRemoteA3S) ValueForAttribute(name string) interface{} {
+
+	switch name {
+	case "token":
+		return o.Token
+	}
+
+	return nil
+}
+
+// IssueRemoteA3SAttributesMap represents the map of attribute for IssueRemoteA3S.
+var IssueRemoteA3SAttributesMap = map[string]elemental.AttributeSpecification{
+	"Token": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Token",
+		Description:    `The remote a3s token.`,
+		Exposed:        true,
+		Name:           "token",
+		Required:       true,
+		Type:           "string",
+	},
+}
+
+// IssueRemoteA3SLowerCaseAttributesMap represents the map of attribute for IssueRemoteA3S.
+var IssueRemoteA3SLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
+	"token": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Token",
+		Description:    `The remote a3s token.`,
+		Exposed:        true,
+		Name:           "token",
+		Required:       true,
+		Type:           "string",
+	},
+}
+
 type mongoAttributesIssueRemoteA3S struct {
 }

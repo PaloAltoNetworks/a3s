@@ -159,6 +159,156 @@ func (o *IdentityModifier) Validate() error {
 	return nil
 }
 
+// SpecificationForAttribute returns the AttributeSpecification for the given attribute name key.
+func (*IdentityModifier) SpecificationForAttribute(name string) elemental.AttributeSpecification {
+
+	if v, ok := IdentityModifierAttributesMap[name]; ok {
+		return v
+	}
+
+	// We could not find it, so let's check on the lower case indexed spec map
+	return IdentityModifierLowerCaseAttributesMap[name]
+}
+
+// AttributeSpecifications returns the full attribute specifications map.
+func (*IdentityModifier) AttributeSpecifications() map[string]elemental.AttributeSpecification {
+
+	return IdentityModifierAttributesMap
+}
+
+// ValueForAttribute returns the value for the given attribute.
+// This is a very advanced function that you should not need but in some
+// very specific use cases.
+func (o *IdentityModifier) ValueForAttribute(name string) interface{} {
+
+	switch name {
+	case "URL":
+		return o.URL
+	case "certificate":
+		return o.Certificate
+	case "certificateAuthority":
+		return o.CertificateAuthority
+	case "key":
+		return o.Key
+	case "method":
+		return o.Method
+	}
+
+	return nil
+}
+
+// IdentityModifierAttributesMap represents the map of attribute for IdentityModifier.
+var IdentityModifierAttributesMap = map[string]elemental.AttributeSpecification{
+	"URL": {
+		AllowedChoices: []string{},
+		ConvertedName:  "URL",
+		Description: `URL of the remote service. This URL will receive a call containing the
+claims that are about to be delivered. It must reply with 204 if it does not
+wish to modify the claims, or 200 alongside a body containing the modified
+claims.`,
+		Exposed:  true,
+		Name:     "URL",
+		Required: true,
+		Type:     "string",
+	},
+	"Certificate": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Certificate",
+		Description: `Client certificate required to call URL. A3S will refuse to send data if the
+endpoint does not support client certificate authentication.`,
+		Exposed:  true,
+		Name:     "certificate",
+		Required: true,
+		Type:     "string",
+	},
+	"CertificateAuthority": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "certificateauthority",
+		ConvertedName:  "CertificateAuthority",
+		Description:    `CA to use to validate the entity serving the URL.`,
+		Exposed:        true,
+		Name:           "certificateAuthority",
+		Stored:         true,
+		Type:           "string",
+	},
+	"Key": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Key",
+		Description:    `Key associated to the client certificate.`,
+		Exposed:        true,
+		Name:           "key",
+		Required:       true,
+		Type:           "string",
+	},
+	"Method": {
+		AllowedChoices: []string{"GET", "POST", "PUT", "PATCH"},
+		ConvertedName:  "Method",
+		DefaultValue:   IdentityModifierMethodPOST,
+		Description: `The HTTP method to use to call the endpoint. For POST/PUT/PATCH the remote
+server will receive the claims as a JSON encoded array in the body. For a GET, the claims will be passed as a query parameter named ` + "`" + `claim` + "`" + `.`,
+		Exposed:  true,
+		Name:     "method",
+		Required: true,
+		Type:     "enum",
+	},
+}
+
+// IdentityModifierLowerCaseAttributesMap represents the map of attribute for IdentityModifier.
+var IdentityModifierLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
+	"url": {
+		AllowedChoices: []string{},
+		ConvertedName:  "URL",
+		Description: `URL of the remote service. This URL will receive a call containing the
+claims that are about to be delivered. It must reply with 204 if it does not
+wish to modify the claims, or 200 alongside a body containing the modified
+claims.`,
+		Exposed:  true,
+		Name:     "URL",
+		Required: true,
+		Type:     "string",
+	},
+	"certificate": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Certificate",
+		Description: `Client certificate required to call URL. A3S will refuse to send data if the
+endpoint does not support client certificate authentication.`,
+		Exposed:  true,
+		Name:     "certificate",
+		Required: true,
+		Type:     "string",
+	},
+	"certificateauthority": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "certificateauthority",
+		ConvertedName:  "CertificateAuthority",
+		Description:    `CA to use to validate the entity serving the URL.`,
+		Exposed:        true,
+		Name:           "certificateAuthority",
+		Stored:         true,
+		Type:           "string",
+	},
+	"key": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Key",
+		Description:    `Key associated to the client certificate.`,
+		Exposed:        true,
+		Name:           "key",
+		Required:       true,
+		Type:           "string",
+	},
+	"method": {
+		AllowedChoices: []string{"GET", "POST", "PUT", "PATCH"},
+		ConvertedName:  "Method",
+		DefaultValue:   IdentityModifierMethodPOST,
+		Description: `The HTTP method to use to call the endpoint. For POST/PUT/PATCH the remote
+server will receive the claims as a JSON encoded array in the body. For a GET, the claims will be passed as a query parameter named ` + "`" + `claim` + "`" + `.`,
+		Exposed:  true,
+		Name:     "method",
+		Required: true,
+		Type:     "enum",
+	},
+}
+
 type mongoAttributesIdentityModifier struct {
 	CertificateAuthority string `bson:"certificateauthority,omitempty"`
 }

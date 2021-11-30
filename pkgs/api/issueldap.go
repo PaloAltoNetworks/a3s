@@ -111,5 +111,81 @@ func (o *IssueLDAP) Validate() error {
 	return nil
 }
 
+// SpecificationForAttribute returns the AttributeSpecification for the given attribute name key.
+func (*IssueLDAP) SpecificationForAttribute(name string) elemental.AttributeSpecification {
+
+	if v, ok := IssueLDAPAttributesMap[name]; ok {
+		return v
+	}
+
+	// We could not find it, so let's check on the lower case indexed spec map
+	return IssueLDAPLowerCaseAttributesMap[name]
+}
+
+// AttributeSpecifications returns the full attribute specifications map.
+func (*IssueLDAP) AttributeSpecifications() map[string]elemental.AttributeSpecification {
+
+	return IssueLDAPAttributesMap
+}
+
+// ValueForAttribute returns the value for the given attribute.
+// This is a very advanced function that you should not need but in some
+// very specific use cases.
+func (o *IssueLDAP) ValueForAttribute(name string) interface{} {
+
+	switch name {
+	case "password":
+		return o.Password
+	case "username":
+		return o.Username
+	}
+
+	return nil
+}
+
+// IssueLDAPAttributesMap represents the map of attribute for IssueLDAP.
+var IssueLDAPAttributesMap = map[string]elemental.AttributeSpecification{
+	"Password": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Password",
+		Description:    `The password for the user.`,
+		Exposed:        true,
+		Name:           "password",
+		Required:       true,
+		Type:           "string",
+	},
+	"Username": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Username",
+		Description:    `The LDAP username.`,
+		Exposed:        true,
+		Name:           "username",
+		Required:       true,
+		Type:           "string",
+	},
+}
+
+// IssueLDAPLowerCaseAttributesMap represents the map of attribute for IssueLDAP.
+var IssueLDAPLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
+	"password": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Password",
+		Description:    `The password for the user.`,
+		Exposed:        true,
+		Name:           "password",
+		Required:       true,
+		Type:           "string",
+	},
+	"username": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Username",
+		Description:    `The LDAP username.`,
+		Exposed:        true,
+		Name:           "username",
+		Required:       true,
+		Type:           "string",
+	},
+}
+
 type mongoAttributesIssueLDAP struct {
 }
