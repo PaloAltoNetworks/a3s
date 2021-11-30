@@ -150,7 +150,7 @@ func (p *IssueProcessor) handleCertificateIssue(ctx context.Context, req *api.Is
 	src := out.(*api.MTLSSource)
 
 	userCert := tlsState.PeerCertificates[0]
-	iss, err := mtlsissuer.New(src, userCert)
+	iss, err := mtlsissuer.New(ctx, src, userCert)
 	if err != nil {
 		return nil, err
 	}
@@ -166,7 +166,7 @@ func (p *IssueProcessor) handleLDAPIssue(ctx context.Context, req *api.Issue) (t
 	}
 
 	src := out.(*api.LDAPSource)
-	iss, err := ldapissuer.New(src, req.InputLDAP.Username, req.InputLDAP.Password)
+	iss, err := ldapissuer.New(ctx, src, req.InputLDAP.Username, req.InputLDAP.Password)
 	if err != nil {
 		return nil, err
 	}
@@ -246,19 +246,19 @@ func (p *IssueProcessor) handleOIDCIssue(bctx bahamut.Context, req *api.Issue) (
 	state := req.InputOIDC.State
 	code := req.InputOIDC.Code
 
-	if code == "" && state == "" {
+	out, err := retrieveSource(
+		bctx.Context(),
+		p.manipulator,
+		req.SourceNamespace,
+		req.SourceName,
+		api.OIDCSourceIdentity,
+	)
+	if err != nil {
+		return nil, err
+	}
+	src := out.(*api.OIDCSource)
 
-		out, err := retrieveSource(
-			bctx.Context(),
-			p.manipulator,
-			req.SourceNamespace,
-			req.SourceName,
-			api.OIDCSourceIdentity,
-		)
-		if err != nil {
-			return nil, err
-		}
-		src := out.(*api.OIDCSource)
+	if code == "" && state == "" {
 
 		client, err := oidcceremony.MakeOIDCProviderClient(src.CA)
 		if err != nil {
@@ -401,7 +401,7 @@ func (p *IssueProcessor) handleOIDCIssue(bctx bahamut.Context, req *api.Issue) (
 		)
 	}
 
-	return oidcissuer.New(claims), nil
+	return oidcissuer.New(bctx.Context(), src, claims)
 }
 
 func retrieveSource(

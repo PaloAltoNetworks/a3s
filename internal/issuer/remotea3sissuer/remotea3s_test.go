@@ -96,17 +96,110 @@ func TestNew(t *testing.T) {
 			nil,
 		)
 
-		source := &api.A3SSource{
-			Name:      "name",
-			Namespace: "/ns",
-			Issuer:    ts.URL,
-			Audience:  "local",
-		}
+		Convey("When everything is fine and there is no modifier", func() {
 
-		iss, err := New(context.Background(), source, rtokString)
-		So(err, ShouldBeNil)
-		So(iss.Issue().Identity, ShouldResemble, []string{
-			"remote=claim",
+			source := &api.A3SSource{
+				Name:      "name",
+				Namespace: "/ns",
+				Issuer:    ts.URL,
+				Audience:  "local",
+			}
+
+			iss, err := New(context.Background(), source, rtokString)
+			So(err, ShouldBeNil)
+			So(iss.Issue().Identity, ShouldResemble, []string{"remote=claim"})
+		})
+
+		Convey("When there is a modifier and everything is fine ", func() {
+
+			ts2 := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+				d, _ := json.Marshal([]string{"aa=aa", "bb=bb"})
+				w.WriteHeader(http.StatusOK)
+				w.Write(d) // nolint
+			}))
+			defer ts2.Close()
+
+			usercert1, userkey1 := getECCert(pkix.Name{})
+			cab, _ := tglib.CertToPEM(ts2.Certificate())
+			certb, _ := tglib.CertToPEM(usercert1)
+			keyb, _ := tglib.KeyToPEM(userkey1)
+
+			source := &api.A3SSource{
+				Name:      "name",
+				Namespace: "/ns",
+				Issuer:    ts.URL,
+				Audience:  "local",
+				Modifier: &api.IdentityModifier{
+					CA:          string(pem.EncodeToMemory(cab)),
+					URL:         ts2.URL,
+					Certificate: string(pem.EncodeToMemory(certb)),
+					Key:         string(pem.EncodeToMemory(keyb)),
+					Method:      api.IdentityModifierMethodPOST,
+				},
+			}
+
+			iss, err := New(context.Background(), source, rtokString)
+			So(err, ShouldBeNil)
+			So(iss.Issue().Identity, ShouldResemble, []string{"aa=aa", "bb=bb"})
+		})
+
+		Convey("When there is a modifier with missing tls ", func() {
+
+			ts2 := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+				d, _ := json.Marshal([]string{"aa=aa", "bb=bb"})
+				w.WriteHeader(http.StatusOK)
+				w.Write(d) // nolint
+			}))
+			defer ts2.Close()
+
+			cab, _ := tglib.CertToPEM(ts2.Certificate())
+
+			source := &api.A3SSource{
+				Name:      "name",
+				Namespace: "/ns",
+				Issuer:    ts.URL,
+				Audience:  "local",
+				Modifier: &api.IdentityModifier{
+					CA:     string(pem.EncodeToMemory(cab)),
+					URL:    ts2.URL,
+					Method: api.IdentityModifierMethodPOST,
+				},
+			}
+
+			_, err := New(context.Background(), source, rtokString)
+			So(err, ShouldNotBeNil)
+			So(err.Error(), ShouldEqual, `unable to prepare source modifier: unable to create certificate: could not read key data from bytes: ''`)
+		})
+
+		Convey("When there is a modifier but the server returns an error", func() {
+
+			ts2 := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+				w.WriteHeader(http.StatusForbidden)
+			}))
+			defer ts2.Close()
+
+			usercert1, userkey1 := getECCert(pkix.Name{})
+			cab, _ := tglib.CertToPEM(ts2.Certificate())
+			certb, _ := tglib.CertToPEM(usercert1)
+			keyb, _ := tglib.KeyToPEM(userkey1)
+
+			source := &api.A3SSource{
+				Name:      "name",
+				Namespace: "/ns",
+				Issuer:    ts.URL,
+				Audience:  "local",
+				Modifier: &api.IdentityModifier{
+					CA:          string(pem.EncodeToMemory(cab)),
+					URL:         ts2.URL,
+					Certificate: string(pem.EncodeToMemory(certb)),
+					Key:         string(pem.EncodeToMemory(keyb)),
+					Method:      api.IdentityModifierMethodPOST,
+				},
+			}
+
+			_, err := New(context.Background(), source, rtokString)
+			So(err, ShouldNotBeNil)
+			So(err.Error(), ShouldEqual, `unable to call modifier: service returned an error: 403 Forbidden`)
 		})
 	})
 

@@ -1,27 +1,33 @@
 package oidcissuer
 
 import (
+	"context"
 	"fmt"
 	"sort"
 	"strings"
 
+	"go.aporeto.io/a3s/pkgs/api"
 	"go.aporeto.io/a3s/pkgs/token"
 )
 
 // New returns a new Azure issuer.
-func New(claims map[string]interface{}) token.Issuer {
+func New(ctx context.Context, source *api.OIDCSource, claims map[string]interface{}) (token.Issuer, error) {
 
-	c := newOIDCIssuer()
-	c.fromClaims(claims)
-	return c
+	c := newOIDCIssuer(source)
+	if err := c.fromClaims(ctx, claims); err != nil {
+		return nil, err
+	}
+	return c, nil
 }
 
 type oidcIssuer struct {
-	token *token.IdentityToken
+	source *api.OIDCSource
+	token  *token.IdentityToken
 }
 
-func newOIDCIssuer() *oidcIssuer {
+func newOIDCIssuer(source *api.OIDCSource) *oidcIssuer {
 	return &oidcIssuer{
+		source: source,
 		token: token.NewIdentityToken(token.Source{
 			Type: "oidc",
 		}),
@@ -34,9 +40,29 @@ func (c *oidcIssuer) Issue() *token.IdentityToken {
 	return c.token
 }
 
-func (c *oidcIssuer) fromClaims(claims map[string]interface{}) {
+func (c *oidcIssuer) fromClaims(ctx context.Context, claims map[string]interface{}) (err error) {
 
 	c.token.Identity = computeOIDClaims(claims)
+
+	if srcmod := c.source.Modifier; srcmod != nil {
+
+		m, err := token.NewHTTPIdentityModifier(
+			srcmod.URL,
+			string(srcmod.Method),
+			[]byte(srcmod.CA),
+			[]byte(srcmod.Certificate),
+			[]byte(srcmod.Key),
+		)
+		if err != nil {
+			return fmt.Errorf("unable to prepare source modifier: %w", err)
+		}
+
+		if c.token.Identity, err = m.Modify(ctx, c.token.Identity); err != nil {
+			return fmt.Errorf("unable to call modifier: %w", err)
+		}
+	}
+
+	return nil
 }
 
 func computeOIDClaims(claims map[string]interface{}) []string {

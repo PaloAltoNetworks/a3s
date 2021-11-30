@@ -1,6 +1,7 @@
 package ldapissuer
 
 import (
+	"context"
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
@@ -12,10 +13,10 @@ import (
 )
 
 // New returns a new LDAP issuer.
-func New(source *api.LDAPSource, username string, password string) (token.Issuer, error) {
+func New(ctx context.Context, source *api.LDAPSource, username string, password string) (token.Issuer, error) {
 
 	c := newLDAPIssuer(source)
-	if err := c.fromCredentials(username, password); err != nil {
+	if err := c.fromCredentials(ctx, username, password); err != nil {
 		return nil, err
 	}
 
@@ -44,7 +45,7 @@ func (c *ldapIssuer) Issue() *token.IdentityToken {
 	return c.token
 }
 
-func (c *ldapIssuer) fromCredentials(username string, password string) (err error) {
+func (c *ldapIssuer) fromCredentials(ctx context.Context, username string, password string) (err error) {
 
 	entry, dn, err := c.retrieveEntry(username, password)
 	if err != nil {
@@ -54,6 +55,24 @@ func (c *ldapIssuer) fromCredentials(username string, password string) (err erro
 	inc, exc := computeLDPInclusion(c.source)
 
 	c.token.Identity = computeLDAPClaims(entry, dn, inc, exc)
+
+	if srcmod := c.source.Modifier; srcmod != nil {
+
+		m, err := token.NewHTTPIdentityModifier(
+			srcmod.URL,
+			string(srcmod.Method),
+			[]byte(srcmod.CA),
+			[]byte(srcmod.Certificate),
+			[]byte(srcmod.Key),
+		)
+		if err != nil {
+			return fmt.Errorf("unable to prepare source modifier: %w", err)
+		}
+
+		if c.token.Identity, err = m.Modify(ctx, c.token.Identity); err != nil {
+			return fmt.Errorf("unable to call modifier: %w", err)
+		}
+	}
 
 	return nil
 }

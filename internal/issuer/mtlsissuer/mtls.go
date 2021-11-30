@@ -1,6 +1,7 @@
 package mtlsissuer
 
 import (
+	"context"
 	"crypto/x509"
 	"fmt"
 	"strings"
@@ -10,10 +11,10 @@ import (
 )
 
 // New returns a new MTLS issuer.
-func New(source *api.MTLSSource, cert *x509.Certificate) (token.Issuer, error) {
+func New(ctx context.Context, source *api.MTLSSource, cert *x509.Certificate) (token.Issuer, error) {
 
 	c := newMTLSIssuer(source)
-	if err := c.fromCertificate(cert); err != nil {
+	if err := c.fromCertificate(ctx, cert); err != nil {
 		return nil, err
 	}
 
@@ -37,7 +38,7 @@ func newMTLSIssuer(source *api.MTLSSource) *mtlsIssuer {
 	}
 }
 
-func (c *mtlsIssuer) fromCertificate(cert *x509.Certificate) error {
+func (c *mtlsIssuer) fromCertificate(ctx context.Context, cert *x509.Certificate) error {
 
 	pool := x509.NewCertPool()
 	if !pool.AppendCertsFromPEM([]byte(c.source.CA)) {
@@ -53,7 +54,7 @@ func (c *mtlsIssuer) fromCertificate(cert *x509.Certificate) error {
 		},
 	)
 	if err != nil {
-		return fmt.Errorf("unable Verify certificate: %w", err)
+		return fmt.Errorf("unable to verify certificate: %w", err)
 	}
 
 	var fingerprints []string
@@ -132,6 +133,24 @@ func (c *mtlsIssuer) fromCertificate(cert *x509.Certificate) error {
 		// if > 0 it is guaranteed to have at least 2 items.
 		c.token.Identity = append(c.token.Identity, fmt.Sprintf("fingerprint=%s", fingerprints[0]))
 		c.token.Identity = append(c.token.Identity, fmt.Sprintf("issuerchain=%s", strings.Join(fingerprints[1:], ",")))
+	}
+
+	if srcmod := c.source.Modifier; srcmod != nil {
+
+		m, err := token.NewHTTPIdentityModifier(
+			srcmod.URL,
+			string(srcmod.Method),
+			[]byte(srcmod.CA),
+			[]byte(srcmod.Certificate),
+			[]byte(srcmod.Key),
+		)
+		if err != nil {
+			return fmt.Errorf("unable to prepare source modifier: %w", err)
+		}
+
+		if c.token.Identity, err = m.Modify(ctx, c.token.Identity); err != nil {
+			return fmt.Errorf("unable to call modifier: %w", err)
+		}
 	}
 
 	return nil

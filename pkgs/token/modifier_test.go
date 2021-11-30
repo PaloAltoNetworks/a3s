@@ -85,7 +85,7 @@ func TestModify(t *testing.T) {
 
 		Convey("Setting a nil context should work", func() {
 			m, _ := NewHTTPIdentityModifier(ts.URL, http.MethodGet, ca, cert, key)
-			out, err := m.Modify(nil, []string{"a=a", "b=b"})
+			out, err := m.Modify(nil, []string{"a=a", "b=b"}) // nolint
 			So(err, ShouldNotBeNil)
 			So(err.Error(), ShouldEqual, `unable to build http request: net/http: nil Context`)
 			So(out, ShouldBeNil)

@@ -87,6 +87,24 @@ func (c *remoteA3SIssuer) fromToken(ctx context.Context, tokenString string) err
 	}
 	c.token.Identity = c.token.Identity[:i]
 
+	if srcmod := c.source.Modifier; srcmod != nil {
+
+		m, err := token.NewHTTPIdentityModifier(
+			srcmod.URL,
+			string(srcmod.Method),
+			[]byte(srcmod.CA),
+			[]byte(srcmod.Certificate),
+			[]byte(srcmod.Key),
+		)
+		if err != nil {
+			return fmt.Errorf("unable to prepare source modifier: %w", err)
+		}
+
+		if c.token.Identity, err = m.Modify(ctx, c.token.Identity); err != nil {
+			return fmt.Errorf("unable to call modifier: %w", err)
+		}
+	}
+
 	return nil
 }
 
