@@ -24,18 +24,7 @@ indexes:
 # Attributes
 attributes:
   v1:
-  - name: identityModifier
-    description: |-
-      Contains optional information about a remote service that can be used to modify
-      the claims that are about to be delivered using this authentication source.
-    type: ref
-    exposed: true
-    subtype: identitymodifier
-    omit_empty: true
-    extensions:
-      noInit: true
-      refMode: pointer
-  - name: certificateAuthority
+  - name: CA
     description: The Certificate authority to use to validate user certificates in PEM format.
     type: string
     exposed: true
@@ -60,6 +49,18 @@ attributes:
     type: string
     exposed: true
     stored: true
+
+  - name: modifier
+    description: |-
+      Contains optional information about a remote service that can be used to modify
+      the claims that are about to be delivered using this authentication source.
+    type: ref
+    exposed: true
+    subtype: identitymodifier
+    omit_empty: true
+    extensions:
+      noInit: true
+      refMode: pointer
 
   - name: name
     description: The name of the source.

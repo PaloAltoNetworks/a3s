@@ -86,16 +86,16 @@ func TestMTLSIssuer(t *testing.T) {
 			src := api.NewMTLSSource()
 			src.Name = "mysource"
 			src.Namespace = "/my/ns"
-			src.CertificateAuthority = string(pem.EncodeToMemory(block))
+			src.CA = string(pem.EncodeToMemory(block))
 			iss := newMTLSIssuer(src)
 			So(iss.token, ShouldNotBeNil)
 			So(iss.source, ShouldEqual, src)
 
 			Convey("Calling FromCertificate with a source missing a CA", func() {
-				iss.source.CertificateAuthority = ""
+				iss.source.CA = ""
 				err := iss.fromCertificate(usercert2)
 				So(err, ShouldNotBeNil)
-				So(err.Error(), ShouldStartWith, "unable to prepare x509 verifier: could not append cert from source.CertificateAuthority")
+				So(err.Error(), ShouldStartWith, "unable to prepare x509 verifier: could not append cert from source.CA")
 			})
 
 			Convey("Calling FromCertificate with a valid user cert should work", func() {

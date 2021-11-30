@@ -24,6 +24,26 @@ indexes:
 # Attributes
 attributes:
   v1:
+  - name: CA
+    description: |-
+      Can be left empty if the LDAP server's certificate is signed by a public,
+      trusted certificate authority. Otherwise, include the public key of the
+      certificate authority that signed the LDAP server's certificate.
+    type: string
+    exposed: true
+    stored: true
+    example_value: |-
+      -----BEGIN CERTIFICATE-----
+      MIIBPzCB5qADAgECAhEAwbx3c+QW24ePXyD94geytzAKBggqhkjOPQQDAjAPMQ0w
+      CwYDVQQDEwR0b3RvMB4XDTE5MDIyMjIzNDA1MFoXDTI4MTIzMTIzNDA1MFowDzEN
+      MAsGA1UEAxMEdG90bzBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABJi6CwRDeKks
+      Xb3pDEslmFGR7k9Aeh5RK+XmdqKKPGb3NQWEFPGolnqOR34iVuf7KSxTuzaaVWfu
+      XEa94faUQEqjIzAhMA4GA1UdDwEB/wQEAwIBBjAPBgNVHRMBAf8EBTADAQH/MAoG
+      CCqGSM49BAMCA0gAMEUCIQD+nL9RF9EvQXHyYuJ31Lz9yWd9hsK91stnpAs890gS
+      /AIgQIKjBBpiyQNZZWso5H04qke9QYMVPegiQQufFFBj32c=
+      -----END CERTIFICATE-----
+    omit_empty: true
+
   - name: address
     description: IP address or FQDN of the LDAP server.
     type: string
@@ -70,37 +90,6 @@ attributes:
     default_value: uid={USERNAME}
     orderable: true
 
-  - name: identityModifier
-    description: |-
-      Contains optional information about a remote service that can be used to modify
-      the claims that are about to be delivered using this authentication source.
-    type: ref
-    exposed: true
-    subtype: identitymodifier
-    omit_empty: true
-    extensions:
-      noInit: true
-      refMode: pointer
-  - name: certificateAuthority
-    description: |-
-      Can be left empty if the LDAP server's certificate is signed by a public,
-      trusted certificate authority. Otherwise, include the public key of the
-      certificate authority that signed the LDAP server's certificate.
-    type: string
-    exposed: true
-    stored: true
-    example_value: |-
-      -----BEGIN CERTIFICATE-----
-      MIIBPzCB5qADAgECAhEAwbx3c+QW24ePXyD94geytzAKBggqhkjOPQQDAjAPMQ0w
-      CwYDVQQDEwR0b3RvMB4XDTE5MDIyMjIzNDA1MFoXDTI4MTIzMTIzNDA1MFowDzEN
-      MAsGA1UEAxMEdG90bzBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABJi6CwRDeKks
-      Xb3pDEslmFGR7k9Aeh5RK+XmdqKKPGb3NQWEFPGolnqOR34iVuf7KSxTuzaaVWfu
-      XEa94faUQEqjIzAhMA4GA1UdDwEB/wQEAwIBBjAPBgNVHRMBAf8EBTADAQH/MAoG
-      CCqGSM49BAMCA0gAMEUCIQD+nL9RF9EvQXHyYuJ31Lz9yWd9hsK91stnpAs890gS
-      /AIgQIKjBBpiyQNZZWso5H04qke9QYMVPegiQQufFFBj32c=
-      -----END CERTIFICATE-----
-    omit_empty: true
-
   - name: description
     description: The description of the object.
     type: string
@@ -126,6 +115,18 @@ attributes:
     subtype: string
     stored: true
     omit_empty: true
+
+  - name: modifier
+    description: |-
+      Contains optional information about a remote service that can be used to modify
+      the claims that are about to be delivered using this authentication source.
+    type: ref
+    exposed: true
+    subtype: identitymodifier
+    omit_empty: true
+    extensions:
+      noInit: true
+      refMode: pointer
 
   - name: name
     description: The name of the source.

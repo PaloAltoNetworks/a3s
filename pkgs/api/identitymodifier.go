@@ -27,6 +27,9 @@ const (
 
 // IdentityModifier represents the model of a identitymodifier
 type IdentityModifier struct {
+	// CA to use to validate the identity modfier service.
+	CA string `json:"CA,omitempty" msgpack:"CA,omitempty" bson:"ca,omitempty" mapstructure:"CA,omitempty"`
+
 	// URL of the remote service. This URL will receive a call containing the
 	// claims that are about to be delivered. It must reply with 204 if it does not
 	// wish to modify the claims, or 200 alongside a body containing the modified
@@ -37,14 +40,12 @@ type IdentityModifier struct {
 	// endpoint does not support client certificate authentication.
 	Certificate string `json:"certificate" msgpack:"certificate" bson:"-" mapstructure:"certificate,omitempty"`
 
-	// CA to use to validate the entity serving the URL.
-	CertificateAuthority string `json:"certificateAuthority,omitempty" msgpack:"certificateAuthority,omitempty" bson:"certificateauthority,omitempty" mapstructure:"certificateAuthority,omitempty"`
-
 	// Key associated to the client certificate.
 	Key string `json:"key" msgpack:"key" bson:"-" mapstructure:"key,omitempty"`
 
 	// The HTTP method to use to call the endpoint. For POST/PUT/PATCH the remote
-	// server will receive the claims as a JSON encoded array in the body. For a GET, the claims will be passed as a query parameter named `claim`.
+	// server will receive the claims as a JSON encoded array in the body. For a GET,
+	// the claims will be passed as a query parameter named `claim`.
 	Method IdentityModifierMethodValue `json:"method" msgpack:"method" bson:"-" mapstructure:"method,omitempty"`
 
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
@@ -69,7 +70,7 @@ func (o *IdentityModifier) GetBSON() (interface{}, error) {
 
 	s := &mongoAttributesIdentityModifier{}
 
-	s.CertificateAuthority = o.CertificateAuthority
+	s.CA = o.CA
 
 	return s, nil
 }
@@ -87,7 +88,7 @@ func (o *IdentityModifier) SetBSON(raw bson.Raw) error {
 		return err
 	}
 
-	o.CertificateAuthority = s.CertificateAuthority
+	o.CA = s.CA
 
 	return nil
 }
@@ -182,12 +183,12 @@ func (*IdentityModifier) AttributeSpecifications() map[string]elemental.Attribut
 func (o *IdentityModifier) ValueForAttribute(name string) interface{} {
 
 	switch name {
+	case "CA":
+		return o.CA
 	case "URL":
 		return o.URL
 	case "certificate":
 		return o.Certificate
-	case "certificateAuthority":
-		return o.CertificateAuthority
 	case "key":
 		return o.Key
 	case "method":
@@ -199,6 +200,16 @@ func (o *IdentityModifier) ValueForAttribute(name string) interface{} {
 
 // IdentityModifierAttributesMap represents the map of attribute for IdentityModifier.
 var IdentityModifierAttributesMap = map[string]elemental.AttributeSpecification{
+	"CA": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "ca",
+		ConvertedName:  "CA",
+		Description:    `CA to use to validate the identity modfier service.`,
+		Exposed:        true,
+		Name:           "CA",
+		Stored:         true,
+		Type:           "string",
+	},
 	"URL": {
 		AllowedChoices: []string{},
 		ConvertedName:  "URL",
@@ -221,16 +232,6 @@ endpoint does not support client certificate authentication.`,
 		Required: true,
 		Type:     "string",
 	},
-	"CertificateAuthority": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "certificateauthority",
-		ConvertedName:  "CertificateAuthority",
-		Description:    `CA to use to validate the entity serving the URL.`,
-		Exposed:        true,
-		Name:           "certificateAuthority",
-		Stored:         true,
-		Type:           "string",
-	},
 	"Key": {
 		AllowedChoices: []string{},
 		ConvertedName:  "Key",
@@ -245,7 +246,8 @@ endpoint does not support client certificate authentication.`,
 		ConvertedName:  "Method",
 		DefaultValue:   IdentityModifierMethodPOST,
 		Description: `The HTTP method to use to call the endpoint. For POST/PUT/PATCH the remote
-server will receive the claims as a JSON encoded array in the body. For a GET, the claims will be passed as a query parameter named ` + "`" + `claim` + "`" + `.`,
+server will receive the claims as a JSON encoded array in the body. For a GET,
+the claims will be passed as a query parameter named ` + "`" + `claim` + "`" + `.`,
 		Exposed:  true,
 		Name:     "method",
 		Required: true,
@@ -255,6 +257,16 @@ server will receive the claims as a JSON encoded array in the body. For a GET, t
 
 // IdentityModifierLowerCaseAttributesMap represents the map of attribute for IdentityModifier.
 var IdentityModifierLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
+	"ca": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "ca",
+		ConvertedName:  "CA",
+		Description:    `CA to use to validate the identity modfier service.`,
+		Exposed:        true,
+		Name:           "CA",
+		Stored:         true,
+		Type:           "string",
+	},
 	"url": {
 		AllowedChoices: []string{},
 		ConvertedName:  "URL",
@@ -277,16 +289,6 @@ endpoint does not support client certificate authentication.`,
 		Required: true,
 		Type:     "string",
 	},
-	"certificateauthority": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "certificateauthority",
-		ConvertedName:  "CertificateAuthority",
-		Description:    `CA to use to validate the entity serving the URL.`,
-		Exposed:        true,
-		Name:           "certificateAuthority",
-		Stored:         true,
-		Type:           "string",
-	},
 	"key": {
 		AllowedChoices: []string{},
 		ConvertedName:  "Key",
@@ -301,7 +303,8 @@ endpoint does not support client certificate authentication.`,
 		ConvertedName:  "Method",
 		DefaultValue:   IdentityModifierMethodPOST,
 		Description: `The HTTP method to use to call the endpoint. For POST/PUT/PATCH the remote
-server will receive the claims as a JSON encoded array in the body. For a GET, the claims will be passed as a query parameter named ` + "`" + `claim` + "`" + `.`,
+server will receive the claims as a JSON encoded array in the body. For a GET,
+the claims will be passed as a query parameter named ` + "`" + `claim` + "`" + `.`,
 		Exposed:  true,
 		Name:     "method",
 		Required: true,
@@ -310,5 +313,5 @@ server will receive the claims as a JSON encoded array in the body. For a GET, t
 }
 
 type mongoAttributesIdentityModifier struct {
-	CertificateAuthority string `bson:"certificateauthority,omitempty"`
+	CA string `bson:"ca,omitempty"`
 }

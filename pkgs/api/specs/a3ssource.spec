@@ -24,13 +24,7 @@ indexes:
 # Attributes
 attributes:
   v1:
-  - name: audience
-    description: The audience that must be present in the remote a3s token.
-    type: string
-    exposed: true
-    stored: true
-
-  - name: certificateAuthority
+  - name: CA
     description: |-
       The Certificate authority to use to validate the authenticity of the A3S
       server. If left empty, the system trust stroe will be used.
@@ -39,6 +33,12 @@ attributes:
     stored: true
     validations:
     - $pem
+
+  - name: audience
+    description: The audience that must be present in the remote a3s token.
+    type: string
+    exposed: true
+    stored: true
 
   - name: description
     description: The description of the object.
@@ -54,7 +54,15 @@ attributes:
     exposed: true
     stored: true
 
-  - name: identityModifier
+  - name: issuer
+    description: The issuer that represents the remote a3s server.
+    type: string
+    exposed: true
+    stored: true
+    required: true
+    example_value: https://remote-a3s.com
+
+  - name: modifier
     description: |-
       Contains optional information about a remote service that can be used to modify
       the claims that are about to be delivered using this authentication source.
@@ -65,14 +73,6 @@ attributes:
     extensions:
       noInit: true
       refMode: pointer
-
-  - name: issuer
-    description: The issuer that represents the remote a3s server.
-    type: string
-    exposed: true
-    stored: true
-    required: true
-    example_value: https://remote-a3s.com
 
   - name: name
     description: The name of the source.

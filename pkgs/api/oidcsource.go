@@ -80,13 +80,13 @@ func (o OIDCSourcesList) Version() int {
 
 // OIDCSource represents the model of a oidcsource
 type OIDCSource struct {
-	// ID is the identifier of the object.
-	ID string `json:"ID" msgpack:"ID" bson:"-" mapstructure:"ID,omitempty"`
-
 	// The Certificate authority to use to validate the authenticity of the OIDC
 	// server. If left empty, the system trust stroe will be used. In most of the
 	// cases, you don't need to set this.
-	CertificateAuthority string `json:"certificateAuthority" msgpack:"certificateAuthority" bson:"certificateauthority" mapstructure:"certificateAuthority,omitempty"`
+	CA string `json:"CA" msgpack:"CA" bson:"ca" mapstructure:"CA,omitempty"`
+
+	// ID is the identifier of the object.
+	ID string `json:"ID" msgpack:"ID" bson:"-" mapstructure:"ID,omitempty"`
 
 	// Unique client ID.
 	ClientID string `json:"clientID" msgpack:"clientID" bson:"clientid" mapstructure:"clientID,omitempty"`
@@ -103,7 +103,7 @@ type OIDCSource struct {
 
 	// Contains optional information about a remote service that can be used to modify
 	// the claims that are about to be delivered using this authentication source.
-	IdentityModifier *IdentityModifier `json:"identityModifier,omitempty" msgpack:"identityModifier,omitempty" bson:"-" mapstructure:"identityModifier,omitempty"`
+	Modifier *IdentityModifier `json:"modifier,omitempty" msgpack:"modifier,omitempty" bson:"-" mapstructure:"modifier,omitempty"`
 
 	// The name of the source.
 	Name string `json:"name" msgpack:"name" bson:"name" mapstructure:"name,omitempty"`
@@ -160,10 +160,10 @@ func (o *OIDCSource) GetBSON() (interface{}, error) {
 
 	s := &mongoAttributesOIDCSource{}
 
+	s.CA = o.CA
 	if o.ID != "" {
 		s.ID = bson.ObjectIdHex(o.ID)
 	}
-	s.CertificateAuthority = o.CertificateAuthority
 	s.ClientID = o.ClientID
 	s.ClientSecret = o.ClientSecret
 	s.Description = o.Description
@@ -190,8 +190,8 @@ func (o *OIDCSource) SetBSON(raw bson.Raw) error {
 		return err
 	}
 
+	o.CA = s.CA
 	o.ID = s.ID.Hex()
-	o.CertificateAuthority = s.CertificateAuthority
 	o.ClientID = s.ClientID
 	o.ClientSecret = s.ClientSecret
 	o.Description = s.Description
@@ -289,28 +289,28 @@ func (o *OIDCSource) ToSparse(fields ...string) elemental.SparseIdentifiable {
 	if len(fields) == 0 {
 		// nolint: goimports
 		return &SparseOIDCSource{
-			ID:                   &o.ID,
-			CertificateAuthority: &o.CertificateAuthority,
-			ClientID:             &o.ClientID,
-			ClientSecret:         &o.ClientSecret,
-			Description:          &o.Description,
-			Endpoint:             &o.Endpoint,
-			IdentityModifier:     o.IdentityModifier,
-			Name:                 &o.Name,
-			Namespace:            &o.Namespace,
-			Scopes:               &o.Scopes,
-			ZHash:                &o.ZHash,
-			Zone:                 &o.Zone,
+			CA:           &o.CA,
+			ID:           &o.ID,
+			ClientID:     &o.ClientID,
+			ClientSecret: &o.ClientSecret,
+			Description:  &o.Description,
+			Endpoint:     &o.Endpoint,
+			Modifier:     o.Modifier,
+			Name:         &o.Name,
+			Namespace:    &o.Namespace,
+			Scopes:       &o.Scopes,
+			ZHash:        &o.ZHash,
+			Zone:         &o.Zone,
 		}
 	}
 
 	sp := &SparseOIDCSource{}
 	for _, f := range fields {
 		switch f {
+		case "CA":
+			sp.CA = &(o.CA)
 		case "ID":
 			sp.ID = &(o.ID)
-		case "certificateAuthority":
-			sp.CertificateAuthority = &(o.CertificateAuthority)
 		case "clientID":
 			sp.ClientID = &(o.ClientID)
 		case "clientSecret":
@@ -319,8 +319,8 @@ func (o *OIDCSource) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.Description = &(o.Description)
 		case "endpoint":
 			sp.Endpoint = &(o.Endpoint)
-		case "identityModifier":
-			sp.IdentityModifier = o.IdentityModifier
+		case "modifier":
+			sp.Modifier = o.Modifier
 		case "name":
 			sp.Name = &(o.Name)
 		case "namespace":
@@ -364,11 +364,11 @@ func (o *OIDCSource) Patch(sparse elemental.SparseIdentifiable) {
 	}
 
 	so := sparse.(*SparseOIDCSource)
+	if so.CA != nil {
+		o.CA = *so.CA
+	}
 	if so.ID != nil {
 		o.ID = *so.ID
-	}
-	if so.CertificateAuthority != nil {
-		o.CertificateAuthority = *so.CertificateAuthority
 	}
 	if so.ClientID != nil {
 		o.ClientID = *so.ClientID
@@ -382,8 +382,8 @@ func (o *OIDCSource) Patch(sparse elemental.SparseIdentifiable) {
 	if so.Endpoint != nil {
 		o.Endpoint = *so.Endpoint
 	}
-	if so.IdentityModifier != nil {
-		o.IdentityModifier = so.IdentityModifier
+	if so.Modifier != nil {
+		o.Modifier = so.Modifier
 	}
 	if so.Name != nil {
 		o.Name = *so.Name
@@ -432,7 +432,7 @@ func (o *OIDCSource) Validate() error {
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
-	if err := ValidatePEM("certificateAuthority", o.CertificateAuthority); err != nil {
+	if err := ValidatePEM("CA", o.CA); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -448,9 +448,9 @@ func (o *OIDCSource) Validate() error {
 		requiredErrors = requiredErrors.Append(err)
 	}
 
-	if o.IdentityModifier != nil {
-		elemental.ResetDefaultForZeroValues(o.IdentityModifier)
-		if err := o.IdentityModifier.Validate(); err != nil {
+	if o.Modifier != nil {
+		elemental.ResetDefaultForZeroValues(o.Modifier)
+		if err := o.Modifier.Validate(); err != nil {
 			errors = errors.Append(err)
 		}
 	}
@@ -493,10 +493,10 @@ func (*OIDCSource) AttributeSpecifications() map[string]elemental.AttributeSpeci
 func (o *OIDCSource) ValueForAttribute(name string) interface{} {
 
 	switch name {
+	case "CA":
+		return o.CA
 	case "ID":
 		return o.ID
-	case "certificateAuthority":
-		return o.CertificateAuthority
 	case "clientID":
 		return o.ClientID
 	case "clientSecret":
@@ -505,8 +505,8 @@ func (o *OIDCSource) ValueForAttribute(name string) interface{} {
 		return o.Description
 	case "endpoint":
 		return o.Endpoint
-	case "identityModifier":
-		return o.IdentityModifier
+	case "modifier":
+		return o.Modifier
 	case "name":
 		return o.Name
 	case "namespace":
@@ -524,6 +524,18 @@ func (o *OIDCSource) ValueForAttribute(name string) interface{} {
 
 // OIDCSourceAttributesMap represents the map of attribute for OIDCSource.
 var OIDCSourceAttributesMap = map[string]elemental.AttributeSpecification{
+	"CA": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "ca",
+		ConvertedName:  "CA",
+		Description: `The Certificate authority to use to validate the authenticity of the OIDC
+server. If left empty, the system trust stroe will be used. In most of the
+cases, you don't need to set this.`,
+		Exposed: true,
+		Name:    "CA",
+		Stored:  true,
+		Type:    "string",
+	},
 	"ID": {
 		AllowedChoices: []string{},
 		Autogenerated:  true,
@@ -539,18 +551,6 @@ var OIDCSourceAttributesMap = map[string]elemental.AttributeSpecification{
 		Setter:         true,
 		Stored:         true,
 		Type:           "string",
-	},
-	"CertificateAuthority": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "certificateauthority",
-		ConvertedName:  "CertificateAuthority",
-		Description: `The Certificate authority to use to validate the authenticity of the OIDC
-server. If left empty, the system trust stroe will be used. In most of the
-cases, you don't need to set this.`,
-		Exposed: true,
-		Name:    "certificateAuthority",
-		Stored:  true,
-		Type:    "string",
 	},
 	"ClientID": {
 		AllowedChoices: []string{},
@@ -597,13 +597,13 @@ endpoint](https://openid.net/specs/openid-connect-discovery-1_0.html#IssuerDisco
 		Stored:   true,
 		Type:     "string",
 	},
-	"IdentityModifier": {
+	"Modifier": {
 		AllowedChoices: []string{},
-		ConvertedName:  "IdentityModifier",
+		ConvertedName:  "Modifier",
 		Description: `Contains optional information about a remote service that can be used to modify
 the claims that are about to be delivered using this authentication source.`,
 		Exposed: true,
-		Name:    "identityModifier",
+		Name:    "modifier",
 		SubType: "identitymodifier",
 		Type:    "ref",
 	},
@@ -675,6 +675,18 @@ the claims that are about to be delivered using this authentication source.`,
 
 // OIDCSourceLowerCaseAttributesMap represents the map of attribute for OIDCSource.
 var OIDCSourceLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
+	"ca": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "ca",
+		ConvertedName:  "CA",
+		Description: `The Certificate authority to use to validate the authenticity of the OIDC
+server. If left empty, the system trust stroe will be used. In most of the
+cases, you don't need to set this.`,
+		Exposed: true,
+		Name:    "CA",
+		Stored:  true,
+		Type:    "string",
+	},
 	"id": {
 		AllowedChoices: []string{},
 		Autogenerated:  true,
@@ -690,18 +702,6 @@ var OIDCSourceLowerCaseAttributesMap = map[string]elemental.AttributeSpecificati
 		Setter:         true,
 		Stored:         true,
 		Type:           "string",
-	},
-	"certificateauthority": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "certificateauthority",
-		ConvertedName:  "CertificateAuthority",
-		Description: `The Certificate authority to use to validate the authenticity of the OIDC
-server. If left empty, the system trust stroe will be used. In most of the
-cases, you don't need to set this.`,
-		Exposed: true,
-		Name:    "certificateAuthority",
-		Stored:  true,
-		Type:    "string",
 	},
 	"clientid": {
 		AllowedChoices: []string{},
@@ -748,13 +748,13 @@ endpoint](https://openid.net/specs/openid-connect-discovery-1_0.html#IssuerDisco
 		Stored:   true,
 		Type:     "string",
 	},
-	"identitymodifier": {
+	"modifier": {
 		AllowedChoices: []string{},
-		ConvertedName:  "IdentityModifier",
+		ConvertedName:  "Modifier",
 		Description: `Contains optional information about a remote service that can be used to modify
 the claims that are about to be delivered using this authentication source.`,
 		Exposed: true,
-		Name:    "identityModifier",
+		Name:    "modifier",
 		SubType: "identitymodifier",
 		Type:    "ref",
 	},
@@ -887,13 +887,13 @@ func (o SparseOIDCSourcesList) Version() int {
 
 // SparseOIDCSource represents the sparse version of a oidcsource.
 type SparseOIDCSource struct {
-	// ID is the identifier of the object.
-	ID *string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
-
 	// The Certificate authority to use to validate the authenticity of the OIDC
 	// server. If left empty, the system trust stroe will be used. In most of the
 	// cases, you don't need to set this.
-	CertificateAuthority *string `json:"certificateAuthority,omitempty" msgpack:"certificateAuthority,omitempty" bson:"certificateauthority,omitempty" mapstructure:"certificateAuthority,omitempty"`
+	CA *string `json:"CA,omitempty" msgpack:"CA,omitempty" bson:"ca,omitempty" mapstructure:"CA,omitempty"`
+
+	// ID is the identifier of the object.
+	ID *string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
 
 	// Unique client ID.
 	ClientID *string `json:"clientID,omitempty" msgpack:"clientID,omitempty" bson:"clientid,omitempty" mapstructure:"clientID,omitempty"`
@@ -910,7 +910,7 @@ type SparseOIDCSource struct {
 
 	// Contains optional information about a remote service that can be used to modify
 	// the claims that are about to be delivered using this authentication source.
-	IdentityModifier *IdentityModifier `json:"identityModifier,omitempty" msgpack:"identityModifier,omitempty" bson:"-" mapstructure:"identityModifier,omitempty"`
+	Modifier *IdentityModifier `json:"modifier,omitempty" msgpack:"modifier,omitempty" bson:"-" mapstructure:"modifier,omitempty"`
 
 	// The name of the source.
 	Name *string `json:"name,omitempty" msgpack:"name,omitempty" bson:"name,omitempty" mapstructure:"name,omitempty"`
@@ -970,11 +970,11 @@ func (o *SparseOIDCSource) GetBSON() (interface{}, error) {
 
 	s := &mongoAttributesSparseOIDCSource{}
 
+	if o.CA != nil {
+		s.CA = o.CA
+	}
 	if o.ID != nil {
 		s.ID = bson.ObjectIdHex(*o.ID)
-	}
-	if o.CertificateAuthority != nil {
-		s.CertificateAuthority = o.CertificateAuthority
 	}
 	if o.ClientID != nil {
 		s.ClientID = o.ClientID
@@ -1020,11 +1020,11 @@ func (o *SparseOIDCSource) SetBSON(raw bson.Raw) error {
 		return err
 	}
 
+	if s.CA != nil {
+		o.CA = s.CA
+	}
 	id := s.ID.Hex()
 	o.ID = &id
-	if s.CertificateAuthority != nil {
-		o.CertificateAuthority = s.CertificateAuthority
-	}
 	if s.ClientID != nil {
 		o.ClientID = s.ClientID
 	}
@@ -1066,11 +1066,11 @@ func (o *SparseOIDCSource) Version() int {
 func (o *SparseOIDCSource) ToPlain() elemental.PlainIdentifiable {
 
 	out := NewOIDCSource()
+	if o.CA != nil {
+		out.CA = *o.CA
+	}
 	if o.ID != nil {
 		out.ID = *o.ID
-	}
-	if o.CertificateAuthority != nil {
-		out.CertificateAuthority = *o.CertificateAuthority
 	}
 	if o.ClientID != nil {
 		out.ClientID = *o.ClientID
@@ -1084,8 +1084,8 @@ func (o *SparseOIDCSource) ToPlain() elemental.PlainIdentifiable {
 	if o.Endpoint != nil {
 		out.Endpoint = *o.Endpoint
 	}
-	if o.IdentityModifier != nil {
-		out.IdentityModifier = o.IdentityModifier
+	if o.Modifier != nil {
+		out.Modifier = o.Modifier
 	}
 	if o.Name != nil {
 		out.Name = *o.Name
@@ -1215,28 +1215,28 @@ func (o *SparseOIDCSource) DeepCopyInto(out *SparseOIDCSource) {
 }
 
 type mongoAttributesOIDCSource struct {
-	ID                   bson.ObjectId `bson:"_id,omitempty"`
-	CertificateAuthority string        `bson:"certificateauthority"`
-	ClientID             string        `bson:"clientid"`
-	ClientSecret         string        `bson:"clientsecret"`
-	Description          string        `bson:"description"`
-	Endpoint             string        `bson:"endpoint"`
-	Name                 string        `bson:"name"`
-	Namespace            string        `bson:"namespace"`
-	Scopes               []string      `bson:"scopes"`
-	ZHash                int           `bson:"zhash"`
-	Zone                 int           `bson:"zone"`
+	CA           string        `bson:"ca"`
+	ID           bson.ObjectId `bson:"_id,omitempty"`
+	ClientID     string        `bson:"clientid"`
+	ClientSecret string        `bson:"clientsecret"`
+	Description  string        `bson:"description"`
+	Endpoint     string        `bson:"endpoint"`
+	Name         string        `bson:"name"`
+	Namespace    string        `bson:"namespace"`
+	Scopes       []string      `bson:"scopes"`
+	ZHash        int           `bson:"zhash"`
+	Zone         int           `bson:"zone"`
 }
 type mongoAttributesSparseOIDCSource struct {
-	ID                   bson.ObjectId `bson:"_id,omitempty"`
-	CertificateAuthority *string       `bson:"certificateauthority,omitempty"`
-	ClientID             *string       `bson:"clientid,omitempty"`
-	ClientSecret         *string       `bson:"clientsecret,omitempty"`
-	Description          *string       `bson:"description,omitempty"`
-	Endpoint             *string       `bson:"endpoint,omitempty"`
-	Name                 *string       `bson:"name,omitempty"`
-	Namespace            *string       `bson:"namespace,omitempty"`
-	Scopes               *[]string     `bson:"scopes,omitempty"`
-	ZHash                *int          `bson:"zhash,omitempty"`
-	Zone                 *int          `bson:"zone,omitempty"`
+	CA           *string       `bson:"ca,omitempty"`
+	ID           bson.ObjectId `bson:"_id,omitempty"`
+	ClientID     *string       `bson:"clientid,omitempty"`
+	ClientSecret *string       `bson:"clientsecret,omitempty"`
+	Description  *string       `bson:"description,omitempty"`
+	Endpoint     *string       `bson:"endpoint,omitempty"`
+	Name         *string       `bson:"name,omitempty"`
+	Namespace    *string       `bson:"namespace,omitempty"`
+	Scopes       *[]string     `bson:"scopes,omitempty"`
+	ZHash        *int          `bson:"zhash,omitempty"`
+	Zone         *int          `bson:"zone,omitempty"`
 }

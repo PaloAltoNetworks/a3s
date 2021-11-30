@@ -40,8 +40,8 @@ func newMTLSIssuer(source *api.MTLSSource) *mtlsIssuer {
 func (c *mtlsIssuer) fromCertificate(cert *x509.Certificate) error {
 
 	pool := x509.NewCertPool()
-	if !pool.AppendCertsFromPEM([]byte(c.source.CertificateAuthority)) {
-		return fmt.Errorf("unable to prepare x509 verifier: could not append cert from source.CertificateAuthority")
+	if !pool.AppendCertsFromPEM([]byte(c.source.CA)) {
+		return fmt.Errorf("unable to prepare x509 verifier: could not append cert from source.CA")
 	}
 
 	chains, err := cert.Verify(

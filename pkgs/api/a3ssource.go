@@ -80,15 +80,15 @@ func (o A3SSourcesList) Version() int {
 
 // A3SSource represents the model of a a3ssource
 type A3SSource struct {
+	// The Certificate authority to use to validate the authenticity of the A3S
+	// server. If left empty, the system trust stroe will be used.
+	CA string `json:"CA" msgpack:"CA" bson:"ca" mapstructure:"CA,omitempty"`
+
 	// ID is the identifier of the object.
 	ID string `json:"ID" msgpack:"ID" bson:"-" mapstructure:"ID,omitempty"`
 
 	// The audience that must be present in the remote a3s token.
 	Audience string `json:"audience" msgpack:"audience" bson:"audience" mapstructure:"audience,omitempty"`
-
-	// The Certificate authority to use to validate the authenticity of the A3S
-	// server. If left empty, the system trust stroe will be used.
-	CertificateAuthority string `json:"certificateAuthority" msgpack:"certificateAuthority" bson:"certificateauthority" mapstructure:"certificateAuthority,omitempty"`
 
 	// The description of the object.
 	Description string `json:"description" msgpack:"description" bson:"description" mapstructure:"description,omitempty"`
@@ -97,12 +97,12 @@ type A3SSource struct {
 	// left empty, the issuer value will be used.
 	Endpoint string `json:"endpoint" msgpack:"endpoint" bson:"endpoint" mapstructure:"endpoint,omitempty"`
 
-	// Contains optional information about a remote service that can be used to modify
-	// the claims that are about to be delivered using this authentication source.
-	IdentityModifier *IdentityModifier `json:"identityModifier,omitempty" msgpack:"identityModifier,omitempty" bson:"-" mapstructure:"identityModifier,omitempty"`
-
 	// The issuer that represents the remote a3s server.
 	Issuer string `json:"issuer" msgpack:"issuer" bson:"issuer" mapstructure:"issuer,omitempty"`
+
+	// Contains optional information about a remote service that can be used to modify
+	// the claims that are about to be delivered using this authentication source.
+	Modifier *IdentityModifier `json:"modifier,omitempty" msgpack:"modifier,omitempty" bson:"-" mapstructure:"modifier,omitempty"`
 
 	// The name of the source.
 	Name string `json:"name" msgpack:"name" bson:"name" mapstructure:"name,omitempty"`
@@ -155,11 +155,11 @@ func (o *A3SSource) GetBSON() (interface{}, error) {
 
 	s := &mongoAttributesA3SSource{}
 
+	s.CA = o.CA
 	if o.ID != "" {
 		s.ID = bson.ObjectIdHex(o.ID)
 	}
 	s.Audience = o.Audience
-	s.CertificateAuthority = o.CertificateAuthority
 	s.Description = o.Description
 	s.Endpoint = o.Endpoint
 	s.Issuer = o.Issuer
@@ -184,9 +184,9 @@ func (o *A3SSource) SetBSON(raw bson.Raw) error {
 		return err
 	}
 
+	o.CA = s.CA
 	o.ID = s.ID.Hex()
 	o.Audience = s.Audience
-	o.CertificateAuthority = s.CertificateAuthority
 	o.Description = s.Description
 	o.Endpoint = s.Endpoint
 	o.Issuer = s.Issuer
@@ -282,37 +282,37 @@ func (o *A3SSource) ToSparse(fields ...string) elemental.SparseIdentifiable {
 	if len(fields) == 0 {
 		// nolint: goimports
 		return &SparseA3SSource{
-			ID:                   &o.ID,
-			Audience:             &o.Audience,
-			CertificateAuthority: &o.CertificateAuthority,
-			Description:          &o.Description,
-			Endpoint:             &o.Endpoint,
-			IdentityModifier:     o.IdentityModifier,
-			Issuer:               &o.Issuer,
-			Name:                 &o.Name,
-			Namespace:            &o.Namespace,
-			ZHash:                &o.ZHash,
-			Zone:                 &o.Zone,
+			CA:          &o.CA,
+			ID:          &o.ID,
+			Audience:    &o.Audience,
+			Description: &o.Description,
+			Endpoint:    &o.Endpoint,
+			Issuer:      &o.Issuer,
+			Modifier:    o.Modifier,
+			Name:        &o.Name,
+			Namespace:   &o.Namespace,
+			ZHash:       &o.ZHash,
+			Zone:        &o.Zone,
 		}
 	}
 
 	sp := &SparseA3SSource{}
 	for _, f := range fields {
 		switch f {
+		case "CA":
+			sp.CA = &(o.CA)
 		case "ID":
 			sp.ID = &(o.ID)
 		case "audience":
 			sp.Audience = &(o.Audience)
-		case "certificateAuthority":
-			sp.CertificateAuthority = &(o.CertificateAuthority)
 		case "description":
 			sp.Description = &(o.Description)
 		case "endpoint":
 			sp.Endpoint = &(o.Endpoint)
-		case "identityModifier":
-			sp.IdentityModifier = o.IdentityModifier
 		case "issuer":
 			sp.Issuer = &(o.Issuer)
+		case "modifier":
+			sp.Modifier = o.Modifier
 		case "name":
 			sp.Name = &(o.Name)
 		case "namespace":
@@ -334,14 +334,14 @@ func (o *A3SSource) Patch(sparse elemental.SparseIdentifiable) {
 	}
 
 	so := sparse.(*SparseA3SSource)
+	if so.CA != nil {
+		o.CA = *so.CA
+	}
 	if so.ID != nil {
 		o.ID = *so.ID
 	}
 	if so.Audience != nil {
 		o.Audience = *so.Audience
-	}
-	if so.CertificateAuthority != nil {
-		o.CertificateAuthority = *so.CertificateAuthority
 	}
 	if so.Description != nil {
 		o.Description = *so.Description
@@ -349,11 +349,11 @@ func (o *A3SSource) Patch(sparse elemental.SparseIdentifiable) {
 	if so.Endpoint != nil {
 		o.Endpoint = *so.Endpoint
 	}
-	if so.IdentityModifier != nil {
-		o.IdentityModifier = so.IdentityModifier
-	}
 	if so.Issuer != nil {
 		o.Issuer = *so.Issuer
+	}
+	if so.Modifier != nil {
+		o.Modifier = so.Modifier
 	}
 	if so.Name != nil {
 		o.Name = *so.Name
@@ -399,19 +399,19 @@ func (o *A3SSource) Validate() error {
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
-	if err := ValidatePEM("certificateAuthority", o.CertificateAuthority); err != nil {
+	if err := ValidatePEM("CA", o.CA); err != nil {
 		errors = errors.Append(err)
-	}
-
-	if o.IdentityModifier != nil {
-		elemental.ResetDefaultForZeroValues(o.IdentityModifier)
-		if err := o.IdentityModifier.Validate(); err != nil {
-			errors = errors.Append(err)
-		}
 	}
 
 	if err := elemental.ValidateRequiredString("issuer", o.Issuer); err != nil {
 		requiredErrors = requiredErrors.Append(err)
+	}
+
+	if o.Modifier != nil {
+		elemental.ResetDefaultForZeroValues(o.Modifier)
+		if err := o.Modifier.Validate(); err != nil {
+			errors = errors.Append(err)
+		}
 	}
 
 	if err := elemental.ValidateRequiredString("name", o.Name); err != nil {
@@ -452,20 +452,20 @@ func (*A3SSource) AttributeSpecifications() map[string]elemental.AttributeSpecif
 func (o *A3SSource) ValueForAttribute(name string) interface{} {
 
 	switch name {
+	case "CA":
+		return o.CA
 	case "ID":
 		return o.ID
 	case "audience":
 		return o.Audience
-	case "certificateAuthority":
-		return o.CertificateAuthority
 	case "description":
 		return o.Description
 	case "endpoint":
 		return o.Endpoint
-	case "identityModifier":
-		return o.IdentityModifier
 	case "issuer":
 		return o.Issuer
+	case "modifier":
+		return o.Modifier
 	case "name":
 		return o.Name
 	case "namespace":
@@ -481,6 +481,17 @@ func (o *A3SSource) ValueForAttribute(name string) interface{} {
 
 // A3SSourceAttributesMap represents the map of attribute for A3SSource.
 var A3SSourceAttributesMap = map[string]elemental.AttributeSpecification{
+	"CA": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "ca",
+		ConvertedName:  "CA",
+		Description: `The Certificate authority to use to validate the authenticity of the A3S
+server. If left empty, the system trust stroe will be used.`,
+		Exposed: true,
+		Name:    "CA",
+		Stored:  true,
+		Type:    "string",
+	},
 	"ID": {
 		AllowedChoices: []string{},
 		Autogenerated:  true,
@@ -507,17 +518,6 @@ var A3SSourceAttributesMap = map[string]elemental.AttributeSpecification{
 		Stored:         true,
 		Type:           "string",
 	},
-	"CertificateAuthority": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "certificateauthority",
-		ConvertedName:  "CertificateAuthority",
-		Description: `The Certificate authority to use to validate the authenticity of the A3S
-server. If left empty, the system trust stroe will be used.`,
-		Exposed: true,
-		Name:    "certificateAuthority",
-		Stored:  true,
-		Type:    "string",
-	},
 	"Description": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "description",
@@ -539,16 +539,6 @@ left empty, the issuer value will be used.`,
 		Stored:  true,
 		Type:    "string",
 	},
-	"IdentityModifier": {
-		AllowedChoices: []string{},
-		ConvertedName:  "IdentityModifier",
-		Description: `Contains optional information about a remote service that can be used to modify
-the claims that are about to be delivered using this authentication source.`,
-		Exposed: true,
-		Name:    "identityModifier",
-		SubType: "identitymodifier",
-		Type:    "ref",
-	},
 	"Issuer": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "issuer",
@@ -559,6 +549,16 @@ the claims that are about to be delivered using this authentication source.`,
 		Required:       true,
 		Stored:         true,
 		Type:           "string",
+	},
+	"Modifier": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Modifier",
+		Description: `Contains optional information about a remote service that can be used to modify
+the claims that are about to be delivered using this authentication source.`,
+		Exposed: true,
+		Name:    "modifier",
+		SubType: "identitymodifier",
+		Type:    "ref",
 	},
 	"Name": {
 		AllowedChoices: []string{},
@@ -617,6 +617,17 @@ the claims that are about to be delivered using this authentication source.`,
 
 // A3SSourceLowerCaseAttributesMap represents the map of attribute for A3SSource.
 var A3SSourceLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
+	"ca": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "ca",
+		ConvertedName:  "CA",
+		Description: `The Certificate authority to use to validate the authenticity of the A3S
+server. If left empty, the system trust stroe will be used.`,
+		Exposed: true,
+		Name:    "CA",
+		Stored:  true,
+		Type:    "string",
+	},
 	"id": {
 		AllowedChoices: []string{},
 		Autogenerated:  true,
@@ -643,17 +654,6 @@ var A3SSourceLowerCaseAttributesMap = map[string]elemental.AttributeSpecificatio
 		Stored:         true,
 		Type:           "string",
 	},
-	"certificateauthority": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "certificateauthority",
-		ConvertedName:  "CertificateAuthority",
-		Description: `The Certificate authority to use to validate the authenticity of the A3S
-server. If left empty, the system trust stroe will be used.`,
-		Exposed: true,
-		Name:    "certificateAuthority",
-		Stored:  true,
-		Type:    "string",
-	},
 	"description": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "description",
@@ -675,16 +675,6 @@ left empty, the issuer value will be used.`,
 		Stored:  true,
 		Type:    "string",
 	},
-	"identitymodifier": {
-		AllowedChoices: []string{},
-		ConvertedName:  "IdentityModifier",
-		Description: `Contains optional information about a remote service that can be used to modify
-the claims that are about to be delivered using this authentication source.`,
-		Exposed: true,
-		Name:    "identityModifier",
-		SubType: "identitymodifier",
-		Type:    "ref",
-	},
 	"issuer": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "issuer",
@@ -695,6 +685,16 @@ the claims that are about to be delivered using this authentication source.`,
 		Required:       true,
 		Stored:         true,
 		Type:           "string",
+	},
+	"modifier": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Modifier",
+		Description: `Contains optional information about a remote service that can be used to modify
+the claims that are about to be delivered using this authentication source.`,
+		Exposed: true,
+		Name:    "modifier",
+		SubType: "identitymodifier",
+		Type:    "ref",
 	},
 	"name": {
 		AllowedChoices: []string{},
@@ -814,15 +814,15 @@ func (o SparseA3SSourcesList) Version() int {
 
 // SparseA3SSource represents the sparse version of a a3ssource.
 type SparseA3SSource struct {
+	// The Certificate authority to use to validate the authenticity of the A3S
+	// server. If left empty, the system trust stroe will be used.
+	CA *string `json:"CA,omitempty" msgpack:"CA,omitempty" bson:"ca,omitempty" mapstructure:"CA,omitempty"`
+
 	// ID is the identifier of the object.
 	ID *string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
 
 	// The audience that must be present in the remote a3s token.
 	Audience *string `json:"audience,omitempty" msgpack:"audience,omitempty" bson:"audience,omitempty" mapstructure:"audience,omitempty"`
-
-	// The Certificate authority to use to validate the authenticity of the A3S
-	// server. If left empty, the system trust stroe will be used.
-	CertificateAuthority *string `json:"certificateAuthority,omitempty" msgpack:"certificateAuthority,omitempty" bson:"certificateauthority,omitempty" mapstructure:"certificateAuthority,omitempty"`
 
 	// The description of the object.
 	Description *string `json:"description,omitempty" msgpack:"description,omitempty" bson:"description,omitempty" mapstructure:"description,omitempty"`
@@ -831,12 +831,12 @@ type SparseA3SSource struct {
 	// left empty, the issuer value will be used.
 	Endpoint *string `json:"endpoint,omitempty" msgpack:"endpoint,omitempty" bson:"endpoint,omitempty" mapstructure:"endpoint,omitempty"`
 
-	// Contains optional information about a remote service that can be used to modify
-	// the claims that are about to be delivered using this authentication source.
-	IdentityModifier *IdentityModifier `json:"identityModifier,omitempty" msgpack:"identityModifier,omitempty" bson:"-" mapstructure:"identityModifier,omitempty"`
-
 	// The issuer that represents the remote a3s server.
 	Issuer *string `json:"issuer,omitempty" msgpack:"issuer,omitempty" bson:"issuer,omitempty" mapstructure:"issuer,omitempty"`
+
+	// Contains optional information about a remote service that can be used to modify
+	// the claims that are about to be delivered using this authentication source.
+	Modifier *IdentityModifier `json:"modifier,omitempty" msgpack:"modifier,omitempty" bson:"-" mapstructure:"modifier,omitempty"`
 
 	// The name of the source.
 	Name *string `json:"name,omitempty" msgpack:"name,omitempty" bson:"name,omitempty" mapstructure:"name,omitempty"`
@@ -893,14 +893,14 @@ func (o *SparseA3SSource) GetBSON() (interface{}, error) {
 
 	s := &mongoAttributesSparseA3SSource{}
 
+	if o.CA != nil {
+		s.CA = o.CA
+	}
 	if o.ID != nil {
 		s.ID = bson.ObjectIdHex(*o.ID)
 	}
 	if o.Audience != nil {
 		s.Audience = o.Audience
-	}
-	if o.CertificateAuthority != nil {
-		s.CertificateAuthority = o.CertificateAuthority
 	}
 	if o.Description != nil {
 		s.Description = o.Description
@@ -940,13 +940,13 @@ func (o *SparseA3SSource) SetBSON(raw bson.Raw) error {
 		return err
 	}
 
+	if s.CA != nil {
+		o.CA = s.CA
+	}
 	id := s.ID.Hex()
 	o.ID = &id
 	if s.Audience != nil {
 		o.Audience = s.Audience
-	}
-	if s.CertificateAuthority != nil {
-		o.CertificateAuthority = s.CertificateAuthority
 	}
 	if s.Description != nil {
 		o.Description = s.Description
@@ -983,14 +983,14 @@ func (o *SparseA3SSource) Version() int {
 func (o *SparseA3SSource) ToPlain() elemental.PlainIdentifiable {
 
 	out := NewA3SSource()
+	if o.CA != nil {
+		out.CA = *o.CA
+	}
 	if o.ID != nil {
 		out.ID = *o.ID
 	}
 	if o.Audience != nil {
 		out.Audience = *o.Audience
-	}
-	if o.CertificateAuthority != nil {
-		out.CertificateAuthority = *o.CertificateAuthority
 	}
 	if o.Description != nil {
 		out.Description = *o.Description
@@ -998,11 +998,11 @@ func (o *SparseA3SSource) ToPlain() elemental.PlainIdentifiable {
 	if o.Endpoint != nil {
 		out.Endpoint = *o.Endpoint
 	}
-	if o.IdentityModifier != nil {
-		out.IdentityModifier = o.IdentityModifier
-	}
 	if o.Issuer != nil {
 		out.Issuer = *o.Issuer
+	}
+	if o.Modifier != nil {
+		out.Modifier = o.Modifier
 	}
 	if o.Name != nil {
 		out.Name = *o.Name
@@ -1109,26 +1109,26 @@ func (o *SparseA3SSource) DeepCopyInto(out *SparseA3SSource) {
 }
 
 type mongoAttributesA3SSource struct {
-	ID                   bson.ObjectId `bson:"_id,omitempty"`
-	Audience             string        `bson:"audience"`
-	CertificateAuthority string        `bson:"certificateauthority"`
-	Description          string        `bson:"description"`
-	Endpoint             string        `bson:"endpoint"`
-	Issuer               string        `bson:"issuer"`
-	Name                 string        `bson:"name"`
-	Namespace            string        `bson:"namespace"`
-	ZHash                int           `bson:"zhash"`
-	Zone                 int           `bson:"zone"`
+	CA          string        `bson:"ca"`
+	ID          bson.ObjectId `bson:"_id,omitempty"`
+	Audience    string        `bson:"audience"`
+	Description string        `bson:"description"`
+	Endpoint    string        `bson:"endpoint"`
+	Issuer      string        `bson:"issuer"`
+	Name        string        `bson:"name"`
+	Namespace   string        `bson:"namespace"`
+	ZHash       int           `bson:"zhash"`
+	Zone        int           `bson:"zone"`
 }
 type mongoAttributesSparseA3SSource struct {
-	ID                   bson.ObjectId `bson:"_id,omitempty"`
-	Audience             *string       `bson:"audience,omitempty"`
-	CertificateAuthority *string       `bson:"certificateauthority,omitempty"`
-	Description          *string       `bson:"description,omitempty"`
-	Endpoint             *string       `bson:"endpoint,omitempty"`
-	Issuer               *string       `bson:"issuer,omitempty"`
-	Name                 *string       `bson:"name,omitempty"`
-	Namespace            *string       `bson:"namespace,omitempty"`
-	ZHash                *int          `bson:"zhash,omitempty"`
-	Zone                 *int          `bson:"zone,omitempty"`
+	CA          *string       `bson:"ca,omitempty"`
+	ID          bson.ObjectId `bson:"_id,omitempty"`
+	Audience    *string       `bson:"audience,omitempty"`
+	Description *string       `bson:"description,omitempty"`
+	Endpoint    *string       `bson:"endpoint,omitempty"`
+	Issuer      *string       `bson:"issuer,omitempty"`
+	Name        *string       `bson:"name,omitempty"`
+	Namespace   *string       `bson:"namespace,omitempty"`
+	ZHash       *int          `bson:"zhash,omitempty"`
+	Zone        *int          `bson:"zone,omitempty"`
 }

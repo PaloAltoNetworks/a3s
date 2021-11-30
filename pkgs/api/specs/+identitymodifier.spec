@@ -13,6 +13,23 @@ model:
 # Attributes
 attributes:
   v1:
+  - name: CA
+    description: CA to use to validate the identity modfier service.
+    type: string
+    exposed: true
+    stored: true
+    example_value: |-
+      -----BEGIN CERTIFICATE-----
+      MIIBPzCB5qADAgECAhEAwbx3c+QW24ePXyD94geytzAKBggqhkjOPQQDAjAPMQ0w
+      CwYDVQQDEwR0b3RvMB4XDTE5MDIyMjIzNDA1MFoXDTI4MTIzMTIzNDA1MFowDzEN
+      MAsGA1UEAxMEdG90bzBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABJi6CwRDeKks
+      Xb3pDEslmFGR7k9Aeh5RK+XmdqKKPGb3NQWEFPGolnqOR34iVuf7KSxTuzaaVWfu
+      XEa94faUQEqjIzAhMA4GA1UdDwEB/wQEAwIBBjAPBgNVHRMBAf8EBTADAQH/MAoG
+      CCqGSM49BAMCA0gAMEUCIQD+nL9RF9EvQXHyYuJ31Lz9yWd9hsK91stnpAs890gS
+      /AIgQIKjBBpiyQNZZWso5H04qke9QYMVPegiQQufFFBj32c=
+      -----END CERTIFICATE-----
+    omit_empty: true
+
   - name: URL
     description: |-
       URL of the remote service. This URL will receive a call containing the
@@ -42,23 +59,6 @@ attributes:
       /AIgQIKjBBpiyQNZZWso5H04qke9QYMVPegiQQufFFBj32c=
       -----END CERTIFICATE-----
 
-  - name: certificateAuthority
-    description: CA to use to validate the entity serving the URL.
-    type: string
-    exposed: true
-    stored: true
-    example_value: |-
-      -----BEGIN CERTIFICATE-----
-      MIIBPzCB5qADAgECAhEAwbx3c+QW24ePXyD94geytzAKBggqhkjOPQQDAjAPMQ0w
-      CwYDVQQDEwR0b3RvMB4XDTE5MDIyMjIzNDA1MFoXDTI4MTIzMTIzNDA1MFowDzEN
-      MAsGA1UEAxMEdG90bzBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABJi6CwRDeKks
-      Xb3pDEslmFGR7k9Aeh5RK+XmdqKKPGb3NQWEFPGolnqOR34iVuf7KSxTuzaaVWfu
-      XEa94faUQEqjIzAhMA4GA1UdDwEB/wQEAwIBBjAPBgNVHRMBAf8EBTADAQH/MAoG
-      CCqGSM49BAMCA0gAMEUCIQD+nL9RF9EvQXHyYuJ31Lz9yWd9hsK91stnpAs890gS
-      /AIgQIKjBBpiyQNZZWso5H04qke9QYMVPegiQQufFFBj32c=
-      -----END CERTIFICATE-----
-    omit_empty: true
-
   - name: key
     description: Key associated to the client certificate.
     type: string
@@ -78,7 +78,8 @@ attributes:
   - name: method
     description: |-
       The HTTP method to use to call the endpoint. For POST/PUT/PATCH the remote
-      server will receive the claims as a JSON encoded array in the body. For a GET, the claims will be passed as a query parameter named `claim`.
+      server will receive the claims as a JSON encoded array in the body. For a GET,
+      the claims will be passed as a query parameter named `claim`.
     type: enum
     exposed: true
     required: true

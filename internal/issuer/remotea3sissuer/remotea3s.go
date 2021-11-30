@@ -56,7 +56,7 @@ func (c *remoteA3SIssuer) fromToken(ctx context.Context, tokenString string) err
 	}
 
 	root := x509.NewCertPool()
-	root.AppendCertsFromPEM([]byte(c.source.CertificateAuthority))
+	root.AppendCertsFromPEM([]byte(c.source.CA))
 	client := &http.Client{
 		Transport: &http.Transport{
 			TLSClientConfig: &tls.Config{

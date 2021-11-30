@@ -260,7 +260,7 @@ func (p *IssueProcessor) handleOIDCIssue(bctx bahamut.Context, req *api.Issue) (
 		}
 		src := out.(*api.OIDCSource)
 
-		client, err := oidcceremony.MakeOIDCProviderClient(src.CertificateAuthority)
+		client, err := oidcceremony.MakeOIDCProviderClient(src.CA)
 		if err != nil {
 			return nil, oidcceremony.RedirectErrorEventually(
 				bctx,
@@ -309,7 +309,7 @@ func (p *IssueProcessor) handleOIDCIssue(bctx bahamut.Context, req *api.Issue) (
 		cacheItem := &oidcceremony.CacheItem{
 			State:            state,
 			ProviderEndpoint: src.Endpoint,
-			CA:               src.CertificateAuthority,
+			CA:               src.CA,
 			ClientID:         src.ClientID,
 			OAuth2Config:     oauth2Config,
 		}

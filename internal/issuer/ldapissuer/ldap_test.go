@@ -49,7 +49,7 @@ func TestFromCredential(t *testing.T) {
 		src := api.NewLDAPSource()
 		src.Namespace = "/my/ns"
 		src.Name = "my-src"
-		src.CertificateAuthority = "a-ca"
+		src.CA = "a-ca"
 		iss := newLDAPIssuer(src)
 		err := iss.fromCredentials("", "")
 		So(err, ShouldNotBeNil)

@@ -241,7 +241,7 @@ func initRootPermissions(ctx context.Context, m manipulate.Manipulator, caPath s
 	source.Namespace = "/"
 	source.Name = "root"
 	source.Description = "Root auth source used to bootstrap permissions."
-	source.CertificateAuthority = string(caData)
+	source.CA = string(caData)
 	if err := m.Create(manipulate.NewContext(ctx), source); err != nil {
 		if errors.As(err, &manipulate.ErrConstraintViolation{}) && ifNeeded {
 			return false, nil

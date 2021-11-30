@@ -24,7 +24,7 @@ indexes:
 # Attributes
 attributes:
   v1:
-  - name: certificateAuthority
+  - name: CA
     description: |-
       The Certificate authority to use to validate the authenticity of the OIDC
       server. If left empty, the system trust stroe will be used. In most of the
@@ -68,7 +68,7 @@ attributes:
     required: true
     example_value: https://accounts.google.com
 
-  - name: identityModifier
+  - name: modifier
     description: |-
       Contains optional information about a remote service that can be used to modify
       the claims that are about to be delivered using this authentication source.

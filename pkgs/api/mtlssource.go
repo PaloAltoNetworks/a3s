@@ -80,18 +80,18 @@ func (o MTLSSourcesList) Version() int {
 
 // MTLSSource represents the model of a mtlssource
 type MTLSSource struct {
+	// The Certificate authority to use to validate user certificates in PEM format.
+	CA string `json:"CA" msgpack:"CA" bson:"ca" mapstructure:"CA,omitempty"`
+
 	// ID is the identifier of the object.
 	ID string `json:"ID" msgpack:"ID" bson:"-" mapstructure:"ID,omitempty"`
-
-	// The Certificate authority to use to validate user certificates in PEM format.
-	CertificateAuthority string `json:"certificateAuthority" msgpack:"certificateAuthority" bson:"certificateauthority" mapstructure:"certificateAuthority,omitempty"`
 
 	// The description of the object.
 	Description string `json:"description" msgpack:"description" bson:"description" mapstructure:"description,omitempty"`
 
 	// Contains optional information about a remote service that can be used to modify
 	// the claims that are about to be delivered using this authentication source.
-	IdentityModifier *IdentityModifier `json:"identityModifier,omitempty" msgpack:"identityModifier,omitempty" bson:"-" mapstructure:"identityModifier,omitempty"`
+	Modifier *IdentityModifier `json:"modifier,omitempty" msgpack:"modifier,omitempty" bson:"-" mapstructure:"modifier,omitempty"`
 
 	// The name of the source.
 	Name string `json:"name" msgpack:"name" bson:"name" mapstructure:"name,omitempty"`
@@ -144,10 +144,10 @@ func (o *MTLSSource) GetBSON() (interface{}, error) {
 
 	s := &mongoAttributesMTLSSource{}
 
+	s.CA = o.CA
 	if o.ID != "" {
 		s.ID = bson.ObjectIdHex(o.ID)
 	}
-	s.CertificateAuthority = o.CertificateAuthority
 	s.Description = o.Description
 	s.Name = o.Name
 	s.Namespace = o.Namespace
@@ -170,8 +170,8 @@ func (o *MTLSSource) SetBSON(raw bson.Raw) error {
 		return err
 	}
 
+	o.CA = s.CA
 	o.ID = s.ID.Hex()
-	o.CertificateAuthority = s.CertificateAuthority
 	o.Description = s.Description
 	o.Name = s.Name
 	o.Namespace = s.Namespace
@@ -265,28 +265,28 @@ func (o *MTLSSource) ToSparse(fields ...string) elemental.SparseIdentifiable {
 	if len(fields) == 0 {
 		// nolint: goimports
 		return &SparseMTLSSource{
-			ID:                   &o.ID,
-			CertificateAuthority: &o.CertificateAuthority,
-			Description:          &o.Description,
-			IdentityModifier:     o.IdentityModifier,
-			Name:                 &o.Name,
-			Namespace:            &o.Namespace,
-			ZHash:                &o.ZHash,
-			Zone:                 &o.Zone,
+			CA:          &o.CA,
+			ID:          &o.ID,
+			Description: &o.Description,
+			Modifier:    o.Modifier,
+			Name:        &o.Name,
+			Namespace:   &o.Namespace,
+			ZHash:       &o.ZHash,
+			Zone:        &o.Zone,
 		}
 	}
 
 	sp := &SparseMTLSSource{}
 	for _, f := range fields {
 		switch f {
+		case "CA":
+			sp.CA = &(o.CA)
 		case "ID":
 			sp.ID = &(o.ID)
-		case "certificateAuthority":
-			sp.CertificateAuthority = &(o.CertificateAuthority)
 		case "description":
 			sp.Description = &(o.Description)
-		case "identityModifier":
-			sp.IdentityModifier = o.IdentityModifier
+		case "modifier":
+			sp.Modifier = o.Modifier
 		case "name":
 			sp.Name = &(o.Name)
 		case "namespace":
@@ -308,17 +308,17 @@ func (o *MTLSSource) Patch(sparse elemental.SparseIdentifiable) {
 	}
 
 	so := sparse.(*SparseMTLSSource)
+	if so.CA != nil {
+		o.CA = *so.CA
+	}
 	if so.ID != nil {
 		o.ID = *so.ID
-	}
-	if so.CertificateAuthority != nil {
-		o.CertificateAuthority = *so.CertificateAuthority
 	}
 	if so.Description != nil {
 		o.Description = *so.Description
 	}
-	if so.IdentityModifier != nil {
-		o.IdentityModifier = so.IdentityModifier
+	if so.Modifier != nil {
+		o.Modifier = so.Modifier
 	}
 	if so.Name != nil {
 		o.Name = *so.Name
@@ -364,17 +364,17 @@ func (o *MTLSSource) Validate() error {
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
-	if err := elemental.ValidateRequiredString("certificateAuthority", o.CertificateAuthority); err != nil {
+	if err := elemental.ValidateRequiredString("CA", o.CA); err != nil {
 		requiredErrors = requiredErrors.Append(err)
 	}
 
-	if err := ValidatePEM("certificateAuthority", o.CertificateAuthority); err != nil {
+	if err := ValidatePEM("CA", o.CA); err != nil {
 		errors = errors.Append(err)
 	}
 
-	if o.IdentityModifier != nil {
-		elemental.ResetDefaultForZeroValues(o.IdentityModifier)
-		if err := o.IdentityModifier.Validate(); err != nil {
+	if o.Modifier != nil {
+		elemental.ResetDefaultForZeroValues(o.Modifier)
+		if err := o.Modifier.Validate(); err != nil {
 			errors = errors.Append(err)
 		}
 	}
@@ -417,14 +417,14 @@ func (*MTLSSource) AttributeSpecifications() map[string]elemental.AttributeSpeci
 func (o *MTLSSource) ValueForAttribute(name string) interface{} {
 
 	switch name {
+	case "CA":
+		return o.CA
 	case "ID":
 		return o.ID
-	case "certificateAuthority":
-		return o.CertificateAuthority
 	case "description":
 		return o.Description
-	case "identityModifier":
-		return o.IdentityModifier
+	case "modifier":
+		return o.Modifier
 	case "name":
 		return o.Name
 	case "namespace":
@@ -440,6 +440,17 @@ func (o *MTLSSource) ValueForAttribute(name string) interface{} {
 
 // MTLSSourceAttributesMap represents the map of attribute for MTLSSource.
 var MTLSSourceAttributesMap = map[string]elemental.AttributeSpecification{
+	"CA": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "ca",
+		ConvertedName:  "CA",
+		Description:    `The Certificate authority to use to validate user certificates in PEM format.`,
+		Exposed:        true,
+		Name:           "CA",
+		Required:       true,
+		Stored:         true,
+		Type:           "string",
+	},
 	"ID": {
 		AllowedChoices: []string{},
 		Autogenerated:  true,
@@ -456,17 +467,6 @@ var MTLSSourceAttributesMap = map[string]elemental.AttributeSpecification{
 		Stored:         true,
 		Type:           "string",
 	},
-	"CertificateAuthority": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "certificateauthority",
-		ConvertedName:  "CertificateAuthority",
-		Description:    `The Certificate authority to use to validate user certificates in PEM format.`,
-		Exposed:        true,
-		Name:           "certificateAuthority",
-		Required:       true,
-		Stored:         true,
-		Type:           "string",
-	},
 	"Description": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "description",
@@ -477,13 +477,13 @@ var MTLSSourceAttributesMap = map[string]elemental.AttributeSpecification{
 		Stored:         true,
 		Type:           "string",
 	},
-	"IdentityModifier": {
+	"Modifier": {
 		AllowedChoices: []string{},
-		ConvertedName:  "IdentityModifier",
+		ConvertedName:  "Modifier",
 		Description: `Contains optional information about a remote service that can be used to modify
 the claims that are about to be delivered using this authentication source.`,
 		Exposed: true,
-		Name:    "identityModifier",
+		Name:    "modifier",
 		SubType: "identitymodifier",
 		Type:    "ref",
 	},
@@ -544,6 +544,17 @@ the claims that are about to be delivered using this authentication source.`,
 
 // MTLSSourceLowerCaseAttributesMap represents the map of attribute for MTLSSource.
 var MTLSSourceLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
+	"ca": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "ca",
+		ConvertedName:  "CA",
+		Description:    `The Certificate authority to use to validate user certificates in PEM format.`,
+		Exposed:        true,
+		Name:           "CA",
+		Required:       true,
+		Stored:         true,
+		Type:           "string",
+	},
 	"id": {
 		AllowedChoices: []string{},
 		Autogenerated:  true,
@@ -560,17 +571,6 @@ var MTLSSourceLowerCaseAttributesMap = map[string]elemental.AttributeSpecificati
 		Stored:         true,
 		Type:           "string",
 	},
-	"certificateauthority": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "certificateauthority",
-		ConvertedName:  "CertificateAuthority",
-		Description:    `The Certificate authority to use to validate user certificates in PEM format.`,
-		Exposed:        true,
-		Name:           "certificateAuthority",
-		Required:       true,
-		Stored:         true,
-		Type:           "string",
-	},
 	"description": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "description",
@@ -581,13 +581,13 @@ var MTLSSourceLowerCaseAttributesMap = map[string]elemental.AttributeSpecificati
 		Stored:         true,
 		Type:           "string",
 	},
-	"identitymodifier": {
+	"modifier": {
 		AllowedChoices: []string{},
-		ConvertedName:  "IdentityModifier",
+		ConvertedName:  "Modifier",
 		Description: `Contains optional information about a remote service that can be used to modify
 the claims that are about to be delivered using this authentication source.`,
 		Exposed: true,
-		Name:    "identityModifier",
+		Name:    "modifier",
 		SubType: "identitymodifier",
 		Type:    "ref",
 	},
@@ -709,18 +709,18 @@ func (o SparseMTLSSourcesList) Version() int {
 
 // SparseMTLSSource represents the sparse version of a mtlssource.
 type SparseMTLSSource struct {
+	// The Certificate authority to use to validate user certificates in PEM format.
+	CA *string `json:"CA,omitempty" msgpack:"CA,omitempty" bson:"ca,omitempty" mapstructure:"CA,omitempty"`
+
 	// ID is the identifier of the object.
 	ID *string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
-
-	// The Certificate authority to use to validate user certificates in PEM format.
-	CertificateAuthority *string `json:"certificateAuthority,omitempty" msgpack:"certificateAuthority,omitempty" bson:"certificateauthority,omitempty" mapstructure:"certificateAuthority,omitempty"`
 
 	// The description of the object.
 	Description *string `json:"description,omitempty" msgpack:"description,omitempty" bson:"description,omitempty" mapstructure:"description,omitempty"`
 
 	// Contains optional information about a remote service that can be used to modify
 	// the claims that are about to be delivered using this authentication source.
-	IdentityModifier *IdentityModifier `json:"identityModifier,omitempty" msgpack:"identityModifier,omitempty" bson:"-" mapstructure:"identityModifier,omitempty"`
+	Modifier *IdentityModifier `json:"modifier,omitempty" msgpack:"modifier,omitempty" bson:"-" mapstructure:"modifier,omitempty"`
 
 	// The name of the source.
 	Name *string `json:"name,omitempty" msgpack:"name,omitempty" bson:"name,omitempty" mapstructure:"name,omitempty"`
@@ -777,11 +777,11 @@ func (o *SparseMTLSSource) GetBSON() (interface{}, error) {
 
 	s := &mongoAttributesSparseMTLSSource{}
 
+	if o.CA != nil {
+		s.CA = o.CA
+	}
 	if o.ID != nil {
 		s.ID = bson.ObjectIdHex(*o.ID)
-	}
-	if o.CertificateAuthority != nil {
-		s.CertificateAuthority = o.CertificateAuthority
 	}
 	if o.Description != nil {
 		s.Description = o.Description
@@ -815,11 +815,11 @@ func (o *SparseMTLSSource) SetBSON(raw bson.Raw) error {
 		return err
 	}
 
+	if s.CA != nil {
+		o.CA = s.CA
+	}
 	id := s.ID.Hex()
 	o.ID = &id
-	if s.CertificateAuthority != nil {
-		o.CertificateAuthority = s.CertificateAuthority
-	}
 	if s.Description != nil {
 		o.Description = s.Description
 	}
@@ -849,17 +849,17 @@ func (o *SparseMTLSSource) Version() int {
 func (o *SparseMTLSSource) ToPlain() elemental.PlainIdentifiable {
 
 	out := NewMTLSSource()
+	if o.CA != nil {
+		out.CA = *o.CA
+	}
 	if o.ID != nil {
 		out.ID = *o.ID
-	}
-	if o.CertificateAuthority != nil {
-		out.CertificateAuthority = *o.CertificateAuthority
 	}
 	if o.Description != nil {
 		out.Description = *o.Description
 	}
-	if o.IdentityModifier != nil {
-		out.IdentityModifier = o.IdentityModifier
+	if o.Modifier != nil {
+		out.Modifier = o.Modifier
 	}
 	if o.Name != nil {
 		out.Name = *o.Name
@@ -966,20 +966,20 @@ func (o *SparseMTLSSource) DeepCopyInto(out *SparseMTLSSource) {
 }
 
 type mongoAttributesMTLSSource struct {
-	ID                   bson.ObjectId `bson:"_id,omitempty"`
-	CertificateAuthority string        `bson:"certificateauthority"`
-	Description          string        `bson:"description"`
-	Name                 string        `bson:"name"`
-	Namespace            string        `bson:"namespace"`
-	ZHash                int           `bson:"zhash"`
-	Zone                 int           `bson:"zone"`
+	CA          string        `bson:"ca"`
+	ID          bson.ObjectId `bson:"_id,omitempty"`
+	Description string        `bson:"description"`
+	Name        string        `bson:"name"`
+	Namespace   string        `bson:"namespace"`
+	ZHash       int           `bson:"zhash"`
+	Zone        int           `bson:"zone"`
 }
 type mongoAttributesSparseMTLSSource struct {
-	ID                   bson.ObjectId `bson:"_id,omitempty"`
-	CertificateAuthority *string       `bson:"certificateauthority,omitempty"`
-	Description          *string       `bson:"description,omitempty"`
-	Name                 *string       `bson:"name,omitempty"`
-	Namespace            *string       `bson:"namespace,omitempty"`
-	ZHash                *int          `bson:"zhash,omitempty"`
-	Zone                 *int          `bson:"zone,omitempty"`
+	CA          *string       `bson:"ca,omitempty"`
+	ID          bson.ObjectId `bson:"_id,omitempty"`
+	Description *string       `bson:"description,omitempty"`
+	Name        *string       `bson:"name,omitempty"`
+	Namespace   *string       `bson:"namespace,omitempty"`
+	ZHash       *int          `bson:"zhash,omitempty"`
+	Zone        *int          `bson:"zone,omitempty"`
 }

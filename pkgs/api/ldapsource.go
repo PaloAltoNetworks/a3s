@@ -91,6 +91,11 @@ func (o LDAPSourcesList) Version() int {
 
 // LDAPSource represents the model of a ldapsource
 type LDAPSource struct {
+	// Can be left empty if the LDAP server's certificate is signed by a public,
+	// trusted certificate authority. Otherwise, include the public key of the
+	// certificate authority that signed the LDAP server's certificate.
+	CA string `json:"CA,omitempty" msgpack:"CA,omitempty" bson:"ca,omitempty" mapstructure:"CA,omitempty"`
+
 	// ID is the identifier of the object.
 	ID string `json:"ID" msgpack:"ID" bson:"-" mapstructure:"ID,omitempty"`
 
@@ -111,17 +116,8 @@ type LDAPSource struct {
 	// systems, the value may be `uid={USERNAME}`.
 	BindSearchFilter string `json:"bindSearchFilter" msgpack:"bindSearchFilter" bson:"bindsearchfilter" mapstructure:"bindSearchFilter,omitempty"`
 
-	// Can be left empty if the LDAP server's certificate is signed by a public,
-	// trusted certificate authority. Otherwise, include the public key of the
-	// certificate authority that signed the LDAP server's certificate.
-	CertificateAuthority string `json:"certificateAuthority,omitempty" msgpack:"certificateAuthority,omitempty" bson:"certificateauthority,omitempty" mapstructure:"certificateAuthority,omitempty"`
-
 	// The description of the object.
 	Description string `json:"description" msgpack:"description" bson:"description" mapstructure:"description,omitempty"`
-
-	// Contains optional information about a remote service that can be used to modify
-	// the claims that are about to be delivered using this authentication source.
-	IdentityModifier *IdentityModifier `json:"identityModifier,omitempty" msgpack:"identityModifier,omitempty" bson:"-" mapstructure:"identityModifier,omitempty"`
 
 	// A list of keys that must not be imported into the identity token. If
 	// `includedKeys` is also set, and a key is in both lists, the key will be ignored.
@@ -130,6 +126,10 @@ type LDAPSource struct {
 	// A list of keys that must be imported into the identity token. If `ignoredKeys`
 	// is also set, and a key is in both lists, the key will be ignored.
 	IncludedKeys []string `json:"includedKeys,omitempty" msgpack:"includedKeys,omitempty" bson:"includedkeys,omitempty" mapstructure:"includedKeys,omitempty"`
+
+	// Contains optional information about a remote service that can be used to modify
+	// the claims that are about to be delivered using this authentication source.
+	Modifier *IdentityModifier `json:"modifier,omitempty" msgpack:"modifier,omitempty" bson:"-" mapstructure:"modifier,omitempty"`
 
 	// The name of the source.
 	Name string `json:"name" msgpack:"name" bson:"name" mapstructure:"name,omitempty"`
@@ -189,6 +189,7 @@ func (o *LDAPSource) GetBSON() (interface{}, error) {
 
 	s := &mongoAttributesLDAPSource{}
 
+	s.CA = o.CA
 	if o.ID != "" {
 		s.ID = bson.ObjectIdHex(o.ID)
 	}
@@ -197,7 +198,6 @@ func (o *LDAPSource) GetBSON() (interface{}, error) {
 	s.BindDN = o.BindDN
 	s.BindPassword = o.BindPassword
 	s.BindSearchFilter = o.BindSearchFilter
-	s.CertificateAuthority = o.CertificateAuthority
 	s.Description = o.Description
 	s.IgnoredKeys = o.IgnoredKeys
 	s.IncludedKeys = o.IncludedKeys
@@ -223,13 +223,13 @@ func (o *LDAPSource) SetBSON(raw bson.Raw) error {
 		return err
 	}
 
+	o.CA = s.CA
 	o.ID = s.ID.Hex()
 	o.Address = s.Address
 	o.BaseDN = s.BaseDN
 	o.BindDN = s.BindDN
 	o.BindPassword = s.BindPassword
 	o.BindSearchFilter = s.BindSearchFilter
-	o.CertificateAuthority = s.CertificateAuthority
 	o.Description = s.Description
 	o.IgnoredKeys = s.IgnoredKeys
 	o.IncludedKeys = s.IncludedKeys
@@ -326,28 +326,30 @@ func (o *LDAPSource) ToSparse(fields ...string) elemental.SparseIdentifiable {
 	if len(fields) == 0 {
 		// nolint: goimports
 		return &SparseLDAPSource{
-			ID:                   &o.ID,
-			Address:              &o.Address,
-			BaseDN:               &o.BaseDN,
-			BindDN:               &o.BindDN,
-			BindPassword:         &o.BindPassword,
-			BindSearchFilter:     &o.BindSearchFilter,
-			CertificateAuthority: &o.CertificateAuthority,
-			Description:          &o.Description,
-			IdentityModifier:     o.IdentityModifier,
-			IgnoredKeys:          &o.IgnoredKeys,
-			IncludedKeys:         &o.IncludedKeys,
-			Name:                 &o.Name,
-			Namespace:            &o.Namespace,
-			SecurityProtocol:     &o.SecurityProtocol,
-			ZHash:                &o.ZHash,
-			Zone:                 &o.Zone,
+			CA:               &o.CA,
+			ID:               &o.ID,
+			Address:          &o.Address,
+			BaseDN:           &o.BaseDN,
+			BindDN:           &o.BindDN,
+			BindPassword:     &o.BindPassword,
+			BindSearchFilter: &o.BindSearchFilter,
+			Description:      &o.Description,
+			IgnoredKeys:      &o.IgnoredKeys,
+			IncludedKeys:     &o.IncludedKeys,
+			Modifier:         o.Modifier,
+			Name:             &o.Name,
+			Namespace:        &o.Namespace,
+			SecurityProtocol: &o.SecurityProtocol,
+			ZHash:            &o.ZHash,
+			Zone:             &o.Zone,
 		}
 	}
 
 	sp := &SparseLDAPSource{}
 	for _, f := range fields {
 		switch f {
+		case "CA":
+			sp.CA = &(o.CA)
 		case "ID":
 			sp.ID = &(o.ID)
 		case "address":
@@ -360,16 +362,14 @@ func (o *LDAPSource) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.BindPassword = &(o.BindPassword)
 		case "bindSearchFilter":
 			sp.BindSearchFilter = &(o.BindSearchFilter)
-		case "certificateAuthority":
-			sp.CertificateAuthority = &(o.CertificateAuthority)
 		case "description":
 			sp.Description = &(o.Description)
-		case "identityModifier":
-			sp.IdentityModifier = o.IdentityModifier
 		case "ignoredKeys":
 			sp.IgnoredKeys = &(o.IgnoredKeys)
 		case "includedKeys":
 			sp.IncludedKeys = &(o.IncludedKeys)
+		case "modifier":
+			sp.Modifier = o.Modifier
 		case "name":
 			sp.Name = &(o.Name)
 		case "namespace":
@@ -413,6 +413,9 @@ func (o *LDAPSource) Patch(sparse elemental.SparseIdentifiable) {
 	}
 
 	so := sparse.(*SparseLDAPSource)
+	if so.CA != nil {
+		o.CA = *so.CA
+	}
 	if so.ID != nil {
 		o.ID = *so.ID
 	}
@@ -431,20 +434,17 @@ func (o *LDAPSource) Patch(sparse elemental.SparseIdentifiable) {
 	if so.BindSearchFilter != nil {
 		o.BindSearchFilter = *so.BindSearchFilter
 	}
-	if so.CertificateAuthority != nil {
-		o.CertificateAuthority = *so.CertificateAuthority
-	}
 	if so.Description != nil {
 		o.Description = *so.Description
-	}
-	if so.IdentityModifier != nil {
-		o.IdentityModifier = so.IdentityModifier
 	}
 	if so.IgnoredKeys != nil {
 		o.IgnoredKeys = *so.IgnoredKeys
 	}
 	if so.IncludedKeys != nil {
 		o.IncludedKeys = *so.IncludedKeys
+	}
+	if so.Modifier != nil {
+		o.Modifier = so.Modifier
 	}
 	if so.Name != nil {
 		o.Name = *so.Name
@@ -505,9 +505,9 @@ func (o *LDAPSource) Validate() error {
 		requiredErrors = requiredErrors.Append(err)
 	}
 
-	if o.IdentityModifier != nil {
-		elemental.ResetDefaultForZeroValues(o.IdentityModifier)
-		if err := o.IdentityModifier.Validate(); err != nil {
+	if o.Modifier != nil {
+		elemental.ResetDefaultForZeroValues(o.Modifier)
+		if err := o.Modifier.Validate(); err != nil {
 			errors = errors.Append(err)
 		}
 	}
@@ -554,6 +554,8 @@ func (*LDAPSource) AttributeSpecifications() map[string]elemental.AttributeSpeci
 func (o *LDAPSource) ValueForAttribute(name string) interface{} {
 
 	switch name {
+	case "CA":
+		return o.CA
 	case "ID":
 		return o.ID
 	case "address":
@@ -566,16 +568,14 @@ func (o *LDAPSource) ValueForAttribute(name string) interface{} {
 		return o.BindPassword
 	case "bindSearchFilter":
 		return o.BindSearchFilter
-	case "certificateAuthority":
-		return o.CertificateAuthority
 	case "description":
 		return o.Description
-	case "identityModifier":
-		return o.IdentityModifier
 	case "ignoredKeys":
 		return o.IgnoredKeys
 	case "includedKeys":
 		return o.IncludedKeys
+	case "modifier":
+		return o.Modifier
 	case "name":
 		return o.Name
 	case "namespace":
@@ -593,6 +593,18 @@ func (o *LDAPSource) ValueForAttribute(name string) interface{} {
 
 // LDAPSourceAttributesMap represents the map of attribute for LDAPSource.
 var LDAPSourceAttributesMap = map[string]elemental.AttributeSpecification{
+	"CA": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "ca",
+		ConvertedName:  "CA",
+		Description: `Can be left empty if the LDAP server's certificate is signed by a public,
+trusted certificate authority. Otherwise, include the public key of the
+certificate authority that signed the LDAP server's certificate.`,
+		Exposed: true,
+		Name:    "CA",
+		Stored:  true,
+		Type:    "string",
+	},
 	"ID": {
 		AllowedChoices: []string{},
 		Autogenerated:  true,
@@ -670,18 +682,6 @@ systems, the value may be ` + "`" + `uid={USERNAME}` + "`" + `.`,
 		Stored:    true,
 		Type:      "string",
 	},
-	"CertificateAuthority": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "certificateauthority",
-		ConvertedName:  "CertificateAuthority",
-		Description: `Can be left empty if the LDAP server's certificate is signed by a public,
-trusted certificate authority. Otherwise, include the public key of the
-certificate authority that signed the LDAP server's certificate.`,
-		Exposed: true,
-		Name:    "certificateAuthority",
-		Stored:  true,
-		Type:    "string",
-	},
 	"Description": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "description",
@@ -691,16 +691,6 @@ certificate authority that signed the LDAP server's certificate.`,
 		Name:           "description",
 		Stored:         true,
 		Type:           "string",
-	},
-	"IdentityModifier": {
-		AllowedChoices: []string{},
-		ConvertedName:  "IdentityModifier",
-		Description: `Contains optional information about a remote service that can be used to modify
-the claims that are about to be delivered using this authentication source.`,
-		Exposed: true,
-		Name:    "identityModifier",
-		SubType: "identitymodifier",
-		Type:    "ref",
 	},
 	"IgnoredKeys": {
 		AllowedChoices: []string{},
@@ -725,6 +715,16 @@ is also set, and a key is in both lists, the key will be ignored.`,
 		Stored:  true,
 		SubType: "string",
 		Type:    "list",
+	},
+	"Modifier": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Modifier",
+		Description: `Contains optional information about a remote service that can be used to modify
+the claims that are about to be delivered using this authentication source.`,
+		Exposed: true,
+		Name:    "modifier",
+		SubType: "identitymodifier",
+		Type:    "ref",
 	},
 	"Name": {
 		AllowedChoices: []string{},
@@ -794,6 +794,18 @@ is also set, and a key is in both lists, the key will be ignored.`,
 
 // LDAPSourceLowerCaseAttributesMap represents the map of attribute for LDAPSource.
 var LDAPSourceLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
+	"ca": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "ca",
+		ConvertedName:  "CA",
+		Description: `Can be left empty if the LDAP server's certificate is signed by a public,
+trusted certificate authority. Otherwise, include the public key of the
+certificate authority that signed the LDAP server's certificate.`,
+		Exposed: true,
+		Name:    "CA",
+		Stored:  true,
+		Type:    "string",
+	},
 	"id": {
 		AllowedChoices: []string{},
 		Autogenerated:  true,
@@ -871,18 +883,6 @@ systems, the value may be ` + "`" + `uid={USERNAME}` + "`" + `.`,
 		Stored:    true,
 		Type:      "string",
 	},
-	"certificateauthority": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "certificateauthority",
-		ConvertedName:  "CertificateAuthority",
-		Description: `Can be left empty if the LDAP server's certificate is signed by a public,
-trusted certificate authority. Otherwise, include the public key of the
-certificate authority that signed the LDAP server's certificate.`,
-		Exposed: true,
-		Name:    "certificateAuthority",
-		Stored:  true,
-		Type:    "string",
-	},
 	"description": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "description",
@@ -892,16 +892,6 @@ certificate authority that signed the LDAP server's certificate.`,
 		Name:           "description",
 		Stored:         true,
 		Type:           "string",
-	},
-	"identitymodifier": {
-		AllowedChoices: []string{},
-		ConvertedName:  "IdentityModifier",
-		Description: `Contains optional information about a remote service that can be used to modify
-the claims that are about to be delivered using this authentication source.`,
-		Exposed: true,
-		Name:    "identityModifier",
-		SubType: "identitymodifier",
-		Type:    "ref",
 	},
 	"ignoredkeys": {
 		AllowedChoices: []string{},
@@ -926,6 +916,16 @@ is also set, and a key is in both lists, the key will be ignored.`,
 		Stored:  true,
 		SubType: "string",
 		Type:    "list",
+	},
+	"modifier": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Modifier",
+		Description: `Contains optional information about a remote service that can be used to modify
+the claims that are about to be delivered using this authentication source.`,
+		Exposed: true,
+		Name:    "modifier",
+		SubType: "identitymodifier",
+		Type:    "ref",
 	},
 	"name": {
 		AllowedChoices: []string{},
@@ -1056,6 +1056,11 @@ func (o SparseLDAPSourcesList) Version() int {
 
 // SparseLDAPSource represents the sparse version of a ldapsource.
 type SparseLDAPSource struct {
+	// Can be left empty if the LDAP server's certificate is signed by a public,
+	// trusted certificate authority. Otherwise, include the public key of the
+	// certificate authority that signed the LDAP server's certificate.
+	CA *string `json:"CA,omitempty" msgpack:"CA,omitempty" bson:"ca,omitempty" mapstructure:"CA,omitempty"`
+
 	// ID is the identifier of the object.
 	ID *string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
 
@@ -1076,17 +1081,8 @@ type SparseLDAPSource struct {
 	// systems, the value may be `uid={USERNAME}`.
 	BindSearchFilter *string `json:"bindSearchFilter,omitempty" msgpack:"bindSearchFilter,omitempty" bson:"bindsearchfilter,omitempty" mapstructure:"bindSearchFilter,omitempty"`
 
-	// Can be left empty if the LDAP server's certificate is signed by a public,
-	// trusted certificate authority. Otherwise, include the public key of the
-	// certificate authority that signed the LDAP server's certificate.
-	CertificateAuthority *string `json:"certificateAuthority,omitempty" msgpack:"certificateAuthority,omitempty" bson:"certificateauthority,omitempty" mapstructure:"certificateAuthority,omitempty"`
-
 	// The description of the object.
 	Description *string `json:"description,omitempty" msgpack:"description,omitempty" bson:"description,omitempty" mapstructure:"description,omitempty"`
-
-	// Contains optional information about a remote service that can be used to modify
-	// the claims that are about to be delivered using this authentication source.
-	IdentityModifier *IdentityModifier `json:"identityModifier,omitempty" msgpack:"identityModifier,omitempty" bson:"-" mapstructure:"identityModifier,omitempty"`
 
 	// A list of keys that must not be imported into the identity token. If
 	// `includedKeys` is also set, and a key is in both lists, the key will be ignored.
@@ -1095,6 +1091,10 @@ type SparseLDAPSource struct {
 	// A list of keys that must be imported into the identity token. If `ignoredKeys`
 	// is also set, and a key is in both lists, the key will be ignored.
 	IncludedKeys *[]string `json:"includedKeys,omitempty" msgpack:"includedKeys,omitempty" bson:"includedkeys,omitempty" mapstructure:"includedKeys,omitempty"`
+
+	// Contains optional information about a remote service that can be used to modify
+	// the claims that are about to be delivered using this authentication source.
+	Modifier *IdentityModifier `json:"modifier,omitempty" msgpack:"modifier,omitempty" bson:"-" mapstructure:"modifier,omitempty"`
 
 	// The name of the source.
 	Name *string `json:"name,omitempty" msgpack:"name,omitempty" bson:"name,omitempty" mapstructure:"name,omitempty"`
@@ -1154,6 +1154,9 @@ func (o *SparseLDAPSource) GetBSON() (interface{}, error) {
 
 	s := &mongoAttributesSparseLDAPSource{}
 
+	if o.CA != nil {
+		s.CA = o.CA
+	}
 	if o.ID != nil {
 		s.ID = bson.ObjectIdHex(*o.ID)
 	}
@@ -1171,9 +1174,6 @@ func (o *SparseLDAPSource) GetBSON() (interface{}, error) {
 	}
 	if o.BindSearchFilter != nil {
 		s.BindSearchFilter = o.BindSearchFilter
-	}
-	if o.CertificateAuthority != nil {
-		s.CertificateAuthority = o.CertificateAuthority
 	}
 	if o.Description != nil {
 		s.Description = o.Description
@@ -1216,6 +1216,9 @@ func (o *SparseLDAPSource) SetBSON(raw bson.Raw) error {
 		return err
 	}
 
+	if s.CA != nil {
+		o.CA = s.CA
+	}
 	id := s.ID.Hex()
 	o.ID = &id
 	if s.Address != nil {
@@ -1232,9 +1235,6 @@ func (o *SparseLDAPSource) SetBSON(raw bson.Raw) error {
 	}
 	if s.BindSearchFilter != nil {
 		o.BindSearchFilter = s.BindSearchFilter
-	}
-	if s.CertificateAuthority != nil {
-		o.CertificateAuthority = s.CertificateAuthority
 	}
 	if s.Description != nil {
 		o.Description = s.Description
@@ -1274,6 +1274,9 @@ func (o *SparseLDAPSource) Version() int {
 func (o *SparseLDAPSource) ToPlain() elemental.PlainIdentifiable {
 
 	out := NewLDAPSource()
+	if o.CA != nil {
+		out.CA = *o.CA
+	}
 	if o.ID != nil {
 		out.ID = *o.ID
 	}
@@ -1292,20 +1295,17 @@ func (o *SparseLDAPSource) ToPlain() elemental.PlainIdentifiable {
 	if o.BindSearchFilter != nil {
 		out.BindSearchFilter = *o.BindSearchFilter
 	}
-	if o.CertificateAuthority != nil {
-		out.CertificateAuthority = *o.CertificateAuthority
-	}
 	if o.Description != nil {
 		out.Description = *o.Description
-	}
-	if o.IdentityModifier != nil {
-		out.IdentityModifier = o.IdentityModifier
 	}
 	if o.IgnoredKeys != nil {
 		out.IgnoredKeys = *o.IgnoredKeys
 	}
 	if o.IncludedKeys != nil {
 		out.IncludedKeys = *o.IncludedKeys
+	}
+	if o.Modifier != nil {
+		out.Modifier = o.Modifier
 	}
 	if o.Name != nil {
 		out.Name = *o.Name
@@ -1435,36 +1435,36 @@ func (o *SparseLDAPSource) DeepCopyInto(out *SparseLDAPSource) {
 }
 
 type mongoAttributesLDAPSource struct {
-	ID                   bson.ObjectId                   `bson:"_id,omitempty"`
-	Address              string                          `bson:"address"`
-	BaseDN               string                          `bson:"basedn"`
-	BindDN               string                          `bson:"binddn"`
-	BindPassword         string                          `bson:"bindpassword"`
-	BindSearchFilter     string                          `bson:"bindsearchfilter"`
-	CertificateAuthority string                          `bson:"certificateauthority,omitempty"`
-	Description          string                          `bson:"description"`
-	IgnoredKeys          []string                        `bson:"ignoredkeys,omitempty"`
-	IncludedKeys         []string                        `bson:"includedkeys,omitempty"`
-	Name                 string                          `bson:"name"`
-	Namespace            string                          `bson:"namespace"`
-	SecurityProtocol     LDAPSourceSecurityProtocolValue `bson:"securityprotocol"`
-	ZHash                int                             `bson:"zhash"`
-	Zone                 int                             `bson:"zone"`
+	CA               string                          `bson:"ca,omitempty"`
+	ID               bson.ObjectId                   `bson:"_id,omitempty"`
+	Address          string                          `bson:"address"`
+	BaseDN           string                          `bson:"basedn"`
+	BindDN           string                          `bson:"binddn"`
+	BindPassword     string                          `bson:"bindpassword"`
+	BindSearchFilter string                          `bson:"bindsearchfilter"`
+	Description      string                          `bson:"description"`
+	IgnoredKeys      []string                        `bson:"ignoredkeys,omitempty"`
+	IncludedKeys     []string                        `bson:"includedkeys,omitempty"`
+	Name             string                          `bson:"name"`
+	Namespace        string                          `bson:"namespace"`
+	SecurityProtocol LDAPSourceSecurityProtocolValue `bson:"securityprotocol"`
+	ZHash            int                             `bson:"zhash"`
+	Zone             int                             `bson:"zone"`
 }
 type mongoAttributesSparseLDAPSource struct {
-	ID                   bson.ObjectId                    `bson:"_id,omitempty"`
-	Address              *string                          `bson:"address,omitempty"`
-	BaseDN               *string                          `bson:"basedn,omitempty"`
-	BindDN               *string                          `bson:"binddn,omitempty"`
-	BindPassword         *string                          `bson:"bindpassword,omitempty"`
-	BindSearchFilter     *string                          `bson:"bindsearchfilter,omitempty"`
-	CertificateAuthority *string                          `bson:"certificateauthority,omitempty"`
-	Description          *string                          `bson:"description,omitempty"`
-	IgnoredKeys          *[]string                        `bson:"ignoredkeys,omitempty"`
-	IncludedKeys         *[]string                        `bson:"includedkeys,omitempty"`
-	Name                 *string                          `bson:"name,omitempty"`
-	Namespace            *string                          `bson:"namespace,omitempty"`
-	SecurityProtocol     *LDAPSourceSecurityProtocolValue `bson:"securityprotocol,omitempty"`
-	ZHash                *int                             `bson:"zhash,omitempty"`
-	Zone                 *int                             `bson:"zone,omitempty"`
+	CA               *string                          `bson:"ca,omitempty"`
+	ID               bson.ObjectId                    `bson:"_id,omitempty"`
+	Address          *string                          `bson:"address,omitempty"`
+	BaseDN           *string                          `bson:"basedn,omitempty"`
+	BindDN           *string                          `bson:"binddn,omitempty"`
+	BindPassword     *string                          `bson:"bindpassword,omitempty"`
+	BindSearchFilter *string                          `bson:"bindsearchfilter,omitempty"`
+	Description      *string                          `bson:"description,omitempty"`
+	IgnoredKeys      *[]string                        `bson:"ignoredkeys,omitempty"`
+	IncludedKeys     *[]string                        `bson:"includedkeys,omitempty"`
+	Name             *string                          `bson:"name,omitempty"`
+	Namespace        *string                          `bson:"namespace,omitempty"`
+	SecurityProtocol *LDAPSourceSecurityProtocolValue `bson:"securityprotocol,omitempty"`
+	ZHash            *int                             `bson:"zhash,omitempty"`
+	Zone             *int                             `bson:"zone,omitempty"`
 }

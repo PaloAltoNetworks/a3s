@@ -63,7 +63,7 @@ func (c *ldapIssuer) retrieveEntry(username string, password string) (*ldap.Entr
 	var err error
 
 	var caPool *x509.CertPool
-	if ca := c.source.CertificateAuthority; ca != "" {
+	if ca := c.source.CA; ca != "" {
 		caPool = x509.NewCertPool()
 		caPool.AppendCertsFromPEM([]byte(ca))
 	} else {
