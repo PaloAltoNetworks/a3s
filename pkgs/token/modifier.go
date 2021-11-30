@@ -60,7 +60,7 @@ func NewHTTPIdentityModifier(url string, method string, ca []byte, cert []byte, 
 
 	xc, xk, err := tglib.ReadCertificate(cert, key, "")
 	if err != nil {
-		return nil, fmt.Errorf("unable create certificate: %w", err)
+		return nil, fmt.Errorf("unable to create certificate: %w", err)
 	}
 
 	clientCert, err := tglib.ToTLSCertificate(xc, xk)

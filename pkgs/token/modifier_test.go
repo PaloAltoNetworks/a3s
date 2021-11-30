@@ -41,7 +41,7 @@ func TestNew(t *testing.T) {
 		Convey("Invalid cert", func() {
 			_, err := NewHTTPIdentityModifier("https://toto.com", "get", nil, []byte("coucou"), key)
 			So(err, ShouldNotBeNil)
-			So(err.Error(), ShouldEqual, "unable create certificate: tls: failed to find any PEM data in certificate input")
+			So(err.Error(), ShouldEqual, "unable to create certificate: tls: failed to find any PEM data in certificate input")
 		})
 	})
 }
