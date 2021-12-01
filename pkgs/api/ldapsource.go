@@ -129,7 +129,7 @@ type LDAPSource struct {
 
 	// Contains optional information about a remote service that can be used to modify
 	// the claims that are about to be delivered using this authentication source.
-	Modifier *IdentityModifier `json:"modifier,omitempty" msgpack:"modifier,omitempty" bson:"-" mapstructure:"modifier,omitempty"`
+	Modifier *IdentityModifier `json:"modifier,omitempty" msgpack:"modifier,omitempty" bson:"modifier,omitempty" mapstructure:"modifier,omitempty"`
 
 	// The name of the source.
 	Name string `json:"name" msgpack:"name" bson:"name" mapstructure:"name,omitempty"`
@@ -201,6 +201,7 @@ func (o *LDAPSource) GetBSON() (interface{}, error) {
 	s.Description = o.Description
 	s.IgnoredKeys = o.IgnoredKeys
 	s.IncludedKeys = o.IncludedKeys
+	s.Modifier = o.Modifier
 	s.Name = o.Name
 	s.Namespace = o.Namespace
 	s.SecurityProtocol = o.SecurityProtocol
@@ -233,6 +234,7 @@ func (o *LDAPSource) SetBSON(raw bson.Raw) error {
 	o.Description = s.Description
 	o.IgnoredKeys = s.IgnoredKeys
 	o.IncludedKeys = s.IncludedKeys
+	o.Modifier = s.Modifier
 	o.Name = s.Name
 	o.Namespace = s.Namespace
 	o.SecurityProtocol = s.SecurityProtocol
@@ -718,11 +720,13 @@ is also set, and a key is in both lists, the key will be ignored.`,
 	},
 	"Modifier": {
 		AllowedChoices: []string{},
+		BSONFieldName:  "modifier",
 		ConvertedName:  "Modifier",
 		Description: `Contains optional information about a remote service that can be used to modify
 the claims that are about to be delivered using this authentication source.`,
 		Exposed: true,
 		Name:    "modifier",
+		Stored:  true,
 		SubType: "identitymodifier",
 		Type:    "ref",
 	},
@@ -919,11 +923,13 @@ is also set, and a key is in both lists, the key will be ignored.`,
 	},
 	"modifier": {
 		AllowedChoices: []string{},
+		BSONFieldName:  "modifier",
 		ConvertedName:  "Modifier",
 		Description: `Contains optional information about a remote service that can be used to modify
 the claims that are about to be delivered using this authentication source.`,
 		Exposed: true,
 		Name:    "modifier",
+		Stored:  true,
 		SubType: "identitymodifier",
 		Type:    "ref",
 	},
@@ -1094,7 +1100,7 @@ type SparseLDAPSource struct {
 
 	// Contains optional information about a remote service that can be used to modify
 	// the claims that are about to be delivered using this authentication source.
-	Modifier *IdentityModifier `json:"modifier,omitempty" msgpack:"modifier,omitempty" bson:"-" mapstructure:"modifier,omitempty"`
+	Modifier *IdentityModifier `json:"modifier,omitempty" msgpack:"modifier,omitempty" bson:"modifier,omitempty" mapstructure:"modifier,omitempty"`
 
 	// The name of the source.
 	Name *string `json:"name,omitempty" msgpack:"name,omitempty" bson:"name,omitempty" mapstructure:"name,omitempty"`
@@ -1184,6 +1190,9 @@ func (o *SparseLDAPSource) GetBSON() (interface{}, error) {
 	if o.IncludedKeys != nil {
 		s.IncludedKeys = o.IncludedKeys
 	}
+	if o.Modifier != nil {
+		s.Modifier = o.Modifier
+	}
 	if o.Name != nil {
 		s.Name = o.Name
 	}
@@ -1244,6 +1253,9 @@ func (o *SparseLDAPSource) SetBSON(raw bson.Raw) error {
 	}
 	if s.IncludedKeys != nil {
 		o.IncludedKeys = s.IncludedKeys
+	}
+	if s.Modifier != nil {
+		o.Modifier = s.Modifier
 	}
 	if s.Name != nil {
 		o.Name = s.Name
@@ -1445,6 +1457,7 @@ type mongoAttributesLDAPSource struct {
 	Description      string                          `bson:"description"`
 	IgnoredKeys      []string                        `bson:"ignoredkeys,omitempty"`
 	IncludedKeys     []string                        `bson:"includedkeys,omitempty"`
+	Modifier         *IdentityModifier               `bson:"modifier,omitempty"`
 	Name             string                          `bson:"name"`
 	Namespace        string                          `bson:"namespace"`
 	SecurityProtocol LDAPSourceSecurityProtocolValue `bson:"securityprotocol"`
@@ -1462,6 +1475,7 @@ type mongoAttributesSparseLDAPSource struct {
 	Description      *string                          `bson:"description,omitempty"`
 	IgnoredKeys      *[]string                        `bson:"ignoredkeys,omitempty"`
 	IncludedKeys     *[]string                        `bson:"includedkeys,omitempty"`
+	Modifier         *IdentityModifier                `bson:"modifier,omitempty"`
 	Name             *string                          `bson:"name,omitempty"`
 	Namespace        *string                          `bson:"namespace,omitempty"`
 	SecurityProtocol *LDAPSourceSecurityProtocolValue `bson:"securityprotocol,omitempty"`

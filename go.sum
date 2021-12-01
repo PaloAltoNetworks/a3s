@@ -488,6 +488,10 @@ go.aporeto.io/gaia v1.93.0/go.mod h1:OA1t8cBNHx1DgM6W9810O5o4YyqpOpWCM5AdJw4sHYI
 go.aporeto.io/manipulate v1.113.0/go.mod h1:TqUMUIUmbixvlR8hDV8PhVB5tKyc5KvWDLnBt8OrEl8=
 go.aporeto.io/manipulate v1.121.1-0.20211125001658-17e0f8aeeeb0 h1:68k+UlvdXY3pnEKVy2+LplUUN/d3c7ygh+bBoa8sTVA=
 go.aporeto.io/manipulate v1.121.1-0.20211125001658-17e0f8aeeeb0/go.mod h1:vs6vp0e5l9FbMiGlo5pu8t8Hvqe1eF4pAnehwBcKurs=
+go.aporeto.io/manipulate v1.121.1-0.20211201215433-c534b5b328f8 h1:GtBvvbEuA8NL7tAwEk/Ijoa6QV5orsIFwI9nF4JBWtE=
+go.aporeto.io/manipulate v1.121.1-0.20211201215433-c534b5b328f8/go.mod h1:kEPED4auCvUcmF9o6M7CZ9IBdrIF6DO+M4gEK5DW/fM=
+go.aporeto.io/manipulate v1.121.1-0.20211201230116-d452ff06e583 h1:WRDRerHtuwrVzU94v3euP7o6bKMT5jYtw8MDQNEvOMI=
+go.aporeto.io/manipulate v1.121.1-0.20211201230116-d452ff06e583/go.mod h1:kEPED4auCvUcmF9o6M7CZ9IBdrIF6DO+M4gEK5DW/fM=
 go.aporeto.io/regolithe v1.48.0/go.mod h1:n5Wi2kGXJ+eZe4fUTiVZ++RlgIo3DKiG71I7TV1Pfz4=
 go.aporeto.io/regolithe v1.50.1-0.20210528201106-653300479f97/go.mod h1:St1liiK+bGvmDNkVSfOP7iAlQmDkShfEcDZMXmFbyKk=
 go.aporeto.io/tg v1.30.1/go.mod h1:t9IL2iIzj9902gGj+nc/rsowvDiTF5oQvRn+2srFGhg=

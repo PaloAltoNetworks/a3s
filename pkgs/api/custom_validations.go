@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net"
 	"net/http"
+	"net/url"
 	"regexp"
 	"strings"
 	"time"
@@ -168,6 +169,25 @@ func ValidateIssue(iss *Issue) error {
 		if iss.InputOIDC == nil {
 			return makeErr("inputOIDC", "You must set inputOIDC for the requested sourceType")
 		}
+	}
+
+	return nil
+}
+
+// ValidateURL validates the given value is a correct url.
+func ValidateURL(attribute string, u string) error {
+
+	uu, err := url.Parse(u)
+	if err != nil {
+		return makeErr(attribute, fmt.Sprintf("invalid url: %s", err))
+	}
+
+	switch uu.Scheme {
+	case "http", "https":
+	case "":
+		return makeErr(attribute, "invalid url: missing scheme")
+	default:
+		return makeErr(attribute, "invalid url: invalid scheme")
 	}
 
 	return nil

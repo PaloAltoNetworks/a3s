@@ -103,7 +103,7 @@ type OIDCSource struct {
 
 	// Contains optional information about a remote service that can be used to modify
 	// the claims that are about to be delivered using this authentication source.
-	Modifier *IdentityModifier `json:"modifier,omitempty" msgpack:"modifier,omitempty" bson:"-" mapstructure:"modifier,omitempty"`
+	Modifier *IdentityModifier `json:"modifier,omitempty" msgpack:"modifier,omitempty" bson:"modifier,omitempty" mapstructure:"modifier,omitempty"`
 
 	// The name of the source.
 	Name string `json:"name" msgpack:"name" bson:"name" mapstructure:"name,omitempty"`
@@ -168,6 +168,7 @@ func (o *OIDCSource) GetBSON() (interface{}, error) {
 	s.ClientSecret = o.ClientSecret
 	s.Description = o.Description
 	s.Endpoint = o.Endpoint
+	s.Modifier = o.Modifier
 	s.Name = o.Name
 	s.Namespace = o.Namespace
 	s.Scopes = o.Scopes
@@ -196,6 +197,7 @@ func (o *OIDCSource) SetBSON(raw bson.Raw) error {
 	o.ClientSecret = s.ClientSecret
 	o.Description = s.Description
 	o.Endpoint = s.Endpoint
+	o.Modifier = s.Modifier
 	o.Name = s.Name
 	o.Namespace = s.Namespace
 	o.Scopes = s.Scopes
@@ -599,11 +601,13 @@ endpoint](https://openid.net/specs/openid-connect-discovery-1_0.html#IssuerDisco
 	},
 	"Modifier": {
 		AllowedChoices: []string{},
+		BSONFieldName:  "modifier",
 		ConvertedName:  "Modifier",
 		Description: `Contains optional information about a remote service that can be used to modify
 the claims that are about to be delivered using this authentication source.`,
 		Exposed: true,
 		Name:    "modifier",
+		Stored:  true,
 		SubType: "identitymodifier",
 		Type:    "ref",
 	},
@@ -750,11 +754,13 @@ endpoint](https://openid.net/specs/openid-connect-discovery-1_0.html#IssuerDisco
 	},
 	"modifier": {
 		AllowedChoices: []string{},
+		BSONFieldName:  "modifier",
 		ConvertedName:  "Modifier",
 		Description: `Contains optional information about a remote service that can be used to modify
 the claims that are about to be delivered using this authentication source.`,
 		Exposed: true,
 		Name:    "modifier",
+		Stored:  true,
 		SubType: "identitymodifier",
 		Type:    "ref",
 	},
@@ -910,7 +916,7 @@ type SparseOIDCSource struct {
 
 	// Contains optional information about a remote service that can be used to modify
 	// the claims that are about to be delivered using this authentication source.
-	Modifier *IdentityModifier `json:"modifier,omitempty" msgpack:"modifier,omitempty" bson:"-" mapstructure:"modifier,omitempty"`
+	Modifier *IdentityModifier `json:"modifier,omitempty" msgpack:"modifier,omitempty" bson:"modifier,omitempty" mapstructure:"modifier,omitempty"`
 
 	// The name of the source.
 	Name *string `json:"name,omitempty" msgpack:"name,omitempty" bson:"name,omitempty" mapstructure:"name,omitempty"`
@@ -988,6 +994,9 @@ func (o *SparseOIDCSource) GetBSON() (interface{}, error) {
 	if o.Endpoint != nil {
 		s.Endpoint = o.Endpoint
 	}
+	if o.Modifier != nil {
+		s.Modifier = o.Modifier
+	}
 	if o.Name != nil {
 		s.Name = o.Name
 	}
@@ -1036,6 +1045,9 @@ func (o *SparseOIDCSource) SetBSON(raw bson.Raw) error {
 	}
 	if s.Endpoint != nil {
 		o.Endpoint = s.Endpoint
+	}
+	if s.Modifier != nil {
+		o.Modifier = s.Modifier
 	}
 	if s.Name != nil {
 		o.Name = s.Name
@@ -1215,28 +1227,30 @@ func (o *SparseOIDCSource) DeepCopyInto(out *SparseOIDCSource) {
 }
 
 type mongoAttributesOIDCSource struct {
-	CA           string        `bson:"ca"`
-	ID           bson.ObjectId `bson:"_id,omitempty"`
-	ClientID     string        `bson:"clientid"`
-	ClientSecret string        `bson:"clientsecret"`
-	Description  string        `bson:"description"`
-	Endpoint     string        `bson:"endpoint"`
-	Name         string        `bson:"name"`
-	Namespace    string        `bson:"namespace"`
-	Scopes       []string      `bson:"scopes"`
-	ZHash        int           `bson:"zhash"`
-	Zone         int           `bson:"zone"`
+	CA           string            `bson:"ca"`
+	ID           bson.ObjectId     `bson:"_id,omitempty"`
+	ClientID     string            `bson:"clientid"`
+	ClientSecret string            `bson:"clientsecret"`
+	Description  string            `bson:"description"`
+	Endpoint     string            `bson:"endpoint"`
+	Modifier     *IdentityModifier `bson:"modifier,omitempty"`
+	Name         string            `bson:"name"`
+	Namespace    string            `bson:"namespace"`
+	Scopes       []string          `bson:"scopes"`
+	ZHash        int               `bson:"zhash"`
+	Zone         int               `bson:"zone"`
 }
 type mongoAttributesSparseOIDCSource struct {
-	CA           *string       `bson:"ca,omitempty"`
-	ID           bson.ObjectId `bson:"_id,omitempty"`
-	ClientID     *string       `bson:"clientid,omitempty"`
-	ClientSecret *string       `bson:"clientsecret,omitempty"`
-	Description  *string       `bson:"description,omitempty"`
-	Endpoint     *string       `bson:"endpoint,omitempty"`
-	Name         *string       `bson:"name,omitempty"`
-	Namespace    *string       `bson:"namespace,omitempty"`
-	Scopes       *[]string     `bson:"scopes,omitempty"`
-	ZHash        *int          `bson:"zhash,omitempty"`
-	Zone         *int          `bson:"zone,omitempty"`
+	CA           *string           `bson:"ca,omitempty"`
+	ID           bson.ObjectId     `bson:"_id,omitempty"`
+	ClientID     *string           `bson:"clientid,omitempty"`
+	ClientSecret *string           `bson:"clientsecret,omitempty"`
+	Description  *string           `bson:"description,omitempty"`
+	Endpoint     *string           `bson:"endpoint,omitempty"`
+	Modifier     *IdentityModifier `bson:"modifier,omitempty"`
+	Name         *string           `bson:"name,omitempty"`
+	Namespace    *string           `bson:"namespace,omitempty"`
+	Scopes       *[]string         `bson:"scopes,omitempty"`
+	ZHash        *int              `bson:"zhash,omitempty"`
+	Zone         *int              `bson:"zone,omitempty"`
 }

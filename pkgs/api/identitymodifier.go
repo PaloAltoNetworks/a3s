@@ -34,19 +34,19 @@ type IdentityModifier struct {
 	// claims that are about to be delivered. It must reply with 204 if it does not
 	// wish to modify the claims, or 200 alongside a body containing the modified
 	// claims.
-	URL string `json:"URL" msgpack:"URL" bson:"-" mapstructure:"URL,omitempty"`
+	URL string `json:"URL" msgpack:"URL" bson:"url" mapstructure:"URL,omitempty"`
 
 	// Client certificate required to call URL. A3S will refuse to send data if the
 	// endpoint does not support client certificate authentication.
-	Certificate string `json:"certificate" msgpack:"certificate" bson:"-" mapstructure:"certificate,omitempty"`
+	Certificate string `json:"certificate" msgpack:"certificate" bson:"certificate" mapstructure:"certificate,omitempty"`
 
 	// Key associated to the client certificate.
-	Key string `json:"key" msgpack:"key" bson:"-" mapstructure:"key,omitempty"`
+	Key string `json:"key" msgpack:"key" bson:"key" mapstructure:"key,omitempty"`
 
 	// The HTTP method to use to call the endpoint. For POST/PUT/PATCH the remote
 	// server will receive the claims as a JSON encoded array in the body. For a GET,
 	// the claims will be passed as a query parameter named `claim`.
-	Method IdentityModifierMethodValue `json:"method" msgpack:"method" bson:"-" mapstructure:"method,omitempty"`
+	Method IdentityModifierMethodValue `json:"method" msgpack:"method" bson:"method" mapstructure:"method,omitempty"`
 
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
 }
@@ -71,6 +71,10 @@ func (o *IdentityModifier) GetBSON() (interface{}, error) {
 	s := &mongoAttributesIdentityModifier{}
 
 	s.CA = o.CA
+	s.URL = o.URL
+	s.Certificate = o.Certificate
+	s.Key = o.Key
+	s.Method = o.Method
 
 	return s, nil
 }
@@ -89,6 +93,10 @@ func (o *IdentityModifier) SetBSON(raw bson.Raw) error {
 	}
 
 	o.CA = s.CA
+	o.URL = s.URL
+	o.Certificate = s.Certificate
+	o.Key = s.Key
+	o.Method = s.Method
 
 	return nil
 }
@@ -129,16 +137,32 @@ func (o *IdentityModifier) Validate() error {
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
+	if err := ValidatePEM("CA", o.CA); err != nil {
+		errors = errors.Append(err)
+	}
+
 	if err := elemental.ValidateRequiredString("URL", o.URL); err != nil {
 		requiredErrors = requiredErrors.Append(err)
+	}
+
+	if err := ValidateURL("URL", o.URL); err != nil {
+		errors = errors.Append(err)
 	}
 
 	if err := elemental.ValidateRequiredString("certificate", o.Certificate); err != nil {
 		requiredErrors = requiredErrors.Append(err)
 	}
 
+	if err := ValidatePEM("certificate", o.Certificate); err != nil {
+		errors = errors.Append(err)
+	}
+
 	if err := elemental.ValidateRequiredString("key", o.Key); err != nil {
 		requiredErrors = requiredErrors.Append(err)
+	}
+
+	if err := ValidatePEM("key", o.Key); err != nil {
+		errors = errors.Append(err)
 	}
 
 	if err := elemental.ValidateRequiredString("method", string(o.Method)); err != nil {
@@ -212,6 +236,7 @@ var IdentityModifierAttributesMap = map[string]elemental.AttributeSpecification{
 	},
 	"URL": {
 		AllowedChoices: []string{},
+		BSONFieldName:  "url",
 		ConvertedName:  "URL",
 		Description: `URL of the remote service. This URL will receive a call containing the
 claims that are about to be delivered. It must reply with 204 if it does not
@@ -220,29 +245,35 @@ claims.`,
 		Exposed:  true,
 		Name:     "URL",
 		Required: true,
+		Stored:   true,
 		Type:     "string",
 	},
 	"Certificate": {
 		AllowedChoices: []string{},
+		BSONFieldName:  "certificate",
 		ConvertedName:  "Certificate",
 		Description: `Client certificate required to call URL. A3S will refuse to send data if the
 endpoint does not support client certificate authentication.`,
 		Exposed:  true,
 		Name:     "certificate",
 		Required: true,
+		Stored:   true,
 		Type:     "string",
 	},
 	"Key": {
 		AllowedChoices: []string{},
+		BSONFieldName:  "key",
 		ConvertedName:  "Key",
 		Description:    `Key associated to the client certificate.`,
 		Exposed:        true,
 		Name:           "key",
 		Required:       true,
+		Stored:         true,
 		Type:           "string",
 	},
 	"Method": {
 		AllowedChoices: []string{"GET", "POST", "PUT", "PATCH"},
+		BSONFieldName:  "method",
 		ConvertedName:  "Method",
 		DefaultValue:   IdentityModifierMethodPOST,
 		Description: `The HTTP method to use to call the endpoint. For POST/PUT/PATCH the remote
@@ -251,6 +282,7 @@ the claims will be passed as a query parameter named ` + "`" + `claim` + "`" + `
 		Exposed:  true,
 		Name:     "method",
 		Required: true,
+		Stored:   true,
 		Type:     "enum",
 	},
 }
@@ -269,6 +301,7 @@ var IdentityModifierLowerCaseAttributesMap = map[string]elemental.AttributeSpeci
 	},
 	"url": {
 		AllowedChoices: []string{},
+		BSONFieldName:  "url",
 		ConvertedName:  "URL",
 		Description: `URL of the remote service. This URL will receive a call containing the
 claims that are about to be delivered. It must reply with 204 if it does not
@@ -277,29 +310,35 @@ claims.`,
 		Exposed:  true,
 		Name:     "URL",
 		Required: true,
+		Stored:   true,
 		Type:     "string",
 	},
 	"certificate": {
 		AllowedChoices: []string{},
+		BSONFieldName:  "certificate",
 		ConvertedName:  "Certificate",
 		Description: `Client certificate required to call URL. A3S will refuse to send data if the
 endpoint does not support client certificate authentication.`,
 		Exposed:  true,
 		Name:     "certificate",
 		Required: true,
+		Stored:   true,
 		Type:     "string",
 	},
 	"key": {
 		AllowedChoices: []string{},
+		BSONFieldName:  "key",
 		ConvertedName:  "Key",
 		Description:    `Key associated to the client certificate.`,
 		Exposed:        true,
 		Name:           "key",
 		Required:       true,
+		Stored:         true,
 		Type:           "string",
 	},
 	"method": {
 		AllowedChoices: []string{"GET", "POST", "PUT", "PATCH"},
+		BSONFieldName:  "method",
 		ConvertedName:  "Method",
 		DefaultValue:   IdentityModifierMethodPOST,
 		Description: `The HTTP method to use to call the endpoint. For POST/PUT/PATCH the remote
@@ -308,10 +347,15 @@ the claims will be passed as a query parameter named ` + "`" + `claim` + "`" + `
 		Exposed:  true,
 		Name:     "method",
 		Required: true,
+		Stored:   true,
 		Type:     "enum",
 	},
 }
 
 type mongoAttributesIdentityModifier struct {
-	CA string `bson:"ca,omitempty"`
+	CA          string                      `bson:"ca,omitempty"`
+	URL         string                      `bson:"url"`
+	Certificate string                      `bson:"certificate"`
+	Key         string                      `bson:"key"`
+	Method      IdentityModifierMethodValue `bson:"method"`
 }

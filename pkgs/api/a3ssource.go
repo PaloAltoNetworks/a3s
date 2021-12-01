@@ -102,7 +102,7 @@ type A3SSource struct {
 
 	// Contains optional information about a remote service that can be used to modify
 	// the claims that are about to be delivered using this authentication source.
-	Modifier *IdentityModifier `json:"modifier,omitempty" msgpack:"modifier,omitempty" bson:"-" mapstructure:"modifier,omitempty"`
+	Modifier *IdentityModifier `json:"modifier,omitempty" msgpack:"modifier,omitempty" bson:"modifier,omitempty" mapstructure:"modifier,omitempty"`
 
 	// The name of the source.
 	Name string `json:"name" msgpack:"name" bson:"name" mapstructure:"name,omitempty"`
@@ -163,6 +163,7 @@ func (o *A3SSource) GetBSON() (interface{}, error) {
 	s.Description = o.Description
 	s.Endpoint = o.Endpoint
 	s.Issuer = o.Issuer
+	s.Modifier = o.Modifier
 	s.Name = o.Name
 	s.Namespace = o.Namespace
 	s.ZHash = o.ZHash
@@ -190,6 +191,7 @@ func (o *A3SSource) SetBSON(raw bson.Raw) error {
 	o.Description = s.Description
 	o.Endpoint = s.Endpoint
 	o.Issuer = s.Issuer
+	o.Modifier = s.Modifier
 	o.Name = s.Name
 	o.Namespace = s.Namespace
 	o.ZHash = s.ZHash
@@ -552,11 +554,13 @@ left empty, the issuer value will be used.`,
 	},
 	"Modifier": {
 		AllowedChoices: []string{},
+		BSONFieldName:  "modifier",
 		ConvertedName:  "Modifier",
 		Description: `Contains optional information about a remote service that can be used to modify
 the claims that are about to be delivered using this authentication source.`,
 		Exposed: true,
 		Name:    "modifier",
+		Stored:  true,
 		SubType: "identitymodifier",
 		Type:    "ref",
 	},
@@ -688,11 +692,13 @@ left empty, the issuer value will be used.`,
 	},
 	"modifier": {
 		AllowedChoices: []string{},
+		BSONFieldName:  "modifier",
 		ConvertedName:  "Modifier",
 		Description: `Contains optional information about a remote service that can be used to modify
 the claims that are about to be delivered using this authentication source.`,
 		Exposed: true,
 		Name:    "modifier",
+		Stored:  true,
 		SubType: "identitymodifier",
 		Type:    "ref",
 	},
@@ -836,7 +842,7 @@ type SparseA3SSource struct {
 
 	// Contains optional information about a remote service that can be used to modify
 	// the claims that are about to be delivered using this authentication source.
-	Modifier *IdentityModifier `json:"modifier,omitempty" msgpack:"modifier,omitempty" bson:"-" mapstructure:"modifier,omitempty"`
+	Modifier *IdentityModifier `json:"modifier,omitempty" msgpack:"modifier,omitempty" bson:"modifier,omitempty" mapstructure:"modifier,omitempty"`
 
 	// The name of the source.
 	Name *string `json:"name,omitempty" msgpack:"name,omitempty" bson:"name,omitempty" mapstructure:"name,omitempty"`
@@ -911,6 +917,9 @@ func (o *SparseA3SSource) GetBSON() (interface{}, error) {
 	if o.Issuer != nil {
 		s.Issuer = o.Issuer
 	}
+	if o.Modifier != nil {
+		s.Modifier = o.Modifier
+	}
 	if o.Name != nil {
 		s.Name = o.Name
 	}
@@ -956,6 +965,9 @@ func (o *SparseA3SSource) SetBSON(raw bson.Raw) error {
 	}
 	if s.Issuer != nil {
 		o.Issuer = s.Issuer
+	}
+	if s.Modifier != nil {
+		o.Modifier = s.Modifier
 	}
 	if s.Name != nil {
 		o.Name = s.Name
@@ -1109,26 +1121,28 @@ func (o *SparseA3SSource) DeepCopyInto(out *SparseA3SSource) {
 }
 
 type mongoAttributesA3SSource struct {
-	CA          string        `bson:"ca"`
-	ID          bson.ObjectId `bson:"_id,omitempty"`
-	Audience    string        `bson:"audience"`
-	Description string        `bson:"description"`
-	Endpoint    string        `bson:"endpoint"`
-	Issuer      string        `bson:"issuer"`
-	Name        string        `bson:"name"`
-	Namespace   string        `bson:"namespace"`
-	ZHash       int           `bson:"zhash"`
-	Zone        int           `bson:"zone"`
+	CA          string            `bson:"ca"`
+	ID          bson.ObjectId     `bson:"_id,omitempty"`
+	Audience    string            `bson:"audience"`
+	Description string            `bson:"description"`
+	Endpoint    string            `bson:"endpoint"`
+	Issuer      string            `bson:"issuer"`
+	Modifier    *IdentityModifier `bson:"modifier,omitempty"`
+	Name        string            `bson:"name"`
+	Namespace   string            `bson:"namespace"`
+	ZHash       int               `bson:"zhash"`
+	Zone        int               `bson:"zone"`
 }
 type mongoAttributesSparseA3SSource struct {
-	CA          *string       `bson:"ca,omitempty"`
-	ID          bson.ObjectId `bson:"_id,omitempty"`
-	Audience    *string       `bson:"audience,omitempty"`
-	Description *string       `bson:"description,omitempty"`
-	Endpoint    *string       `bson:"endpoint,omitempty"`
-	Issuer      *string       `bson:"issuer,omitempty"`
-	Name        *string       `bson:"name,omitempty"`
-	Namespace   *string       `bson:"namespace,omitempty"`
-	ZHash       *int          `bson:"zhash,omitempty"`
-	Zone        *int          `bson:"zone,omitempty"`
+	CA          *string           `bson:"ca,omitempty"`
+	ID          bson.ObjectId     `bson:"_id,omitempty"`
+	Audience    *string           `bson:"audience,omitempty"`
+	Description *string           `bson:"description,omitempty"`
+	Endpoint    *string           `bson:"endpoint,omitempty"`
+	Issuer      *string           `bson:"issuer,omitempty"`
+	Modifier    *IdentityModifier `bson:"modifier,omitempty"`
+	Name        *string           `bson:"name,omitempty"`
+	Namespace   *string           `bson:"namespace,omitempty"`
+	ZHash       *int              `bson:"zhash,omitempty"`
+	Zone        *int              `bson:"zone,omitempty"`
 }

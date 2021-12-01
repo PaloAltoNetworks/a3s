@@ -25,3 +25,7 @@ $pem:
 $tags_expression:
   elemental:
     name: ValidateTagsExpression
+
+$url:
+  elemental:
+    name: ValidateURL

@@ -123,6 +123,7 @@ attributes:
     type: ref
     exposed: true
     subtype: identitymodifier
+    stored: true
     omit_empty: true
     extensions:
       noInit: true

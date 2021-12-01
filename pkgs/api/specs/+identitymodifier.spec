@@ -29,6 +29,8 @@ attributes:
       /AIgQIKjBBpiyQNZZWso5H04qke9QYMVPegiQQufFFBj32c=
       -----END CERTIFICATE-----
     omit_empty: true
+    validations:
+    - $pem
 
   - name: URL
     description: |-
@@ -38,8 +40,11 @@ attributes:
       claims.
     type: string
     exposed: true
+    stored: true
     required: true
     example_value: https://modifier.acme.com/modify
+    validations:
+    - $url
 
   - name: certificate
     description: |-
@@ -47,6 +52,7 @@ attributes:
       endpoint does not support client certificate authentication.
     type: string
     exposed: true
+    stored: true
     required: true
     example_value: |-
       -----BEGIN CERTIFICATE-----
@@ -58,11 +64,14 @@ attributes:
       CCqGSM49BAMCA0gAMEUCIQD+nL9RF9EvQXHyYuJ31Lz9yWd9hsK91stnpAs890gS
       /AIgQIKjBBpiyQNZZWso5H04qke9QYMVPegiQQufFFBj32c=
       -----END CERTIFICATE-----
+    validations:
+    - $pem
 
   - name: key
     description: Key associated to the client certificate.
     type: string
     exposed: true
+    stored: true
     required: true
     example_value: |-
       -----BEGIN PRIVATE KEY-----
@@ -74,6 +83,8 @@ attributes:
       CCqGSM49BAMCA0gAMEUCIQD+nL9RF9EvQXHyYuJ31Lz9yWd9hsK91stnpAs890gS
       /AIgQIKjBBpiyQNZZWso5H04qke9QYMVPegiQQufFFBj32c=
       -----END PRIVATE KEY-----
+    validations:
+    - $pem
 
   - name: method
     description: |-
@@ -82,6 +93,7 @@ attributes:
       the claims will be passed as a query parameter named `claim`.
     type: enum
     exposed: true
+    stored: true
     required: true
     allowed_choices:
     - GET

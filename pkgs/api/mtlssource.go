@@ -91,7 +91,7 @@ type MTLSSource struct {
 
 	// Contains optional information about a remote service that can be used to modify
 	// the claims that are about to be delivered using this authentication source.
-	Modifier *IdentityModifier `json:"modifier,omitempty" msgpack:"modifier,omitempty" bson:"-" mapstructure:"modifier,omitempty"`
+	Modifier *IdentityModifier `json:"modifier,omitempty" msgpack:"modifier,omitempty" bson:"modifier,omitempty" mapstructure:"modifier,omitempty"`
 
 	// The name of the source.
 	Name string `json:"name" msgpack:"name" bson:"name" mapstructure:"name,omitempty"`
@@ -149,6 +149,7 @@ func (o *MTLSSource) GetBSON() (interface{}, error) {
 		s.ID = bson.ObjectIdHex(o.ID)
 	}
 	s.Description = o.Description
+	s.Modifier = o.Modifier
 	s.Name = o.Name
 	s.Namespace = o.Namespace
 	s.ZHash = o.ZHash
@@ -173,6 +174,7 @@ func (o *MTLSSource) SetBSON(raw bson.Raw) error {
 	o.CA = s.CA
 	o.ID = s.ID.Hex()
 	o.Description = s.Description
+	o.Modifier = s.Modifier
 	o.Name = s.Name
 	o.Namespace = s.Namespace
 	o.ZHash = s.ZHash
@@ -479,11 +481,13 @@ var MTLSSourceAttributesMap = map[string]elemental.AttributeSpecification{
 	},
 	"Modifier": {
 		AllowedChoices: []string{},
+		BSONFieldName:  "modifier",
 		ConvertedName:  "Modifier",
 		Description: `Contains optional information about a remote service that can be used to modify
 the claims that are about to be delivered using this authentication source.`,
 		Exposed: true,
 		Name:    "modifier",
+		Stored:  true,
 		SubType: "identitymodifier",
 		Type:    "ref",
 	},
@@ -583,11 +587,13 @@ var MTLSSourceLowerCaseAttributesMap = map[string]elemental.AttributeSpecificati
 	},
 	"modifier": {
 		AllowedChoices: []string{},
+		BSONFieldName:  "modifier",
 		ConvertedName:  "Modifier",
 		Description: `Contains optional information about a remote service that can be used to modify
 the claims that are about to be delivered using this authentication source.`,
 		Exposed: true,
 		Name:    "modifier",
+		Stored:  true,
 		SubType: "identitymodifier",
 		Type:    "ref",
 	},
@@ -720,7 +726,7 @@ type SparseMTLSSource struct {
 
 	// Contains optional information about a remote service that can be used to modify
 	// the claims that are about to be delivered using this authentication source.
-	Modifier *IdentityModifier `json:"modifier,omitempty" msgpack:"modifier,omitempty" bson:"-" mapstructure:"modifier,omitempty"`
+	Modifier *IdentityModifier `json:"modifier,omitempty" msgpack:"modifier,omitempty" bson:"modifier,omitempty" mapstructure:"modifier,omitempty"`
 
 	// The name of the source.
 	Name *string `json:"name,omitempty" msgpack:"name,omitempty" bson:"name,omitempty" mapstructure:"name,omitempty"`
@@ -786,6 +792,9 @@ func (o *SparseMTLSSource) GetBSON() (interface{}, error) {
 	if o.Description != nil {
 		s.Description = o.Description
 	}
+	if o.Modifier != nil {
+		s.Modifier = o.Modifier
+	}
 	if o.Name != nil {
 		s.Name = o.Name
 	}
@@ -822,6 +831,9 @@ func (o *SparseMTLSSource) SetBSON(raw bson.Raw) error {
 	o.ID = &id
 	if s.Description != nil {
 		o.Description = s.Description
+	}
+	if s.Modifier != nil {
+		o.Modifier = s.Modifier
 	}
 	if s.Name != nil {
 		o.Name = s.Name
@@ -966,20 +978,22 @@ func (o *SparseMTLSSource) DeepCopyInto(out *SparseMTLSSource) {
 }
 
 type mongoAttributesMTLSSource struct {
-	CA          string        `bson:"ca"`
-	ID          bson.ObjectId `bson:"_id,omitempty"`
-	Description string        `bson:"description"`
-	Name        string        `bson:"name"`
-	Namespace   string        `bson:"namespace"`
-	ZHash       int           `bson:"zhash"`
-	Zone        int           `bson:"zone"`
+	CA          string            `bson:"ca"`
+	ID          bson.ObjectId     `bson:"_id,omitempty"`
+	Description string            `bson:"description"`
+	Modifier    *IdentityModifier `bson:"modifier,omitempty"`
+	Name        string            `bson:"name"`
+	Namespace   string            `bson:"namespace"`
+	ZHash       int               `bson:"zhash"`
+	Zone        int               `bson:"zone"`
 }
 type mongoAttributesSparseMTLSSource struct {
-	CA          *string       `bson:"ca,omitempty"`
-	ID          bson.ObjectId `bson:"_id,omitempty"`
-	Description *string       `bson:"description,omitempty"`
-	Name        *string       `bson:"name,omitempty"`
-	Namespace   *string       `bson:"namespace,omitempty"`
-	ZHash       *int          `bson:"zhash,omitempty"`
-	Zone        *int          `bson:"zone,omitempty"`
+	CA          *string           `bson:"ca,omitempty"`
+	ID          bson.ObjectId     `bson:"_id,omitempty"`
+	Description *string           `bson:"description,omitempty"`
+	Modifier    *IdentityModifier `bson:"modifier,omitempty"`
+	Name        *string           `bson:"name,omitempty"`
+	Namespace   *string           `bson:"namespace,omitempty"`
+	ZHash       *int              `bson:"zhash,omitempty"`
+	Zone        *int              `bson:"zone,omitempty"`
 }
