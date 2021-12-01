@@ -84,7 +84,7 @@ func DocsA3sctlMd() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "../../docs/a3sctl.md", size: 2327, mode: os.FileMode(420), modTime: time.Unix(1637773745, 0)}
+	info := bindataFileInfo{name: "../../docs/a3sctl.md", size: 2327, mode: os.FileMode(420), modTime: time.Unix(1637619290, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -104,7 +104,7 @@ func DocsAuthMd() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "../../docs/auth.md", size: 2300, mode: os.FileMode(420), modTime: time.Unix(1637773745, 0)}
+	info := bindataFileInfo{name: "../../docs/auth.md", size: 2300, mode: os.FileMode(420), modTime: time.Unix(1637620383, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -205,11 +205,11 @@ type bintree struct {
 	Children map[string]*bintree
 }
 var _bintree = &bintree{nil, map[string]*bintree{
-	"..": &bintree{nil, map[string]*bintree{
-		"..": &bintree{nil, map[string]*bintree{
-			"docs": &bintree{nil, map[string]*bintree{
-				"a3sctl.md": &bintree{DocsA3sctlMd, map[string]*bintree{}},
-				"auth.md": &bintree{DocsAuthMd, map[string]*bintree{}},
+	"..": {nil, map[string]*bintree{
+		"..": {nil, map[string]*bintree{
+			"docs": {nil, map[string]*bintree{
+				"a3sctl.md": {DocsA3sctlMd, map[string]*bintree{}},
+				"auth.md": {DocsAuthMd, map[string]*bintree{}},
 			}},
 		}},
 	}},
