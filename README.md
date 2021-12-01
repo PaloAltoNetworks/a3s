@@ -246,6 +246,13 @@ server. If it is `POST`, `PUT` or `PATCH`, A3S will send the claims as a JSON
 array encoded in the body. For `GET`, the server will set the claims in the
 query parameter `claim`.
 
+In any case, the server will receive the following headers, describing the
+source that was used to derive the identity claims:
+
+* `x-a3s-source-type`
+* `x-a3s-source-namespace`
+* `x-a3s-source-name`
+
 The server must return the list of modified claims as a JSON encoded array in
 the body of the response.
 
