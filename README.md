@@ -256,8 +256,12 @@ source that was used to derive the identity claims:
 The server must return the list of modified claims as a JSON encoded array in
 the body of the response.
 
-A server must not insert any identity claim starting with the symbol `@`
+A server must not insert any identity claim starting with the symbol `@` or A3S
 will refuse to deliver the token.
+
+> NOTE: You can find a naive implementation of a claim modifier in
+> `examples/python/claimmod`. You can take a look at the
+> [README](examples/python/claimmod/README.md) in that folder.
 
 ### Authentication sources
 
