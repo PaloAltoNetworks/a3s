@@ -1,4 +1,4 @@
-package token
+package identitymodifier
 
 import (
 	"bytes"
@@ -11,6 +11,8 @@ import (
 	"net/http"
 	"strings"
 
+	"go.aporeto.io/a3s/pkgs/api"
+	"go.aporeto.io/a3s/pkgs/token"
 	"go.aporeto.io/tg/tglib"
 )
 
@@ -29,28 +31,29 @@ type identityModifier struct {
 	url        string
 	clientCert tls.Certificate
 	method     string
+	src        token.Source
 }
 
-// NewHTTPIdentityModifier returns a new HTTP based IdentityModifier.
+// NewRemote returns a new HTTP based IdentityModifier.
 // The remote server will receive the given method and the claims, either as
 // a json array in the request body (for POST/PUT/PATCH) or in the query
 // parameter `claim` (for GET). Any other http method will make the function
 // to return an error.
 // The server must return 200 if it modified the list, 204 if it did not.
 // Anything else is considered as an error.
-func NewHTTPIdentityModifier(url string, method string, ca []byte, cert []byte, key []byte) (IdentityModifier, error) {
+func NewRemote(m *api.IdentityModifier, src token.Source) (IdentityModifier, error) {
 
-	switch strings.ToUpper(method) {
+	switch strings.ToUpper(string(m.Method)) {
 	case http.MethodGet, http.MethodPost, http.MethodPut, http.MethodPatch:
 	default:
-		return nil, fmt.Errorf("invalid http method: %s", method)
+		return nil, fmt.Errorf("invalid http method: %s", m.Method)
 	}
 
 	var caPool *x509.CertPool
 	var err error
-	if len(ca) != 0 {
+	if len(m.CA) != 0 {
 		caPool = x509.NewCertPool()
-		caPool.AppendCertsFromPEM(ca)
+		caPool.AppendCertsFromPEM([]byte(m.CA))
 	} else {
 		caPool, err = x509.SystemCertPool()
 		if err != nil {
@@ -58,7 +61,7 @@ func NewHTTPIdentityModifier(url string, method string, ca []byte, cert []byte, 
 		}
 	}
 
-	xc, xk, err := tglib.ReadCertificate(cert, key, "")
+	xc, xk, err := tglib.ReadCertificate([]byte(m.Certificate), []byte(m.Key), "")
 	if err != nil {
 		return nil, fmt.Errorf("unable to create certificate: %w", err)
 	}
@@ -69,10 +72,11 @@ func NewHTTPIdentityModifier(url string, method string, ca []byte, cert []byte, 
 	}
 
 	return &identityModifier{
-		url:        url,
+		url:        m.URL,
 		caPool:     caPool,
 		clientCert: clientCert,
-		method:     method,
+		method:     string(m.Method),
+		src:        src,
 	}, nil
 }
 
@@ -111,6 +115,14 @@ func (m *identityModifier) Modify(ctx context.Context, in []string) (out []strin
 			values.Add("claim", c)
 		}
 		req.URL.RawQuery = values.Encode()
+	}
+
+	req.Header.Set("x-a3s-source-type", m.src.Type)
+	if v := m.src.Namespace; v != "" {
+		req.Header.Set("x-a3s-source-namespace", v)
+	}
+	if v := m.src.Name; v != "" {
+		req.Header.Set("x-a3s-source-name", v)
 	}
 
 	resp, err := client.Do(req)

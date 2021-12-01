@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"strings"
 
+	"go.aporeto.io/a3s/internal/identitymodifier"
 	"go.aporeto.io/a3s/pkgs/api"
 	"go.aporeto.io/a3s/pkgs/token"
 )
@@ -89,13 +90,7 @@ func (c *remoteA3SIssuer) fromToken(ctx context.Context, tokenString string) err
 
 	if srcmod := c.source.Modifier; srcmod != nil {
 
-		m, err := token.NewHTTPIdentityModifier(
-			srcmod.URL,
-			string(srcmod.Method),
-			[]byte(srcmod.CA),
-			[]byte(srcmod.Certificate),
-			[]byte(srcmod.Key),
-		)
+		m, err := identitymodifier.NewRemote(srcmod, c.token.Source)
 		if err != nil {
 			return fmt.Errorf("unable to prepare source modifier: %w", err)
 		}
