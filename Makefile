@@ -10,6 +10,7 @@ default: codegen lint sec test a3s cli
 
 lint:
 	golangci-lint run \
+		--timeout 5m \
 		--disable-all \
 		--exclude-use-default=false \
 		--enable=errcheck \
