@@ -233,10 +233,19 @@ size claims (if you have multiple of them) by doing:
 
 Certain authentication sources allow to set an additional identity modifier.
 This is an URL to an HTTPS server running on your own premises, that will be be
-called by A3S when it is about to deliver a token from the source. The server
-will receive the claims that are about to be delivered, and will have a chance
-to modify the list. The server must impplement MTLS authentication and must
-accept the certificates set in the source modifier.
+called by A3S when it is about to deliver a token from the source.
+
+One reason one may want to do so is to enhance claims based on an external
+system. We can imagine an A3S server run by a health care provider, that may
+trust a more global A3S instance. This instance could return a claim based the
+bearer's SSN and the health care provider may want to deliver a token that would
+contain additional information, like a blood type for instance. The identity
+modifier would then query an external database to match the blood type on record
+with the bearer SSN.
+
+The server will receive the claims that are about to be delivered, and will
+have a chance to modify the list. The server must impplement MTLS authentication
+and must accept the certificates set in the source modifier.
 
 The server must return `200` if it did modify the claims or `204` if it did not.
 Any other code will be treated as an error.
@@ -275,6 +284,8 @@ data about a bearer.
 The MTLS source uses mutual TLS to authenticate a client. The client mustpresent
 a client certificate (usage set to auth client) that is signed by the CA
 provided in the designed MTLS auth source.
+
+> NOTE: this authentication source supports identity modifiers.
 
 ##### Create an MTLS source
 
@@ -318,6 +329,8 @@ A3S supports using a remote LDAP as authentication source. The LDAP server must
 be accessible from A3S. A3S will refuse to connect to an LDAP with no form of
 encryption (TLS or STARTTLS).
 
+> NOTE: this authentication source supports identity modifiers.
+
 ##### Create an LDAP source
 
 To create an LDAP source, run:
@@ -360,6 +373,8 @@ To obtain a token from the newly created source:
 
 A3S can retrieve an identity token from an existing OIDC provider in order to
 deliver normalized identiy tokens.
+
+> NOTE: this authentication source supports identity modifiers.
 
 ##### Create an OIDC source
 
@@ -406,6 +421,8 @@ displayed.
 This authentication source allows to issue a token from another one issued by
 another A3S server. It allows to trust other A3S instances and issue local
 tokens from trusted ones, while potentially augmenting the identity claims.
+
+> NOTE: this authentication source supports identity modifiers.
 
 ##### Create an A3S source
 
