@@ -71,15 +71,18 @@ export function useIssue({ baseUrl }: UseIssueOptions) {
           inputOIDC: {
             redirectURL: window.location.origin,
             redirectErrorURL: window.location.origin,
+            noAuthRedirect: true,
           },
         }),
         headers: {
           "Content-Type": "application/json",
         },
-      }).then(res => {
+      })
+        .then(res => res.json())
+        .then(obj => {
         localStorage.setItem("sourceNamespace", sourceNamespace)
         localStorage.setItem("sourceName", sourceName)
-        window.location.href = res.url
+        window.location.href = obj.inputOIDC.authURL
       }),
     [issueUrl]
   )
