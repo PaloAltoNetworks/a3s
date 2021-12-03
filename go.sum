@@ -478,8 +478,8 @@ github.com/xordataexchange/crypt v0.0.3-0.20170626215501-b2862e3d0a77/go.mod h1:
 github.com/yuin/goldmark v1.3.5/go.mod h1:mwnBkeHKe2W/ZEtQ+71ViKU8L12m81fl3OWwC1Zlc8k=
 go.aporeto.io/addedeffect v1.77.0 h1:WNlxgtTgQSaML3o8IOG6DUy3DWgmk775R5GR5ziIJDY=
 go.aporeto.io/addedeffect v1.77.0/go.mod h1:R1xpThYbaoYaTSEYGH4+bOMYa2LQFlrwqUCtBYgn708=
-go.aporeto.io/bahamut v1.112.1-0.20211203200148-a49d9191b01c h1:rPDrGtW3E7Ra3Aleh/1G2sOJyebYKwM1QkOHtkZAvMM=
-go.aporeto.io/bahamut v1.112.1-0.20211203200148-a49d9191b01c/go.mod h1:IfbPLUhn1ckrvDHbBMYJOKrVLfFdUXNhGaXeowFpi/g=
+go.aporeto.io/bahamut v1.112.1-0.20211203202723-23fa63b048d0 h1:wCG9SGxR6O6v/fVmt1nyg2/2iN/rwjw5ZE7AxBI8Xcw=
+go.aporeto.io/bahamut v1.112.1-0.20211203202723-23fa63b048d0/go.mod h1:IfbPLUhn1ckrvDHbBMYJOKrVLfFdUXNhGaXeowFpi/g=
 go.aporeto.io/elemental v1.99.0/go.mod h1:NjDNPU2diT/Cj8SG1LUdqhtGk84JKfo9XMlT/qF5pn8=
 go.aporeto.io/elemental v1.100.1-0.20211130173545-6dea49cc9163 h1:XotBwJLq0aa/C3wcNLWYzqmeeWDOgzO1+JcKA9ACGuQ=
 go.aporeto.io/elemental v1.100.1-0.20211130173545-6dea49cc9163/go.mod h1:1WRCDolBBhyTFah5tpf9DNVHaJefug7lV9V9UzPNDAE=

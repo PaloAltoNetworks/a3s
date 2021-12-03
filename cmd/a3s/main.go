@@ -146,6 +146,16 @@ func main() {
 				getNotifierEndpoint(cfg.ListenAddress),
 			)...,
 		)
+	} else {
+		opts = append(
+			opts,
+			bahamut.OptCORSAccessControl(
+				bahamut.NewDefaultCORSAccessControlPolicy(
+					"http://localhost:8080",
+					nil,
+				),
+			),
+		)
 	}
 
 	server := bahamut.New(opts...)
