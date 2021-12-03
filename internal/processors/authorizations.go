@@ -53,6 +53,7 @@ func (p *AuthorizationsProcessor) ProcessRetrieve(bctx bahamut.Context) error {
 // ProcessUpdate handles the update requests for Authorizations.
 func (p *AuthorizationsProcessor) ProcessUpdate(bctx bahamut.Context) error {
 	return crud.Update(bctx, p.manipulator, bctx.InputData().(*api.Authorization),
+		crud.OptionPreWriteHook(p.makePreHook(bctx)),
 		crud.OptionPostWriteHook(p.makeNotify()),
 	)
 }
