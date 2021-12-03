@@ -16,8 +16,7 @@ export const useAuthz =
         action: "GET",
         resource,
         namespace,
-        // TODO: be generic
-        audience: "https://127.0.0.1",
+        audience: baseUrl,
       }),
       headers: {
         "Content-Type": "application/json",
