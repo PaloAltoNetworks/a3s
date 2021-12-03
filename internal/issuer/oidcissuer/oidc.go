@@ -30,7 +30,9 @@ func newOIDCIssuer(source *api.OIDCSource) *oidcIssuer {
 	return &oidcIssuer{
 		source: source,
 		token: token.NewIdentityToken(token.Source{
-			Type: "oidc",
+			Type:      "oidc",
+			Namespace: source.Namespace,
+			Name:      source.Name,
 		}),
 	}
 }

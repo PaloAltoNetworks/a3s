@@ -42,9 +42,13 @@ func TestNew(t *testing.T) {
 
 	Convey("Calling New should work ", t, func() {
 		src := api.NewOIDCSource()
+		src.Name = "name"
+		src.Namespace = "/ns"
 		iss, _ := New(context.Background(), src, map[string]interface{}{"hello": "world"})
 		So(iss.(*oidcIssuer).source, ShouldEqual, src)
 		So(iss.Issue().Source.Type, ShouldEqual, "oidc")
+		So(iss.Issue().Source.Name, ShouldEqual, "name")
+		So(iss.Issue().Source.Namespace, ShouldEqual, "/ns")
 	})
 
 	Convey("Calling New with a source and a modifier should work", t, func() {
