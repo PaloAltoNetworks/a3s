@@ -2,6 +2,8 @@
 
 export A3S_JWT_COOKIE_DOMAIN="https://127.0.0.1:44443"
 export A3S_LISTEN="0.0.0.0:44443"
+export A3S_CORS_DEFAULT_ORIGIN="https://127.0.0.1:44443"
+export A3S_CORS_ADDITIONAL_ORIGINS="http://localhost:8080"
 export A3S_LOG_FORMAT="console"
 export A3S_LOG_LEVEL="info"
 export A3S_MONGO_URL="mongodb://localhost:37017"

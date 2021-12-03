@@ -45,14 +45,16 @@ type HealthConfiguration struct {
 
 // APIServerConf holds the basic server conf.
 type APIServerConf struct {
-	ListenAddress  string `mapstructure:"listen"        desc:"Listening address"                                    default:":443"`
-	MaxConnections int    `mapstructure:"max-conns"     desc:"Max number concurrent TCP connection"`
-	MaxProcs       int    `mapstructure:"max-procs"     desc:"Set the max number thread Go will start"`
-	TLSCertificate string `mapstructure:"tls-cert"      desc:"Path to the certificate for https"`
-	TLSClientCA    string `mapstructure:"tls-client-ca" desc:"Path to the CA to use to verify client certificates"`
-	TLSDisable     bool   `mapstructure:"tls-disable"   desc:"Completely disable TLS support"`
-	TLSKey         string `mapstructure:"tls-key"       desc:"Path to the key for https"`
-	TLSKeyPass     string `mapstructure:"tls-key-pass"  desc:"Password for the key"                                 secret:"true" file:"true"`
+	CORSAdditionalOrigins []string `mapstructure:"cors-additional-origins"   desc:"Set additional allowed origin for CORS"`
+	CORSDefaultOrigin     string   `mapstructure:"cors-default-origin"       desc:"Set the default allowed origin for CORS"`
+	ListenAddress         string   `mapstructure:"listen"                    desc:"Listening address"                                    default:":443"`
+	MaxConnections        int      `mapstructure:"max-conns"                 desc:"Max number concurrent TCP connection"`
+	MaxProcs              int      `mapstructure:"max-procs"                 desc:"Set the max number thread Go will start"`
+	TLSCertificate        string   `mapstructure:"tls-cert"                  desc:"Path to the certificate for https"`
+	TLSClientCA           string   `mapstructure:"tls-client-ca"             desc:"Path to the CA to use to verify client certificates"`
+	TLSDisable            bool     `mapstructure:"tls-disable"               desc:"Completely disable TLS support"`
+	TLSKey                string   `mapstructure:"tls-key"                   desc:"Path to the key for https"`
+	TLSKeyPass            string   `mapstructure:"tls-key-pass"              desc:"Password for the key"                                 secret:"true" file:"true"`
 }
 
 // TLSConfig returns the configured TLS configuration as *tls.Config.

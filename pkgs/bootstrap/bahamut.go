@@ -77,6 +77,22 @@ func ConfigureBahamut(
 				opts = append(opts, bahamut.OptMTLS(clientCA, tls.RequireAndVerifyClientCert))
 			}
 		}
+
+		if c.CORSDefaultOrigin != "" || len(c.CORSAdditionalOrigins) > 0 {
+			opts = append(
+				opts,
+				bahamut.OptCORSAccessControl(
+					bahamut.NewDefaultCORSAccessControlPolicy(
+						c.CORSDefaultOrigin,
+						c.CORSAdditionalOrigins,
+					),
+				),
+			)
+			zap.L().Info("CORS origin configured",
+				zap.String("default", c.CORSDefaultOrigin),
+				zap.Strings("additional", c.CORSAdditionalOrigins),
+			)
+		}
 	}
 
 	if f, ok := cs.FieldOk(structs.Name(conf.HealthConfiguration{})); ok {
