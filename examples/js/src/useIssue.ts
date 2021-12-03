@@ -21,7 +21,7 @@ export function useIssue({ baseUrl }: UseIssueOptions) {
       fetch(issueUrl, {
         method: "POST",
         body: JSON.stringify({
-          sourceType: "OIDC",
+          sourceType: "LDAP",
           sourceNamespace,
           sourceName,
           inputLDAP: {
