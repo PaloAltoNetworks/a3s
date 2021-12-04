@@ -1,0 +1,43 @@
+{
+  "openapi": "3.0.3",
+  "components": {
+    "schemas": {
+      "issueremotea3s": {
+        "description": "Additional issuing information for a remote A3S token source.",
+        "properties": {
+          "token": {
+            "description": "The remote a3s token.",
+            "example": "valid.jwt.token",
+            "type": "string"
+          }
+        },
+        "required": [
+          "token"
+        ],
+        "type": "object"
+      }
+    }
+  },
+  "info": {
+    "contact": {
+      "name": "Antoine Mercadal"
+    },
+    "license": {
+      "name": "TODO"
+    },
+    "termsOfService": "https://localhost/TODO",
+    "title": "issueremotea3s",
+    "version": "1.0"
+  },
+  "paths": {},
+  "tags": [
+    {
+      "description": "This tag is for group 'authn'",
+      "name": "authn"
+    },
+    {
+      "description": "This tag is for package 'a3s'",
+      "name": "a3s"
+    }
+  ]
+}

@@ -1,0 +1,181 @@
+{
+  "openapi": "3.0.3",
+  "components": {
+    "schemas": {
+      "issue": {
+        "description": "Issues a new a normalized token using various authentication sources.",
+        "properties": {
+          "audience": {
+            "description": "Requested audience for the delivered token.",
+            "example": [
+              "https://myfirstapp",
+              "https://mysecondapp"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "cloak": {
+            "description": "Sets a list of identity claim prefix to allow in the final token. This can be\nused to hide some information when asking for a token as not all systems need to\nknow all of the claims.",
+            "example": [
+              "org=",
+              "age="
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "inputA3S": {
+            "$ref": "./issuea3s#/components/schemas/issuea3s"
+          },
+          "inputAWS": {
+            "$ref": "./issueaws#/components/schemas/issueaws"
+          },
+          "inputAzure": {
+            "$ref": "./issueazure#/components/schemas/issueazure"
+          },
+          "inputGCP": {
+            "$ref": "./issuegcp#/components/schemas/issuegcp"
+          },
+          "inputLDAP": {
+            "$ref": "./issueldap#/components/schemas/issueldap"
+          },
+          "inputOIDC": {
+            "$ref": "./issueoidc#/components/schemas/issueoidc"
+          },
+          "inputRemoteA3S": {
+            "$ref": "./issueremotea3s#/components/schemas/issueremotea3s"
+          },
+          "opaque": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "Opaque data that will be included in the issued token.",
+            "type": "object"
+          },
+          "restrictedNamespace": {
+            "description": "Restricts the namespace where the token can be used.\n\nFor instance, if you have have access to `/namespace` and below, you can\ntell the policy engine that it should restrict further more to\n`/namespace/child`.\n\nRestricting to a namespace you don't have initially access according to the\npolicy engine has no effect and may end up making the token unusable.",
+            "example": "/namespace",
+            "type": "string"
+          },
+          "restrictedNetworks": {
+            "description": "Restricts the networks from where the token can be used. This will reduce the\nexisting set of authorized networks that normally apply to the token according\nto the policy engine.\n\nFor instance, If you have authorized access from `0.0.0.0/0` (by default) or\nfrom\n`10.0.0.0/8`, you can ask for a token that will only be valid if used from\n`10.1.0.0/16`.\n\nRestricting to a network that is not initially authorized by the policy\nengine has no effect and may end up making the token unusable.",
+            "example": [
+              "10.0.0.0/8",
+              "127.0.0.1/32"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "restrictedPermissions": {
+            "description": "Restricts the permissions of token. This will reduce the existing permissions\nthat normally apply to the token according to the policy engine.\n\nFor instance, if you have administrative role, you can ask for a token that will\ntell the policy engine to reduce the permission it would have granted to what is\ngiven defined in the token.\n\nRestricting to some permissions you don't initially have according to the policy\nengine has no effect and may end up making the token unusable.",
+            "example": [
+              "dogs,post"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "sourceName": {
+            "description": "The name of the source to use.",
+            "example": "/my/ns",
+            "type": "string"
+          },
+          "sourceNamespace": {
+            "description": "The namespace of the source to use.",
+            "example": "/my/ns",
+            "type": "string"
+          },
+          "sourceType": {
+            "description": "The authentication source. This will define how to verify\ncredentials from internal or external source of authentication.",
+            "enum": [
+              "AWS",
+              "MTLS",
+              "LDAP",
+              "GCP",
+              "Azure",
+              "OIDC",
+              "SAML",
+              "A3S",
+              "RemoteA3S"
+            ],
+            "example": "OIDC"
+          },
+          "token": {
+            "description": "Issued token.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "validity": {
+            "default": "24h",
+            "description": "Configures the maximum length of validity for a token, using\n[Golang duration syntax](https://golang.org/pkg/time/#example_Duration). If it\nis bigger than the configured max validity, it will be capped. Default: `24h`.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "sourceType"
+        ],
+        "type": "object"
+      }
+    }
+  },
+  "info": {
+    "contact": {
+      "name": "Antoine Mercadal"
+    },
+    "license": {
+      "name": "TODO"
+    },
+    "termsOfService": "https://localhost/TODO",
+    "title": "issue",
+    "version": "1.0"
+  },
+  "paths": {
+    "/issue": {
+      "post": {
+        "description": "Ask to issue a new authentication token.",
+        "operationId": "create-a-new-issue",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/issue"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/issue"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core",
+          "authn"
+        ]
+      }
+    }
+  },
+  "tags": [
+    {
+      "description": "This tag is for group 'core'",
+      "name": "core"
+    },
+    {
+      "description": "This tag is for package 'authn'",
+      "name": "authn"
+    }
+  ]
+}

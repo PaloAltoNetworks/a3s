@@ -1,0 +1,263 @@
+{
+  "openapi": "3.0.3",
+  "components": {
+    "schemas": {
+      "ldapsource": {
+        "description": "Defines a remote LDAP to use as an authentication source.",
+        "properties": {
+          "CA": {
+            "description": "Can be left empty if the LDAP server's certificate is signed by a public,\ntrusted certificate authority. Otherwise, include the public key of the\ncertificate authority that signed the LDAP server's certificate.",
+            "example": "-----BEGIN CERTIFICATE-----\nMIIBPzCB5qADAgECAhEAwbx3c+QW24ePXyD94geytzAKBggqhkjOPQQDAjAPMQ0w\nCwYDVQQDEwR0b3RvMB4XDTE5MDIyMjIzNDA1MFoXDTI4MTIzMTIzNDA1MFowDzEN\nMAsGA1UEAxMEdG90bzBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABJi6CwRDeKks\nXb3pDEslmFGR7k9Aeh5RK+XmdqKKPGb3NQWEFPGolnqOR34iVuf7KSxTuzaaVWfu\nXEa94faUQEqjIzAhMA4GA1UdDwEB/wQEAwIBBjAPBgNVHRMBAf8EBTADAQH/MAoG\nCCqGSM49BAMCA0gAMEUCIQD+nL9RF9EvQXHyYuJ31Lz9yWd9hsK91stnpAs890gS\n/AIgQIKjBBpiyQNZZWso5H04qke9QYMVPegiQQufFFBj32c=\n-----END CERTIFICATE-----",
+            "type": "string"
+          },
+          "ID": {
+            "description": "ID is the identifier of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "address": {
+            "description": "IP address or FQDN of the LDAP server.",
+            "example": "ldap.company.com",
+            "type": "string"
+          },
+          "baseDN": {
+            "description": "The base distinguished name (DN) to use for LDAP queries.",
+            "example": "dc=universe,dc=io",
+            "type": "string"
+          },
+          "bindDN": {
+            "description": "The DN to use to bind to the LDAP server.",
+            "example": "cn=readonly,dc=universe,dc=io",
+            "type": "string"
+          },
+          "bindPassword": {
+            "description": "Password to be used with the `bindDN` to authenticate to the LDAP server.",
+            "example": "s3cr3t",
+            "type": "string"
+          },
+          "bindSearchFilter": {
+            "default": "uid={USERNAME}",
+            "description": "The filter to use to locate the relevant user accounts. For Windows-based\nsystems, the value may be `sAMAccountName={USERNAME}`. For Linux and other\nsystems, the value may be `uid={USERNAME}`.",
+            "type": "string"
+          },
+          "description": {
+            "description": "The description of the object.",
+            "type": "string"
+          },
+          "ignoredKeys": {
+            "description": "A list of keys that must not be imported into the identity token. If\n`includedKeys` is also set, and a key is in both lists, the key will be ignored.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "includedKeys": {
+            "description": "A list of keys that must be imported into the identity token. If `ignoredKeys`\nis also set, and a key is in both lists, the key will be ignored.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "modifier": {
+            "$ref": "./identitymodifier#/components/schemas/identitymodifier"
+          },
+          "name": {
+            "description": "The name of the source.",
+            "example": "mypki",
+            "type": "string"
+          },
+          "namespace": {
+            "description": "The namespace of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "securityProtocol": {
+            "default": "InbandTLS",
+            "description": "Specifies the connection type for the LDAP provider.",
+            "enum": [
+              "TLS",
+              "InbandTLS"
+            ]
+          }
+        },
+        "required": [
+          "address",
+          "baseDN",
+          "bindDN",
+          "bindPassword",
+          "name"
+        ],
+        "type": "object"
+      }
+    }
+  },
+  "info": {
+    "contact": {
+      "name": "Antoine Mercadal"
+    },
+    "license": {
+      "name": "TODO"
+    },
+    "termsOfService": "https://localhost/TODO",
+    "title": "ldapsource",
+    "version": "1.0"
+  },
+  "paths": {
+    "/ldapsources": {
+      "get": {
+        "description": "Retrieves the list of ldapsources.",
+        "operationId": "get-all-ldapsources",
+        "parameters": [
+          {
+            "description": "This is an example.",
+            "example": "hello == world",
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ldapsource"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "authn",
+          "a3s"
+        ]
+      },
+      "post": {
+        "description": "Creates a new ldapsource.",
+        "operationId": "create-a-new-ldapsource",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ldapsource"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ldapsource"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "authn",
+          "a3s"
+        ]
+      }
+    },
+    "/ldapsources/{id}": {
+      "delete": {
+        "description": "Deletes the ldap source with the given ID.",
+        "operationId": "delete-ldapsource-by-ID",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ldapsource"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "authn",
+          "a3s"
+        ]
+      },
+      "get": {
+        "description": "Retrieves the ldap source with the given ID.",
+        "operationId": "get-ldapsource-by-ID",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ldapsource"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "authn",
+          "a3s"
+        ]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "put": {
+        "description": "Updates the ldap source with the given ID.",
+        "operationId": "update-ldapsource-by-ID",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ldapsource"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ldapsource"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "authn",
+          "a3s"
+        ]
+      }
+    }
+  },
+  "tags": [
+    {
+      "description": "This tag is for group 'authn'",
+      "name": "authn"
+    },
+    {
+      "description": "This tag is for package 'a3s'",
+      "name": "a3s"
+    }
+  ]
+}

@@ -1,0 +1,49 @@
+{
+  "openapi": "3.0.3",
+  "components": {
+    "schemas": {
+      "issueldap": {
+        "description": "Additional issuing information for the LDAP source.",
+        "properties": {
+          "password": {
+            "description": "The password for the user.",
+            "example": "secret",
+            "type": "string"
+          },
+          "username": {
+            "description": "The LDAP username.",
+            "example": "joe",
+            "type": "string"
+          }
+        },
+        "required": [
+          "password",
+          "username"
+        ],
+        "type": "object"
+      }
+    }
+  },
+  "info": {
+    "contact": {
+      "name": "Antoine Mercadal"
+    },
+    "license": {
+      "name": "TODO"
+    },
+    "termsOfService": "https://localhost/TODO",
+    "title": "issueldap",
+    "version": "1.0"
+  },
+  "paths": {},
+  "tags": [
+    {
+      "description": "This tag is for group 'authn'",
+      "name": "authn"
+    },
+    {
+      "description": "This tag is for package 'a3s'",
+      "name": "a3s"
+    }
+  ]
+}

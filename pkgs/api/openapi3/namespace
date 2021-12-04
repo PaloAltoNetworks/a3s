@@ -1,0 +1,204 @@
+{
+  "openapi": "3.0.3",
+  "components": {
+    "schemas": {
+      "namespace": {
+        "description": "A namespace is grouping object. Every object is part of a namespace, and every\nrequest is made against a namespace. Namespaces form a tree hierarchy.",
+        "properties": {
+          "ID": {
+            "description": "ID is the identifier of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "description": {
+            "description": "The description of the object.",
+            "type": "string"
+          },
+          "name": {
+            "description": "The name of the namespace. When you create a namespace, only put its bare name,\nnot its full path.",
+            "example": "mycompany",
+            "type": "string"
+          },
+          "namespace": {
+            "description": "The namespace of the object.",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "type": "object"
+      }
+    }
+  },
+  "info": {
+    "contact": {
+      "name": "Antoine Mercadal"
+    },
+    "license": {
+      "name": "TODO"
+    },
+    "termsOfService": "https://localhost/TODO",
+    "title": "namespace",
+    "version": "1.0"
+  },
+  "paths": {
+    "/namespaces": {
+      "get": {
+        "description": "Retrieves the list of namespaces.",
+        "operationId": "get-all-namespaces",
+        "parameters": [
+          {
+            "description": "This is an example.",
+            "example": "hello == world",
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/namespace"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "policy",
+          "a3s"
+        ]
+      },
+      "post": {
+        "description": "Creates a new namespace.",
+        "operationId": "create-a-new-namespace",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/namespace"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/namespace"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "policy",
+          "a3s"
+        ]
+      }
+    },
+    "/namespaces/{id}": {
+      "delete": {
+        "description": "Delete a particular namespace object.",
+        "operationId": "delete-namespace-by-ID",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/namespace"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "policy",
+          "a3s"
+        ]
+      },
+      "get": {
+        "description": "Get a particular namespace object.",
+        "operationId": "get-namespace-by-ID",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/namespace"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "policy",
+          "a3s"
+        ]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "put": {
+        "description": "Update a particular namespace object.",
+        "operationId": "update-namespace-by-ID",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/namespace"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/namespace"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "policy",
+          "a3s"
+        ]
+      }
+    }
+  },
+  "tags": [
+    {
+      "description": "This tag is for group 'policy'",
+      "name": "policy"
+    },
+    {
+      "description": "This tag is for package 'a3s'",
+      "name": "a3s"
+    }
+  ]
+}

@@ -1,0 +1,55 @@
+{
+  "openapi": "3.0.3",
+  "components": {
+    "schemas": {
+      "issueaws": {
+        "description": "Additional issuing information for AWS STS token source.",
+        "properties": {
+          "ID": {
+            "description": "The ID of the AWS STS token.",
+            "example": "xxxxx",
+            "type": "string"
+          },
+          "secret": {
+            "description": "The secret associated to the AWS STS token.",
+            "example": "yyyyy",
+            "type": "string"
+          },
+          "token": {
+            "description": "The original token.",
+            "example": "valid.jwt.token",
+            "type": "string"
+          }
+        },
+        "required": [
+          "ID",
+          "secret",
+          "token"
+        ],
+        "type": "object"
+      }
+    }
+  },
+  "info": {
+    "contact": {
+      "name": "Antoine Mercadal"
+    },
+    "license": {
+      "name": "TODO"
+    },
+    "termsOfService": "https://localhost/TODO",
+    "title": "issueaws",
+    "version": "1.0"
+  },
+  "paths": {},
+  "tags": [
+    {
+      "description": "This tag is for group 'authn'",
+      "name": "authn"
+    },
+    {
+      "description": "This tag is for package 'a3s'",
+      "name": "a3s"
+    }
+  ]
+}
