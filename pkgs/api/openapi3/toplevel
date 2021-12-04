@@ -1,0 +1,1782 @@
+{
+  "openapi": "3.0.3",
+  "components": {
+    "schemas": {
+      "a3ssource": {
+        "description": "A source allowing to trust a remote instance of A3S.",
+        "properties": {
+          "CA": {
+            "description": "The Certificate authority to use to validate the authenticity of the A3S\nserver. If left empty, the system trust stroe will be used.",
+            "type": "string"
+          },
+          "ID": {
+            "description": "ID is the identifier of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "audience": {
+            "description": "The audience that must be present in the remote a3s token.",
+            "type": "string"
+          },
+          "description": {
+            "description": "The description of the object.",
+            "type": "string"
+          },
+          "endpoint": {
+            "description": "Endpoint of the remote a3s server, in case it is different from the issuer. If\nleft empty, the issuer value will be used.",
+            "type": "string"
+          },
+          "issuer": {
+            "description": "The issuer that represents the remote a3s server.",
+            "example": "https://remote-a3s.com",
+            "type": "string"
+          },
+          "modifier": {
+            "$ref": "#/components/schemas/identitymodifier"
+          },
+          "name": {
+            "description": "The name of the source.",
+            "example": "myoidc",
+            "type": "string"
+          },
+          "namespace": {
+            "description": "The namespace of the object.",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "issuer",
+          "name"
+        ],
+        "type": "object"
+      },
+      "authorization": {
+        "description": "TODO.",
+        "properties": {
+          "ID": {
+            "description": "ID is the identifier of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "description": {
+            "description": "Description of the Authorization.",
+            "type": "string"
+          },
+          "disabled": {
+            "description": "Set the authorization to be disabled.",
+            "type": "boolean"
+          },
+          "hidden": {
+            "description": "Hides the policies in children namespaces.",
+            "type": "boolean"
+          },
+          "name": {
+            "description": "The name of the Authorization.",
+            "example": "my authorization",
+            "type": "string"
+          },
+          "namespace": {
+            "description": "The namespace of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "permissions": {
+            "description": "A list of permissions.",
+            "example": [
+              "@auth:role=namespace.administrator",
+              "namespace,get,post,put",
+              "authorization,get:1234567890"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "subject": {
+            "description": "A tag expression that identifies the authorized user(s).",
+            "items": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "type": "array"
+          },
+          "subnets": {
+            "description": "If set, the API authorization will only be valid if the request comes from one\nthe declared subnets.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "targetNamespaces": {
+            "description": "Defines the namespace or namespaces in which the permission for subject should\napply. If empty, the object's namespace will be used.",
+            "example": "/my/namespace",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "name",
+          "permissions"
+        ],
+        "type": "object"
+      },
+      "authz": {
+        "description": "API to verify permissions.",
+        "properties": {
+          "ID": {
+            "description": "The optional ID of the object to check permission for.",
+            "type": "string"
+          },
+          "IP": {
+            "description": "IP of the client.",
+            "type": "string"
+          },
+          "action": {
+            "description": "The action to check permission for.",
+            "example": "delete",
+            "type": "string"
+          },
+          "audience": {
+            "description": "Audience that should be checked for.",
+            "type": "string"
+          },
+          "namespace": {
+            "description": "The namespace where to check permission from.",
+            "example": "/acme",
+            "type": "string"
+          },
+          "resource": {
+            "description": "The resource to check permission for.",
+            "example": "cats",
+            "type": "string"
+          },
+          "token": {
+            "description": "The token to check.",
+            "example": "aaa.valid.jwt",
+            "type": "string"
+          }
+        },
+        "required": [
+          "action",
+          "namespace",
+          "resource",
+          "token"
+        ],
+        "type": "object"
+      },
+      "identitymodifier": {
+        "description": "Information about a remote endpoint to call to eventually modify the identity\nclaims about to be issued when using the parent source.",
+        "properties": {
+          "CA": {
+            "description": "CA to use to validate the identity modfier service.",
+            "example": "-----BEGIN CERTIFICATE-----\nMIIBPzCB5qADAgECAhEAwbx3c+QW24ePXyD94geytzAKBggqhkjOPQQDAjAPMQ0w\nCwYDVQQDEwR0b3RvMB4XDTE5MDIyMjIzNDA1MFoXDTI4MTIzMTIzNDA1MFowDzEN\nMAsGA1UEAxMEdG90bzBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABJi6CwRDeKks\nXb3pDEslmFGR7k9Aeh5RK+XmdqKKPGb3NQWEFPGolnqOR34iVuf7KSxTuzaaVWfu\nXEa94faUQEqjIzAhMA4GA1UdDwEB/wQEAwIBBjAPBgNVHRMBAf8EBTADAQH/MAoG\nCCqGSM49BAMCA0gAMEUCIQD+nL9RF9EvQXHyYuJ31Lz9yWd9hsK91stnpAs890gS\n/AIgQIKjBBpiyQNZZWso5H04qke9QYMVPegiQQufFFBj32c=\n-----END CERTIFICATE-----",
+            "type": "string"
+          },
+          "URL": {
+            "description": "URL of the remote service. This URL will receive a call containing the\nclaims that are about to be delivered. It must reply with 204 if it does not\nwish to modify the claims, or 200 alongside a body containing the modified\nclaims.",
+            "example": "https://modifier.acme.com/modify",
+            "type": "string"
+          },
+          "certificate": {
+            "description": "Client certificate required to call URL. A3S will refuse to send data if the\nendpoint does not support client certificate authentication.",
+            "example": "-----BEGIN CERTIFICATE-----\nMIIBPzCB5qADAgECAhEAwbx3c+QW24ePXyD94geytzAKBggqhkjOPQQDAjAPMQ0w\nCwYDVQQDEwR0b3RvMB4XDTE5MDIyMjIzNDA1MFoXDTI4MTIzMTIzNDA1MFowDzEN\nMAsGA1UEAxMEdG90bzBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABJi6CwRDeKks\nXb3pDEslmFGR7k9Aeh5RK+XmdqKKPGb3NQWEFPGolnqOR34iVuf7KSxTuzaaVWfu\nXEa94faUQEqjIzAhMA4GA1UdDwEB/wQEAwIBBjAPBgNVHRMBAf8EBTADAQH/MAoG\nCCqGSM49BAMCA0gAMEUCIQD+nL9RF9EvQXHyYuJ31Lz9yWd9hsK91stnpAs890gS\n/AIgQIKjBBpiyQNZZWso5H04qke9QYMVPegiQQufFFBj32c=\n-----END CERTIFICATE-----",
+            "type": "string"
+          },
+          "key": {
+            "description": "Key associated to the client certificate.",
+            "example": "-----BEGIN PRIVATE KEY-----\nMIIBPzCB5qADAgECAhEAwbx3c+QW24ePXyD94geytzAKBggqhkjOPQQDAjAPMQ0w\nCwYDVQQDEwR0b3RvMB4XDTE5MDIyMjIzNDA1MFoXDTI4MTIzMTIzNDA1MFowDzEN\nMAsGA1UEAxMEdG90bzBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABJi6CwRDeKks\nXb3pDEslmFGR7k9Aeh5RK+XmdqKKPGb3NQWEFPGolnqOR34iVuf7KSxTuzaaVWfu\nXEa94faUQEqjIzAhMA4GA1UdDwEB/wQEAwIBBjAPBgNVHRMBAf8EBTADAQH/MAoG\nCCqGSM49BAMCA0gAMEUCIQD+nL9RF9EvQXHyYuJ31Lz9yWd9hsK91stnpAs890gS\n/AIgQIKjBBpiyQNZZWso5H04qke9QYMVPegiQQufFFBj32c=\n-----END PRIVATE KEY-----",
+            "type": "string"
+          },
+          "method": {
+            "default": "POST",
+            "description": "The HTTP method to use to call the endpoint. For POST/PUT/PATCH the remote\nserver will receive the claims as a JSON encoded array in the body. For a GET,\nthe claims will be passed as a query parameter named `claim`.",
+            "enum": [
+              "GET",
+              "POST",
+              "PUT",
+              "PATCH"
+            ]
+          }
+        },
+        "required": [
+          "URL",
+          "certificate",
+          "key",
+          "method"
+        ],
+        "type": "object"
+      },
+      "issue": {
+        "description": "Issues a new a normalized token using various authentication sources.",
+        "properties": {
+          "audience": {
+            "description": "Requested audience for the delivered token.",
+            "example": [
+              "https://myfirstapp",
+              "https://mysecondapp"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "cloak": {
+            "description": "Sets a list of identity claim prefix to allow in the final token. This can be\nused to hide some information when asking for a token as not all systems need to\nknow all of the claims.",
+            "example": [
+              "org=",
+              "age="
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "inputA3S": {
+            "$ref": "#/components/schemas/issuea3s"
+          },
+          "inputAWS": {
+            "$ref": "#/components/schemas/issueaws"
+          },
+          "inputAzure": {
+            "$ref": "#/components/schemas/issueazure"
+          },
+          "inputGCP": {
+            "$ref": "#/components/schemas/issuegcp"
+          },
+          "inputLDAP": {
+            "$ref": "#/components/schemas/issueldap"
+          },
+          "inputOIDC": {
+            "$ref": "#/components/schemas/issueoidc"
+          },
+          "inputRemoteA3S": {
+            "$ref": "#/components/schemas/issueremotea3s"
+          },
+          "opaque": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "Opaque data that will be included in the issued token.",
+            "type": "object"
+          },
+          "restrictedNamespace": {
+            "description": "Restricts the namespace where the token can be used.\n\nFor instance, if you have have access to `/namespace` and below, you can\ntell the policy engine that it should restrict further more to\n`/namespace/child`.\n\nRestricting to a namespace you don't have initially access according to the\npolicy engine has no effect and may end up making the token unusable.",
+            "example": "/namespace",
+            "type": "string"
+          },
+          "restrictedNetworks": {
+            "description": "Restricts the networks from where the token can be used. This will reduce the\nexisting set of authorized networks that normally apply to the token according\nto the policy engine.\n\nFor instance, If you have authorized access from `0.0.0.0/0` (by default) or\nfrom\n`10.0.0.0/8`, you can ask for a token that will only be valid if used from\n`10.1.0.0/16`.\n\nRestricting to a network that is not initially authorized by the policy\nengine has no effect and may end up making the token unusable.",
+            "example": [
+              "10.0.0.0/8",
+              "127.0.0.1/32"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "restrictedPermissions": {
+            "description": "Restricts the permissions of token. This will reduce the existing permissions\nthat normally apply to the token according to the policy engine.\n\nFor instance, if you have administrative role, you can ask for a token that will\ntell the policy engine to reduce the permission it would have granted to what is\ngiven defined in the token.\n\nRestricting to some permissions you don't initially have according to the policy\nengine has no effect and may end up making the token unusable.",
+            "example": [
+              "dogs,post"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "sourceName": {
+            "description": "The name of the source to use.",
+            "example": "/my/ns",
+            "type": "string"
+          },
+          "sourceNamespace": {
+            "description": "The namespace of the source to use.",
+            "example": "/my/ns",
+            "type": "string"
+          },
+          "sourceType": {
+            "description": "The authentication source. This will define how to verify\ncredentials from internal or external source of authentication.",
+            "enum": [
+              "AWS",
+              "MTLS",
+              "LDAP",
+              "GCP",
+              "Azure",
+              "OIDC",
+              "SAML",
+              "A3S",
+              "RemoteA3S"
+            ],
+            "example": "OIDC"
+          },
+          "token": {
+            "description": "Issued token.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "validity": {
+            "default": "24h",
+            "description": "Configures the maximum length of validity for a token, using\n[Golang duration syntax](https://golang.org/pkg/time/#example_Duration). If it\nis bigger than the configured max validity, it will be capped. Default: `24h`.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "sourceType"
+        ],
+        "type": "object"
+      },
+      "issuea3s": {
+        "description": "Additional issuing information for A3S token source.",
+        "properties": {
+          "token": {
+            "description": "The original token.",
+            "example": "valid.jwt.token",
+            "type": "string"
+          }
+        },
+        "required": [
+          "token"
+        ],
+        "type": "object"
+      },
+      "issueaws": {
+        "description": "Additional issuing information for AWS STS token source.",
+        "properties": {
+          "ID": {
+            "description": "The ID of the AWS STS token.",
+            "example": "xxxxx",
+            "type": "string"
+          },
+          "secret": {
+            "description": "The secret associated to the AWS STS token.",
+            "example": "yyyyy",
+            "type": "string"
+          },
+          "token": {
+            "description": "The original token.",
+            "example": "valid.jwt.token",
+            "type": "string"
+          }
+        },
+        "required": [
+          "ID",
+          "secret",
+          "token"
+        ],
+        "type": "object"
+      },
+      "issueazure": {
+        "description": "Additional issuing information for Azure identity token source.",
+        "properties": {
+          "token": {
+            "description": "The original token.",
+            "example": "valid.jwt.token",
+            "type": "string"
+          }
+        },
+        "required": [
+          "token"
+        ],
+        "type": "object"
+      },
+      "issuegcp": {
+        "description": "Additional issuing information for GCP identity token source.",
+        "properties": {
+          "audience": {
+            "description": "The required audience.",
+            "type": "string"
+          },
+          "token": {
+            "description": "The original token.",
+            "example": "valid.jwt.token",
+            "type": "string"
+          }
+        },
+        "required": [
+          "token"
+        ],
+        "type": "object"
+      },
+      "issueldap": {
+        "description": "Additional issuing information for the LDAP source.",
+        "properties": {
+          "password": {
+            "description": "The password for the user.",
+            "example": "secret",
+            "type": "string"
+          },
+          "username": {
+            "description": "The LDAP username.",
+            "example": "joe",
+            "type": "string"
+          }
+        },
+        "required": [
+          "password",
+          "username"
+        ],
+        "type": "object"
+      },
+      "issueoidc": {
+        "description": "Additional issuing information for the OIDC source.",
+        "properties": {
+          "authURL": {
+            "description": "Contains the auth URL is noAuthRedirect is set to true.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "code": {
+            "description": "OIDC ceremony code.",
+            "type": "string"
+          },
+          "noAuthRedirect": {
+            "description": "If set, instruct the server to return the OIDC auth url in authURL instead of\nperforming an HTTP redirection.",
+            "type": "boolean"
+          },
+          "redirectErrorURL": {
+            "description": "OIDC redirect url in case of error.",
+            "type": "string"
+          },
+          "redirectURL": {
+            "description": "OIDC redirect url.",
+            "type": "string"
+          },
+          "state": {
+            "description": "OIDC ceremony state.",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "issueremotea3s": {
+        "description": "Additional issuing information for a remote A3S token source.",
+        "properties": {
+          "token": {
+            "description": "The remote a3s token.",
+            "example": "valid.jwt.token",
+            "type": "string"
+          }
+        },
+        "required": [
+          "token"
+        ],
+        "type": "object"
+      },
+      "ldapsource": {
+        "description": "Defines a remote LDAP to use as an authentication source.",
+        "properties": {
+          "CA": {
+            "description": "Can be left empty if the LDAP server's certificate is signed by a public,\ntrusted certificate authority. Otherwise, include the public key of the\ncertificate authority that signed the LDAP server's certificate.",
+            "example": "-----BEGIN CERTIFICATE-----\nMIIBPzCB5qADAgECAhEAwbx3c+QW24ePXyD94geytzAKBggqhkjOPQQDAjAPMQ0w\nCwYDVQQDEwR0b3RvMB4XDTE5MDIyMjIzNDA1MFoXDTI4MTIzMTIzNDA1MFowDzEN\nMAsGA1UEAxMEdG90bzBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABJi6CwRDeKks\nXb3pDEslmFGR7k9Aeh5RK+XmdqKKPGb3NQWEFPGolnqOR34iVuf7KSxTuzaaVWfu\nXEa94faUQEqjIzAhMA4GA1UdDwEB/wQEAwIBBjAPBgNVHRMBAf8EBTADAQH/MAoG\nCCqGSM49BAMCA0gAMEUCIQD+nL9RF9EvQXHyYuJ31Lz9yWd9hsK91stnpAs890gS\n/AIgQIKjBBpiyQNZZWso5H04qke9QYMVPegiQQufFFBj32c=\n-----END CERTIFICATE-----",
+            "type": "string"
+          },
+          "ID": {
+            "description": "ID is the identifier of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "address": {
+            "description": "IP address or FQDN of the LDAP server.",
+            "example": "ldap.company.com",
+            "type": "string"
+          },
+          "baseDN": {
+            "description": "The base distinguished name (DN) to use for LDAP queries.",
+            "example": "dc=universe,dc=io",
+            "type": "string"
+          },
+          "bindDN": {
+            "description": "The DN to use to bind to the LDAP server.",
+            "example": "cn=readonly,dc=universe,dc=io",
+            "type": "string"
+          },
+          "bindPassword": {
+            "description": "Password to be used with the `bindDN` to authenticate to the LDAP server.",
+            "example": "s3cr3t",
+            "type": "string"
+          },
+          "bindSearchFilter": {
+            "default": "uid={USERNAME}",
+            "description": "The filter to use to locate the relevant user accounts. For Windows-based\nsystems, the value may be `sAMAccountName={USERNAME}`. For Linux and other\nsystems, the value may be `uid={USERNAME}`.",
+            "type": "string"
+          },
+          "description": {
+            "description": "The description of the object.",
+            "type": "string"
+          },
+          "ignoredKeys": {
+            "description": "A list of keys that must not be imported into the identity token. If\n`includedKeys` is also set, and a key is in both lists, the key will be ignored.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "includedKeys": {
+            "description": "A list of keys that must be imported into the identity token. If `ignoredKeys`\nis also set, and a key is in both lists, the key will be ignored.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "modifier": {
+            "$ref": "#/components/schemas/identitymodifier"
+          },
+          "name": {
+            "description": "The name of the source.",
+            "example": "mypki",
+            "type": "string"
+          },
+          "namespace": {
+            "description": "The namespace of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "securityProtocol": {
+            "default": "InbandTLS",
+            "description": "Specifies the connection type for the LDAP provider.",
+            "enum": [
+              "TLS",
+              "InbandTLS"
+            ]
+          }
+        },
+        "required": [
+          "address",
+          "baseDN",
+          "bindDN",
+          "bindPassword",
+          "name"
+        ],
+        "type": "object"
+      },
+      "mtlssource": {
+        "description": "An MTLS Auth source can be used to issue tokens based on user certificates.",
+        "properties": {
+          "CA": {
+            "description": "The Certificate authority to use to validate user certificates in PEM format.",
+            "example": "-----BEGIN CERTIFICATE-----\nMIIBZTCCAQugAwIBAgIRANYvXLTa16Ykvc9hQ4BBLJEwCgYIKoZIzj0EAwIwEjEQ\nMA4GA1UEAxMHQUNNRSBDQTAeFw0yMTExMDEyMzAwMTlaFw0zMTA5MTAyMzAwMTla\nMBIxEDAOBgNVBAMTB0FDTUUgQ0EwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAASa\n7wknroxwB1znupZ67NzTG9Kuc+tNRlbI22eTDNMKYpIexzWDOyiQ95N3GQIdmAz5\nwVu9l2V3VuKUpD9mNgkRo0IwQDAOBgNVHQ8BAf8EBAMCAQYwDwYDVR0TAQH/BAUw\nAwEB/zAdBgNVHQ4EFgQURIT2kL76vMj9A3r9AUnaiHnHf4EwCgYIKoZIzj0EAwID\nSAAwRQIgS4SGaJ/B1Ul88Jal11Q5BwiY9bY2y9w+4xPNBxSyAIcCIQCSWVq+00xS\nbOmROq+EsxO4L/GzJx7MBbeJ6x142VKSBQ==\n-----END CERTIFICATE-----",
+            "type": "string"
+          },
+          "ID": {
+            "description": "ID is the identifier of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "description": {
+            "description": "The description of the object.",
+            "type": "string"
+          },
+          "modifier": {
+            "$ref": "#/components/schemas/identitymodifier"
+          },
+          "name": {
+            "description": "The name of the source.",
+            "example": "mypki",
+            "type": "string"
+          },
+          "namespace": {
+            "description": "The namespace of the object.",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "CA",
+          "name"
+        ],
+        "type": "object"
+      },
+      "namespace": {
+        "description": "A namespace is grouping object. Every object is part of a namespace, and every\nrequest is made against a namespace. Namespaces form a tree hierarchy.",
+        "properties": {
+          "ID": {
+            "description": "ID is the identifier of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "description": {
+            "description": "The description of the object.",
+            "type": "string"
+          },
+          "name": {
+            "description": "The name of the namespace. When you create a namespace, only put its bare name,\nnot its full path.",
+            "example": "mycompany",
+            "type": "string"
+          },
+          "namespace": {
+            "description": "The namespace of the object.",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "type": "object"
+      },
+      "oidcsource": {
+        "description": "An OIDC Auth source can be used to issue tokens based on existing OIDC accounts.",
+        "properties": {
+          "CA": {
+            "description": "The Certificate authority to use to validate the authenticity of the OIDC\nserver. If left empty, the system trust stroe will be used. In most of the\ncases, you don't need to set this.",
+            "type": "string"
+          },
+          "ID": {
+            "description": "ID is the identifier of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "clientID": {
+            "description": "Unique client ID.",
+            "example": "12345677890.apps.googleusercontent.com",
+            "type": "string"
+          },
+          "clientSecret": {
+            "description": "Client secret associated with the client ID.",
+            "example": "Ytgbfjtj4652jHDFGls99jF",
+            "type": "string"
+          },
+          "description": {
+            "description": "The description of the object.",
+            "type": "string"
+          },
+          "endpoint": {
+            "description": "OIDC [discovery\nendpoint](https://openid.net/specs/openid-connect-discovery-1_0.html#IssuerDiscovery).",
+            "example": "https://accounts.google.com",
+            "type": "string"
+          },
+          "modifier": {
+            "$ref": "#/components/schemas/identitymodifier"
+          },
+          "name": {
+            "description": "The name of the source.",
+            "example": "myoidc",
+            "type": "string"
+          },
+          "namespace": {
+            "description": "The namespace of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "scopes": {
+            "description": "List of scopes to allow.",
+            "example": [
+              "email",
+              "profile"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "clientID",
+          "clientSecret",
+          "endpoint",
+          "name"
+        ],
+        "type": "object"
+      },
+      "permissions": {
+        "description": "API to retrieve the permissions from a user identity.",
+        "properties": {
+          "ID": {
+            "description": "The optional ID of the object to check permission for.",
+            "type": "string"
+          },
+          "IP": {
+            "description": "IP of the client.",
+            "type": "string"
+          },
+          "claims": {
+            "description": "The list of claims.",
+            "example": [
+              "sourcetype=mtls",
+              "sourcename=my-source",
+              "sourcenamespace=/my/namespace",
+              "color=blue",
+              "size=big"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "error": {
+            "description": "Return an eventual error.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "namespace": {
+            "description": "The namespace where to check permission from.",
+            "example": "/acme",
+            "type": "string"
+          },
+          "permissions": {
+            "additionalProperties": {
+              "additionalProperties": {
+                "type": "boolean"
+              },
+              "type": "object"
+            },
+            "description": "The computed permissions.",
+            "readOnly": true,
+            "type": "object"
+          },
+          "restrictedNamespace": {
+            "description": "Sets the namespace restrictions that should apply.",
+            "example": "/namespace",
+            "type": "string"
+          },
+          "restrictedNetworks": {
+            "description": "Sets the networks restrictions that should apply.",
+            "example": [
+              "10.0.0.0/8"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "restrictedPermissions": {
+            "description": "Sets the permissions restrictions that should apply.",
+            "example": [
+              "@auth:role=enforcer"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "claims",
+          "namespace"
+        ],
+        "type": "object"
+      }
+    }
+  },
+  "info": {
+    "contact": {
+      "name": "Antoine Mercadal"
+    },
+    "license": {
+      "name": "TODO"
+    },
+    "termsOfService": "https://localhost/TODO",
+    "title": "toplevel",
+    "version": "1.0"
+  },
+  "paths": {
+    "/a3ssources": {
+      "get": {
+        "description": "Retrieves the list of a3ssources.",
+        "operationId": "get-all-a3ssources",
+        "parameters": [
+          {
+            "description": "This is an example.",
+            "example": "hello == world",
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/a3ssource"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "authn",
+          "a3s"
+        ]
+      },
+      "post": {
+        "description": "Creates a new a3ssource.",
+        "operationId": "create-a-new-a3ssource",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/a3ssource"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/a3ssource"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "authn",
+          "a3s"
+        ]
+      }
+    },
+    "/a3ssources/{id}": {
+      "delete": {
+        "description": "Delete a particular a3ssource object.",
+        "operationId": "delete-a3ssource-by-ID",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/a3ssource"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "authn",
+          "a3s"
+        ]
+      },
+      "get": {
+        "description": "Get a particular a3ssource object.",
+        "operationId": "get-a3ssource-by-ID",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/a3ssource"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "authn",
+          "a3s"
+        ]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "put": {
+        "description": "Update a particular a3ssource object.",
+        "operationId": "update-a3ssource-by-ID",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/a3ssource"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/a3ssource"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "authn",
+          "a3s"
+        ]
+      }
+    },
+    "/authorizations": {
+      "get": {
+        "description": "Retrieves the list of authorization.",
+        "operationId": "get-all-authorizations",
+        "parameters": [
+          {
+            "description": "This is an example.",
+            "example": "hello == world",
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/authorization"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "policy",
+          "a3s"
+        ]
+      },
+      "post": {
+        "description": "Creates a new authorization.",
+        "operationId": "create-a-new-authorization",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/authorization"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/authorization"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "policy",
+          "a3s"
+        ]
+      }
+    },
+    "/authorizations/{id}": {
+      "delete": {
+        "description": "Deletes the authorization with the given ID.",
+        "operationId": "delete-authorization-by-ID",
+        "parameters": [
+          {
+            "description": "This is an example.",
+            "example": "hello == world",
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/authorization"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "policy",
+          "a3s"
+        ]
+      },
+      "get": {
+        "description": "Retrieves the authorization with the given ID.",
+        "operationId": "get-authorization-by-ID",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/authorization"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "policy",
+          "a3s"
+        ]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "put": {
+        "description": "Updates the authorization with the given ID.",
+        "operationId": "update-authorization-by-ID",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/authorization"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/authorization"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "policy",
+          "a3s"
+        ]
+      }
+    },
+    "/authz": {
+      "post": {
+        "description": "Sends a authz request.",
+        "operationId": "create-a-new-authz",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/authz"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/authz"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "authz",
+          "a3s"
+        ]
+      }
+    },
+    "/issue": {
+      "post": {
+        "description": "Ask to issue a new authentication token.",
+        "operationId": "create-a-new-issue",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/issue"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/issue"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core",
+          "authn"
+        ]
+      }
+    },
+    "/ldapsources": {
+      "get": {
+        "description": "Retrieves the list of ldapsources.",
+        "operationId": "get-all-ldapsources",
+        "parameters": [
+          {
+            "description": "This is an example.",
+            "example": "hello == world",
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ldapsource"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "authn",
+          "a3s"
+        ]
+      },
+      "post": {
+        "description": "Creates a new ldapsource.",
+        "operationId": "create-a-new-ldapsource",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ldapsource"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ldapsource"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "authn",
+          "a3s"
+        ]
+      }
+    },
+    "/ldapsources/{id}": {
+      "delete": {
+        "description": "Deletes the ldap source with the given ID.",
+        "operationId": "delete-ldapsource-by-ID",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ldapsource"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "authn",
+          "a3s"
+        ]
+      },
+      "get": {
+        "description": "Retrieves the ldap source with the given ID.",
+        "operationId": "get-ldapsource-by-ID",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ldapsource"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "authn",
+          "a3s"
+        ]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "put": {
+        "description": "Updates the ldap source with the given ID.",
+        "operationId": "update-ldapsource-by-ID",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ldapsource"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ldapsource"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "authn",
+          "a3s"
+        ]
+      }
+    },
+    "/mtlssources": {
+      "get": {
+        "description": "Retrieves the list of mtlssources.",
+        "operationId": "get-all-mtlssources",
+        "parameters": [
+          {
+            "description": "This is an example.",
+            "example": "hello == world",
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/mtlssource"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "authn",
+          "a3s"
+        ]
+      },
+      "post": {
+        "description": "Creates a new mtlssource.",
+        "operationId": "create-a-new-mtlssource",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/mtlssource"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/mtlssource"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "authn",
+          "a3s"
+        ]
+      }
+    },
+    "/mtlssources/{id}": {
+      "delete": {
+        "description": "Delete a particular mtlssource object.",
+        "operationId": "delete-mtlssource-by-ID",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/mtlssource"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "authn",
+          "a3s"
+        ]
+      },
+      "get": {
+        "description": "Get a particular mtlssource object.",
+        "operationId": "get-mtlssource-by-ID",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/mtlssource"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "authn",
+          "a3s"
+        ]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "put": {
+        "description": "Update a particular mtlssource object.",
+        "operationId": "update-mtlssource-by-ID",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/mtlssource"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/mtlssource"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "authn",
+          "a3s"
+        ]
+      }
+    },
+    "/namespaces": {
+      "get": {
+        "description": "Retrieves the list of namespaces.",
+        "operationId": "get-all-namespaces",
+        "parameters": [
+          {
+            "description": "This is an example.",
+            "example": "hello == world",
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/namespace"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "policy",
+          "a3s"
+        ]
+      },
+      "post": {
+        "description": "Creates a new namespace.",
+        "operationId": "create-a-new-namespace",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/namespace"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/namespace"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "policy",
+          "a3s"
+        ]
+      }
+    },
+    "/namespaces/{id}": {
+      "delete": {
+        "description": "Delete a particular namespace object.",
+        "operationId": "delete-namespace-by-ID",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/namespace"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "policy",
+          "a3s"
+        ]
+      },
+      "get": {
+        "description": "Get a particular namespace object.",
+        "operationId": "get-namespace-by-ID",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/namespace"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "policy",
+          "a3s"
+        ]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "put": {
+        "description": "Update a particular namespace object.",
+        "operationId": "update-namespace-by-ID",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/namespace"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/namespace"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "policy",
+          "a3s"
+        ]
+      }
+    },
+    "/oidcsources": {
+      "get": {
+        "description": "Retrieves the list of oidcsources.",
+        "operationId": "get-all-oidcsources",
+        "parameters": [
+          {
+            "description": "This is an example.",
+            "example": "hello == world",
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/oidcsource"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "authn",
+          "a3s"
+        ]
+      },
+      "post": {
+        "description": "Creates a new oidcsource.",
+        "operationId": "create-a-new-oidcsource",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/oidcsource"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/oidcsource"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "authn",
+          "a3s"
+        ]
+      }
+    },
+    "/oidcsources/{id}": {
+      "delete": {
+        "description": "Delete a particular oidcsource object.",
+        "operationId": "delete-oidcsource-by-ID",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/oidcsource"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "authn",
+          "a3s"
+        ]
+      },
+      "get": {
+        "description": "Get a particular oidcsource object.",
+        "operationId": "get-oidcsource-by-ID",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/oidcsource"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "authn",
+          "a3s"
+        ]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "put": {
+        "description": "Update a particular oidcsource object.",
+        "operationId": "update-oidcsource-by-ID",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/oidcsource"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/oidcsource"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "authn",
+          "a3s"
+        ]
+      }
+    },
+    "/permissions": {
+      "post": {
+        "description": "Sends a permissions request.",
+        "operationId": "create-a-new-permissions",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/permissions"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/permissions"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "authz",
+          "a3s"
+        ]
+      }
+    }
+  },
+  "tags": [
+    {
+      "description": "This tag is for package 'a3s'",
+      "name": "a3s"
+    },
+    {
+      "description": "This tag is for group 'authn'",
+      "name": "authn"
+    },
+    {
+      "description": "This tag is for group 'authz'",
+      "name": "authz"
+    },
+    {
+      "description": "This tag is for group 'core'",
+      "name": "core"
+    },
+    {
+      "description": "This tag is for group 'policy'",
+      "name": "policy"
+    }
+  ]
+}

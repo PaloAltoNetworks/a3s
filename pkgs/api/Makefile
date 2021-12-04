@@ -8,7 +8,7 @@ all: format codegen lint test
 
 .PHONY:codegen
 codegen:
-	elegen folder -d specs -o codegen -g openapi3 --split-output || exit 1
+	elegen folder -d specs -o codegen -g openapi3 || exit 1
 	rm -rf openapi3
 	elegen folder -d specs -o codegen || exit 1
 	mv custom_validations.go custom_validations.go.keep
