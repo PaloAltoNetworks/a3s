@@ -4,7 +4,7 @@ model:
   resource_name: oidcsources
   entity_name: OIDCSource
   package: a3s
-  group: authn
+  group: authn/source
   description: An OIDC Auth source can be used to issue tokens based on existing OIDC accounts.
   get:
     description: Get a particular oidcsource object.

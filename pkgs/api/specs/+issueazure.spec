@@ -4,7 +4,7 @@ model:
   resource_name: issueazure
   entity_name: IssueAzure
   package: a3s
-  group: authn
+  group: authn/issue
   description: Additional issuing information for Azure identity token source.
   detached: true
 

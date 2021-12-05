@@ -4,7 +4,7 @@ model:
   resource_name: authorizations
   entity_name: Authorization
   package: a3s
-  group: policy
+  group: authz
   description: TODO.
   get:
     description: Retrieves the authorization with the given ID.

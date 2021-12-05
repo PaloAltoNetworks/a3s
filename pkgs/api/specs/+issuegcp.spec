@@ -4,7 +4,7 @@ model:
   resource_name: issuegcp
   entity_name: IssueGCP
   package: a3s
-  group: authn
+  group: authn/issue
   description: Additional issuing information for GCP identity token source.
   detached: true
 

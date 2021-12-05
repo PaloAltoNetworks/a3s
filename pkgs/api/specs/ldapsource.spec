@@ -4,7 +4,7 @@ model:
   resource_name: ldapsources
   entity_name: LDAPSource
   package: a3s
-  group: authn
+  group: authn/source
   description: Defines a remote LDAP to use as an authentication source.
   get:
     description: Retrieves the ldap source with the given ID.

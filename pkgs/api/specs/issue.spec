@@ -4,7 +4,7 @@ model:
   resource_name: issue
   entity_name: Issue
   package: authn
-  group: core
+  group: authn/issue
   description: Issues a new a normalized token using various authentication sources.
   validations:
   - $issue

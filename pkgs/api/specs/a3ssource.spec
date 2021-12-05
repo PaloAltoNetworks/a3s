@@ -4,7 +4,7 @@ model:
   resource_name: a3ssources
   entity_name: A3SSource
   package: a3s
-  group: authn
+  group: authn/source
   description: A source allowing to trust a remote instance of A3S.
   get:
     description: Get a particular a3ssource object.

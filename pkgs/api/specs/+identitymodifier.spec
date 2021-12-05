@@ -4,7 +4,7 @@ model:
   resource_name: identitymodifier
   entity_name: IdentityModifier
   package: a3s
-  group: authn
+  group: authn/source
   description: |-
     Information about a remote endpoint to call to eventually modify the identity
     claims about to be issued when using the parent source.

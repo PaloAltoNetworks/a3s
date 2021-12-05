@@ -4,7 +4,7 @@ model:
   resource_name: issueldap
   entity_name: IssueLDAP
   package: a3s
-  group: authn
+  group: authn/issue
   description: Additional issuing information for the LDAP source.
   detached: true
 

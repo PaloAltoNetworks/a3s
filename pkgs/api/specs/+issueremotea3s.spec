@@ -4,7 +4,7 @@ model:
   resource_name: issueremotea3s
   entity_name: IssueRemoteA3S
   package: a3s
-  group: authn
+  group: authn/issue
   description: Additional issuing information for a remote A3S token source.
   detached: true
 

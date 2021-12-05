@@ -4,7 +4,7 @@ model:
   resource_name: authz
   entity_name: Authz
   package: a3s
-  group: authz
+  group: authz/check
   description: API to verify permissions.
 
 # Attributes

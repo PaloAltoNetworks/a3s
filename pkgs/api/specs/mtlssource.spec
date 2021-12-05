@@ -4,7 +4,7 @@ model:
   resource_name: mtlssources
   entity_name: MTLSSource
   package: a3s
-  group: authn
+  group: authn/source
   description: An MTLS Auth source can be used to issue tokens based on user certificates.
   get:
     description: Get a particular mtlssource object.

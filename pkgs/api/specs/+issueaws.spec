@@ -4,7 +4,7 @@ model:
   resource_name: issueaws
   entity_name: IssueAWS
   package: a3s
-  group: authn
+  group: authn/issue
   description: Additional issuing information for AWS STS token source.
   detached: true
 

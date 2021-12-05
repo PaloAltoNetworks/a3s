@@ -4,7 +4,7 @@ model:
   resource_name: permissions
   entity_name: Permissions
   package: a3s
-  group: authz
+  group: authz/check
   description: API to retrieve the permissions from a user identity.
 
 # Attributes
