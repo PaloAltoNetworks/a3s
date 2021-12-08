@@ -20,13 +20,14 @@ interface UseIssueOptions {
    * The redirect url after we've authenticated the user.
    */
   redirectUrl: string
+  audience: string
 }
 
 /**
  * TODO: Support custom fetch function.
  * TODO: Add error handling
  */
-export function useIssue({ apiUrl, redirectUrl }: UseIssueOptions) {
+export function useIssue({ apiUrl, redirectUrl, audience }: UseIssueOptions) {
   const issueUrl = `${apiUrl}/issue`
 
   const issueWithLdap = useCallback(
@@ -42,6 +43,7 @@ export function useIssue({ apiUrl, redirectUrl }: UseIssueOptions) {
             password,
           },
           cookie: true,
+          audience,
         }),
         headers: {
           "Content-Type": "application/json",
@@ -67,6 +69,7 @@ export function useIssue({ apiUrl, redirectUrl }: UseIssueOptions) {
           sourceNamespace,
           sourceName,
           cookie: true,
+          audience,
         }),
         headers: {
           "Content-Type": "application/json",
@@ -132,6 +135,7 @@ export function useIssue({ apiUrl, redirectUrl }: UseIssueOptions) {
             code,
           },
           cookie: true,
+          audience,
         }),
         headers: {
           "Content-Type": "application/json",

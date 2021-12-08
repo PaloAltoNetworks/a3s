@@ -16,6 +16,7 @@ const App = () => {
   const { issueWithLdap, issueWithMtls, issueWithOidc } = useIssue({
     apiUrl: "__API_URL__",
     redirectUrl: "__REDIRECT_URL__",
+    audience: "__AUDIENCE__",
   })
   const [sourceType, setSourceType] = useState("MTLS")
   const [sourceNamespace, setSourceNamespace] = useState("/")
