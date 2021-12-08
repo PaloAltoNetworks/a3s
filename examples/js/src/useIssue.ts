@@ -6,15 +6,15 @@ interface UseIssueOptions {
    * The base URL for the a3s backend. Shouldn't include the `/` in the end.
    * Example: `https://127.0.0.1:44443`
    */
-  baseUrl: string
+   apiUrl: string
 }
 
 /**
  * TODO: Support custom fetch function.
  */
-export function useIssue({ baseUrl }: UseIssueOptions) {
+export function useIssue({ apiUrl }: UseIssueOptions) {
   const [token, setToken] = useState()
-  const issueUrl = `${baseUrl}/issue`
+  const issueUrl = `${apiUrl}/issue`
 
   const issueWithLdap = useCallback(
     ({ sourceNamespace, sourceName, username, password }: IssueLdapParams) =>
