@@ -20,7 +20,10 @@ interface UseIssueOptions {
    * The redirect url after we've authenticated the user.
    */
   redirectUrl: string
-  audience: string
+  /**
+   * The audience for the JWT.
+   */
+  audience: string[]
 }
 
 /**
