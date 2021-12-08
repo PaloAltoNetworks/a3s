@@ -52,7 +52,7 @@ func main() {
 	rootCmd.PersistentFlags().StringVar(&cfgName, "config-name", "", "default config name (default: default)")
 	rootCmd.PersistentFlags().StringVar(&logLevel, "log-level", "warn", "Log level. Can be debug, info, warn or error")
 
-	apiCmd := manipcli.New(api.Manager(), mmaker)
+	apiCmd := manipcli.New(api.Manager(), mmaker, manipcli.OptionArgumentsPrefix("with"))
 	apiCmd.PersistentFlags().AddFlagSet(mflags)
 	apiCmd.PersistentFlags().AddFlagSet(flagsets.MakeAutoAuthFlags())
 	apiCmd.PersistentPreRunE = func(cmd *cobra.Command, args []string) error {

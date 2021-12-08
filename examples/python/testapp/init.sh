@@ -42,21 +42,21 @@ a3sctl api delete namespace "/testapp" -n /
 
 echo
 echo "* Creating /testapp namespace"
-a3sctl api create namespace --name "testapp" -n "/" ||
+a3sctl api create namespace --with.name "testapp" -n "/" ||
 	die "unable to create /testapp namespace"
 
 echo
 echo "* Creating mtlssource"
 a3sctl api create mtlssource -n "/testapp" \
-	--name "default" \
-	--ca "$(cat certs/a3s-test-authority-cert.pem)" ||
+	--with.name "default" \
+	--with.ca "$(cat certs/a3s-test-authority-cert.pem)" ||
 	die "unable to create mtls resource"
 
 echo
 echo "* Creating authorization for /secret"
 a3sctl api create authorization -n "/testapp" \
-	--name "secret-access" \
-	--subject '[
+	--with.name "secret-access" \
+	--with.subject '[
 		[
 			"@source:type=mtls",
 			"@source:name=default",
@@ -64,14 +64,14 @@ a3sctl api create authorization -n "/testapp" \
 			"commonname=john"
 		]
 	]' \
-	--permissions '["/secret:GET"]' ||
+	--with.permissions '["/secret:GET"]' ||
 	die "unable to create authorization for /secret"
 
 echo
 echo "* Creating authorization for /topsecret"
 a3sctl api create authorization -n "/testapp" \
-	--name "top-secret-access" \
-	--subject '[
+	--with.name "top-secret-access" \
+	--with.subject '[
 		[
 			"@source:type=mtls",
 			"@source:name=default",
@@ -79,7 +79,7 @@ a3sctl api create authorization -n "/testapp" \
 			"commonname=michael"
 		]
 	]' \
-	--permissions '[
+	--with.permissions '[
 		"/secret:GET",
 		"/topsecret:GET"
 	]' ||
@@ -92,25 +92,29 @@ echo
 echo "Here is a command to get a token for john:"
 echo
 cat <<EOF
-	a3sctl auth mtls \\
-		--api $A3SCTL_API \\
-		--api-skip-verify \\
-		--audience testapp \\
-		--source-namespace /testapp \\
-		--cert certs/john-cert.pem \\
-		--key certs/john-key.pem
+	export jtok=\$( \\
+		a3sctl auth mtls \\
+			--api $A3SCTL_API \\
+			--api-skip-verify \\
+			--audience testapp \\
+			--source-namespace /testapp \\
+			--cert certs/john-cert.pem \\
+			--key certs/john-key.pem \\
+	)
 EOF
 
 echo
 echo "Here is a command to get a token for michael:"
 echo
 cat <<EOF
-	a3sctl auth mtls \\
-		--api $A3SCTL_API \\
-		--api-skip-verify \\
-		--audience testapp \\
-		--source-namespace /testapp \\
-		--cert certs/michael-cert.pem \\
-		--key certs/michael-key.pem
+	export mtok=\$( \\
+		a3sctl auth mtls \\
+			--api $A3SCTL_API \\
+			--api-skip-verify \\
+			--audience testapp \\
+			--source-namespace /testapp \\
+			--cert certs/michael-cert.pem \\
+			--key certs/michael-key.pem \\
+	)
 EOF
 echo

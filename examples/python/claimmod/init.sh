@@ -50,19 +50,19 @@ a3sctl api delete namespace "/claimmod" -n /
 
 echo
 echo "* Creating /claimmod namespace"
-a3sctl api create namespace --name "claimmod" -n "/" ||
+a3sctl api create namespace --with.name "claimmod" -n "/" ||
 	die "unable to create /claimmod namespace"
 
 echo
 echo "* Creating mtlssource"
 a3sctl api create mtlssource -n "/claimmod" \
-	--name "default" \
-	--ca "$(cat certs/ca-cert.pem)" \
-	--modifier.url https://127.0.0.1:5001/mod \
-	--modifier.method GET \
-	--modifier.ca "$(cat certs/ca-cert.pem)" \
-	--modifier.certificate "$(cat certs/access-cert.pem)" \
-	--modifier.key "$(cat certs/access-key.pem)" ||
+	--with.name "default" \
+	--with.ca "$(cat certs/ca-cert.pem)" \
+	--with.modifier.url https://127.0.0.1:5001/mod \
+	--with.modifier.method GET \
+	--with.modifier.ca "$(cat certs/ca-cert.pem)" \
+	--with.modifier.certificate "$(cat certs/access-cert.pem)" \
+	--with.modifier.key "$(cat certs/access-key.pem)" ||
 	die "unable to create mtls resource"
 
 echo
@@ -72,12 +72,12 @@ echo
 echo "Here is a command to check the modified claims:"
 echo
 cat <<EOF
-    a3sctl auth check --token "\$(
-        a3sctl auth mtls \\
-        --api $A3SCTL_API \\
-        --api-skip-verify \\
-        --source-namespace /claimmod \\
-        --cert certs/john-cert.pem \\
-        --key certs/john-key.pem
-    )"
+	a3sctl auth check --token "\$(
+		a3sctl auth mtls \\
+		--api $A3SCTL_API \\
+		--api-skip-verify \\
+		--source-namespace /claimmod \\
+		--cert certs/john-cert.pem \\
+		--key certs/john-key.pem
+	)"
 EOF
