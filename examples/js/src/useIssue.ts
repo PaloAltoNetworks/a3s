@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect } from "react"
 
 interface IssueParams {
   sourceNamespace: string
@@ -16,13 +16,17 @@ interface UseIssueOptions {
    * Example: `https://127.0.0.1:44443`
    */
   apiUrl: string
+  /**
+   * The redirect url after we've authenticated the user.
+   */
+  redirectUrl: string
 }
 
 /**
  * TODO: Support custom fetch function.
+ * TODO: Add error handling
  */
-export function useIssue({ apiUrl }: UseIssueOptions) {
-  const [token, setToken] = useState()
+export function useIssue({ apiUrl, redirectUrl }: UseIssueOptions) {
   const issueUrl = `${apiUrl}/issue`
 
   const issueWithLdap = useCallback(
@@ -42,11 +46,15 @@ export function useIssue({ apiUrl }: UseIssueOptions) {
         headers: {
           "Content-Type": "application/json",
         },
-      })
-        .then(res => res.json())
-        .then(obj => {
-          setToken(obj.token)
-        }),
+      }).then(res => {
+        if (res.status === 200) {
+          window.location.href = redirectUrl
+        } else {
+          console.error(
+            "Request to issue failed. Please check the network tab for details"
+          )
+        }
+      }),
     [issueUrl]
   )
 
@@ -63,11 +71,15 @@ export function useIssue({ apiUrl }: UseIssueOptions) {
         headers: {
           "Content-Type": "application/json",
         },
-      })
-        .then(res => res.json())
-        .then(obj => {
-          setToken(obj.token)
-        }),
+      }).then(res => {
+        if (res.status === 200) {
+          window.location.href = redirectUrl
+        } else {
+          console.error(
+            "Request to issue failed. Please check the network tab for details"
+          )
+        }
+      }),
     [issueUrl]
   )
 
@@ -124,15 +136,17 @@ export function useIssue({ apiUrl }: UseIssueOptions) {
         headers: {
           "Content-Type": "application/json",
         },
+      }).then(res => {
+        if (res.status === 200) {
+          window.location.href = redirectUrl
+        } else {
+          console.error(
+            "Request to issue failed. Please check the network tab for details"
+          )
+        }
       })
-        .then(res => res.json())
-        .then(obj => {
-          setToken(obj.token)
-          // Clear the search params in the URL
-          history.replaceState(null, "", "/")
-        })
     }
   }, [state, code, issueUrl])
 
-  return { issueWithLdap, issueWithOidc, issueWithMtls, token }
+  return { issueWithLdap, issueWithOidc, issueWithMtls }
 }
