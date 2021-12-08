@@ -1,12 +1,21 @@
 import { useCallback, useEffect, useState } from "react"
-import { IssueLdapParams, IssueParams } from "./types"
+
+interface IssueParams {
+  sourceNamespace: string
+  sourceName: string
+}
+
+interface IssueLdapParams extends IssueParams {
+  username: string
+  password: string
+}
 
 interface UseIssueOptions {
   /**
    * The base URL for the a3s backend. Shouldn't include the `/` in the end.
    * Example: `https://127.0.0.1:44443`
    */
-   apiUrl: string
+  apiUrl: string
 }
 
 /**
@@ -28,6 +37,7 @@ export function useIssue({ apiUrl }: UseIssueOptions) {
             username,
             password,
           },
+          cookie: true,
         }),
         headers: {
           "Content-Type": "application/json",
@@ -48,6 +58,7 @@ export function useIssue({ apiUrl }: UseIssueOptions) {
           sourceType: "MTLS",
           sourceNamespace,
           sourceName,
+          cookie: true,
         }),
         headers: {
           "Content-Type": "application/json",
@@ -80,10 +91,10 @@ export function useIssue({ apiUrl }: UseIssueOptions) {
       })
         .then(res => res.json())
         .then(obj => {
-        localStorage.setItem("sourceNamespace", sourceNamespace)
-        localStorage.setItem("sourceName", sourceName)
-        window.location.href = obj.inputOIDC.authURL
-      }),
+          localStorage.setItem("sourceNamespace", sourceNamespace)
+          localStorage.setItem("sourceName", sourceName)
+          window.location.href = obj.inputOIDC.authURL
+        }),
     [issueUrl]
   )
 
@@ -108,6 +119,7 @@ export function useIssue({ apiUrl }: UseIssueOptions) {
             state,
             code,
           },
+          cookie: true,
         }),
         headers: {
           "Content-Type": "application/json",
