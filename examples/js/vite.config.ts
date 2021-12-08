@@ -13,9 +13,9 @@ export default defineConfig({
     assetsInlineLimit: 100000000,
     chunkSizeWarningLimit: 100000000,
     rollupOptions: {
-			output: {
-				manualChunks: () => "everything.js",
-			},
-		},
-  }
+      output: {
+        manualChunks: () => "everything.js",
+      },
+    },
+  },
 })
