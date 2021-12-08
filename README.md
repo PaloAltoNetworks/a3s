@@ -38,47 +38,47 @@ particular namespace.
 
 * [Quick start](#quick-start)
 * [Using the system](#using-the-system)
-    * [Install a3sctl](#install-a3sctl)
-    * [Obtain a root token](#obtain-a-root-token)
-    * [Test with the sample app](#test-with-the-sample-app)
+	* [Install a3sctl](#install-a3sctl)
+	* [Obtain a root token](#obtain-a-root-token)
+	* [Test with the sample app](#test-with-the-sample-app)
 * [Obtaining identity tokens](#obtaining-identity-tokens)
-    * [Restrictions](#restrictions)
-    * [Cloaking](#cloaking)
-    * [Identity modifiers](#identity-modifiers)
-    * [Authentication sources](#authentication-sources)
-        * [MTLS](#mtls)
-            * [Create an MTLS source](#create-an-mtls-source)
-            * [Obtain a token](#obtain-a-token)
-        * [LDAP](#ldap)
-            * [Create an LDAP source](#create-an-ldap-source)
-            * [Obtain a token](#obtain-a-token-1)
-        * [OIDC](#oidc)
-            * [Create an OIDC source](#create-an-oidc-source)
-            * [Obtain a token](#obtain-a-token-2)
-        * [A3S remote identity token](#a3s-remote-identity-token)
-            * [Create an A3S source](#create-an-a3s-source)
-            * [Obtain a token](#obtain-a-token-3)
-        * [Amazon STS](#amazon-sts)
-        * [Google Cloud Platform token](#google-cloud-platform-token)
-        * [Azure token](#azure-token)
-        * [A3S local identity token](#a3s-local-identity-token)
+	* [Restrictions](#restrictions)
+	* [Cloaking](#cloaking)
+	* [Identity modifiers](#identity-modifiers)
+	* [Authentication sources](#authentication-sources)
+		* [MTLS](#mtls)
+			* [Create an MTLS source](#create-an-mtls-source)
+			* [Obtain a token](#obtain-a-token)
+		* [LDAP](#ldap)
+			* [Create an LDAP source](#create-an-ldap-source)
+			* [Obtain a token](#obtain-a-token-1)
+		* [OIDC](#oidc)
+			* [Create an OIDC source](#create-an-oidc-source)
+			* [Obtain a token](#obtain-a-token-2)
+		* [A3S remote identity token](#a3s-remote-identity-token)
+			* [Create an A3S source](#create-an-a3s-source)
+			* [Obtain a token](#obtain-a-token-3)
+		* [Amazon STS](#amazon-sts)
+		* [Google Cloud Platform token](#google-cloud-platform-token)
+		* [Azure token](#azure-token)
+		* [A3S local identity token](#a3s-local-identity-token)
 * [Writing authorizations](#writing-authorizations)
-    * [Subject](#subject)
-    * [Permissions](#permissions)
-    * [Target namespaces](#target-namespaces)
-    * [Examples](#examples)
+	* [Subject](#subject)
+	* [Permissions](#permissions)
+	* [Target namespaces](#target-namespaces)
+	* [Examples](#examples)
 * [Check for permissions from your app](#check-for-permissions-from-your-app)
 * [Using a3sctl](#using-a3sctl)
-    * [Completion](#completion)
-        * [Bash](#bash)
-        * [Zsh](#zsh)
-        * [Fish](#fish)
-    * [Configuration file](#configuration-file)
-    * [Auto authentication](#auto-authentication)
+	* [Completion](#completion)
+		* [Bash](#bash)
+		* [Zsh](#zsh)
+		* [Fish](#fish)
+	* [Configuration file](#configuration-file)
+	* [Auto authentication](#auto-authentication)
 * [Dev environment](#dev-environment)
-    * [Prerequesites](#prerequesites)
-    * [Initialize the environment](#initialize-the-environment)
-    * [Start everything](#start-everything)
+	* [Prerequesites](#prerequesites)
+	* [Initialize the environment](#initialize-the-environment)
+	* [Start everything](#start-everything)
 * [Support](#support)
 * [Contributing](#contributing)
 
@@ -305,8 +305,8 @@ example, we use `tg`, but you can use any PKI tool you like.
 Then we need to create the MTLS auth source:
 
 	a3sctl api create mtlssource \
-		--name my-mtls-source \
-		--certificate-auhority "$(cat myca-cert.pem)"
+		--with.name my-mtls-source \
+		--with.certificate-auhority "$(cat myca-cert.pem)"
 
 ##### Obtain a token
 
@@ -336,12 +336,12 @@ encryption (TLS or STARTTLS).
 To create an LDAP source, run:
 
 	a3sctl api create ldapsource \
-		--name my-ldap-source \
-		--address 127.0.0.1:389 \
-		--certificate-authority "$(cat ldap-ce-cert.pem)" \
-		--base-dn dc=universe,dc=io \
-		--bind-dn cn=readonly,dc=universe,dc=io \
-		--bind-password password
+		--with.name my-ldap-source \
+		--with.address 127.0.0.1:389 \
+		--with.certificate-authority "$(cat ldap-ce-cert.pem)" \
+		--with.base-dn dc=universe,dc=io \
+		--with.bind-dn cn=readonly,dc=universe,dc=io \
+		--with.bind-password password
 
 * The `base-dn` is the DN to use to search for users.
 * Yhe `bind-dn` is the account A3S will use to connect to the ldap. It should be
@@ -388,11 +388,11 @@ your provider confguration if you plan to use a3sctl to authenticate.
 Once the provider is configuired, create an OIDC source:
 
 	a3sctl api create oidcsource \
-		--name my-oidc-source \
-		--client-id <client id> \
-		--client-secret <client secret> \
-		--endpoint https://accounts.google.com \
-		--scopes '["email", "given_name"]'
+		--with.name my-oidc-source \
+		--with.client-id <client id> \
+		--with.client-secret <client secret> \
+		--with.endpoint https://accounts.google.com \
+		--with.scopes '["email", "given_name"]'
 
 The scopes indicate the OIDC provider which claim to return. They will vary
 depending on your provider.
@@ -433,14 +433,14 @@ the well-known jwks URL to retrieve the keys and verify the token signature.
 To create an A3S source:
 
 	a3sctl api create a3ssource \
-		--name my-remote-a3s-source \
-		--issuer https://remote-a3s.com
+		--with.name my-remote-a3s-source \
+		--with.issuer https://remote-a3s.com
 
 You can also use `--certificate-auhority` to pass a custom CA if the
 certificates used by the server are not trusted by the host running A3S.
 
 If the issuer is not identical to the root URL of the remote A3S server, you can
-use the `--endpoint` flag to pass the actual URL.
+use the `--with.endpoint` flag to pass the actual URL.
 
 ##### Obtain a token
 
@@ -600,9 +600,9 @@ We can create the authorization described above with the following command:
 
 	a3sctl api create authorization
 		--namespace /my/namespace \
-		--name my-auth \
-		--target-namespaces '["/my/namespace/app1"]' \
-		--subject '[
+		--with.name my-auth \
+		--with.target-namespaces '["/my/namespace/app1"]' \
+		--with.subject '[
 			[
 				"@source:type=oidc",
 				"@source:namespace=/my/namespace",
@@ -616,7 +616,7 @@ We can create the authorization described above with the following command:
 				"group=admin",
 			]
 		]' \
-		--permissions '["dogs:pet,walk"]'
+		--with.permissions '["dogs:pet,walk"]'
 
 > NOTE: If you omit `--target-namespace`, then the authorization applies to its
 > own namespace and children.
