@@ -37,26 +37,30 @@ test:
 sec:
 	gosec -quiet ./...
 
-codegen:
+generate:
+	go generate ./...
+
+api:
 	cd pkgs/api && make codegen
 
+ui:
+	cd examples/js && yarn build
+
+codegen: generate api ui
+
 a3s:
-	go generate ./...
 	cd cmd/a3s && CGO_ENABLED=0 go build -ldflags="-w -s" -trimpath
 
 a3s_linux:
-	go generate ./...
 	cd cmd/a3s && CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-w -s" -trimpath
 
 cli:
-	go generate ./...
 	cd cmd/a3sctl && CGO_ENABLED=0 go install -ldflags="-w -s" -trimpath
 
 cli_linux:
-	go generate ./...
 	cd cmd/a3sctl && CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go install -ldflags="-w -s" -trimpath
 
-docker: a3s_linux package_ca_certs
+docker: codegen a3s_linux package_ca_certs
 	mkdir -p docker/in
 	cp cmd/a3s/a3s docker/in
 	cd docker && docker build -t ${DOCKER_REPO}/${DOCKER_IMAGE}:${DOCKER_TAG} .
