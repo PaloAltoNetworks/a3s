@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { render } from "react-dom"
 import { Box } from "@mui/system"
 import {
@@ -12,25 +12,17 @@ import {
 } from "@mui/material"
 import { useIssue } from "./useIssue"
 
-const apiUrl = "__API_URL__"
-const redirectUrl = "__REDIRECT_URL__"
-
 const App = () => {
-  const { token, issueWithLdap, issueWithMtls, issueWithOidc } = useIssue({
-    apiUrl,
+  const { issueWithLdap, issueWithMtls, issueWithOidc } = useIssue({
+    apiUrl: "__API_URL__",
+    redirectUrl: "__REDIRECT_URL__",
+    audience: ["__AUDIENCE__"],
   })
   const [sourceType, setSourceType] = useState("MTLS")
   const [sourceNamespace, setSourceNamespace] = useState("/")
   const [sourceName, setSourceName] = useState("")
   const [ldapUsername, setLdapUsername] = useState("")
   const [ldapPassword, setLdapPassword] = useState("")
-
-  useEffect(() => {
-    if (token) {
-      console.log("token received:", token)
-      window.location.href = redirectUrl
-    }
-  }, [token])
 
   return (
     <Box
