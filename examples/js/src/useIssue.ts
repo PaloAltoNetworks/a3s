@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from "react"
+import { useCallback, useEffect, useState } from "react"
 
 interface IssueParams {
   sourceNamespace: string
@@ -24,14 +24,44 @@ interface UseIssueOptions {
    * The audience for the JWT.
    */
   audience: string[]
+  /**
+   * Save the token in the `token` state, instead of instant redirect.
+   */
+  saveToken?: boolean
 }
 
 /**
  * TODO: Support custom fetch function.
  * TODO: Add error handling
  */
-export function useIssue({ apiUrl, redirectUrl, audience }: UseIssueOptions) {
+export function useIssue({
+  apiUrl,
+  redirectUrl,
+  audience,
+  saveToken,
+}: UseIssueOptions) {
   const issueUrl = `${apiUrl}/issue`
+  /**
+   * Token is only stored when `saveToken` is true.
+   */
+  const [token, setToken] = useState<string | null>(null)
+
+  const handleIssueResponse = useCallback(
+    async (res: Response) => {
+      if (res.status === 200) {
+        if (saveToken) {
+          setToken((await res.json()).token)
+        } else {
+          window.location.href = redirectUrl
+        }
+      } else {
+        console.error(
+          "Request to issue failed. Please check the network tab for details"
+        )
+      }
+    },
+    [saveToken, setToken, redirectUrl]
+  )
 
   const issueWithLdap = useCallback(
     ({ sourceNamespace, sourceName, username, password }: IssueLdapParams) =>
@@ -51,16 +81,8 @@ export function useIssue({ apiUrl, redirectUrl, audience }: UseIssueOptions) {
         headers: {
           "Content-Type": "application/json",
         },
-      }).then(res => {
-        if (res.status === 200) {
-          window.location.href = redirectUrl
-        } else {
-          console.error(
-            "Request to issue failed. Please check the network tab for details"
-          )
-        }
-      }),
-    [issueUrl]
+      }).then(handleIssueResponse),
+    [issueUrl, audience, handleIssueResponse]
   )
 
   const issueWithMtls = useCallback(
@@ -77,16 +99,8 @@ export function useIssue({ apiUrl, redirectUrl, audience }: UseIssueOptions) {
         headers: {
           "Content-Type": "application/json",
         },
-      }).then(res => {
-        if (res.status === 200) {
-          window.location.href = redirectUrl
-        } else {
-          console.error(
-            "Request to issue failed. Please check the network tab for details"
-          )
-        }
-      }),
-    [issueUrl]
+      }).then(handleIssueResponse),
+    [issueUrl, audience, handleIssueResponse]
   )
 
   const issueWithOidc = useCallback(
@@ -143,17 +157,9 @@ export function useIssue({ apiUrl, redirectUrl, audience }: UseIssueOptions) {
         headers: {
           "Content-Type": "application/json",
         },
-      }).then(res => {
-        if (res.status === 200) {
-          window.location.href = redirectUrl
-        } else {
-          console.error(
-            "Request to issue failed. Please check the network tab for details"
-          )
-        }
-      })
+      }).then(handleIssueResponse)
     }
-  }, [state, code, issueUrl])
+  }, [state, code, issueUrl, audience, handleIssueResponse])
 
-  return { issueWithLdap, issueWithOidc, issueWithMtls }
+  return { token, issueWithLdap, issueWithOidc, issueWithMtls }
 }

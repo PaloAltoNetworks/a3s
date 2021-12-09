@@ -9,8 +9,11 @@ import {
   FormControlLabel,
   FormControl,
   FormLabel,
+  Checkbox,
 } from "@mui/material"
 import { useIssue } from "./useIssue"
+
+type StringBoolean = "true" | "false"
 
 const App = () => {
   const { issueWithLdap, issueWithMtls, issueWithOidc } = useIssue({
@@ -18,6 +21,7 @@ const App = () => {
     redirectUrl: "__REDIRECT_URL__",
     audience: ["__AUDIENCE__"],
   })
+  const [cloak, setCloak] = useState("__ENABLE_CLOAKING__" as StringBoolean)
   const [sourceType, setSourceType] = useState("MTLS")
   const [sourceNamespace, setSourceNamespace] = useState("/")
   const [sourceName, setSourceName] = useState("")
@@ -107,6 +111,17 @@ const App = () => {
               />
             </>
           )}
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={cloak === "true"}
+                onChange={e => {
+                  setCloak(e.target.checked ? "true" : "false")
+                }}
+              />
+            }
+            label="Cloak claims"
+          />
           <Button
             onClick={() => {
               sourceType === "MTLS"
