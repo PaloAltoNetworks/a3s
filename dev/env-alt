@@ -1,6 +1,5 @@
 #!/bin/bash
 
-export A3S_JWT_COOKIE_DOMAIN="https://127.0.0.1:44444"
 export A3S_LISTEN="0.0.0.0:44444"
 export A3S_CORS_DEFAULT_ORIGIN="https://127.0.0.1:44444"
 export A3S_CORS_ADDITIONAL_ORIGINS="http://localhost:8080"

@@ -29,22 +29,34 @@ import (
 
 // A IssueProcessor is a bahamut processor for Issue.
 type IssueProcessor struct {
-	manipulator manipulate.Manipulator
-	jwks        *token.JWKS
-	maxValidity time.Duration
-	audience    string
-	issuer      string
+	manipulator          manipulate.Manipulator
+	jwks                 *token.JWKS
+	maxValidity          time.Duration
+	audience             string
+	cookieSameSitePolicy http.SameSite
+	cookieDomain         string
+	issuer               string
 }
 
 // NewIssueProcessor returns a new IssueProcessor.
-func NewIssueProcessor(manipulator manipulate.Manipulator, jwks *token.JWKS, maxValidity time.Duration, issuer string, audience string) *IssueProcessor {
+func NewIssueProcessor(
+	manipulator manipulate.Manipulator,
+	jwks *token.JWKS,
+	maxValidity time.Duration,
+	issuer string,
+	audience string,
+	cookieSameSitePolicy http.SameSite,
+	cookieDomain string,
+) *IssueProcessor {
 
 	return &IssueProcessor{
-		manipulator: manipulator,
-		jwks:        jwks,
-		maxValidity: maxValidity,
-		issuer:      issuer,
-		audience:    audience,
+		manipulator:          manipulator,
+		jwks:                 jwks,
+		maxValidity:          maxValidity,
+		issuer:               issuer,
+		audience:             audience,
+		cookieSameSitePolicy: cookieSameSitePolicy,
+		cookieDomain:         cookieDomain,
 	}
 }
 
@@ -119,7 +131,8 @@ func (p *IssueProcessor) ProcessCreate(bctx bahamut.Context) (err error) {
 	}
 
 	k := p.jwks.GetLast()
-	if req.Token, err = idt.JWT(k.PrivateKey(), k.KID, p.issuer, audience, exp, req.Cloak); err != nil {
+	tkn, err := idt.JWT(k.PrivateKey(), k.KID, p.issuer, audience, exp, req.Cloak)
+	if err != nil {
 		return err
 	}
 
@@ -131,6 +144,22 @@ func (p *IssueProcessor) ProcessCreate(bctx bahamut.Context) (err error) {
 	req.InputOIDC = nil
 	req.InputA3S = nil
 	req.InputRemoteA3S = nil
+
+	if req.Cookie {
+		bctx.AddOutputCookies(
+			&http.Cookie{
+				Name:     "x-a3s-token",
+				Value:    tkn,
+				HttpOnly: true,
+				Secure:   true,
+				Expires:  idt.ExpiresAt.Time,
+				SameSite: p.cookieSameSitePolicy,
+				// Domain:   p.cookieDomain,
+			},
+		)
+	} else {
+		req.Token = tkn
+	}
 
 	bctx.SetOutputData(req)
 

@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net"
 	"net/http"
+	"net/url"
 	"os"
 	"strings"
 	"time"
@@ -14,6 +15,7 @@ import (
 	"github.com/globalsign/mgo"
 	"go.aporeto.io/a3s/internal/hasher"
 	"go.aporeto.io/a3s/internal/processors"
+	"go.aporeto.io/a3s/internal/ui"
 	"go.aporeto.io/a3s/pkgs/api"
 	"go.aporeto.io/a3s/pkgs/authenticator"
 	"go.aporeto.io/a3s/pkgs/authorizer"
@@ -100,6 +102,33 @@ func main() {
 		zap.L().Fatal("unable to build JWKS", zap.Error(err))
 	}
 
+	publicAPIURL := cfg.PublicAPIURL
+	if publicAPIURL == "" {
+		publicAPIURL = fmt.Sprintf("https://%s", getNotifierEndpoint(cfg.ListenAddress))
+	}
+
+	zap.L().Info("Announced public API", zap.String("url", publicAPIURL))
+	cookiePolicy := http.SameSiteDefaultMode
+	switch cfg.JWT.JWTCookiePolicy {
+	case "strict":
+		cookiePolicy = http.SameSiteStrictMode
+	case "lax":
+		cookiePolicy = http.SameSiteLaxMode
+	case "none":
+		cookiePolicy = http.SameSiteNoneMode
+	}
+	zap.L().Info("Cookie policy set", zap.String("policy", cfg.JWT.JWTCookiePolicy))
+
+	cookieDomain := cfg.JWT.JWTCookieDomain
+	if cookieDomain == "" {
+		u, err := url.Parse(publicAPIURL)
+		if err != nil {
+			zap.L().Fatal("Unable to parse publicAPIURL", zap.Error(err))
+		}
+		cookieDomain = u.Hostname()
+	}
+	zap.L().Info("Cookie domain set", zap.String("domain", cookieDomain))
+
 	pubsub := bootstrap.MakeNATSClient(cfg.NATSConf)
 	defer pubsub.Disconnect() // nolint: errcheck
 
@@ -154,7 +183,11 @@ func main() {
 		zap.L().Fatal("Unable to install jwks handler", zap.Error(err))
 	}
 
-	bahamut.RegisterProcessorOrDie(server, processors.NewIssueProcessor(m, jwks, cfg.JWT.JWTMaxValidity, cfg.JWT.JWTIssuer, cfg.JWT.JWTAudience), api.IssueIdentity)
+	if err := server.RegisterCustomRouteHandler("/ui/login.html", makeUILoginHandler(publicAPIURL)); err != nil {
+		zap.L().Fatal("Unable to install UI login handler", zap.Error(err))
+	}
+
+	bahamut.RegisterProcessorOrDie(server, processors.NewIssueProcessor(m, jwks, cfg.JWT.JWTMaxValidity, cfg.JWT.JWTIssuer, cfg.JWT.JWTAudience, cookiePolicy, cookieDomain), api.IssueIdentity)
 	bahamut.RegisterProcessorOrDie(server, processors.NewMTLSSourcesProcessor(m), api.MTLSSourceIdentity)
 	bahamut.RegisterProcessorOrDie(server, processors.NewLDAPSourcesProcessor(m), api.LDAPSourceIdentity)
 	bahamut.RegisterProcessorOrDie(server, processors.NewOIDCSourcesProcessor(m), api.OIDCSourceIdentity)
@@ -287,6 +320,32 @@ func makeJWKSHandler(jwks *token.JWKS) http.HandlerFunc {
 		}
 
 		w.Header().Add("Content-Type", "application/json")
+		_, _ = w.Write(data)
+	}
+}
+
+func makeUILoginHandler(api string) http.HandlerFunc {
+
+	return func(w http.ResponseWriter, req *http.Request) {
+
+		redirect := req.URL.Query().Get("redirect")
+		if redirect == "" {
+			http.Error(w, "Missing redirect query parameter", http.StatusBadRequest)
+			return
+		}
+
+		audience := req.URL.Query().Get("audience")
+		if audience == "" {
+			audience = redirect
+		}
+
+		data, err := ui.GetLogin(api, redirect, audience)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		w.Header().Add("Content-Type", "text/html")
 		_, _ = w.Write(data)
 	}
 }

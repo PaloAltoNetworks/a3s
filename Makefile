@@ -41,9 +41,11 @@ codegen:
 	cd pkgs/api && make codegen
 
 a3s:
+	go generate ./...
 	cd cmd/a3s && CGO_ENABLED=0 go build -ldflags="-w -s" -trimpath
 
 a3s_linux:
+	go generate ./...
 	cd cmd/a3s && CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-w -s" -trimpath
 
 cli:

@@ -236,6 +236,10 @@
             },
             "type": "array"
           },
+          "cookie": {
+            "description": "If set, return the token as a secure cookie.",
+            "type": "boolean"
+          },
           "inputA3S": {
             "$ref": "#/components/schemas/issuea3s"
           },

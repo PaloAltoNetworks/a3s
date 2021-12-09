@@ -45,6 +45,7 @@ type HealthConfiguration struct {
 
 // APIServerConf holds the basic server conf.
 type APIServerConf struct {
+	PublicAPIURL          string   `mapstructure:"public-api-url"            desc:"Publicly announced API URL"`
 	CORSAdditionalOrigins []string `mapstructure:"cors-additional-origins"   desc:"Set additional allowed origin for CORS"`
 	CORSDefaultOrigin     string   `mapstructure:"cors-default-origin"       desc:"Set the default allowed origin for CORS"`
 	ListenAddress         string   `mapstructure:"listen"                    desc:"Listening address"                                    default:":443"`
