@@ -339,6 +339,10 @@ func makeUILoginHandler(api string) http.HandlerFunc {
 			audience = redirect
 		}
 
+		if proxy := req.URL.Query().Get("proxy"); proxy != "" {
+			api = proxy
+		}
+
 		data, err := ui.GetLogin(api, redirect, audience)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
