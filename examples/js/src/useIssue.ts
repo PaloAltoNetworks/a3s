@@ -46,6 +46,7 @@ export function useIssue({ apiUrl, redirectUrl, audience }: UseIssueOptions) {
             password,
           },
           cookie: true,
+          cookieDomain: window.location.hostname,
           audience,
         }),
         headers: {
@@ -72,6 +73,7 @@ export function useIssue({ apiUrl, redirectUrl, audience }: UseIssueOptions) {
           sourceNamespace,
           sourceName,
           cookie: true,
+          cookieDomain: window.location.hostname,
           audience,
         }),
         headers: {
@@ -138,6 +140,7 @@ export function useIssue({ apiUrl, redirectUrl, audience }: UseIssueOptions) {
             code,
           },
           cookie: true,
+          cookieDomain: window.location.hostname,
           audience,
         }),
         headers: {
