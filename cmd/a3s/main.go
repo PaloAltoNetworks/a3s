@@ -330,8 +330,12 @@ func makeUILoginHandler(api string) http.HandlerFunc {
 
 		redirect := req.URL.Query().Get("redirect")
 		if redirect == "" {
-			http.Error(w, "Missing redirect query parameter", http.StatusBadRequest)
-			return
+			referer := req.Header.Get("referer")
+			if referer == "" {
+				http.Error(w, "Missing redirect query parameter", http.StatusBadRequest)
+				return
+			}
+			redirect = referer
 		}
 
 		audience := req.URL.Query().Get("audience")
