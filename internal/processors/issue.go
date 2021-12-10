@@ -146,6 +146,10 @@ func (p *IssueProcessor) ProcessCreate(bctx bahamut.Context) (err error) {
 	req.InputRemoteA3S = nil
 
 	if req.Cookie {
+		domain := req.CookieDomain
+		if domain == "" {
+			domain = p.cookieDomain
+		}
 		bctx.AddOutputCookies(
 			&http.Cookie{
 				Name:     "x-a3s-token",
@@ -154,7 +158,7 @@ func (p *IssueProcessor) ProcessCreate(bctx bahamut.Context) (err error) {
 				Secure:   true,
 				Expires:  idt.ExpiresAt.Time,
 				SameSite: p.cookieSameSitePolicy,
-				// Domain:   p.cookieDomain,
+				Domain:   domain,
 			},
 		)
 	} else {
