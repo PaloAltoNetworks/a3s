@@ -66,6 +66,12 @@ Type: `boolean`
 
 If set, return the token as a secure cookie.
 
+##### `cookieDomain`
+
+Type: `string`
+
+If set, use the provided domain for the delivered cookie.
+
 ##### `inputA3S`
 
 Type: [`issuea3s`](#issuea3s)
