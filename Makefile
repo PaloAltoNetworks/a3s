@@ -44,7 +44,7 @@ api:
 	cd pkgs/api && make codegen
 
 ui:
-	cd examples/js && yarn build
+	cd examples/js && yarn && yarn build
 
 a3s:
 	cd cmd/a3s && CGO_ENABLED=0 go build -ldflags="-w -s" -trimpath
