@@ -240,6 +240,10 @@
             "description": "If set, return the token as a secure cookie.",
             "type": "boolean"
           },
+          "cookieDomain": {
+            "description": "If set, use the provided domain for the delivered cookie.",
+            "type": "string"
+          },
           "inputA3S": {
             "$ref": "#/components/schemas/issuea3s"
           },

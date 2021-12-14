@@ -76,6 +76,7 @@ export function useIssue({
             password,
           },
           cookie: true,
+          cookieDomain: window.location.hostname,
           audience,
         }),
         headers: {
@@ -94,6 +95,7 @@ export function useIssue({
           sourceNamespace,
           sourceName,
           cookie: true,
+          cookieDomain: window.location.hostname,
           audience,
         }),
         headers: {
@@ -152,6 +154,7 @@ export function useIssue({
             code,
           },
           cookie: true,
+          cookieDomain: window.location.hostname,
           audience,
         }),
         headers: {

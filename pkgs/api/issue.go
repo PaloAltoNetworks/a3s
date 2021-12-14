@@ -123,6 +123,9 @@ type Issue struct {
 	// If set, return the token as a secure cookie.
 	Cookie bool `json:"cookie,omitempty" msgpack:"cookie,omitempty" bson:"-" mapstructure:"cookie,omitempty"`
 
+	// If set, use the provided domain for the delivered cookie.
+	CookieDomain string `json:"cookieDomain,omitempty" msgpack:"cookieDomain,omitempty" bson:"-" mapstructure:"cookieDomain,omitempty"`
+
 	// Contains additional information for an A3S token source.
 	InputA3S *IssueA3S `json:"inputA3S,omitempty" msgpack:"inputA3S,omitempty" bson:"-" mapstructure:"inputA3S,omitempty"`
 
@@ -207,10 +210,10 @@ func NewIssue() *Issue {
 
 	return &Issue{
 		ModelVersion:          1,
-		Opaque:                map[string]string{},
-		Cloak:                 []string{},
-		RestrictedNetworks:    []string{},
 		Audience:              []string{},
+		Opaque:                map[string]string{},
+		RestrictedNetworks:    []string{},
+		Cloak:                 []string{},
 		RestrictedPermissions: []string{},
 		Validity:              "24h",
 	}
@@ -301,6 +304,7 @@ func (o *Issue) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			Audience:              &o.Audience,
 			Cloak:                 &o.Cloak,
 			Cookie:                &o.Cookie,
+			CookieDomain:          &o.CookieDomain,
 			InputA3S:              o.InputA3S,
 			InputAWS:              o.InputAWS,
 			InputAzure:            o.InputAzure,
@@ -329,6 +333,8 @@ func (o *Issue) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.Cloak = &(o.Cloak)
 		case "cookie":
 			sp.Cookie = &(o.Cookie)
+		case "cookieDomain":
+			sp.CookieDomain = &(o.CookieDomain)
 		case "inputA3S":
 			sp.InputA3S = o.InputA3S
 		case "inputAWS":
@@ -382,6 +388,9 @@ func (o *Issue) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.Cookie != nil {
 		o.Cookie = *so.Cookie
+	}
+	if so.CookieDomain != nil {
+		o.CookieDomain = *so.CookieDomain
 	}
 	if so.InputA3S != nil {
 		o.InputA3S = so.InputA3S
@@ -573,6 +582,8 @@ func (o *Issue) ValueForAttribute(name string) interface{} {
 		return o.Cloak
 	case "cookie":
 		return o.Cookie
+	case "cookieDomain":
+		return o.CookieDomain
 	case "inputA3S":
 		return o.InputA3S
 	case "inputAWS":
@@ -639,6 +650,14 @@ know all of the claims.`,
 		Exposed:        true,
 		Name:           "cookie",
 		Type:           "boolean",
+	},
+	"CookieDomain": {
+		AllowedChoices: []string{},
+		ConvertedName:  "CookieDomain",
+		Description:    `If set, use the provided domain for the delivered cookie.`,
+		Exposed:        true,
+		Name:           "cookieDomain",
+		Type:           "string",
 	},
 	"InputA3S": {
 		AllowedChoices: []string{},
@@ -841,6 +860,14 @@ know all of the claims.`,
 		Exposed:        true,
 		Name:           "cookie",
 		Type:           "boolean",
+	},
+	"cookiedomain": {
+		AllowedChoices: []string{},
+		ConvertedName:  "CookieDomain",
+		Description:    `If set, use the provided domain for the delivered cookie.`,
+		Exposed:        true,
+		Name:           "cookieDomain",
+		Type:           "string",
 	},
 	"inputa3s": {
 		AllowedChoices: []string{},
@@ -1088,6 +1115,9 @@ type SparseIssue struct {
 	// If set, return the token as a secure cookie.
 	Cookie *bool `json:"cookie,omitempty" msgpack:"cookie,omitempty" bson:"-" mapstructure:"cookie,omitempty"`
 
+	// If set, use the provided domain for the delivered cookie.
+	CookieDomain *string `json:"cookieDomain,omitempty" msgpack:"cookieDomain,omitempty" bson:"-" mapstructure:"cookieDomain,omitempty"`
+
 	// Contains additional information for an A3S token source.
 	InputA3S *IssueA3S `json:"inputA3S,omitempty" msgpack:"inputA3S,omitempty" bson:"-" mapstructure:"inputA3S,omitempty"`
 
@@ -1236,6 +1266,9 @@ func (o *SparseIssue) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.Cookie != nil {
 		out.Cookie = *o.Cookie
+	}
+	if o.CookieDomain != nil {
+		out.CookieDomain = *o.CookieDomain
 	}
 	if o.InputA3S != nil {
 		out.InputA3S = o.InputA3S
