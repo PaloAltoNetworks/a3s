@@ -1,4 +1,4 @@
-//go:generate go-bindata -pkg ui -o bindata.go ../../examples/js/dist/index.html
+//go:generate go-bindata -pkg ui -o bindata.go ../../ui/login/dist/index.html
 
 package ui
 
@@ -12,7 +12,7 @@ var (
 
 func GetLogin(api string, redirect string, audience string) ([]byte, error) {
 
-	doc, err := Asset("../../examples/js/dist/index.html")
+	doc, err := Asset("../../ui/login/dist/index.html")
 	if err != nil {
 		return nil, err
 	}
