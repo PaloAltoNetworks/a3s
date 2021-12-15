@@ -27,7 +27,7 @@ interface UseIssueOptions {
   /**
    * Save the token in the `token` state, instead of instant redirect.
    */
-   saveToken?: boolean
+  saveToken?: boolean
 }
 
 /**
@@ -133,12 +133,15 @@ export function useIssue({
     [issueUrl, saveTokenDefault]
   )
 
-  const issueWithToken = useCallback(
+  const issueWithA3s = useCallback(
     ({ token, cloak }: { token: string; cloak: string[] }) =>
       fetch(issueUrl, {
         method: "POST",
         body: JSON.stringify({
-          token,
+          sourceType: "A3S",
+          inputA3S: {
+            token,
+          },
           cloak,
           cookie: true,
           cookieDomain: window.location.hostname,
@@ -184,5 +187,5 @@ export function useIssue({
     }
   }, [state, code, issueUrl, audience, handleIssueResponse])
 
-  return { token, issueWithLdap, issueWithOidc, issueWithMtls, issueWithToken }
+  return { token, issueWithLdap, issueWithOidc, issueWithMtls, issueWithA3s }
 }

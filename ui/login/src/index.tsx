@@ -24,12 +24,13 @@ const App = () => {
   const [sourceName, setSourceName] = useState("")
   const [ldapUsername, setLdapUsername] = useState("")
   const [ldapPassword, setLdapPassword] = useState("")
-  const { issueWithLdap, issueWithMtls, issueWithOidc, issueWithToken, token } =
+  const { issueWithLdap, issueWithMtls, issueWithOidc, issueWithA3s, token } =
     useIssue({
       apiUrl: "__API_URL__",
       // apiUrl: "https://localhost:44443",
       redirectUrl: "__REDIRECT_URL__",
       audience: ["__AUDIENCE__"],
+      // audience: ["https://127.0.0.1:44443"],
       saveToken: cloak === "true",
     })
 
@@ -172,7 +173,7 @@ const App = () => {
         <CloakDialog
           identities={identities}
           onConfirm={cloak => {
-            issueWithToken({ token: token!, cloak })
+            issueWithA3s({ token: token!, cloak })
           }}
         />
       )}
