@@ -27,7 +27,7 @@ interface UseIssueOptions {
   /**
    * Save the token in the `token` state, instead of instant redirect.
    */
-  saveToken?: boolean
+   saveToken?: boolean
 }
 
 /**
@@ -38,7 +38,7 @@ export function useIssue({
   apiUrl,
   redirectUrl,
   audience,
-  saveToken,
+  saveToken: saveTokenDefault = false,
 }: UseIssueOptions) {
   const issueUrl = `${apiUrl}/issue`
   /**
@@ -47,7 +47,7 @@ export function useIssue({
   const [token, setToken] = useState<string | null>(null)
 
   const handleIssueResponse = useCallback(
-    async (res: Response) => {
+    (saveToken: boolean) => async (res: Response) => {
       if (res.status === 200) {
         if (saveToken) {
           setToken((await res.json()).token)
@@ -60,7 +60,7 @@ export function useIssue({
         )
       }
     },
-    [saveToken, setToken, redirectUrl]
+    [setToken, redirectUrl]
   )
 
   const issueWithLdap = useCallback(
@@ -75,15 +75,15 @@ export function useIssue({
             username,
             password,
           },
-          cookie: true,
+          cookie: !saveTokenDefault,
           cookieDomain: window.location.hostname,
           audience,
         }),
         headers: {
           "Content-Type": "application/json",
         },
-      }).then(handleIssueResponse),
-    [issueUrl, audience, handleIssueResponse]
+      }).then(handleIssueResponse(saveTokenDefault)),
+    [issueUrl, audience, handleIssueResponse, saveTokenDefault]
   )
 
   const issueWithMtls = useCallback(
@@ -94,15 +94,15 @@ export function useIssue({
           sourceType: "MTLS",
           sourceNamespace,
           sourceName,
-          cookie: true,
+          cookie: !saveTokenDefault,
           cookieDomain: window.location.hostname,
           audience,
         }),
         headers: {
           "Content-Type": "application/json",
         },
-      }).then(handleIssueResponse),
-    [issueUrl, audience, handleIssueResponse]
+      }).then(handleIssueResponse(saveTokenDefault)),
+    [issueUrl, audience, handleIssueResponse, saveTokenDefault]
   )
 
   const issueWithOidc = useCallback(
@@ -127,9 +127,27 @@ export function useIssue({
         .then(obj => {
           localStorage.setItem("sourceNamespace", sourceNamespace)
           localStorage.setItem("sourceName", sourceName)
+          localStorage.setItem("saveToken", saveTokenDefault ? "true" : "false")
           window.location.href = obj.inputOIDC.authURL
         }),
-    [issueUrl]
+    [issueUrl, saveTokenDefault]
+  )
+
+  const issueWithToken = useCallback(
+    ({ token, cloak }: { token: string; cloak: string[] }) =>
+      fetch(issueUrl, {
+        method: "POST",
+        body: JSON.stringify({
+          token,
+          cloak,
+          cookie: true,
+          cookieDomain: window.location.hostname,
+        }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }).then(handleIssueResponse(false)),
+    []
   )
 
   // Below for handling auto login after OIDC redirection
@@ -139,9 +157,11 @@ export function useIssue({
   useEffect(() => {
     const sourceNamespace = localStorage.getItem("sourceNamespace")
     const sourceName = localStorage.getItem("sourceName")
+    const saveTokenStorage = localStorage.getItem("saveToken") === "true"
     // Clear local storage immediately
     localStorage.removeItem("sourceNamespace")
     localStorage.removeItem("sourceName")
+    localStorage.removeItem("saveToken")
     if (state && code && sourceNamespace && sourceName) {
       fetch(issueUrl, {
         method: "POST",
@@ -153,16 +173,16 @@ export function useIssue({
             state,
             code,
           },
-          cookie: true,
+          cookie: !saveTokenStorage,
           cookieDomain: window.location.hostname,
           audience,
         }),
         headers: {
           "Content-Type": "application/json",
         },
-      }).then(handleIssueResponse)
+      }).then(handleIssueResponse(saveTokenStorage))
     }
   }, [state, code, issueUrl, audience, handleIssueResponse])
 
-  return { token, issueWithLdap, issueWithOidc, issueWithMtls }
+  return { token, issueWithLdap, issueWithOidc, issueWithMtls, issueWithToken }
 }

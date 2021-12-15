@@ -12,21 +12,39 @@ import {
   Checkbox,
 } from "@mui/material"
 import { useIssue } from "./useIssue"
+import { CloakDialog } from "./cloak-dialog"
+import jwtDecode from "jwt-decode"
 
 type StringBoolean = "true" | "false"
 
 const App = () => {
-  const { issueWithLdap, issueWithMtls, issueWithOidc } = useIssue({
-    apiUrl: "__API_URL__",
-    redirectUrl: "__REDIRECT_URL__",
-    audience: ["__AUDIENCE__"],
-  })
   const [cloak, setCloak] = useState("__ENABLE_CLOAKING__" as StringBoolean)
   const [sourceType, setSourceType] = useState("MTLS")
   const [sourceNamespace, setSourceNamespace] = useState("/")
   const [sourceName, setSourceName] = useState("")
   const [ldapUsername, setLdapUsername] = useState("")
   const [ldapPassword, setLdapPassword] = useState("")
+  const { issueWithLdap, issueWithMtls, issueWithOidc, issueWithToken, token } =
+    useIssue({
+      apiUrl: "__API_URL__",
+      // apiUrl: "https://localhost:44443",
+      redirectUrl: "__REDIRECT_URL__",
+      audience: ["__AUDIENCE__"],
+      saveToken: cloak === "true",
+    })
+
+  let identities: string[] = []
+  if (token) {
+    try {
+      const decoded = jwtDecode(token) as Record<string, any>
+      if (Array.isArray(decoded.identity)) {
+        identities = [...new Set(decoded.identity)]
+      }
+      console.log(identities)
+    } catch (e) {
+      console.error(e)
+    }
+  }
 
   return (
     <Box
@@ -150,6 +168,14 @@ const App = () => {
           </Button>
         </Box>
       </Box>
+      {!!identities.length && (
+        <CloakDialog
+          identities={identities}
+          onConfirm={cloak => {
+            issueWithToken({ token: token!, cloak })
+          }}
+        />
+      )}
     </Box>
   )
 }
