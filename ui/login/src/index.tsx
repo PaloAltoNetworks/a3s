@@ -10,6 +10,7 @@ import {
   FormControl,
   FormLabel,
   Checkbox,
+  Typography,
 } from "@mui/material"
 import { useIssue } from "./useIssue"
 import { CloakDialog } from "./cloak-dialog"
@@ -24,39 +25,41 @@ const App = () => {
   const [sourceName, setSourceName] = useState("")
   const [ldapUsername, setLdapUsername] = useState("")
   const [ldapPassword, setLdapPassword] = useState("")
+
+  const params = new URLSearchParams(window.location.search)
+  const OIDCstate = params.get("state")
+  const OIDCcode = params.get("code")
   const { issueWithLdap, issueWithMtls, issueWithOidc, issueWithA3s, token } =
     useIssue({
-      apiUrl: "__API_URL__",
-      // apiUrl: "https://localhost:44443",
+      // apiUrl: "__API_URL__",
+      apiUrl: "https://localhost:44443",
       redirectUrl: "__REDIRECT_URL__",
-      audience: ["__AUDIENCE__"],
-      // audience: ["https://127.0.0.1:44443"],
+      // audience: ["__AUDIENCE__"],
+      audience: ["https://127.0.0.1:44443"],
       saveToken: cloak === "true",
+      OIDCstate,
+      OIDCcode,
     })
 
+  // Render identities for cloak mode
   let identities: string[] = []
   if (token) {
     try {
       const decoded = jwtDecode(token) as Record<string, any>
       if (Array.isArray(decoded.identity)) {
+        // Dedupe
         identities = [...new Set(decoded.identity)]
       }
-      console.log(identities)
     } catch (e) {
       console.error(e)
     }
   }
 
-  return (
-    <Box
-      sx={{
-        display: "flex",
-        height: "100vh",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-      }}
-    >
+  let mainContent: JSX.Element
+  if (OIDCstate && OIDCcode) {
+    mainContent = <Typography>Authenticating using OIDC...</Typography>
+  } else {
+    mainContent = (
       <Box
         sx={{
           display: "flex",
@@ -169,6 +172,20 @@ const App = () => {
           </Button>
         </Box>
       </Box>
+    )
+  }
+
+  return (
+    <Box
+      sx={{
+        display: "flex",
+        height: "100vh",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
+      {mainContent}
       {!!identities.length && (
         <CloakDialog
           identities={identities}

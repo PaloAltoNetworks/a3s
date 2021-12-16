@@ -28,6 +28,14 @@ interface UseIssueOptions {
    * Save the token in the `token` state, instead of instant redirect.
    */
   saveToken?: boolean
+  /**
+   * If both state and code exists, OIDC login will be automatically triggered.
+   */
+  OIDCstate?: string | null
+  /**
+   * If both state and code exists, OIDC login will be automatically triggered.
+   */
+  OIDCcode?: string | null
 }
 
 /**
@@ -39,6 +47,8 @@ export function useIssue({
   redirectUrl,
   audience,
   saveToken: saveTokenDefault = false,
+  OIDCstate,
+  OIDCcode,
 }: UseIssueOptions) {
   const issueUrl = `${apiUrl}/issue`
   /**
@@ -154,9 +164,6 @@ export function useIssue({
   )
 
   // Below for handling auto login after OIDC redirection
-  const params = new URLSearchParams(window.location.search)
-  const state = params.get("state")
-  const code = params.get("code")
   useEffect(() => {
     const sourceNamespace = localStorage.getItem("sourceNamespace")
     const sourceName = localStorage.getItem("sourceName")
@@ -165,7 +172,7 @@ export function useIssue({
     localStorage.removeItem("sourceNamespace")
     localStorage.removeItem("sourceName")
     localStorage.removeItem("saveToken")
-    if (state && code && sourceNamespace && sourceName) {
+    if (OIDCstate && OIDCcode && sourceNamespace && sourceName) {
       fetch(issueUrl, {
         method: "POST",
         body: JSON.stringify({
@@ -173,8 +180,8 @@ export function useIssue({
           sourceNamespace,
           sourceName,
           inputOIDC: {
-            state,
-            code,
+            state: OIDCstate,
+            code: OIDCcode,
           },
           cookie: !saveTokenStorage,
           cookieDomain: window.location.hostname,
@@ -185,7 +192,7 @@ export function useIssue({
         },
       }).then(handleIssueResponse(saveTokenStorage))
     }
-  }, [state, code, issueUrl, audience, handleIssueResponse])
+  }, [OIDCstate, OIDCcode, issueUrl, audience, handleIssueResponse])
 
   return { token, issueWithLdap, issueWithOidc, issueWithMtls, issueWithA3s }
 }
