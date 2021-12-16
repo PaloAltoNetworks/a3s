@@ -44,9 +44,9 @@ api:
 	cd pkgs/api && make codegen
 
 ui:
-	cd examples/js && yarn build
+	cd examples/js && yarn && yarn build
 
-codegen: api ui generate
+codegen: api ui codegen
 
 a3s:
 	cd cmd/a3s && CGO_ENABLED=0 go build -ldflags="-w -s" -trimpath
@@ -60,7 +60,7 @@ cli:
 cli_linux:
 	cd cmd/a3sctl && CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go install -ldflags="-w -s" -trimpath
 
-docker: codegen a3s_linux package_ca_certs
+docker: codegen generate a3s_linux package_ca_certs
 	mkdir -p docker/in
 	cp cmd/a3s/a3s docker/in
 	cd docker && docker build -t ${DOCKER_REPO}/${DOCKER_IMAGE}:${DOCKER_TAG} .
