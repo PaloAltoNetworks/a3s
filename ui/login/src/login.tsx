@@ -30,11 +30,11 @@ export const Login = () => {
   const OIDCcode = params.get("code")
   const { issueWithLdap, issueWithMtls, issueWithOidc, issueWithA3s, token } =
     useIssue({
-      // apiUrl: "__API_URL__",
-      apiUrl: "https://localhost:44443",
+      apiUrl: "__API_URL__",
+      // apiUrl: "https://localhost:44443",
       redirectUrl: "__REDIRECT_URL__",
-      // audience: ["__AUDIENCE__"],
-      audience: ["https://127.0.0.1:44443"],
+      audience: ["__AUDIENCE__"],
+      // audience: ["https://127.0.0.1:44443"],
       saveToken: cloak === "true",
       OIDCstate,
       OIDCcode,
