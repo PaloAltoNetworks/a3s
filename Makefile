@@ -43,10 +43,10 @@ generate:
 api:
 	cd pkgs/api && make codegen
 
-ui:
+build_ui:
 	cd ui/login && yarn && yarn build
 
-codegen: api ui generate
+codegen: api build_ui generate
 
 a3s:
 	cd cmd/a3s && CGO_ENABLED=0 go build -ldflags="-w -s" -trimpath
