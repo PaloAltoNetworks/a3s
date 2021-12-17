@@ -44,7 +44,7 @@ api:
 	cd pkgs/api && make codegen
 
 ui:
-	cd examples/js && yarn && yarn build
+	cd ui/login && yarn && yarn build
 
 codegen: api ui generate
 
