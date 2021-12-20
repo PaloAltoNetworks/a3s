@@ -155,6 +155,7 @@ export function useIssue({
           cloak,
           cookie: true,
           cookieDomain: window.location.hostname,
+          audience,
         }),
         headers: {
           "Content-Type": "application/json",
