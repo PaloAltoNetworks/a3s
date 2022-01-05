@@ -38,47 +38,50 @@ particular namespace.
 
 * [Quick start](#quick-start)
 * [Using the system](#using-the-system)
-	* [Install a3sctl](#install-a3sctl)
-	* [Obtain a root token](#obtain-a-root-token)
-	* [Test with the sample app](#test-with-the-sample-app)
+    * [Install a3sctl](#install-a3sctl)
+    * [Obtain a root token](#obtain-a-root-token)
+    * [Test with the sample app](#test-with-the-sample-app)
 * [Obtaining identity tokens](#obtaining-identity-tokens)
-	* [Restrictions](#restrictions)
-	* [Cloaking](#cloaking)
-	* [Identity modifiers](#identity-modifiers)
-	* [Authentication sources](#authentication-sources)
-		* [MTLS](#mtls)
-			* [Create an MTLS source](#create-an-mtls-source)
-			* [Obtain a token](#obtain-a-token)
-		* [LDAP](#ldap)
-			* [Create an LDAP source](#create-an-ldap-source)
-			* [Obtain a token](#obtain-a-token-1)
-		* [OIDC](#oidc)
-			* [Create an OIDC source](#create-an-oidc-source)
-			* [Obtain a token](#obtain-a-token-2)
-		* [A3S remote identity token](#a3s-remote-identity-token)
-			* [Create an A3S source](#create-an-a3s-source)
-			* [Obtain a token](#obtain-a-token-3)
-		* [Amazon STS](#amazon-sts)
-		* [Google Cloud Platform token](#google-cloud-platform-token)
-		* [Azure token](#azure-token)
-		* [A3S local identity token](#a3s-local-identity-token)
+    * [Restrictions](#restrictions)
+    * [Cloaking](#cloaking)
+    * [Identity modifiers](#identity-modifiers)
+    * [Authentication sources](#authentication-sources)
+        * [MTLS](#mtls)
+            * [Create an MTLS source](#create-an-mtls-source)
+            * [Obtain a token](#obtain-a-token)
+        * [LDAP](#ldap)
+            * [Create an LDAP source](#create-an-ldap-source)
+            * [Obtain a token](#obtain-a-token-1)
+        * [HTTP](#http)
+            * [Create an HTTP source](#create-an-http-source)
+            * [Obtain a token](#obtain-a-token-2)
+        * [OIDC](#oidc)
+            * [Create an OIDC source](#create-an-oidc-source)
+            * [Obtain a token](#obtain-a-token-3)
+        * [A3S remote identity token](#a3s-remote-identity-token)
+            * [Create an A3S source](#create-an-a3s-source)
+            * [Obtain a token](#obtain-a-token-4)
+        * [Amazon STS](#amazon-sts)
+        * [Google Cloud Platform token](#google-cloud-platform-token)
+        * [Azure token](#azure-token)
+        * [A3S local identity token](#a3s-local-identity-token)
 * [Writing authorizations](#writing-authorizations)
-	* [Subject](#subject)
-	* [Permissions](#permissions)
-	* [Target namespaces](#target-namespaces)
-	* [Examples](#examples)
+    * [Subject](#subject)
+    * [Permissions](#permissions)
+    * [Target namespaces](#target-namespaces)
+    * [Examples](#examples)
 * [Check for permissions from your app](#check-for-permissions-from-your-app)
 * [Using a3sctl](#using-a3sctl)
-	* [Completion](#completion)
-		* [Bash](#bash)
-		* [Zsh](#zsh)
-		* [Fish](#fish)
-	* [Configuration file](#configuration-file)
-	* [Auto authentication](#auto-authentication)
+    * [Completion](#completion)
+        * [Bash](#bash)
+        * [Zsh](#zsh)
+        * [Fish](#fish)
+    * [Configuration file](#configuration-file)
+    * [Auto authentication](#auto-authentication)
 * [Dev environment](#dev-environment)
-	* [Prerequesites](#prerequesites)
-	* [Initialize the environment](#initialize-the-environment)
-	* [Start everything](#start-everything)
+    * [Prerequesites](#prerequesites)
+    * [Initialize the environment](#initialize-the-environment)
+    * [Start everything](#start-everything)
 * [Support](#support)
 * [Contributing](#contributing)
 
@@ -362,6 +365,48 @@ To obtain a token from the newly created source:
 
 	a3sctl auth ldap \
 		--source-name my-ldap-source \
+		--namespace /tutorial \
+		--user bob \
+		--pass s3cr3t
+
+> NOTE: you can set `-` for '--user` and/or `--pass`. In that case, a3sctl will
+> ask for user input from stdin.
+
+#### HTTP
+
+A3S supports using a remote HTTP server as authentication source. The HTTP server must
+be accessible from A3S. A3S will refuse to connect if the server does not
+support MTLS. This can be used to link to your own internal account system.
+
+When an HTTP source is used, A3S will send a POST request to the corresponding
+server containing a json encoded map with the following items:
+
+* `username`: the user provided user name
+* `password`: the user provided password.
+
+The server must respond `200` with a body containing the claims to insert in the
+token as json encoded array (for instance: `["username=bob", "bu=eng"]`). Any
+other status code will be returned as an `401` error to the user.
+
+> NOTE: this authentication source supports identity modifiers.
+
+##### Create an HTTP source
+
+To create an HTTP source, run:
+
+	a3sctl api create httpsource \
+		--with.name my-http-source \
+        --with.url https://myserver.com/login \
+		--with.certificate-authority "$(cat ca-cert.pem)" \
+		--with.certificate "$(cat client-cert.pem)" \
+		--with.key "$(cat client-key.pem)" \
+
+##### Obtain a token
+
+To obtain a token from the newly created source:
+
+	a3sctl auth http \
+		--source-name my-http-source \
 		--namespace /tutorial \
 		--user bob \
 		--pass s3cr3t
