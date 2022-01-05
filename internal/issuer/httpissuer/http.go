@@ -1,6 +1,7 @@
 package httpissuer
 
 import (
+	"bytes"
 	"context"
 	"crypto/tls"
 	"crypto/x509"
@@ -70,10 +71,16 @@ func (c *httpIssuer) fromCredentials(ctx context.Context, username string, passw
 		},
 	}
 
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.source.Endpoint, nil)
+	buf := &bytes.Buffer{}
+	if err := json.NewEncoder(buf).Encode(map[string]string{"username": username, "password": password}); err != nil {
+		return ErrHTTP{Err: fmt.Errorf("unable to encode body: %w", err)}
+	}
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.source.Endpoint, buf)
 	if err != nil {
 		return ErrHTTP{Err: fmt.Errorf("unable to build request: %w", err)}
 	}
+	req.Header.Add("Content-Type", "application/json")
 
 	resp, err := client.Do(req)
 	if err != nil {
