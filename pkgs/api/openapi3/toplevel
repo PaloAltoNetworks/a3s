@@ -169,6 +169,61 @@
         ],
         "type": "object"
       },
+      "httpsource": {
+        "description": "A source that can call a remote service to validate generic credentials.",
+        "properties": {
+          "CA": {
+            "description": "The certificate authority to use to validate the remote http server.",
+            "example": "-----BEGIN CERTIFICATE-----\nMIIBZTCCAQugAwIBAgIRANYvXLTa16Ykvc9hQ4BBLJEwCgYIKoZIzj0EAwIwEjEQ\nMA4GA1UEAxMHQUNNRSBDQTAeFw0yMTExMDEyMzAwMTlaFw0zMTA5MTAyMzAwMTla\nMBIxEDAOBgNVBAMTB0FDTUUgQ0EwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAASa\n7wknroxwB1znupZ67NzTG9Kuc+tNRlbI22eTDNMKYpIexzWDOyiQ95N3GQIdmAz5\nwVu9l2V3VuKUpD9mNgkRo0IwQDAOBgNVHQ8BAf8EBAMCAQYwDwYDVR0TAQH/BAUw\nAwEB/zAdBgNVHQ4EFgQURIT2kL76vMj9A3r9AUnaiHnHf4EwCgYIKoZIzj0EAwID\nSAAwRQIgS4SGaJ/B1Ul88Jal11Q5BwiY9bY2y9w+4xPNBxSyAIcCIQCSWVq+00xS\nbOmROq+EsxO4L/GzJx7MBbeJ6x142VKSBQ==\n-----END CERTIFICATE-----",
+            "type": "string"
+          },
+          "ID": {
+            "description": "ID is the identifier of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "certificate": {
+            "description": "Client certificate required to call URL. A3S will refuse to send data if the\nendpoint does not support client certificate authentication.",
+            "example": "-----BEGIN CERTIFICATE-----\nMIIBPzCB5qADAgECAhEAwbx3c+QW24ePXyD94geytzAKBggqhkjOPQQDAjAPMQ0w\nCwYDVQQDEwR0b3RvMB4XDTE5MDIyMjIzNDA1MFoXDTI4MTIzMTIzNDA1MFowDzEN\nMAsGA1UEAxMEdG90bzBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABJi6CwRDeKks\nXb3pDEslmFGR7k9Aeh5RK+XmdqKKPGb3NQWEFPGolnqOR34iVuf7KSxTuzaaVWfu\nXEa94faUQEqjIzAhMA4GA1UdDwEB/wQEAwIBBjAPBgNVHRMBAf8EBTADAQH/MAoG\nCCqGSM49BAMCA0gAMEUCIQD+nL9RF9EvQXHyYuJ31Lz9yWd9hsK91stnpAs890gS\n/AIgQIKjBBpiyQNZZWso5H04qke9QYMVPegiQQufFFBj32c=\n-----END CERTIFICATE-----",
+            "type": "string"
+          },
+          "description": {
+            "description": "The description of the object.",
+            "type": "string"
+          },
+          "endpoint": {
+            "description": "URL of the remote service. This URL will receive a POST containing the\ncredentials information that must be validated. It must reply with 200 with a\nbody containing a json array that will be used as claims for the token. Any\nother error code will be returned as a 401 error.",
+            "example": "https://modifier.acme.com/modify",
+            "type": "string"
+          },
+          "key": {
+            "description": "Key associated to the client certificate.",
+            "example": "-----BEGIN PRIVATE KEY-----\nMIIBPzCB5qADAgECAhEAwbx3c+QW24ePXyD94geytzAKBggqhkjOPQQDAjAPMQ0w\nCwYDVQQDEwR0b3RvMB4XDTE5MDIyMjIzNDA1MFoXDTI4MTIzMTIzNDA1MFowDzEN\nMAsGA1UEAxMEdG90bzBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABJi6CwRDeKks\nXb3pDEslmFGR7k9Aeh5RK+XmdqKKPGb3NQWEFPGolnqOR34iVuf7KSxTuzaaVWfu\nXEa94faUQEqjIzAhMA4GA1UdDwEB/wQEAwIBBjAPBgNVHRMBAf8EBTADAQH/MAoG\nCCqGSM49BAMCA0gAMEUCIQD+nL9RF9EvQXHyYuJ31Lz9yWd9hsK91stnpAs890gS\n/AIgQIKjBBpiyQNZZWso5H04qke9QYMVPegiQQufFFBj32c=\n-----END PRIVATE KEY-----",
+            "type": "string"
+          },
+          "modifier": {
+            "$ref": "#/components/schemas/identitymodifier"
+          },
+          "name": {
+            "description": "The name of the source.",
+            "example": "my-http-source",
+            "type": "string"
+          },
+          "namespace": {
+            "description": "The namespace of the object.",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "CA",
+          "certificate",
+          "endpoint",
+          "key",
+          "name"
+        ],
+        "type": "object"
+      },
       "identitymodifier": {
         "description": "Information about a remote endpoint to call to eventually modify the identity\nclaims about to be issued when using the parent source.",
         "properties": {
@@ -256,6 +311,9 @@
           "inputGCP": {
             "$ref": "#/components/schemas/issuegcp"
           },
+          "inputHTTP": {
+            "$ref": "#/components/schemas/issuehttp"
+          },
           "inputLDAP": {
             "$ref": "#/components/schemas/issueldap"
           },
@@ -311,15 +369,16 @@
           "sourceType": {
             "description": "The authentication source. This will define how to verify\ncredentials from internal or external source of authentication.",
             "enum": [
-              "AWS",
-              "MTLS",
-              "LDAP",
-              "GCP",
-              "Azure",
-              "OIDC",
-              "SAML",
               "A3S",
-              "RemoteA3S"
+              "AWS",
+              "Azure",
+              "GCP",
+              "HTTP",
+              "LDAP",
+              "MTLS",
+              "OIDC",
+              "RemoteA3S",
+              "SAML"
             ],
             "example": "OIDC"
           },
@@ -408,6 +467,26 @@
         },
         "required": [
           "token"
+        ],
+        "type": "object"
+      },
+      "issuehttp": {
+        "description": "Additional issuing information for the HTTP source.",
+        "properties": {
+          "password": {
+            "description": "The password for the user.",
+            "example": "secret",
+            "type": "string"
+          },
+          "username": {
+            "description": "The username.",
+            "example": "joe",
+            "type": "string"
+          }
+        },
+        "required": [
+          "password",
+          "username"
         ],
         "type": "object"
       },
@@ -1114,6 +1193,152 @@
         },
         "tags": [
           "authz/check",
+          "a3s"
+        ]
+      }
+    },
+    "/httpsources": {
+      "get": {
+        "description": "Retrieves the list of httpsources.",
+        "operationId": "get-all-httpsources",
+        "parameters": [
+          {
+            "description": "This is an example.",
+            "example": "hello == world",
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/httpsource"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "authn/source",
+          "a3s"
+        ]
+      },
+      "post": {
+        "description": "Creates a new httpsource.",
+        "operationId": "create-a-new-httpsource",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/httpsource"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httpsource"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "authn/source",
+          "a3s"
+        ]
+      }
+    },
+    "/httpsources/{id}": {
+      "delete": {
+        "description": "Delete a particular httpsource object.",
+        "operationId": "delete-httpsource-by-ID",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httpsource"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "authn/source",
+          "a3s"
+        ]
+      },
+      "get": {
+        "description": "Get a particular httpsource object.",
+        "operationId": "get-httpsource-by-ID",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httpsource"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "authn/source",
+          "a3s"
+        ]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "put": {
+        "description": "Update a particular httpsource object.",
+        "operationId": "update-httpsource-by-ID",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/httpsource"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httpsource"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "authn/source",
           "a3s"
         ]
       }

@@ -246,6 +246,28 @@ func (a *Client) AuthFromOIDCStep2(ctx context.Context, code string, state strin
 	return a.sendRequest(ctx, req)
 }
 
+// AuthFromHTTP requests a token using the provided username and password from the provided source information.
+func (a *Client) AuthFromHTTP(ctx context.Context, username string, password string, sourceNamespace string, sourceName string, options ...Option) (string, error) {
+
+	cfg := newConfig()
+	for _, opt := range options {
+		opt(&cfg)
+	}
+
+	req := api.NewIssue()
+	req.SourceType = api.IssueSourceTypeHTTP
+	req.SourceName = sourceName
+	req.SourceNamespace = sourceNamespace
+	req.InputHTTP = &api.IssueHTTP{
+		Username: username,
+		Password: password,
+	}
+
+	applyOptions(req, cfg)
+
+	return a.sendRequest(ctx, req)
+}
+
 func (a *Client) sendRequest(ctx context.Context, req *api.Issue) (string, error) {
 
 	if err := a.manipulator.Create(manipulate.NewContext(ctx), req); err != nil {

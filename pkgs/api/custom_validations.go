@@ -169,6 +169,10 @@ func ValidateIssue(iss *Issue) error {
 		if iss.InputOIDC == nil {
 			return makeErr("inputOIDC", "You must set inputOIDC for the requested sourceType")
 		}
+	case IssueSourceTypeHTTP:
+		if iss.InputHTTP == nil {
+			return makeErr("inputHTTP", "You must set inputHTTP for the requested sourceType")
+		}
 	}
 
 	return nil

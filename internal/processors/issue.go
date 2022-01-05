@@ -13,6 +13,7 @@ import (
 	"go.aporeto.io/a3s/internal/issuer/awsissuer"
 	"go.aporeto.io/a3s/internal/issuer/azureissuer"
 	"go.aporeto.io/a3s/internal/issuer/gcpissuer"
+	"go.aporeto.io/a3s/internal/issuer/httpissuer"
 	"go.aporeto.io/a3s/internal/issuer/ldapissuer"
 	"go.aporeto.io/a3s/internal/issuer/mtlsissuer"
 	"go.aporeto.io/a3s/internal/issuer/oidcissuer"
@@ -85,6 +86,9 @@ func (p *IssueProcessor) ProcessCreate(bctx bahamut.Context) (err error) {
 
 	case api.IssueSourceTypeLDAP:
 		issuer, err = p.handleLDAPIssue(bctx.Context(), req)
+
+	case api.IssueSourceTypeHTTP:
+		issuer, err = p.handleHTTPIssue(bctx.Context(), req)
 
 	case api.IssueSourceTypeAWS:
 		issuer, err = p.handleAWSIssue(bctx.Context(), req)
@@ -200,6 +204,22 @@ func (p *IssueProcessor) handleLDAPIssue(ctx context.Context, req *api.Issue) (t
 
 	src := out.(*api.LDAPSource)
 	iss, err := ldapissuer.New(ctx, src, req.InputLDAP.Username, req.InputLDAP.Password)
+	if err != nil {
+		return nil, err
+	}
+
+	return iss, nil
+}
+
+func (p *IssueProcessor) handleHTTPIssue(ctx context.Context, req *api.Issue) (token.Issuer, error) {
+
+	out, err := retrieveSource(ctx, p.manipulator, req.SourceNamespace, req.SourceName, api.HTTPSourceIdentity)
+	if err != nil {
+		return nil, err
+	}
+
+	src := out.(*api.HTTPSource)
+	iss, err := httpissuer.New(ctx, src, req.InputHTTP.Username, req.InputHTTP.Password)
 	if err != nil {
 		return nil, err
 	}

@@ -30,6 +30,15 @@ relations:
   create:
     description: Sends a authz request.
 
+- rest_name: httpsource
+
+  get:
+    description: Retrieves the list of httpsources.
+    global_parameters:
+    - $queryable
+  create:
+    description: Creates a new httpsource.
+
 - rest_name: issue
   create:
     description: Ask to issue a new authentication token.

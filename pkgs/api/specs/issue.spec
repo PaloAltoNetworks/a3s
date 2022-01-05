@@ -87,6 +87,16 @@ attributes:
       noInit: true
       refMode: pointer
 
+  - name: inputHTTP
+    description: Contains additional information for an HTTP source.
+    type: ref
+    exposed: true
+    subtype: issuehttp
+    omit_empty: true
+    extensions:
+      noInit: true
+      refMode: pointer
+
   - name: inputLDAP
     description: Contains additional information for an LDAP source.
     type: ref
@@ -202,15 +212,16 @@ attributes:
     exposed: true
     required: true
     allowed_choices:
-    - AWS
-    - MTLS
-    - LDAP
-    - GCP
-    - Azure
-    - OIDC
-    - SAML
     - A3S
+    - AWS
+    - Azure
+    - GCP
+    - HTTP
+    - LDAP
+    - MTLS
+    - OIDC
     - RemoteA3S
+    - SAML
     example_value: OIDC
 
   - name: token

@@ -332,6 +332,42 @@ func TestAuthFromOIDCStep2(t *testing.T) {
 	})
 }
 
+func TestAuthFromHTTP(t *testing.T) {
+
+	Convey("The function should work", t, func() {
+
+		expectedRequest := api.NewIssue()
+
+		m := maniptest.NewTestManipulator()
+		m.MockCreate(t, func(mctx manipulate.Context, object elemental.Identifiable) error {
+			expectedRequest = object.(*api.Issue)
+			expectedRequest.Token = "yeay!"
+			return nil
+		})
+
+		cl := NewClient(m)
+
+		token, err := cl.AuthFromHTTP(
+			context.Background(),
+			"user",
+			"pass",
+			"/ns",
+			"name",
+			OptAudience("aud"),
+		)
+
+		So(err, ShouldBeNil)
+		So(expectedRequest.SourceType, ShouldEqual, api.IssueSourceTypeHTTP)
+		So(expectedRequest.SourceNamespace, ShouldEqual, "/ns")
+		So(expectedRequest.SourceName, ShouldEqual, "name")
+		So(expectedRequest.Audience, ShouldResemble, []string{"aud"})
+		So(expectedRequest.Validity, ShouldEqual, time.Hour.String())
+		So(expectedRequest.InputHTTP.Username, ShouldEqual, "user")
+		So(expectedRequest.InputHTTP.Password, ShouldEqual, "pass")
+		So(token, ShouldEqual, "yeay!")
+	})
+}
+
 func TestSendRequest(t *testing.T) {
 
 	Convey("Calling sendRequest when everything is ok should work. ", t, func() {
