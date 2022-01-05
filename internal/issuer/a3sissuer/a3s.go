@@ -14,7 +14,7 @@ func New(
 	tokenString string,
 	keychain *token.JWKS,
 	requiredIssuer string,
-	requiredAudience string,
+	audience jwt.ClaimStrings,
 	validity time.Duration,
 	restrictions permissions.Restrictions,
 ) (token.Issuer, error) {
@@ -24,7 +24,7 @@ func New(
 		tokenString,
 		keychain,
 		requiredIssuer,
-		requiredAudience,
+		audience,
 		validity,
 		restrictions,
 	); err != nil {
@@ -46,7 +46,7 @@ func (c *a3sIssuer) fromToken(
 	tokenString string,
 	keychain *token.JWKS,
 	issuer string,
-	audience string,
+	audience jwt.ClaimStrings,
 	validity time.Duration,
 	restrictions permissions.Restrictions,
 ) error {
@@ -56,8 +56,18 @@ func (c *a3sIssuer) fromToken(
 		return ErrComputeRestrictions{Err: err}
 	}
 
-	if c.token, err = token.Parse(tokenString, keychain, issuer, audience); err != nil {
+	if c.token, err = token.Parse(tokenString, keychain, issuer, ""); err != nil {
 		return ErrInputToken{Err: err}
+	}
+
+	if len(audience) == 0 && len(c.token.Audience) != 0 {
+		return ErrInputToken{Err: fmt.Errorf("you cannot request a token with no audience from a token that has one")}
+	}
+
+	for _, aud := range audience {
+		if !c.token.VerifyAudience(aud, true) {
+			return ErrInputToken{Err: fmt.Errorf("requested audience '%s' is not declared in initial token", aud)}
+		}
 	}
 
 	if !orest.Zero() {

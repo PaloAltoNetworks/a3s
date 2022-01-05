@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from "react"
+import { useCallback, useEffect, useState } from "react"
 
 interface IssueParams {
   sourceNamespace: string
@@ -24,14 +24,54 @@ interface UseIssueOptions {
    * The audience for the JWT.
    */
   audience: string[]
+  /**
+   * Save the token in the `token` state, instead of instant redirect.
+   */
+  saveToken?: boolean
+  /**
+   * If both state and code exists, OIDC login will be automatically triggered.
+   */
+  OIDCstate?: string | null
+  /**
+   * If both state and code exists, OIDC login will be automatically triggered.
+   */
+  OIDCcode?: string | null
 }
 
 /**
  * TODO: Support custom fetch function.
  * TODO: Add error handling
  */
-export function useIssue({ apiUrl, redirectUrl, audience }: UseIssueOptions) {
+export function useIssue({
+  apiUrl,
+  redirectUrl,
+  audience,
+  saveToken: saveTokenDefault = false,
+  OIDCstate,
+  OIDCcode,
+}: UseIssueOptions) {
   const issueUrl = `${apiUrl}/issue`
+  /**
+   * Token is only stored when `saveToken` is true.
+   */
+  const [token, setToken] = useState<string | null>(null)
+
+  const handleIssueResponse = useCallback(
+    (saveToken: boolean) => async (res: Response) => {
+      if (res.status === 200) {
+        if (saveToken) {
+          setToken((await res.json()).token)
+        } else {
+          window.location.href = redirectUrl
+        }
+      } else {
+        console.error(
+          "Request to issue failed. Please check the network tab for details"
+        )
+      }
+    },
+    [setToken, redirectUrl]
+  )
 
   const issueWithLdap = useCallback(
     ({ sourceNamespace, sourceName, username, password }: IssueLdapParams) =>
@@ -45,23 +85,15 @@ export function useIssue({ apiUrl, redirectUrl, audience }: UseIssueOptions) {
             username,
             password,
           },
-          cookie: true,
+          cookie: !saveTokenDefault,
           cookieDomain: window.location.hostname,
           audience,
         }),
         headers: {
           "Content-Type": "application/json",
         },
-      }).then(res => {
-        if (res.status === 200) {
-          window.location.href = redirectUrl
-        } else {
-          console.error(
-            "Request to issue failed. Please check the network tab for details"
-          )
-        }
-      }),
-    [issueUrl]
+      }).then(handleIssueResponse(saveTokenDefault)),
+    [issueUrl, audience, handleIssueResponse, saveTokenDefault]
   )
 
   const issueWithMtls = useCallback(
@@ -72,23 +104,15 @@ export function useIssue({ apiUrl, redirectUrl, audience }: UseIssueOptions) {
           sourceType: "MTLS",
           sourceNamespace,
           sourceName,
-          cookie: true,
+          cookie: !saveTokenDefault,
           cookieDomain: window.location.hostname,
           audience,
         }),
         headers: {
           "Content-Type": "application/json",
         },
-      }).then(res => {
-        if (res.status === 200) {
-          window.location.href = redirectUrl
-        } else {
-          console.error(
-            "Request to issue failed. Please check the network tab for details"
-          )
-        }
-      }),
-    [issueUrl]
+      }).then(handleIssueResponse(saveTokenDefault)),
+    [issueUrl, audience, handleIssueResponse, saveTokenDefault]
   )
 
   const issueWithOidc = useCallback(
@@ -113,32 +137,22 @@ export function useIssue({ apiUrl, redirectUrl, audience }: UseIssueOptions) {
         .then(obj => {
           localStorage.setItem("sourceNamespace", sourceNamespace)
           localStorage.setItem("sourceName", sourceName)
+          localStorage.setItem("saveToken", saveTokenDefault ? "true" : "false")
           window.location.href = obj.inputOIDC.authURL
         }),
-    [issueUrl]
+    [issueUrl, saveTokenDefault]
   )
 
-  // Below for handling auto login after OIDC redirection
-  const params = new URLSearchParams(window.location.search)
-  const state = params.get("state")
-  const code = params.get("code")
-  useEffect(() => {
-    const sourceNamespace = localStorage.getItem("sourceNamespace")
-    const sourceName = localStorage.getItem("sourceName")
-    // Clear local storage immediately
-    localStorage.removeItem("sourceNamespace")
-    localStorage.removeItem("sourceName")
-    if (state && code && sourceNamespace && sourceName) {
+  const issueWithA3s = useCallback(
+    ({ token, cloak }: { token: string; cloak: string[] }) =>
       fetch(issueUrl, {
         method: "POST",
         body: JSON.stringify({
-          sourceType: "OIDC",
-          sourceNamespace,
-          sourceName,
-          inputOIDC: {
-            state,
-            code,
+          sourceType: "A3S",
+          inputA3S: {
+            token,
           },
+          cloak,
           cookie: true,
           cookieDomain: window.location.hostname,
           audience,
@@ -146,17 +160,40 @@ export function useIssue({ apiUrl, redirectUrl, audience }: UseIssueOptions) {
         headers: {
           "Content-Type": "application/json",
         },
-      }).then(res => {
-        if (res.status === 200) {
-          window.location.href = redirectUrl
-        } else {
-          console.error(
-            "Request to issue failed. Please check the network tab for details"
-          )
-        }
-      })
-    }
-  }, [state, code, issueUrl])
+      }).then(handleIssueResponse(false)),
+    []
+  )
 
-  return { issueWithLdap, issueWithOidc, issueWithMtls }
+  // Below for handling auto login after OIDC redirection
+  useEffect(() => {
+    const sourceNamespace = localStorage.getItem("sourceNamespace")
+    const sourceName = localStorage.getItem("sourceName")
+    const saveTokenStorage = localStorage.getItem("saveToken") === "true"
+    // Clear local storage immediately
+    localStorage.removeItem("sourceNamespace")
+    localStorage.removeItem("sourceName")
+    localStorage.removeItem("saveToken")
+    if (OIDCstate && OIDCcode && sourceNamespace && sourceName) {
+      fetch(issueUrl, {
+        method: "POST",
+        body: JSON.stringify({
+          sourceType: "OIDC",
+          sourceNamespace,
+          sourceName,
+          inputOIDC: {
+            state: OIDCstate,
+            code: OIDCcode,
+          },
+          cookie: !saveTokenStorage,
+          cookieDomain: window.location.hostname,
+          audience,
+        }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }).then(handleIssueResponse(saveTokenStorage))
+    }
+  }, [OIDCstate, OIDCcode, issueUrl, audience, handleIssueResponse])
+
+  return { token, issueWithLdap, issueWithOidc, issueWithMtls, issueWithA3s }
 }

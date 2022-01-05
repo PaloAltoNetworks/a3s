@@ -85,8 +85,10 @@ func Parse(tokenString string, keychain *JWKS, trustedIssuer string, requiredAud
 		return nil, fmt.Errorf("issuer '%s' is not acceptable. want '%s'", claims.Issuer, trustedIssuer)
 	}
 
-	if !claims.VerifyAudience(requiredAudience, true) {
-		return nil, fmt.Errorf("audience '%s' is not acceptable. want '%s'", claims.Audience, requiredAudience)
+	if requiredAudience != "" {
+		if !claims.VerifyAudience(requiredAudience, true) {
+			return nil, fmt.Errorf("audience '%s' is not acceptable. want '%s'", claims.Audience, requiredAudience)
+		}
 	}
 
 	return t, nil

@@ -1,5 +1,4 @@
 import { useState } from "react"
-import { render } from "react-dom"
 import { Box } from "@mui/system"
 import {
   Button,
@@ -9,34 +8,61 @@ import {
   FormControlLabel,
   FormControl,
   FormLabel,
+  Checkbox,
+  Typography,
 } from "@mui/material"
 import { useIssue } from "./useIssue"
+import { CloakDialog } from "./cloak-dialog"
+import jwtDecode from "jwt-decode"
 
-const App = () => {
-  const { issueWithLdap, issueWithMtls, issueWithOidc } = useIssue({
-    apiUrl: "__API_URL__",
-    redirectUrl: "__REDIRECT_URL__",
-    audience: ["__AUDIENCE__"],
-  })
+type StringBoolean = "true" | "false"
+
+export const Login = () => {
+  const [cloak, setCloak] = useState("__ENABLE_CLOAKING__" as StringBoolean)
   const [sourceType, setSourceType] = useState("MTLS")
   const [sourceNamespace, setSourceNamespace] = useState("/")
   const [sourceName, setSourceName] = useState("")
   const [ldapUsername, setLdapUsername] = useState("")
   const [ldapPassword, setLdapPassword] = useState("")
 
-  return (
-    <Box
-      sx={{
-        display: "flex",
-        height: "100vh",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-      }}
-    >
+  const params = new URLSearchParams(window.location.search)
+  const OIDCstate = params.get("state")
+  const OIDCcode = params.get("code")
+  const { issueWithLdap, issueWithMtls, issueWithOidc, issueWithA3s, token } =
+    useIssue({
+      apiUrl: "__API_URL__",
+      // apiUrl: "https://localhost:44443",
+      redirectUrl: "__REDIRECT_URL__",
+      audience: ["__AUDIENCE__"],
+      // audience: ["https://127.0.0.1:44443"],
+      saveToken: cloak === "true",
+      OIDCstate,
+      OIDCcode,
+    })
+
+  // Render identities for cloak mode
+  let identities: string[] = []
+  if (token) {
+    try {
+      const decoded = jwtDecode(token) as Record<string, any>
+      if (Array.isArray(decoded.identity)) {
+        // Dedupe
+        identities = [...new Set(decoded.identity)]
+      }
+    } catch (e) {
+      console.error(e)
+    }
+  }
+
+  let mainContent: JSX.Element
+  if (OIDCstate && OIDCcode) {
+    mainContent = <Typography>Authenticating using OIDC...</Typography>
+  } else {
+    mainContent = (
       <Box
         sx={{
           display: "flex",
+          // Avoid vertical position shift of the auth sources when switching between them.
           minHeight: "400px",
           alignItems: "flex-start",
         }}
@@ -107,6 +133,17 @@ const App = () => {
               />
             </>
           )}
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={cloak === "true"}
+                onChange={e => {
+                  setCloak(e.target.checked ? "true" : "false")
+                }}
+              />
+            }
+            label="Cloak claims"
+          />
           <Button
             onClick={() => {
               sourceType === "MTLS"
@@ -135,8 +172,20 @@ const App = () => {
           </Button>
         </Box>
       </Box>
-    </Box>
+    )
+  }
+
+  return (
+    <>
+      {mainContent}
+      {!!identities.length && (
+        <CloakDialog
+          identities={identities}
+          onConfirm={cloak => {
+            issueWithA3s({ token: token!, cloak })
+          }}
+        />
+      )}
+    </>
   )
 }
-
-render(<App />, document.getElementById("root"))

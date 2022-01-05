@@ -105,7 +105,7 @@ func (p *IssueProcessor) ProcessCreate(bctx bahamut.Context) (err error) {
 		}
 
 	case api.IssueSourceTypeA3S:
-		issuer, err = p.handleTokenIssue(bctx.Context(), req, validity)
+		issuer, err = p.handleTokenIssue(bctx.Context(), req, validity, audience)
 		// we reset to 0 to skip setting exp during issuing of the token
 		// as the token issers already caps it.
 		exp = time.Time{}
@@ -237,13 +237,13 @@ func (p *IssueProcessor) handleGCPIssue(ctx context.Context, req *api.Issue) (to
 	return iss, nil
 }
 
-func (p *IssueProcessor) handleTokenIssue(ctx context.Context, req *api.Issue, validity time.Duration) (token.Issuer, error) {
+func (p *IssueProcessor) handleTokenIssue(ctx context.Context, req *api.Issue, validity time.Duration, audience []string) (token.Issuer, error) {
 
 	iss, err := a3sissuer.New(
 		req.InputA3S.Token,
 		p.jwks,
 		p.issuer,
-		p.audience,
+		audience,
 		validity,
 		permissions.Restrictions{
 			Namespace:   req.RestrictedNamespace,
