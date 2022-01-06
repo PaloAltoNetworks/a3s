@@ -24,6 +24,9 @@ const (
 	// IssueSourceTypeGCP represents the value GCP.
 	IssueSourceTypeGCP IssueSourceTypeValue = "GCP"
 
+	// IssueSourceTypeHTTP represents the value HTTP.
+	IssueSourceTypeHTTP IssueSourceTypeValue = "HTTP"
+
 	// IssueSourceTypeLDAP represents the value LDAP.
 	IssueSourceTypeLDAP IssueSourceTypeValue = "LDAP"
 
@@ -138,6 +141,9 @@ type Issue struct {
 	// Contains additional information for an GCP token source.
 	InputGCP *IssueGCP `json:"inputGCP,omitempty" msgpack:"inputGCP,omitempty" bson:"-" mapstructure:"inputGCP,omitempty"`
 
+	// Contains additional information for an HTTP source.
+	InputHTTP *IssueHTTP `json:"inputHTTP,omitempty" msgpack:"inputHTTP,omitempty" bson:"-" mapstructure:"inputHTTP,omitempty"`
+
 	// Contains additional information for an LDAP source.
 	InputLDAP *IssueLDAP `json:"inputLDAP,omitempty" msgpack:"inputLDAP,omitempty" bson:"-" mapstructure:"inputLDAP,omitempty"`
 
@@ -210,10 +216,10 @@ func NewIssue() *Issue {
 
 	return &Issue{
 		ModelVersion:          1,
-		Audience:              []string{},
+		Cloak:                 []string{},
 		Opaque:                map[string]string{},
 		RestrictedNetworks:    []string{},
-		Cloak:                 []string{},
+		Audience:              []string{},
 		RestrictedPermissions: []string{},
 		Validity:              "24h",
 	}
@@ -309,6 +315,7 @@ func (o *Issue) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			InputAWS:              o.InputAWS,
 			InputAzure:            o.InputAzure,
 			InputGCP:              o.InputGCP,
+			InputHTTP:             o.InputHTTP,
 			InputLDAP:             o.InputLDAP,
 			InputOIDC:             o.InputOIDC,
 			InputRemoteA3S:        o.InputRemoteA3S,
@@ -343,6 +350,8 @@ func (o *Issue) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.InputAzure = o.InputAzure
 		case "inputGCP":
 			sp.InputGCP = o.InputGCP
+		case "inputHTTP":
+			sp.InputHTTP = o.InputHTTP
 		case "inputLDAP":
 			sp.InputLDAP = o.InputLDAP
 		case "inputOIDC":
@@ -403,6 +412,9 @@ func (o *Issue) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.InputGCP != nil {
 		o.InputGCP = so.InputGCP
+	}
+	if so.InputHTTP != nil {
+		o.InputHTTP = so.InputHTTP
 	}
 	if so.InputLDAP != nil {
 		o.InputLDAP = so.InputLDAP
@@ -500,6 +512,13 @@ func (o *Issue) Validate() error {
 		}
 	}
 
+	if o.InputHTTP != nil {
+		elemental.ResetDefaultForZeroValues(o.InputHTTP)
+		if err := o.InputHTTP.Validate(); err != nil {
+			errors = errors.Append(err)
+		}
+	}
+
 	if o.InputLDAP != nil {
 		elemental.ResetDefaultForZeroValues(o.InputLDAP)
 		if err := o.InputLDAP.Validate(); err != nil {
@@ -529,7 +548,7 @@ func (o *Issue) Validate() error {
 		requiredErrors = requiredErrors.Append(err)
 	}
 
-	if err := elemental.ValidateStringInList("sourceType", string(o.SourceType), []string{"AWS", "MTLS", "LDAP", "GCP", "Azure", "OIDC", "SAML", "A3S", "RemoteA3S"}, false); err != nil {
+	if err := elemental.ValidateStringInList("sourceType", string(o.SourceType), []string{"A3S", "AWS", "Azure", "GCP", "HTTP", "LDAP", "MTLS", "OIDC", "RemoteA3S", "SAML"}, false); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -592,6 +611,8 @@ func (o *Issue) ValueForAttribute(name string) interface{} {
 		return o.InputAzure
 	case "inputGCP":
 		return o.InputGCP
+	case "inputHTTP":
+		return o.InputHTTP
 	case "inputLDAP":
 		return o.InputLDAP
 	case "inputOIDC":
@@ -693,6 +714,15 @@ know all of the claims.`,
 		Exposed:        true,
 		Name:           "inputGCP",
 		SubType:        "issuegcp",
+		Type:           "ref",
+	},
+	"InputHTTP": {
+		AllowedChoices: []string{},
+		ConvertedName:  "InputHTTP",
+		Description:    `Contains additional information for an HTTP source.`,
+		Exposed:        true,
+		Name:           "inputHTTP",
+		SubType:        "issuehttp",
 		Type:           "ref",
 	},
 	"InputLDAP": {
@@ -799,7 +829,7 @@ engine has no effect and may end up making the token unusable.`,
 		Type:           "string",
 	},
 	"SourceType": {
-		AllowedChoices: []string{"AWS", "MTLS", "LDAP", "GCP", "Azure", "OIDC", "SAML", "A3S", "RemoteA3S"},
+		AllowedChoices: []string{"A3S", "AWS", "Azure", "GCP", "HTTP", "LDAP", "MTLS", "OIDC", "RemoteA3S", "SAML"},
 		ConvertedName:  "SourceType",
 		Description: `The authentication source. This will define how to verify
 credentials from internal or external source of authentication.`,
@@ -903,6 +933,15 @@ know all of the claims.`,
 		Exposed:        true,
 		Name:           "inputGCP",
 		SubType:        "issuegcp",
+		Type:           "ref",
+	},
+	"inputhttp": {
+		AllowedChoices: []string{},
+		ConvertedName:  "InputHTTP",
+		Description:    `Contains additional information for an HTTP source.`,
+		Exposed:        true,
+		Name:           "inputHTTP",
+		SubType:        "issuehttp",
 		Type:           "ref",
 	},
 	"inputldap": {
@@ -1009,7 +1048,7 @@ engine has no effect and may end up making the token unusable.`,
 		Type:           "string",
 	},
 	"sourcetype": {
-		AllowedChoices: []string{"AWS", "MTLS", "LDAP", "GCP", "Azure", "OIDC", "SAML", "A3S", "RemoteA3S"},
+		AllowedChoices: []string{"A3S", "AWS", "Azure", "GCP", "HTTP", "LDAP", "MTLS", "OIDC", "RemoteA3S", "SAML"},
 		ConvertedName:  "SourceType",
 		Description: `The authentication source. This will define how to verify
 credentials from internal or external source of authentication.`,
@@ -1129,6 +1168,9 @@ type SparseIssue struct {
 
 	// Contains additional information for an GCP token source.
 	InputGCP *IssueGCP `json:"inputGCP,omitempty" msgpack:"inputGCP,omitempty" bson:"-" mapstructure:"inputGCP,omitempty"`
+
+	// Contains additional information for an HTTP source.
+	InputHTTP *IssueHTTP `json:"inputHTTP,omitempty" msgpack:"inputHTTP,omitempty" bson:"-" mapstructure:"inputHTTP,omitempty"`
 
 	// Contains additional information for an LDAP source.
 	InputLDAP *IssueLDAP `json:"inputLDAP,omitempty" msgpack:"inputLDAP,omitempty" bson:"-" mapstructure:"inputLDAP,omitempty"`
@@ -1281,6 +1323,9 @@ func (o *SparseIssue) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.InputGCP != nil {
 		out.InputGCP = o.InputGCP
+	}
+	if o.InputHTTP != nil {
+		out.InputHTTP = o.InputHTTP
 	}
 	if o.InputLDAP != nil {
 		out.InputLDAP = o.InputLDAP

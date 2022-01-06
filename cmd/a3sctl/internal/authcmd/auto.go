@@ -81,6 +81,11 @@ func makeAutoCmd(mmaker manipcli.ManipulatorMaker) *cobra.Command {
 //      autoauth.ldap.pass: the password.
 //      autoauth.ldap.source.name: the name of the LDAP source to use.
 //      autoauth.ldap.source.namespace: the namespace of the LDAP source to use.
+// autoauth.enable: http
+//      autoauth.http.user: the username.
+//      autoauth.http.pass: the password.
+//      autoauth.http.source.name: the name of the HTTP source to use.
+//      autoauth.http.source.namespace: the namespace of the HTTP source to use.
 func HandleAutoAuth(mmaker manipcli.ManipulatorMaker, method string, overrideAudience []string, overrideCloak []string, refresh bool) error {
 
 	if viper.GetString("token") != "" {
@@ -161,6 +166,25 @@ func HandleAutoAuth(mmaker manipcli.ManipulatorMaker, method string, overrideAud
 				viper.GetString("autoauth.ldap.source.name"),
 				overrideIfNeeded("autoauth.ldap.audience", overrideAudience),
 				overrideIfNeeded("autoauth.ldap.cloak", overrideCloak),
+				24*time.Hour,
+				nil,
+			)
+			if err != nil {
+				return fmt.Errorf("unable to retrieve token from autoauth info: %w", err)
+			}
+			data = []byte(t)
+
+		case "http", "HTTP":
+			zap.L().Debug("autoauth: retrieving token using autoauth.http")
+			t, err := GetHTTPToken(
+				mmaker,
+				helpers.ReadFlag("username: ", "autoauth.http.user", false),
+				helpers.ReadFlag("password: ", "autoauth.http.pass", true),
+				"",
+				viper.GetString("autoauth.http.source.namespace"),
+				viper.GetString("autoauth.http.source.name"),
+				overrideIfNeeded("autoauth.http.audience", overrideAudience),
+				overrideIfNeeded("autoauth.http.cloak", overrideCloak),
 				24*time.Hour,
 				nil,
 			)

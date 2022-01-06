@@ -7,6 +7,7 @@ var (
 		"a3ssource":     A3SSourceIdentity,
 		"authorization": AuthorizationIdentity,
 		"authz":         AuthzIdentity,
+		"httpsource":    HTTPSourceIdentity,
 
 		"issue": IssueIdentity,
 
@@ -22,6 +23,7 @@ var (
 		"a3ssources":     A3SSourceIdentity,
 		"authorizations": AuthorizationIdentity,
 		"authz":          AuthzIdentity,
+		"httpsources":    HTTPSourceIdentity,
 
 		"issue": IssueIdentity,
 
@@ -50,6 +52,12 @@ var (
 			{"namespace", "ID"},
 		},
 		"authz": nil,
+		"httpsource": {
+			{"namespace", "name"},
+			{":shard", ":unique", "zone", "zHash"},
+			{"namespace"},
+			{"namespace", "ID"},
+		},
 		"issue": nil,
 		"ldapsource": {
 			{"namespace", "name"},
@@ -124,6 +132,8 @@ func (f modelManager) Identifiable(identity elemental.Identity) elemental.Identi
 		return NewAuthorization()
 	case AuthzIdentity:
 		return NewAuthz()
+	case HTTPSourceIdentity:
+		return NewHTTPSource()
 	case IssueIdentity:
 		return NewIssue()
 	case LDAPSourceIdentity:
@@ -153,6 +163,8 @@ func (f modelManager) SparseIdentifiable(identity elemental.Identity) elemental.
 		return NewSparseAuthorization()
 	case AuthzIdentity:
 		return NewSparseAuthz()
+	case HTTPSourceIdentity:
+		return NewSparseHTTPSource()
 	case IssueIdentity:
 		return NewSparseIssue()
 	case LDAPSourceIdentity:
@@ -190,6 +202,8 @@ func (f modelManager) Identifiables(identity elemental.Identity) elemental.Ident
 		return &AuthorizationsList{}
 	case AuthzIdentity:
 		return &AuthzsList{}
+	case HTTPSourceIdentity:
+		return &HTTPSourcesList{}
 	case IssueIdentity:
 		return &IssuesList{}
 	case LDAPSourceIdentity:
@@ -217,6 +231,8 @@ func (f modelManager) SparseIdentifiables(identity elemental.Identity) elemental
 		return &SparseAuthorizationsList{}
 	case AuthzIdentity:
 		return &SparseAuthzsList{}
+	case HTTPSourceIdentity:
+		return &SparseHTTPSourcesList{}
 	case IssueIdentity:
 		return &SparseIssuesList{}
 	case LDAPSourceIdentity:
@@ -260,6 +276,7 @@ func AllIdentities() []elemental.Identity {
 		A3SSourceIdentity,
 		AuthorizationIdentity,
 		AuthzIdentity,
+		HTTPSourceIdentity,
 		IssueIdentity,
 		LDAPSourceIdentity,
 		MTLSSourceIdentity,
@@ -279,6 +296,8 @@ func AliasesForIdentity(identity elemental.Identity) []string {
 	case AuthorizationIdentity:
 		return []string{}
 	case AuthzIdentity:
+		return []string{}
+	case HTTPSourceIdentity:
 		return []string{}
 	case IssueIdentity:
 		return []string{}

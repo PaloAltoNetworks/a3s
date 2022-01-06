@@ -39,6 +39,7 @@ func New(mmaker manipcli.ManipulatorMaker) *cobra.Command {
 		makeAutoCmd(mmaker),
 		makeMTLSCmd(mmaker, restrictions),
 		makeLDAPCmd(mmaker, restrictions),
+		makeHTTPCmd(mmaker, restrictions),
 		makeAzureCmd(mmaker, restrictions),
 		makeGCPCmd(mmaker, restrictions),
 		makeAWSCmd(mmaker, restrictions),

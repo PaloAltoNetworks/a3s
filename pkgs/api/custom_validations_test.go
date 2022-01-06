@@ -878,6 +878,32 @@ func TestValidateIssue(t *testing.T) {
 			false,
 			nil,
 		},
+		{
+			"test http missing",
+			func(*testing.T) args {
+				return args{
+					&Issue{
+						SourceType: IssueSourceTypeHTTP,
+						InputHTTP:  nil,
+					},
+				}
+			},
+			true,
+			nil,
+		},
+		{
+			"test http present",
+			func(*testing.T) args {
+				return args{
+					&Issue{
+						SourceType: IssueSourceTypeHTTP,
+						InputHTTP:  &IssueHTTP{},
+					},
+				}
+			},
+			false,
+			nil,
+		},
 	}
 
 	for _, tt := range tests {
