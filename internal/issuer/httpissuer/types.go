@@ -24,7 +24,7 @@ type ErrHTTPResponse struct {
 }
 
 func (e ErrHTTPResponse) Error() string {
-	return fmt.Sprintf("http status error: %s", e.Err)
+	return fmt.Sprintf("http response error: %s", e.Err)
 }
 
 // Unwrap returns the warped error.
