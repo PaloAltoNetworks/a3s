@@ -247,7 +247,7 @@ func (a *Client) AuthFromOIDCStep2(ctx context.Context, code string, state strin
 }
 
 // AuthFromHTTP requests a token using the provided username and password from the provided source information.
-func (a *Client) AuthFromHTTP(ctx context.Context, username string, password string, sourceNamespace string, sourceName string, options ...Option) (string, error) {
+func (a *Client) AuthFromHTTP(ctx context.Context, username string, password string, totp string, sourceNamespace string, sourceName string, options ...Option) (string, error) {
 
 	cfg := newConfig()
 	for _, opt := range options {
@@ -261,6 +261,7 @@ func (a *Client) AuthFromHTTP(ctx context.Context, username string, password str
 	req.InputHTTP = &api.IssueHTTP{
 		Username: username,
 		Password: password,
+		TOTP:     totp,
 	}
 
 	applyOptions(req, cfg)

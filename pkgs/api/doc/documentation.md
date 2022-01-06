@@ -316,12 +316,19 @@ Additional issuing information for the HTTP source.
 
 ```json
 {
+  "TOTP": "12345",
   "password": "secret",
   "username": "joe"
 }
 ```
 
 #### Attributes
+
+##### `TOTP`
+
+Type: `string`
+
+Time based one time password, if needed.
 
 ##### `password` [`required`]
 

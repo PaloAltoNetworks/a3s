@@ -26,6 +26,7 @@ func makeHTTPCmd(mmaker manipcli.ManipulatorMaker, restrictions *permissions.Res
 			fAudience := viper.GetStringSlice("audience")
 			fUser := helpers.ReadFlag("username: ", "user", false)
 			fPass := helpers.ReadFlag("password: ", "pass", true)
+			fTOTP := helpers.ReadFlag("totp: ", "totp", false)
 			fCloak := viper.GetStringSlice("cloak")
 			fQRCode := viper.GetBool("qrcode")
 			fValidity := viper.GetDuration("validity")
@@ -38,6 +39,7 @@ func makeHTTPCmd(mmaker manipcli.ManipulatorMaker, restrictions *permissions.Res
 				mmaker,
 				fUser,
 				fPass,
+				fTOTP,
 				fSourceNamespace,
 				fSourceName,
 				fAudience,
@@ -57,6 +59,7 @@ func makeHTTPCmd(mmaker manipcli.ManipulatorMaker, restrictions *permissions.Res
 
 	cmd.Flags().String("user", "", "The username to use. Use '-' to prompt.")
 	cmd.Flags().String("pass", "", "The password associateds to the user. Use '-' to prompt.")
+	cmd.Flags().String("totp", "", "Optional one time password. Use '-' to prompt.")
 	cmd.Flags().String("source-name", "default", "The name of the auth source.")
 	cmd.Flags().String("source-namespace", "", "The namespace of the auth source. If omitted, uses --namespace.")
 
@@ -73,7 +76,8 @@ func makeHTTPCmd(mmaker manipcli.ManipulatorMaker, restrictions *permissions.Res
 func GetHTTPToken(
 	mmaker manipcli.ManipulatorMaker,
 	user string,
-	pas string,
+	pass string,
+	totp string,
 	sourceNamespace string,
 	sourceName string,
 	audience []string,
@@ -103,7 +107,8 @@ func GetHTTPToken(
 	return client.AuthFromHTTP(
 		context.Background(),
 		user,
-		pas,
+		pass,
+		totp,
 		sourceNamespace,
 		sourceName,
 		opts...,

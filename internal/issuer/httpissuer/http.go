@@ -16,16 +16,22 @@ import (
 	"go.aporeto.io/tg/tglib"
 )
 
+// A Credentials represents user provided Credentials.
+type Credentials struct {
+	Username string `json:"username,omitempty"`
+	Password string `json:"password,omitempty"`
+	TOTP     string `json:"totp,omitempty"`
+}
+
 // New retrurns new Remote http issuer.
 func New(
 	ctx context.Context,
 	source *api.HTTPSource,
-	username string,
-	password string,
+	creds Credentials,
 ) (token.Issuer, error) {
 
 	c := newHTTPIssuer(source)
-	if err := c.fromCredentials(ctx, username, password); err != nil {
+	if err := c.fromCredentials(ctx, creds); err != nil {
 		return nil, err
 	}
 
@@ -48,7 +54,7 @@ func newHTTPIssuer(source *api.HTTPSource) *httpIssuer {
 	}
 }
 
-func (c *httpIssuer) fromCredentials(ctx context.Context, username string, password string) error {
+func (c *httpIssuer) fromCredentials(ctx context.Context, creds Credentials) error {
 
 	root := x509.NewCertPool()
 	root.AppendCertsFromPEM([]byte(c.source.CA))
@@ -72,7 +78,7 @@ func (c *httpIssuer) fromCredentials(ctx context.Context, username string, passw
 	}
 
 	buf := &bytes.Buffer{}
-	if err := json.NewEncoder(buf).Encode(map[string]string{"username": username, "password": password}); err != nil {
+	if err := json.NewEncoder(buf).Encode(creds); err != nil {
 		return ErrHTTP{Err: fmt.Errorf("unable to encode body: %w", err)}
 	}
 

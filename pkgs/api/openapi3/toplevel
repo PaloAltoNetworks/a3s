@@ -473,6 +473,11 @@
       "issuehttp": {
         "description": "Additional issuing information for the HTTP source.",
         "properties": {
+          "TOTP": {
+            "description": "Time based one time password, if needed.",
+            "example": "12345",
+            "type": "string"
+          },
           "password": {
             "description": "The password for the user.",
             "example": "secret",

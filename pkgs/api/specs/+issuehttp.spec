@@ -24,3 +24,10 @@ attributes:
     exposed: true
     required: true
     example_value: joe
+
+  - name: TOTP
+    description: Time based one time password, if needed.
+    type: string
+    exposed: true
+    example_value: "12345"
+    omit_empty: true

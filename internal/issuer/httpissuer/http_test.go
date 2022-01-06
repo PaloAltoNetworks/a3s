@@ -84,7 +84,7 @@ func TestNew(t *testing.T) {
 				Key:         func() string { c, _ := tglib.KeyToPEM(remoteKey); return string(pem.EncodeToMemory(c)) }(),
 			}
 
-			_, err := New(context.Background(), source, "user", "pass")
+			_, err := New(context.Background(), source, Credentials{Username: "user", Password: "pass"})
 			So(err, ShouldNotBeNil)
 			So(err.Error(), ShouldEqual, `http error: unable to send request: Post "nothttp://coucou.com": unsupported protocol scheme "nothttp"`)
 		})
@@ -99,7 +99,7 @@ func TestNew(t *testing.T) {
 				Key:         func() string { c, _ := tglib.KeyToPEM(remoteKey); return string(pem.EncodeToMemory(c)) }(),
 			}
 
-			_, err := New(context.Background(), source, "user", "pass")
+			_, err := New(context.Background(), source, Credentials{Username: "user", Password: "pass"})
 			So(err, ShouldNotBeNil)
 			So(err.Error(), ShouldEqual, `http error: unable to read certificate: tls: failed to find any PEM data in certificate input`)
 		})
@@ -114,7 +114,7 @@ func TestNew(t *testing.T) {
 				Key:         "not-pem",
 			}
 
-			_, err := New(context.Background(), source, "user", "pass")
+			_, err := New(context.Background(), source, Credentials{Username: "user", Password: "pass"})
 			So(err, ShouldNotBeNil)
 			So(err.Error(), ShouldEqual, `http error: unable to read certificate: could not read key data from bytes: 'not-pem'`)
 		})
@@ -123,6 +123,7 @@ func TestNew(t *testing.T) {
 
 			var expectedUser string
 			var expectedPass string
+			var expectedTOTP string
 
 			ts := httptest.NewServer(
 				http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
@@ -131,6 +132,7 @@ func TestNew(t *testing.T) {
 					_ = json.Unmarshal(data, &d)
 					expectedUser = d["username"]
 					expectedPass = d["password"]
+					expectedTOTP = d["totp"]
 					w.Write([]byte(`["k=v"]`)) // nolint
 				}),
 			)
@@ -143,11 +145,12 @@ func TestNew(t *testing.T) {
 				Key:         func() string { c, _ := tglib.KeyToPEM(remoteKey); return string(pem.EncodeToMemory(c)) }(),
 			}
 
-			iss, err := New(context.Background(), source, "user", "pass")
+			iss, err := New(context.Background(), source, Credentials{Username: "user", Password: "pass", TOTP: "1234"})
 			So(err, ShouldBeNil)
 			So(iss.Issue().Identity, ShouldResemble, []string{"k=v"})
 			So(expectedUser, ShouldEqual, "user")
 			So(expectedPass, ShouldEqual, "pass")
+			So(expectedTOTP, ShouldEqual, "1234")
 		})
 
 		Convey("When server returns an error", func() {
@@ -166,7 +169,7 @@ func TestNew(t *testing.T) {
 				Key:         func() string { c, _ := tglib.KeyToPEM(remoteKey); return string(pem.EncodeToMemory(c)) }(),
 			}
 
-			_, err := New(context.Background(), source, "user", "pass")
+			_, err := New(context.Background(), source, Credentials{Username: "user", Password: "pass"})
 			So(err, ShouldNotBeNil)
 			So(err.Error(), ShouldEqual, `http response error: server responded with '403 Forbidden'`)
 		})
@@ -187,7 +190,7 @@ func TestNew(t *testing.T) {
 				Key:         func() string { c, _ := tglib.KeyToPEM(remoteKey); return string(pem.EncodeToMemory(c)) }(),
 			}
 
-			_, err := New(context.Background(), source, "user", "pass")
+			_, err := New(context.Background(), source, Credentials{Username: "user", Password: "pass"})
 			So(err, ShouldNotBeNil)
 			So(err.Error(), ShouldEqual, `http response error: unable to decode response body: invalid character 'l' looking for beginning of value`)
 		})
@@ -224,7 +227,7 @@ func TestNew(t *testing.T) {
 				},
 			}
 
-			iss, err := New(context.Background(), source, "user", "pass")
+			iss, err := New(context.Background(), source, Credentials{Username: "user", Password: "pass"})
 			So(err, ShouldBeNil)
 			So(iss.Issue().Identity, ShouldResemble, []string{"aa=aa", "bb=bb"})
 		})
@@ -257,7 +260,7 @@ func TestNew(t *testing.T) {
 				},
 			}
 
-			_, err := New(context.Background(), source, "user", "pass")
+			_, err := New(context.Background(), source, Credentials{Username: "user", Password: "pass"})
 			So(err, ShouldNotBeNil)
 			So(err.Error(), ShouldEqual, `unable to prepare source modifier: unable to create certificate: could not read key data from bytes: ''`)
 		})
@@ -292,7 +295,7 @@ func TestNew(t *testing.T) {
 				},
 			}
 
-			_, err := New(context.Background(), source, "user", "pass")
+			_, err := New(context.Background(), source, Credentials{Username: "user", Password: "pass"})
 			So(err, ShouldNotBeNil)
 			So(err.Error(), ShouldEqual, `unable to call modifier: service returned an error: 403 Forbidden`)
 		})

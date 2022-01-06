@@ -10,6 +10,9 @@ import (
 
 // IssueHTTP represents the model of a issuehttp
 type IssueHTTP struct {
+	// Time based one time password, if needed.
+	TOTP string `json:"TOTP,omitempty" msgpack:"TOTP,omitempty" bson:"-" mapstructure:"TOTP,omitempty"`
+
 	// The password for the user.
 	Password string `json:"password" msgpack:"password" bson:"-" mapstructure:"password,omitempty"`
 
@@ -134,6 +137,8 @@ func (*IssueHTTP) AttributeSpecifications() map[string]elemental.AttributeSpecif
 func (o *IssueHTTP) ValueForAttribute(name string) interface{} {
 
 	switch name {
+	case "TOTP":
+		return o.TOTP
 	case "password":
 		return o.Password
 	case "username":
@@ -145,6 +150,14 @@ func (o *IssueHTTP) ValueForAttribute(name string) interface{} {
 
 // IssueHTTPAttributesMap represents the map of attribute for IssueHTTP.
 var IssueHTTPAttributesMap = map[string]elemental.AttributeSpecification{
+	"TOTP": {
+		AllowedChoices: []string{},
+		ConvertedName:  "TOTP",
+		Description:    `Time based one time password, if needed.`,
+		Exposed:        true,
+		Name:           "TOTP",
+		Type:           "string",
+	},
 	"Password": {
 		AllowedChoices: []string{},
 		ConvertedName:  "Password",
@@ -167,6 +180,14 @@ var IssueHTTPAttributesMap = map[string]elemental.AttributeSpecification{
 
 // IssueHTTPLowerCaseAttributesMap represents the map of attribute for IssueHTTP.
 var IssueHTTPLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
+	"totp": {
+		AllowedChoices: []string{},
+		ConvertedName:  "TOTP",
+		Description:    `Time based one time password, if needed.`,
+		Exposed:        true,
+		Name:           "TOTP",
+		Type:           "string",
+	},
 	"password": {
 		AllowedChoices: []string{},
 		ConvertedName:  "Password",

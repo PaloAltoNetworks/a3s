@@ -351,6 +351,7 @@ func TestAuthFromHTTP(t *testing.T) {
 			context.Background(),
 			"user",
 			"pass",
+			"1234",
 			"/ns",
 			"name",
 			OptAudience("aud"),
@@ -364,6 +365,7 @@ func TestAuthFromHTTP(t *testing.T) {
 		So(expectedRequest.Validity, ShouldEqual, time.Hour.String())
 		So(expectedRequest.InputHTTP.Username, ShouldEqual, "user")
 		So(expectedRequest.InputHTTP.Password, ShouldEqual, "pass")
+		So(expectedRequest.InputHTTP.TOTP, ShouldEqual, "1234")
 		So(token, ShouldEqual, "yeay!")
 	})
 }

@@ -10,6 +10,7 @@ app = Flask(__name__)
 @app.route("/login", methods=["POST"])
 def login():
     creds = request.get_json()
+    print("received: %s" % creds)
     if creds["username"] != "john" or creds["password"] != "pass":
         return Response("Forbidden", 401, {})
     return json.dumps(["user=john"])

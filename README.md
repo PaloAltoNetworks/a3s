@@ -381,8 +381,9 @@ support MTLS. This can be used to link to your own internal account system.
 When an HTTP source is used, A3S will send a POST request to the corresponding
 server containing a json encoded map with the following items:
 
-* `username`: the user provided user name
+* `username`: the user provided user name.
 * `password`: the user provided password.
+* `TOTP`: optional one time password for 2FA.
 
 The server must respond `200` with a body containing the claims to insert in the
 token as json encoded array (for instance: `["username=bob", "bu=eng"]`). Any
@@ -409,7 +410,8 @@ To obtain a token from the newly created source:
 		--source-name my-http-source \
 		--namespace /tutorial \
 		--user bob \
-		--pass s3cr3t
+		--pass s3cr3t \
+        --totp 1234
 
 > NOTE: you can set `-` for '--user` and/or `--pass`. In that case, a3sctl will
 > ask for user input from stdin.

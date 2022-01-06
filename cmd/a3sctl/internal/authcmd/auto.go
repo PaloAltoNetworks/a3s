@@ -180,6 +180,7 @@ func HandleAutoAuth(mmaker manipcli.ManipulatorMaker, method string, overrideAud
 				mmaker,
 				helpers.ReadFlag("username: ", "autoauth.http.user", false),
 				helpers.ReadFlag("password: ", "autoauth.http.pass", true),
+				"",
 				viper.GetString("autoauth.http.source.namespace"),
 				viper.GetString("autoauth.http.source.name"),
 				overrideIfNeeded("autoauth.http.audience", overrideAudience),

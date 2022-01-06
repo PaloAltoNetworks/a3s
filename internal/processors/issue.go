@@ -219,7 +219,11 @@ func (p *IssueProcessor) handleHTTPIssue(ctx context.Context, req *api.Issue) (t
 	}
 
 	src := out.(*api.HTTPSource)
-	iss, err := httpissuer.New(ctx, src, req.InputHTTP.Username, req.InputHTTP.Password)
+	iss, err := httpissuer.New(ctx, src, httpissuer.Credentials{
+		Username: req.InputHTTP.Username,
+		Password: req.InputHTTP.Password,
+		TOTP:     req.InputHTTP.TOTP,
+	})
 	if err != nil {
 		return nil, err
 	}
