@@ -63,7 +63,7 @@ type authorizer struct {
 	cache            *nscache.NamespacedCache
 }
 
-// New creates a new Authorizer using cid.
+// New creates a new Authorizer.
 func New(ctx context.Context, retriever permissions.Retriever, pubsub bahamut.PubSubClient, options ...Option) Authorizer {
 
 	cfg := config{}

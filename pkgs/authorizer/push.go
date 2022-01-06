@@ -8,7 +8,6 @@ import (
 	"go.aporeto.io/a3s/pkgs/token"
 	"go.aporeto.io/bahamut"
 	"go.aporeto.io/elemental"
-	"go.aporeto.io/manipulate"
 	"go.uber.org/zap"
 )
 
@@ -24,16 +23,14 @@ type pushedEntity struct {
 
 // A PushDispatchHandler handles dispatching events to push sessions.
 type PushDispatchHandler struct {
-	authorizer  Authorizer
-	manipulator manipulate.Manipulator
+	authorizer Authorizer
 }
 
 // NewPushDispatchHandler returns a new PushDispatchHandler.
-func NewPushDispatchHandler(manipulator manipulate.Manipulator, authorizer Authorizer) *PushDispatchHandler {
+func NewPushDispatchHandler(authorizer Authorizer) *PushDispatchHandler {
 
 	return &PushDispatchHandler{
-		manipulator: manipulator,
-		authorizer:  authorizer,
+		authorizer: authorizer,
 	}
 }
 

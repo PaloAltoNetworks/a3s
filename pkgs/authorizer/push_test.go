@@ -23,9 +23,8 @@ func TestNewPushDispatcher(t *testing.T) {
 		_ = p.Connect(context.Background())
 		r := permissions.NewRetriever(m)
 		a := New(context.Background(), r, p)
-		h := NewPushDispatchHandler(m, a)
+		h := NewPushDispatchHandler(a)
 
-		So(h.manipulator, ShouldEqual, m)
 		So(func() { h.OnPushSessionStart(bahamut.NewMockSession()) }, ShouldNotPanic)
 		So(func() { h.OnPushSessionStop(bahamut.NewMockSession()) }, ShouldNotPanic)
 	})
@@ -37,12 +36,11 @@ func TestOnPushSessionInit(t *testing.T) {
 
 		_, key := getECCert()
 
-		m := maniptest.NewTestManipulator()
 		p := bahamut.NewLocalPubSubClient()
 		_ = p.Connect(context.Background())
 		r := permissions.NewMockRetriever()
 		a := New(context.Background(), r, p)
-		h := NewPushDispatchHandler(m, a)
+		h := NewPushDispatchHandler(a)
 
 		Convey("When there are bad restrictions in the token ", func() {
 
@@ -119,12 +117,11 @@ func TestSummarizeEvent(t *testing.T) {
 
 	Convey("Given I have a push handler", t, func() {
 
-		m := maniptest.NewTestManipulator()
 		p := bahamut.NewLocalPubSubClient()
 		_ = p.Connect(context.Background())
 		r := permissions.NewMockRetriever()
 		a := New(context.Background(), r, p)
-		h := NewPushDispatchHandler(m, a)
+		h := NewPushDispatchHandler(a)
 
 		Convey("Calling SummarizeEvent with an valid event should work", func() {
 
@@ -153,12 +150,11 @@ func TestShouldDispatch(t *testing.T) {
 
 		_, key := getECCert()
 
-		m := maniptest.NewTestManipulator()
 		p := bahamut.NewLocalPubSubClient()
 		_ = p.Connect(context.Background())
 		r := permissions.NewMockRetriever()
 		a := New(context.Background(), r, p)
-		h := NewPushDispatchHandler(m, a)
+		h := NewPushDispatchHandler(a)
 
 		Convey("When we receive a namespace delete event", func() {
 
