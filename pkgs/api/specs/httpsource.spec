@@ -44,6 +44,20 @@ attributes:
     validations:
     - $pem
 
+  - name: URL
+    description: |-
+      URL of the remote service. This URL will receive a POST containing the
+      credentials information that must be validated. It must reply with 200 with a
+      body containing a json array that will be used as claims for the token. Any
+      other error code will be returned as a 401 error.
+    type: string
+    exposed: true
+    stored: true
+    required: true
+    example_value: https://account.acme.com/auth
+    validations:
+    - $url
+
   - name: certificate
     description: |-
       Client certificate required to call URL. A3S will refuse to send data if the
@@ -70,20 +84,6 @@ attributes:
     type: string
     exposed: true
     stored: true
-
-  - name: endpoint
-    description: |-
-      URL of the remote service. This URL will receive a POST containing the
-      credentials information that must be validated. It must reply with 200 with a
-      body containing a json array that will be used as claims for the token. Any
-      other error code will be returned as a 401 error.
-    type: string
-    exposed: true
-    stored: true
-    required: true
-    example_value: https://modifier.acme.com/modify
-    validations:
-    - $url
 
   - name: key
     description: Key associated to the client certificate.

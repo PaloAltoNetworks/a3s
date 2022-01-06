@@ -182,6 +182,11 @@
             "readOnly": true,
             "type": "string"
           },
+          "URL": {
+            "description": "URL of the remote service. This URL will receive a POST containing the\ncredentials information that must be validated. It must reply with 200 with a\nbody containing a json array that will be used as claims for the token. Any\nother error code will be returned as a 401 error.",
+            "example": "https://account.acme.com/auth",
+            "type": "string"
+          },
           "certificate": {
             "description": "Client certificate required to call URL. A3S will refuse to send data if the\nendpoint does not support client certificate authentication.",
             "example": "-----BEGIN CERTIFICATE-----\nMIIBPzCB5qADAgECAhEAwbx3c+QW24ePXyD94geytzAKBggqhkjOPQQDAjAPMQ0w\nCwYDVQQDEwR0b3RvMB4XDTE5MDIyMjIzNDA1MFoXDTI4MTIzMTIzNDA1MFowDzEN\nMAsGA1UEAxMEdG90bzBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABJi6CwRDeKks\nXb3pDEslmFGR7k9Aeh5RK+XmdqKKPGb3NQWEFPGolnqOR34iVuf7KSxTuzaaVWfu\nXEa94faUQEqjIzAhMA4GA1UdDwEB/wQEAwIBBjAPBgNVHRMBAf8EBTADAQH/MAoG\nCCqGSM49BAMCA0gAMEUCIQD+nL9RF9EvQXHyYuJ31Lz9yWd9hsK91stnpAs890gS\n/AIgQIKjBBpiyQNZZWso5H04qke9QYMVPegiQQufFFBj32c=\n-----END CERTIFICATE-----",
@@ -189,11 +194,6 @@
           },
           "description": {
             "description": "The description of the object.",
-            "type": "string"
-          },
-          "endpoint": {
-            "description": "URL of the remote service. This URL will receive a POST containing the\ncredentials information that must be validated. It must reply with 200 with a\nbody containing a json array that will be used as claims for the token. Any\nother error code will be returned as a 401 error.",
-            "example": "https://modifier.acme.com/modify",
             "type": "string"
           },
           "key": {
@@ -217,8 +217,8 @@
         },
         "required": [
           "CA",
+          "URL",
           "certificate",
-          "endpoint",
           "key",
           "name"
         ],

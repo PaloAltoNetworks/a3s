@@ -79,7 +79,7 @@ func TestNew(t *testing.T) {
 			source := &api.HTTPSource{
 				Name:        "name",
 				Namespace:   "/ns",
-				Endpoint:    "nothttp://coucou.com",
+				URL:         "nothttp://coucou.com",
 				Certificate: func() string { c, _ := tglib.CertToPEM(remoteCert); return string(pem.EncodeToMemory(c)) }(),
 				Key:         func() string { c, _ := tglib.KeyToPEM(remoteKey); return string(pem.EncodeToMemory(c)) }(),
 			}
@@ -94,7 +94,7 @@ func TestNew(t *testing.T) {
 			source := &api.HTTPSource{
 				Name:        "name",
 				Namespace:   "/ns",
-				Endpoint:    "nothttp://coucou.com",
+				URL:         "nothttp://coucou.com",
 				Certificate: "not-pem",
 				Key:         func() string { c, _ := tglib.KeyToPEM(remoteKey); return string(pem.EncodeToMemory(c)) }(),
 			}
@@ -109,7 +109,7 @@ func TestNew(t *testing.T) {
 			source := &api.HTTPSource{
 				Name:        "name",
 				Namespace:   "/ns",
-				Endpoint:    "nothttp://coucou.com",
+				URL:         "nothttp://coucou.com",
 				Certificate: func() string { c, _ := tglib.CertToPEM(remoteCert); return string(pem.EncodeToMemory(c)) }(),
 				Key:         "not-pem",
 			}
@@ -140,7 +140,7 @@ func TestNew(t *testing.T) {
 			source := &api.HTTPSource{
 				Name:        "name",
 				Namespace:   "/ns",
-				Endpoint:    ts.URL,
+				URL:         ts.URL,
 				Certificate: func() string { c, _ := tglib.CertToPEM(remoteCert); return string(pem.EncodeToMemory(c)) }(),
 				Key:         func() string { c, _ := tglib.KeyToPEM(remoteKey); return string(pem.EncodeToMemory(c)) }(),
 			}
@@ -164,7 +164,7 @@ func TestNew(t *testing.T) {
 			source := &api.HTTPSource{
 				Name:        "name",
 				Namespace:   "/ns",
-				Endpoint:    ts.URL,
+				URL:         ts.URL,
 				Certificate: func() string { c, _ := tglib.CertToPEM(remoteCert); return string(pem.EncodeToMemory(c)) }(),
 				Key:         func() string { c, _ := tglib.KeyToPEM(remoteKey); return string(pem.EncodeToMemory(c)) }(),
 			}
@@ -185,7 +185,7 @@ func TestNew(t *testing.T) {
 			source := &api.HTTPSource{
 				Name:        "name",
 				Namespace:   "/ns",
-				Endpoint:    ts.URL,
+				URL:         ts.URL,
 				Certificate: func() string { c, _ := tglib.CertToPEM(remoteCert); return string(pem.EncodeToMemory(c)) }(),
 				Key:         func() string { c, _ := tglib.KeyToPEM(remoteKey); return string(pem.EncodeToMemory(c)) }(),
 			}
@@ -215,7 +215,7 @@ func TestNew(t *testing.T) {
 			source := &api.HTTPSource{
 				Name:        "name",
 				Namespace:   "/ns",
-				Endpoint:    ts.URL,
+				URL:         ts.URL,
 				Certificate: func() string { c, _ := tglib.CertToPEM(remoteCert); return string(pem.EncodeToMemory(c)) }(),
 				Key:         func() string { c, _ := tglib.KeyToPEM(remoteKey); return string(pem.EncodeToMemory(c)) }(),
 				Modifier: &api.IdentityModifier{
@@ -250,7 +250,7 @@ func TestNew(t *testing.T) {
 			source := &api.HTTPSource{
 				Name:        "name",
 				Namespace:   "/ns",
-				Endpoint:    ts.URL,
+				URL:         ts.URL,
 				Certificate: func() string { c, _ := tglib.CertToPEM(remoteCert); return string(pem.EncodeToMemory(c)) }(),
 				Key:         func() string { c, _ := tglib.KeyToPEM(remoteKey); return string(pem.EncodeToMemory(c)) }(),
 				Modifier: &api.IdentityModifier{
@@ -283,7 +283,7 @@ func TestNew(t *testing.T) {
 			source := &api.HTTPSource{
 				Name:        "name",
 				Namespace:   "/ns",
-				Endpoint:    ts.URL,
+				URL:         ts.URL,
 				Certificate: func() string { c, _ := tglib.CertToPEM(remoteCert); return string(pem.EncodeToMemory(c)) }(),
 				Key:         func() string { c, _ := tglib.KeyToPEM(remoteKey); return string(pem.EncodeToMemory(c)) }(),
 				Modifier: &api.IdentityModifier{

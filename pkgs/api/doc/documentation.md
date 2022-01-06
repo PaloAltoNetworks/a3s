@@ -558,6 +558,7 @@ AwEB/zAdBgNVHQ4EFgQURIT2kL76vMj9A3r9AUnaiHnHf4EwCgYIKoZIzj0EAwID
 SAAwRQIgS4SGaJ/B1Ul88Jal11Q5BwiY9bY2y9w+4xPNBxSyAIcCIQCSWVq+00xS
 bOmROq+EsxO4L/GzJx7MBbeJ6x142VKSBQ==
 -----END CERTIFICATE-----",
+  "URL": "https://account.acme.com/auth",
   "certificate": "-----BEGIN CERTIFICATE-----
 MIIBPzCB5qADAgECAhEAwbx3c+QW24ePXyD94geytzAKBggqhkjOPQQDAjAPMQ0w
 CwYDVQQDEwR0b3RvMB4XDTE5MDIyMjIzNDA1MFoXDTI4MTIzMTIzNDA1MFowDzEN
@@ -567,7 +568,6 @@ XEa94faUQEqjIzAhMA4GA1UdDwEB/wQEAwIBBjAPBgNVHRMBAf8EBTADAQH/MAoG
 CCqGSM49BAMCA0gAMEUCIQD+nL9RF9EvQXHyYuJ31Lz9yWd9hsK91stnpAs890gS
 /AIgQIKjBBpiyQNZZWso5H04qke9QYMVPegiQQufFFBj32c=
 -----END CERTIFICATE-----",
-  "endpoint": "https://modifier.acme.com/modify",
   "key": "-----BEGIN PRIVATE KEY-----
 MIIBPzCB5qADAgECAhEAwbx3c+QW24ePXyD94geytzAKBggqhkjOPQQDAjAPMQ0w
 CwYDVQQDEwR0b3RvMB4XDTE5MDIyMjIzNDA1MFoXDTI4MTIzMTIzNDA1MFowDzEN
@@ -621,6 +621,15 @@ Type: `string`
 
 ID is the identifier of the object.
 
+##### `URL` [`required`]
+
+Type: `string`
+
+URL of the remote service. This URL will receive a POST containing the
+credentials information that must be validated. It must reply with 200 with a
+body containing a json array that will be used as claims for the token. Any
+other error code will be returned as a 401 error.
+
 ##### `certificate` [`required`]
 
 Type: `string`
@@ -633,15 +642,6 @@ endpoint does not support client certificate authentication.
 Type: `string`
 
 The description of the object.
-
-##### `endpoint` [`required`]
-
-Type: `string`
-
-URL of the remote service. This URL will receive a POST containing the
-credentials information that must be validated. It must reply with 200 with a
-body containing a json array that will be used as claims for the token. Any
-other error code will be returned as a 401 error.
 
 ##### `key` [`required`]
 

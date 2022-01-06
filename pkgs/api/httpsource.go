@@ -86,18 +86,18 @@ type HTTPSource struct {
 	// ID is the identifier of the object.
 	ID string `json:"ID" msgpack:"ID" bson:"-" mapstructure:"ID,omitempty"`
 
+	// URL of the remote service. This URL will receive a POST containing the
+	// credentials information that must be validated. It must reply with 200 with a
+	// body containing a json array that will be used as claims for the token. Any
+	// other error code will be returned as a 401 error.
+	URL string `json:"URL" msgpack:"URL" bson:"url" mapstructure:"URL,omitempty"`
+
 	// Client certificate required to call URL. A3S will refuse to send data if the
 	// endpoint does not support client certificate authentication.
 	Certificate string `json:"certificate" msgpack:"certificate" bson:"certificate" mapstructure:"certificate,omitempty"`
 
 	// The description of the object.
 	Description string `json:"description" msgpack:"description" bson:"description" mapstructure:"description,omitempty"`
-
-	// URL of the remote service. This URL will receive a POST containing the
-	// credentials information that must be validated. It must reply with 200 with a
-	// body containing a json array that will be used as claims for the token. Any
-	// other error code will be returned as a 401 error.
-	Endpoint string `json:"endpoint" msgpack:"endpoint" bson:"endpoint" mapstructure:"endpoint,omitempty"`
 
 	// Key associated to the client certificate.
 	Key string `json:"key" msgpack:"key" bson:"key" mapstructure:"key,omitempty"`
@@ -161,9 +161,9 @@ func (o *HTTPSource) GetBSON() (interface{}, error) {
 	if o.ID != "" {
 		s.ID = bson.ObjectIdHex(o.ID)
 	}
+	s.URL = o.URL
 	s.Certificate = o.Certificate
 	s.Description = o.Description
-	s.Endpoint = o.Endpoint
 	s.Key = o.Key
 	s.Modifier = o.Modifier
 	s.Name = o.Name
@@ -189,9 +189,9 @@ func (o *HTTPSource) SetBSON(raw bson.Raw) error {
 
 	o.CA = s.CA
 	o.ID = s.ID.Hex()
+	o.URL = s.URL
 	o.Certificate = s.Certificate
 	o.Description = s.Description
-	o.Endpoint = s.Endpoint
 	o.Key = s.Key
 	o.Modifier = s.Modifier
 	o.Name = s.Name
@@ -288,9 +288,9 @@ func (o *HTTPSource) ToSparse(fields ...string) elemental.SparseIdentifiable {
 		return &SparseHTTPSource{
 			CA:          &o.CA,
 			ID:          &o.ID,
+			URL:         &o.URL,
 			Certificate: &o.Certificate,
 			Description: &o.Description,
-			Endpoint:    &o.Endpoint,
 			Key:         &o.Key,
 			Modifier:    o.Modifier,
 			Name:        &o.Name,
@@ -307,12 +307,12 @@ func (o *HTTPSource) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.CA = &(o.CA)
 		case "ID":
 			sp.ID = &(o.ID)
+		case "URL":
+			sp.URL = &(o.URL)
 		case "certificate":
 			sp.Certificate = &(o.Certificate)
 		case "description":
 			sp.Description = &(o.Description)
-		case "endpoint":
-			sp.Endpoint = &(o.Endpoint)
 		case "key":
 			sp.Key = &(o.Key)
 		case "modifier":
@@ -344,14 +344,14 @@ func (o *HTTPSource) Patch(sparse elemental.SparseIdentifiable) {
 	if so.ID != nil {
 		o.ID = *so.ID
 	}
+	if so.URL != nil {
+		o.URL = *so.URL
+	}
 	if so.Certificate != nil {
 		o.Certificate = *so.Certificate
 	}
 	if so.Description != nil {
 		o.Description = *so.Description
-	}
-	if so.Endpoint != nil {
-		o.Endpoint = *so.Endpoint
 	}
 	if so.Key != nil {
 		o.Key = *so.Key
@@ -411,19 +411,19 @@ func (o *HTTPSource) Validate() error {
 		errors = errors.Append(err)
 	}
 
+	if err := elemental.ValidateRequiredString("URL", o.URL); err != nil {
+		requiredErrors = requiredErrors.Append(err)
+	}
+
+	if err := ValidateURL("URL", o.URL); err != nil {
+		errors = errors.Append(err)
+	}
+
 	if err := elemental.ValidateRequiredString("certificate", o.Certificate); err != nil {
 		requiredErrors = requiredErrors.Append(err)
 	}
 
 	if err := ValidatePEM("certificate", o.Certificate); err != nil {
-		errors = errors.Append(err)
-	}
-
-	if err := elemental.ValidateRequiredString("endpoint", o.Endpoint); err != nil {
-		requiredErrors = requiredErrors.Append(err)
-	}
-
-	if err := ValidateURL("endpoint", o.Endpoint); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -484,12 +484,12 @@ func (o *HTTPSource) ValueForAttribute(name string) interface{} {
 		return o.CA
 	case "ID":
 		return o.ID
+	case "URL":
+		return o.URL
 	case "certificate":
 		return o.Certificate
 	case "description":
 		return o.Description
-	case "endpoint":
-		return o.Endpoint
 	case "key":
 		return o.Key
 	case "modifier":
@@ -536,6 +536,20 @@ var HTTPSourceAttributesMap = map[string]elemental.AttributeSpecification{
 		Stored:         true,
 		Type:           "string",
 	},
+	"URL": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "url",
+		ConvertedName:  "URL",
+		Description: `URL of the remote service. This URL will receive a POST containing the
+credentials information that must be validated. It must reply with 200 with a
+body containing a json array that will be used as claims for the token. Any
+other error code will be returned as a 401 error.`,
+		Exposed:  true,
+		Name:     "URL",
+		Required: true,
+		Stored:   true,
+		Type:     "string",
+	},
 	"Certificate": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "certificate",
@@ -557,20 +571,6 @@ endpoint does not support client certificate authentication.`,
 		Name:           "description",
 		Stored:         true,
 		Type:           "string",
-	},
-	"Endpoint": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "endpoint",
-		ConvertedName:  "Endpoint",
-		Description: `URL of the remote service. This URL will receive a POST containing the
-credentials information that must be validated. It must reply with 200 with a
-body containing a json array that will be used as claims for the token. Any
-other error code will be returned as a 401 error.`,
-		Exposed:  true,
-		Name:     "endpoint",
-		Required: true,
-		Stored:   true,
-		Type:     "string",
 	},
 	"Key": {
 		AllowedChoices: []string{},
@@ -679,6 +679,20 @@ var HTTPSourceLowerCaseAttributesMap = map[string]elemental.AttributeSpecificati
 		Stored:         true,
 		Type:           "string",
 	},
+	"url": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "url",
+		ConvertedName:  "URL",
+		Description: `URL of the remote service. This URL will receive a POST containing the
+credentials information that must be validated. It must reply with 200 with a
+body containing a json array that will be used as claims for the token. Any
+other error code will be returned as a 401 error.`,
+		Exposed:  true,
+		Name:     "URL",
+		Required: true,
+		Stored:   true,
+		Type:     "string",
+	},
 	"certificate": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "certificate",
@@ -700,20 +714,6 @@ endpoint does not support client certificate authentication.`,
 		Name:           "description",
 		Stored:         true,
 		Type:           "string",
-	},
-	"endpoint": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "endpoint",
-		ConvertedName:  "Endpoint",
-		Description: `URL of the remote service. This URL will receive a POST containing the
-credentials information that must be validated. It must reply with 200 with a
-body containing a json array that will be used as claims for the token. Any
-other error code will be returned as a 401 error.`,
-		Exposed:  true,
-		Name:     "endpoint",
-		Required: true,
-		Stored:   true,
-		Type:     "string",
 	},
 	"key": {
 		AllowedChoices: []string{},
@@ -862,18 +862,18 @@ type SparseHTTPSource struct {
 	// ID is the identifier of the object.
 	ID *string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
 
+	// URL of the remote service. This URL will receive a POST containing the
+	// credentials information that must be validated. It must reply with 200 with a
+	// body containing a json array that will be used as claims for the token. Any
+	// other error code will be returned as a 401 error.
+	URL *string `json:"URL,omitempty" msgpack:"URL,omitempty" bson:"url,omitempty" mapstructure:"URL,omitempty"`
+
 	// Client certificate required to call URL. A3S will refuse to send data if the
 	// endpoint does not support client certificate authentication.
 	Certificate *string `json:"certificate,omitempty" msgpack:"certificate,omitempty" bson:"certificate,omitempty" mapstructure:"certificate,omitempty"`
 
 	// The description of the object.
 	Description *string `json:"description,omitempty" msgpack:"description,omitempty" bson:"description,omitempty" mapstructure:"description,omitempty"`
-
-	// URL of the remote service. This URL will receive a POST containing the
-	// credentials information that must be validated. It must reply with 200 with a
-	// body containing a json array that will be used as claims for the token. Any
-	// other error code will be returned as a 401 error.
-	Endpoint *string `json:"endpoint,omitempty" msgpack:"endpoint,omitempty" bson:"endpoint,omitempty" mapstructure:"endpoint,omitempty"`
 
 	// Key associated to the client certificate.
 	Key *string `json:"key,omitempty" msgpack:"key,omitempty" bson:"key,omitempty" mapstructure:"key,omitempty"`
@@ -943,14 +943,14 @@ func (o *SparseHTTPSource) GetBSON() (interface{}, error) {
 	if o.ID != nil {
 		s.ID = bson.ObjectIdHex(*o.ID)
 	}
+	if o.URL != nil {
+		s.URL = o.URL
+	}
 	if o.Certificate != nil {
 		s.Certificate = o.Certificate
 	}
 	if o.Description != nil {
 		s.Description = o.Description
-	}
-	if o.Endpoint != nil {
-		s.Endpoint = o.Endpoint
 	}
 	if o.Key != nil {
 		s.Key = o.Key
@@ -992,14 +992,14 @@ func (o *SparseHTTPSource) SetBSON(raw bson.Raw) error {
 	}
 	id := s.ID.Hex()
 	o.ID = &id
+	if s.URL != nil {
+		o.URL = s.URL
+	}
 	if s.Certificate != nil {
 		o.Certificate = s.Certificate
 	}
 	if s.Description != nil {
 		o.Description = s.Description
-	}
-	if s.Endpoint != nil {
-		o.Endpoint = s.Endpoint
 	}
 	if s.Key != nil {
 		o.Key = s.Key
@@ -1039,14 +1039,14 @@ func (o *SparseHTTPSource) ToPlain() elemental.PlainIdentifiable {
 	if o.ID != nil {
 		out.ID = *o.ID
 	}
+	if o.URL != nil {
+		out.URL = *o.URL
+	}
 	if o.Certificate != nil {
 		out.Certificate = *o.Certificate
 	}
 	if o.Description != nil {
 		out.Description = *o.Description
-	}
-	if o.Endpoint != nil {
-		out.Endpoint = *o.Endpoint
 	}
 	if o.Key != nil {
 		out.Key = *o.Key
@@ -1161,9 +1161,9 @@ func (o *SparseHTTPSource) DeepCopyInto(out *SparseHTTPSource) {
 type mongoAttributesHTTPSource struct {
 	CA          string            `bson:"ca"`
 	ID          bson.ObjectId     `bson:"_id,omitempty"`
+	URL         string            `bson:"url"`
 	Certificate string            `bson:"certificate"`
 	Description string            `bson:"description"`
-	Endpoint    string            `bson:"endpoint"`
 	Key         string            `bson:"key"`
 	Modifier    *IdentityModifier `bson:"modifier,omitempty"`
 	Name        string            `bson:"name"`
@@ -1174,9 +1174,9 @@ type mongoAttributesHTTPSource struct {
 type mongoAttributesSparseHTTPSource struct {
 	CA          *string           `bson:"ca,omitempty"`
 	ID          bson.ObjectId     `bson:"_id,omitempty"`
+	URL         *string           `bson:"url,omitempty"`
 	Certificate *string           `bson:"certificate,omitempty"`
 	Description *string           `bson:"description,omitempty"`
-	Endpoint    *string           `bson:"endpoint,omitempty"`
 	Key         *string           `bson:"key,omitempty"`
 	Modifier    *IdentityModifier `bson:"modifier,omitempty"`
 	Name        *string           `bson:"name,omitempty"`

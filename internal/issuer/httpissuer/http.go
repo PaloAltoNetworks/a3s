@@ -82,7 +82,7 @@ func (c *httpIssuer) fromCredentials(ctx context.Context, creds Credentials) err
 		return ErrHTTP{Err: fmt.Errorf("unable to encode body: %w", err)}
 	}
 
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.source.Endpoint, buf)
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.source.URL, buf)
 	if err != nil {
 		return ErrHTTP{Err: fmt.Errorf("unable to build request: %w", err)}
 	}

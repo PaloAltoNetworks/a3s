@@ -53,7 +53,7 @@ echo "* Creating mtlssource"
 a3sctl api create httpsource -n "/httpsource" \
 	--with.name "default" \
 	--with.ca "$(cat certs/ca-cert.pem)" \
-	--with.endpoint https://127.0.0.1:5002/login \
+	--with.url https://127.0.0.1:5002/login \
 	--with.certificate "$(cat certs/access-cert.pem)" \
 	--with.key "$(cat certs/access-key.pem)" ||
 	die "unable to create mtls resource"
@@ -70,7 +70,7 @@ cat <<EOF
 		--api $A3SCTL_API \\
 		--api-skip-verify \\
 		--source-namespace /httpsource \\
-        --username john \\
-        --password secret \\
+		--user john \\
+		--pass secret \\
 	)"
 EOF
