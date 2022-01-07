@@ -34,7 +34,7 @@ func (c *Conf) Prefix() string { return "a3s" }
 
 // PrintVersion prints the current version.
 func (c *Conf) PrintVersion() {
-	fmt.Printf("authn 0.0.1")
+	fmt.Printf("a3s 0.0.1")
 }
 
 func newConf() Conf {

@@ -41,7 +41,7 @@ func Create(bctx bahamut.Context, m manipulate.Manipulator, obj elemental.Identi
 // RetrieveMany performs the basic retrieve many operation.
 func RetrieveMany(bctx bahamut.Context, m manipulate.Manipulator, objs elemental.Identifiables, opts ...Option) error {
 
-	mctx, err := TranslateContext(bctx)
+	mctx, err := translateContext(bctx)
 	if err != nil {
 		return err
 	}
@@ -58,7 +58,7 @@ func RetrieveMany(bctx bahamut.Context, m manipulate.Manipulator, objs elemental
 // Retrieve performs the basic retrieve operation.
 func Retrieve(bctx bahamut.Context, m manipulate.Manipulator, obj elemental.Identifiable) error {
 
-	mctx, err := TranslateContext(bctx)
+	mctx, err := translateContext(bctx)
 	if err != nil {
 		return err
 	}
@@ -83,7 +83,7 @@ func Update(bctx bahamut.Context, m manipulate.Manipulator, obj elemental.Identi
 
 	obj.SetIdentifier(bctx.Request().ObjectID)
 
-	mctx, err := TranslateContext(bctx)
+	mctx, err := translateContext(bctx)
 	if err != nil {
 		return err
 	}
@@ -129,7 +129,7 @@ func Delete(bctx bahamut.Context, m manipulate.Manipulator, obj elemental.Identi
 		o(&cfg)
 	}
 
-	mctx, err := TranslateContext(bctx)
+	mctx, err := translateContext(bctx)
 	if err != nil {
 		return err
 	}
@@ -161,7 +161,7 @@ func Delete(bctx bahamut.Context, m manipulate.Manipulator, obj elemental.Identi
 // Info performs the basic info operation.
 func Info(bctx bahamut.Context, m manipulate.Manipulator, identity elemental.Identity) error {
 
-	mctx, err := TranslateContext(bctx)
+	mctx, err := translateContext(bctx)
 	if err != nil {
 		return err
 	}

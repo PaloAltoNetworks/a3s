@@ -8,11 +8,11 @@ import (
 	"go.aporeto.io/manipulate"
 )
 
-// TranslateContext translates the given bahamut.Context to a manipulate.Context
+// translateContext translates the given bahamut.Context to a manipulate.Context
 // It handles, namespace, recursive, propagate and the `q` parameter.
 // If your code needs to apply another filter, it will override the filter
 // created from the query parameter.
-func TranslateContext(bctx bahamut.Context) (manipulate.Context, error) {
+func translateContext(bctx bahamut.Context) (manipulate.Context, error) {
 
 	opts := []manipulate.ContextOption{
 		manipulate.ContextOptionNamespace(bctx.Request().Namespace),

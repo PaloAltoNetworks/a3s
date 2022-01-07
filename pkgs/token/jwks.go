@@ -57,7 +57,7 @@ func NewJWKS() *JWKS {
 
 // NewRemoteJWKS returns a JWKS prepulated with the
 // data found at the given URL using the provided http.Client.
-// If http.Client, the default client will be used.
+// If http.Client is nil, the default client will be used.
 func NewRemoteJWKS(ctx context.Context, client *http.Client, url string) (*JWKS, error) {
 
 	if client == nil {

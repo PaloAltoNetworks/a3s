@@ -137,7 +137,7 @@ func TestTranslateContext(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			tArgs := tt.args(t)
 
-			got1, err := TranslateContext(tArgs.bctx)
+			got1, err := translateContext(tArgs.bctx)
 
 			if !reflect.DeepEqual(got1, tt.want1) {
 				t.Errorf("TranslateContext got1 = %v, want1: %v", got1, tt.want1)
