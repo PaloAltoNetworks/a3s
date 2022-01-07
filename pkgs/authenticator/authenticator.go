@@ -9,17 +9,20 @@ import (
 	"go.aporeto.io/elemental"
 )
 
-// A Private is a bahamut.Authenticator compliant structure to authentify
-// requests using a a3s token.
-type Private struct {
+// A Authenticator is a bahamut.Authenticator compliant structure to authentify
+// requests using an a3s token.
+type Authenticator struct {
 	jwks             *token.JWKS
 	issuer           string
 	audience         string
 	ignoredResources map[string]struct{}
 }
 
-// New returns a new *Authenticator that will make a call
-func New(jwks *token.JWKS, issuer string, audience string, options ...Option) *Private {
+// New returns a new Authenticator that will use the provided JWKS
+// to cryptographically verify a request or session token.
+// It will validate the token comes from the given issuer and has the
+// correct audience.
+func New(jwks *token.JWKS, issuer string, audience string, options ...Option) *Authenticator {
 
 	cfg := config{}
 	for _, o := range options {
@@ -31,7 +34,7 @@ func New(jwks *token.JWKS, issuer string, audience string, options ...Option) *P
 		m[r] = struct{}{}
 	}
 
-	return &Private{
+	return &Authenticator{
 		jwks:             jwks,
 		issuer:           issuer,
 		audience:         audience,
@@ -40,7 +43,7 @@ func New(jwks *token.JWKS, issuer string, audience string, options ...Option) *P
 }
 
 // AuthenticateSession authenticates the given session.
-func (a *Private) AuthenticateSession(session bahamut.Session) (bahamut.AuthAction, error) {
+func (a *Authenticator) AuthenticateSession(session bahamut.Session) (bahamut.AuthAction, error) {
 
 	action, claims, err := a.commonAuth(token.FromSession(session))
 	if err != nil {
@@ -53,7 +56,7 @@ func (a *Private) AuthenticateSession(session bahamut.Session) (bahamut.AuthActi
 }
 
 // AuthenticateRequest authenticates the request from the given bahamut.Context.
-func (a *Private) AuthenticateRequest(bctx bahamut.Context) (bahamut.AuthAction, error) {
+func (a *Authenticator) AuthenticateRequest(bctx bahamut.Context) (bahamut.AuthAction, error) {
 
 	if _, ok := a.ignoredResources[bctx.Request().Identity.Category]; ok {
 		return bahamut.AuthActionOK, nil
@@ -71,7 +74,7 @@ func (a *Private) AuthenticateRequest(bctx bahamut.Context) (bahamut.AuthAction,
 	return action, nil
 }
 
-func (a *Private) commonAuth(tokenString string) (bahamut.AuthAction, []string, error) {
+func (a *Authenticator) commonAuth(tokenString string) (bahamut.AuthAction, []string, error) {
 
 	if tokenString == "" {
 		return bahamut.AuthActionKO, nil, elemental.NewError(
