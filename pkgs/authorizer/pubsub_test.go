@@ -49,7 +49,7 @@ func TestSubscribe(t *testing.T) {
 		checkPresent := func(chOutPubs chan *bahamut.Publication) {
 			pub := <-chOutPubs
 			msg := notification.Message{}
-			pub.Decode(&msg)
+			pub.Decode(&msg) // nolint
 			So(msg.Type, ShouldEqual, nscache.NotificationNamespaceChanges)
 			So(msg.Data, ShouldEqual, "/the/ns")
 		}
