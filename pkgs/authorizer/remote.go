@@ -19,7 +19,11 @@ type remoteAuthorizer struct {
 // Updates of the namespace/authorization state comes from the websocket.
 func NewRemote(ctx context.Context, m manipulate.Manipulator, options ...Option) Authorizer {
 
-	subscriber := maniphttp.NewSubscriber(m, maniphttp.SubscriberOptionRecursive(true))
+	subscriber := maniphttp.NewSubscriber(
+		m,
+		maniphttp.SubscriberOptionRecursive(true),
+		maniphttp.SubscriberOptionNamespace(maniphttp.ExtractNamespace(m)),
+	)
 
 	pcfg := elemental.NewPushConfig()
 	pcfg.FilterIdentity(api.NamespaceIdentity.Name)
