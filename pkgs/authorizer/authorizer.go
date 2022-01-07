@@ -61,7 +61,7 @@ type authorizer struct {
 }
 
 // New creates a new Authorizer using the given permissions.Retriever and PubSubClient.
-// The authorizer agressively chache the authentication results and uses the pubsub
+// The authorizer aggressively chache the authentication results and uses the pubsub
 // to update the state of cache, by dropping parts of cache affected by a change in namespace
 // or Authorization policies.
 func New(ctx context.Context, retriever permissions.Retriever, pubsub bahamut.PubSubClient, options ...Option) Authorizer {
