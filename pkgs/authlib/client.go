@@ -9,7 +9,8 @@ import (
 	"go.aporeto.io/manipulate"
 )
 
-// A Client allows to interract with a midgard server.
+// A Client to authenticate and retrieve an A3S token
+// using one of the supported authentication sources.
 type Client struct {
 	manipulator manipulate.Manipulator
 }
@@ -22,7 +23,8 @@ func NewClient(m manipulate.Manipulator) *Client {
 	}
 }
 
-// AuthFromCertificate requests an identity token from the currently configured Certificate in the tls config of the client.
+// AuthFromCertificate requests an identity token from the currently configured Certificate in the manipulator that was
+// provided during initialization. If the manipulator has no configured Certificate, this function will fail.
 func (a *Client) AuthFromCertificate(ctx context.Context, sourceNamespace string, sourceName string, options ...Option) (string, error) {
 
 	cfg := newConfig()
@@ -40,7 +42,7 @@ func (a *Client) AuthFromCertificate(ctx context.Context, sourceNamespace string
 	return a.sendRequest(ctx, req)
 }
 
-// AuthFromLDAP requests a token using the provided credentials using LDAP auth source with the given name and namespace.
+// AuthFromLDAP requests a token using the provided credentials with the LDAP auth source with the given namespace and namespace.
 func (a *Client) AuthFromLDAP(ctx context.Context, username string, password string, sourceNamespace string, sourceName string, options ...Option) (string, error) {
 
 	cfg := newConfig()
@@ -81,7 +83,7 @@ func (a *Client) AuthFromA3S(ctx context.Context, token string, options ...Optio
 	return a.sendRequest(ctx, req)
 }
 
-// AuthFromRemoteA3S requests a token using the provided remote a3s token.
+// AuthFromRemoteA3S requests a token using the provided remote a3s token with the provided RemoteA3S source with the given namespace and name.
 func (a *Client) AuthFromRemoteA3S(ctx context.Context, token string, sourceNamespace string, sourceName string, options ...Option) (string, error) {
 
 	cfg := newConfig()
@@ -246,7 +248,7 @@ func (a *Client) AuthFromOIDCStep2(ctx context.Context, code string, state strin
 	return a.sendRequest(ctx, req)
 }
 
-// AuthFromHTTP requests a token using the provided username and password from the provided source information.
+// AuthFromHTTP requests a token using the provided username and password from the source with the given namespace and name.
 func (a *Client) AuthFromHTTP(ctx context.Context, username string, password string, totp string, sourceNamespace string, sourceName string, options ...Option) (string, error) {
 
 	cfg := newConfig()

@@ -24,6 +24,7 @@ import (
 	"go.aporeto.io/a3s/pkgs/notification"
 	"go.aporeto.io/a3s/pkgs/nscache"
 	"go.aporeto.io/a3s/pkgs/permissions"
+	"go.aporeto.io/a3s/pkgs/push"
 	"go.aporeto.io/a3s/pkgs/token"
 	"go.aporeto.io/bahamut"
 	"go.aporeto.io/elemental"
@@ -162,7 +163,7 @@ func main() {
 				pauthz,
 			},
 		),
-		bahamut.OptPushDispatchHandler(authorizer.NewPushDispatchHandler(pauthz)),
+		bahamut.OptPushDispatchHandler(push.NewDispatcher(pauthz)),
 		bahamut.OptPushPublishHandler(bootstrap.MakePublishHandler(nil)),
 		bahamut.OptMTLS(nil, tls.RequestClientCert),
 		bahamut.OptErrorTransformer(errorTransformer),

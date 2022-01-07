@@ -39,8 +39,8 @@ var (
 	)
 )
 
-// An Authorizer is a bahamut.Authorizer that provides
-// additional methods.
+// An Authorizer is a bahamut.Authorizer compliant structure
+// that can be used to authorize a session or a request.
 type Authorizer interface {
 	bahamut.Authorizer
 
@@ -54,16 +54,16 @@ type Authorizer interface {
 	) (bool, error)
 }
 
-// An Authorizer is the enforcer of the authorizations of all API calls.
-//
-// It implements the bahamut.Authorizer interface.
 type authorizer struct {
 	retriever        permissions.Retriever
 	ignoredResources map[string]struct{}
 	cache            *nscache.NamespacedCache
 }
 
-// New creates a new Authorizer.
+// New creates a new Authorizer using the given permissions.Retriever and PubSubClient.
+// The authorizer agressively chache the authentication results and uses the pubsub
+// to update the state of cache, by dropping parts of cache affected by a change in namespace
+// or Authorization policies.
 func New(ctx context.Context, retriever permissions.Retriever, pubsub bahamut.PubSubClient, options ...Option) Authorizer {
 
 	cfg := config{}

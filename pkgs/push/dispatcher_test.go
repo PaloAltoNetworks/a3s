@@ -1,18 +1,54 @@
-package authorizer
+package push
 
 import (
 	"context"
+	"crypto"
+	"crypto/x509"
+	"crypto/x509/pkix"
+	"encoding/pem"
 	"fmt"
 	"testing"
+	"time"
 
+	"github.com/golang-jwt/jwt/v4"
 	. "github.com/smartystreets/goconvey/convey"
 	"go.aporeto.io/a3s/pkgs/api"
+	"go.aporeto.io/a3s/pkgs/authorizer"
 	"go.aporeto.io/a3s/pkgs/permissions"
 	"go.aporeto.io/a3s/pkgs/token"
 	"go.aporeto.io/bahamut"
 	"go.aporeto.io/elemental"
 	"go.aporeto.io/manipulate/maniptest"
+	"go.aporeto.io/tg/tglib"
 )
+
+func getECCert() (*x509.Certificate, crypto.PrivateKey) {
+
+	certBlock, keyBlock, err := tglib.Issue(pkix.Name{})
+	if err != nil {
+		panic(err)
+	}
+
+	cert, err := tglib.ParseCertificate(pem.EncodeToMemory(certBlock))
+	if err != nil {
+		panic(err)
+	}
+
+	key, err := tglib.PEMToKey(keyBlock)
+	if err != nil {
+		panic(err)
+	}
+
+	return cert, key
+}
+
+func makeToken(claims *token.IdentityToken, key crypto.PrivateKey) string {
+	token, err := claims.JWT(key, "kid", "iss", jwt.ClaimStrings{"aud"}, time.Now().Add(time.Minute), nil)
+	if err != nil {
+		panic(err)
+	}
+	return token
+}
 
 func TestNewPushDispatcher(t *testing.T) {
 
@@ -22,8 +58,8 @@ func TestNewPushDispatcher(t *testing.T) {
 		p := bahamut.NewLocalPubSubClient()
 		_ = p.Connect(context.Background())
 		r := permissions.NewRetriever(m)
-		a := New(context.Background(), r, p)
-		h := NewPushDispatchHandler(a)
+		a := authorizer.New(context.Background(), r, p)
+		h := NewDispatcher(a)
 
 		So(func() { h.OnPushSessionStart(bahamut.NewMockSession()) }, ShouldNotPanic)
 		So(func() { h.OnPushSessionStop(bahamut.NewMockSession()) }, ShouldNotPanic)
@@ -39,8 +75,8 @@ func TestOnPushSessionInit(t *testing.T) {
 		p := bahamut.NewLocalPubSubClient()
 		_ = p.Connect(context.Background())
 		r := permissions.NewMockRetriever()
-		a := New(context.Background(), r, p)
-		h := NewPushDispatchHandler(a)
+		a := authorizer.New(context.Background(), r, p)
+		h := NewDispatcher(a)
 
 		Convey("When there are bad restrictions in the token ", func() {
 
@@ -120,8 +156,8 @@ func TestSummarizeEvent(t *testing.T) {
 		p := bahamut.NewLocalPubSubClient()
 		_ = p.Connect(context.Background())
 		r := permissions.NewMockRetriever()
-		a := New(context.Background(), r, p)
-		h := NewPushDispatchHandler(a)
+		a := authorizer.New(context.Background(), r, p)
+		h := NewDispatcher(a)
 
 		Convey("Calling SummarizeEvent with an valid event should work", func() {
 
@@ -153,8 +189,8 @@ func TestShouldDispatch(t *testing.T) {
 		p := bahamut.NewLocalPubSubClient()
 		_ = p.Connect(context.Background())
 		r := permissions.NewMockRetriever()
-		a := New(context.Background(), r, p)
-		h := NewPushDispatchHandler(a)
+		a := authorizer.New(context.Background(), r, p)
+		h := NewDispatcher(a)
 
 		Convey("When we receive a namespace delete event", func() {
 

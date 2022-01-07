@@ -1,9 +1,10 @@
-package authorizer
+package push
 
 import (
 	"fmt"
 
 	"go.aporeto.io/a3s/pkgs/api"
+	"go.aporeto.io/a3s/pkgs/authorizer"
 	"go.aporeto.io/a3s/pkgs/permissions"
 	"go.aporeto.io/a3s/pkgs/token"
 	"go.aporeto.io/bahamut"
@@ -21,21 +22,21 @@ type pushedEntity struct {
 	PropagationHidden bool   `msgpack:"propagationHidden" json:"propagationHidden"`
 }
 
-// A PushDispatchHandler handles dispatching events to push sessions.
-type PushDispatchHandler struct {
-	authorizer Authorizer
+// A dispatcher handles dispatching events to push sessions.
+type dispatcher struct {
+	authorizer authorizer.Authorizer
 }
 
-// NewPushDispatchHandler returns a new PushDispatchHandler.
-func NewPushDispatchHandler(authorizer Authorizer) *PushDispatchHandler {
+// NewDispatcher returns a new PushDispatchHandler.
+func NewDispatcher(authorizer authorizer.Authorizer) bahamut.PushDispatchHandler {
 
-	return &PushDispatchHandler{
+	return &dispatcher{
 		authorizer: authorizer,
 	}
 }
 
 // OnPushSessionInit is part of the bahamut.PushDispatchHandler interface
-func (g *PushDispatchHandler) OnPushSessionInit(session bahamut.PushSession) (bool, error) {
+func (g *dispatcher) OnPushSessionInit(session bahamut.PushSession) (bool, error) {
 
 	restrictions, err := permissions.GetRestrictions(token.FromSession(session))
 	if err != nil {
@@ -48,8 +49,8 @@ func (g *PushDispatchHandler) OnPushSessionInit(session bahamut.PushSession) (bo
 		"get",
 		session.Parameter("namespace"),
 		pushSessionIdentity,
-		OptionCheckSourceIP(session.ClientIP()),
-		OptionCheckRestrictions(restrictions),
+		authorizer.OptionCheckSourceIP(session.ClientIP()),
+		authorizer.OptionCheckRestrictions(restrictions),
 	)
 
 	if err != nil {
@@ -61,17 +62,17 @@ func (g *PushDispatchHandler) OnPushSessionInit(session bahamut.PushSession) (bo
 }
 
 // OnPushSessionStart is part of the bahamut.PushDispatchHandler interface
-func (g *PushDispatchHandler) OnPushSessionStart(session bahamut.PushSession) {
+func (g *dispatcher) OnPushSessionStart(session bahamut.PushSession) {
 	zap.L().Debug("Push session started", zap.Strings("claims", session.Claims()))
 }
 
 // OnPushSessionStop is part of the bahamut.PushDispatchHandler interface
-func (g *PushDispatchHandler) OnPushSessionStop(session bahamut.PushSession) {
+func (g *dispatcher) OnPushSessionStop(session bahamut.PushSession) {
 	zap.L().Debug("Push session stopped", zap.Strings("claims", session.Claims()))
 }
 
 // SummarizeEvent is part of the bahamut.PushDispatchHandler interface
-func (g *PushDispatchHandler) SummarizeEvent(event *elemental.Event) (interface{}, error) {
+func (g *dispatcher) SummarizeEvent(event *elemental.Event) (interface{}, error) {
 
 	entity := pushedEntity{}
 	if err := event.Decode(&entity); err != nil {
@@ -82,12 +83,12 @@ func (g *PushDispatchHandler) SummarizeEvent(event *elemental.Event) (interface{
 }
 
 // RelatedEventIdentities is part of the bahamut.PushDispatchHandler interface
-func (g *PushDispatchHandler) RelatedEventIdentities(identity string) []string {
+func (g *dispatcher) RelatedEventIdentities(identity string) []string {
 	return nil
 }
 
 // ShouldDispatch is part of the bahamut.PushDispatchHandler interface
-func (g *PushDispatchHandler) ShouldDispatch(session bahamut.PushSession, event *elemental.Event, summary interface{}) (bool, error) {
+func (g *dispatcher) ShouldDispatch(session bahamut.PushSession, event *elemental.Event, summary interface{}) (bool, error) {
 
 	entity := summary.(pushedEntity)
 	sessionNS := session.Parameter("namespace")
@@ -133,7 +134,7 @@ func (g *PushDispatchHandler) ShouldDispatch(session bahamut.PushSession, event 
 		"get",
 		sessionNS,
 		event.Identity,
-		OptionCheckRestrictions(restrictions),
-		OptionCheckSourceIP(session.ClientIP()),
+		authorizer.OptionCheckRestrictions(restrictions),
+		authorizer.OptionCheckSourceIP(session.ClientIP()),
 	)
 }
