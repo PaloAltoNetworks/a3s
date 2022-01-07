@@ -57,7 +57,7 @@ func TestNewAuthenticator(t *testing.T) {
 		c, _ := getECCert()
 		jwks := token.NewJWKS()
 		_ = jwks.Append(c)
-		a := NewPrivate(jwks, "iss", "aud")
+		a := New(jwks, "iss", "aud")
 
 		Convey("Then a should be correct", func() {
 			So(a.jwks, ShouldEqual, jwks)
@@ -73,7 +73,7 @@ func TestCommonAuth(t *testing.T) {
 		_, k2 := getECCert()
 		jwks := token.NewJWKS()
 		_ = jwks.Append(c)
-		a := NewPrivate(jwks, "iss", "aud")
+		a := New(jwks, "iss", "aud")
 
 		kid1 := token.Fingerprint(c)
 
@@ -144,7 +144,7 @@ func TestAuthenticateSession(t *testing.T) {
 		_, k2 := getECCert()
 		jwks := token.NewJWKS()
 		_ = jwks.Append(c)
-		a := NewPrivate(jwks, "iss", "aud")
+		a := New(jwks, "iss", "aud")
 
 		kid1 := token.Fingerprint(c)
 
@@ -212,7 +212,22 @@ func TestAuthenticateRequest(t *testing.T) {
 		_, k2 := getECCert()
 		jwks := token.NewJWKS()
 		_ = jwks.Append(c)
-		a := NewPrivate(jwks, "iss", "aud")
+
+		Convey("Call AuthenticateRequest on a public resource source work", func() {
+
+			a := New(jwks, "iss", "aud", OptionIgnoredResources("hello"))
+
+			ctx := bahamut.NewMockContext(context.Background())
+			req := elemental.NewRequest()
+			req.Identity = elemental.MakeIdentity("hello", "hello")
+			ctx.MockRequest = req
+			action, err := a.AuthenticateRequest(ctx)
+
+			So(err, ShouldBeNil)
+			So(action, ShouldEqual, bahamut.AuthActionOK)
+		})
+
+		a := New(jwks, "iss", "aud")
 
 		kid1 := token.Fingerprint(c)
 

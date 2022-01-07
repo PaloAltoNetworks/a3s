@@ -15,6 +15,7 @@ func TestOption(t *testing.T) {
 		So(cfg.ignoredResources, ShouldResemble, []string{"r1", "r2"})
 	})
 }
+
 func TestOptionCheck(t *testing.T) {
 
 	Convey("OptionCheckSourceIP should work", t, func() {

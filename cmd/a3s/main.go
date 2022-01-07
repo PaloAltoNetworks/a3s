@@ -132,7 +132,12 @@ func main() {
 	pubsub := bootstrap.MakeNATSClient(cfg.NATSConf)
 	defer pubsub.Disconnect() // nolint: errcheck
 
-	pauthn := authenticator.NewPrivate(jwks, cfg.JWT.JWTIssuer, cfg.JWT.JWTAudience)
+	pauthn := authenticator.New(
+		jwks,
+		cfg.JWT.JWTIssuer,
+		cfg.JWT.JWTAudience,
+		authenticator.OptionIgnoredResources(publicResources...),
+	)
 	retriever := permissions.NewRetriever(m)
 	pauthz := authorizer.New(
 		ctx,
@@ -148,7 +153,6 @@ func main() {
 			pubsub,
 			nil,
 			[]bahamut.RequestAuthenticator{
-				authenticator.NewPublic(publicResources...),
 				pauthn,
 			},
 			[]bahamut.SessionAuthenticator{

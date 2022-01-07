@@ -12,17 +12,30 @@ import (
 // A Private is a bahamut.Authenticator compliant structure to authentify
 // requests using a a3s token.
 type Private struct {
-	jwks     *token.JWKS
-	issuer   string
-	audience string
+	jwks             *token.JWKS
+	issuer           string
+	audience         string
+	ignoredResources map[string]struct{}
 }
 
-// NewPrivate returns a new *Authenticator that will make a call
-func NewPrivate(jwks *token.JWKS, issuer string, audience string) *Private {
+// New returns a new *Authenticator that will make a call
+func New(jwks *token.JWKS, issuer string, audience string, options ...Option) *Private {
+
+	cfg := config{}
+	for _, o := range options {
+		o(&cfg)
+	}
+
+	m := make(map[string]struct{}, len(cfg.ignoredResources))
+	for _, r := range cfg.ignoredResources {
+		m[r] = struct{}{}
+	}
+
 	return &Private{
-		jwks:     jwks,
-		issuer:   issuer,
-		audience: audience,
+		jwks:             jwks,
+		issuer:           issuer,
+		audience:         audience,
+		ignoredResources: m,
 	}
 }
 
@@ -41,6 +54,10 @@ func (a *Private) AuthenticateSession(session bahamut.Session) (bahamut.AuthActi
 
 // AuthenticateRequest authenticates the request from the given bahamut.Context.
 func (a *Private) AuthenticateRequest(bctx bahamut.Context) (bahamut.AuthAction, error) {
+
+	if _, ok := a.ignoredResources[bctx.Request().Identity.Category]; ok {
+		return bahamut.AuthActionOK, nil
+	}
 
 	token := token.FromRequest(bctx.Request())
 
