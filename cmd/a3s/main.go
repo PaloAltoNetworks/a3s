@@ -158,7 +158,7 @@ func main() {
 				pauthz,
 			},
 		),
-		bahamut.OptPushDispatchHandler(authorizer.NewPushDispatchHandler(m, pauthz)),
+		bahamut.OptPushDispatchHandler(authorizer.NewPushDispatchHandler(pauthz)),
 		bahamut.OptPushPublishHandler(bootstrap.MakePublishHandler(nil)),
 		bahamut.OptMTLS(nil, tls.RequestClientCert),
 		bahamut.OptErrorTransformer(errorTransformer),
