@@ -82,7 +82,7 @@ func ConfigureBahamut(
 			opts = append(
 				opts,
 				bahamut.OptCORSAccessControl(
-					bahamut.NewDefaultCORSAccessControlPolicy(
+					bahamut.NewDefaultCORSController(
 						c.CORSDefaultOrigin,
 						c.CORSAdditionalOrigins,
 					),
