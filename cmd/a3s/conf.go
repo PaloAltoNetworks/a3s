@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"go.aporeto.io/a3s/pkgs/conf"
-	"go.aporeto.io/addedeffect/lombric"
+	"go.aporeto.io/a3s/pkgs/lombric"
 	"go.aporeto.io/tg/tglib"
 )
 

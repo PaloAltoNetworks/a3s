@@ -8,19 +8,18 @@ import (
 	"time"
 
 	"go.aporeto.io/a3s/pkgs/conf"
-	"go.aporeto.io/addedeffect/tracer"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
 
 // ConfigureLogger configures the logging subsystem.
-func ConfigureLogger(serviceName string, cfg conf.LoggingConf) tracer.CloseRecorderHandler {
+func ConfigureLogger(serviceName string, cfg conf.LoggingConf) CloseRecorderHandler {
 
 	var err error
 
 	configureZap(serviceName, cfg.LogLevel, cfg.LogFormat)
 
-	f, err := tracer.ConfigureTracerWithURL(cfg.LogTracerURL, serviceName)
+	f, err := ConfigureTracerWithURL(cfg.LogTracerURL, serviceName)
 	if err != nil {
 		zap.L().Warn("Unable to configure the OpenTracing", zap.Error(err))
 	}

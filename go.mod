@@ -3,7 +3,6 @@ module go.aporeto.io/a3s
 go 1.17
 
 require (
-	go.aporeto.io/addedeffect v1.77.0
 	go.aporeto.io/bahamut v1.112.1-0.20220107221426-cb8ad8ac14bc
 	go.aporeto.io/elemental v1.100.1-0.20211130173545-6dea49cc9163
 	go.aporeto.io/manipulate v1.121.1-0.20211208190144-311efe3f1441
@@ -90,7 +89,7 @@ require (
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.7.1
 	github.com/subosito/gotenv v1.2.0 // indirect
-	github.com/uber/jaeger-client-go v2.22.1+incompatible // indirect
+	github.com/uber/jaeger-client-go v2.22.1+incompatible
 	github.com/uber/jaeger-lib v2.2.0+incompatible // indirect
 	github.com/ugorji/go/codec v1.2.6
 	github.com/valyala/tcplisten v0.0.0-20161114210144-ceec8f93295a // indirect
