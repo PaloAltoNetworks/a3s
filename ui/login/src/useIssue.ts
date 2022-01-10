@@ -124,8 +124,8 @@ export function useIssue({
           sourceNamespace,
           sourceName,
           inputOIDC: {
-            redirectURL: window.location.origin,
-            redirectErrorURL: window.location.origin,
+            redirectURL: window.location.origin + window.location.pathname,
+            redirectErrorURL: window.location.origin + window.location.pathname,
             noAuthRedirect: true,
           },
         }),
