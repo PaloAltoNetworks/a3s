@@ -3,6 +3,7 @@ package processors
 import (
 	"context"
 	"crypto/tls"
+	"crypto/x509"
 	"fmt"
 	"net/http"
 	"time"
@@ -23,6 +24,7 @@ import (
 	"go.aporeto.io/a3s/pkgs/permissions"
 	"go.aporeto.io/a3s/pkgs/token"
 	"go.aporeto.io/bahamut"
+	"go.aporeto.io/bahamut/authorizer/mtls"
 	"go.aporeto.io/elemental"
 	"go.aporeto.io/manipulate"
 	"golang.org/x/oauth2"
@@ -30,13 +32,15 @@ import (
 
 // A IssueProcessor is a bahamut processor for Issue.
 type IssueProcessor struct {
-	manipulator          manipulate.Manipulator
-	jwks                 *token.JWKS
-	maxValidity          time.Duration
-	audience             string
-	cookieSameSitePolicy http.SameSite
-	cookieDomain         string
-	issuer               string
+	manipulator            manipulate.Manipulator
+	jwks                   *token.JWKS
+	maxValidity            time.Duration
+	audience               string
+	cookieSameSitePolicy   http.SameSite
+	cookieDomain           string
+	issuer                 string
+	trustCertificateHeader bool
+	certificateHeader      string
 }
 
 // NewIssueProcessor returns a new IssueProcessor.
@@ -48,16 +52,20 @@ func NewIssueProcessor(
 	audience string,
 	cookieSameSitePolicy http.SameSite,
 	cookieDomain string,
+	trustCertificateHeader bool,
+	certificateHeader string,
 ) *IssueProcessor {
 
 	return &IssueProcessor{
-		manipulator:          manipulator,
-		jwks:                 jwks,
-		maxValidity:          maxValidity,
-		issuer:               issuer,
-		audience:             audience,
-		cookieSameSitePolicy: cookieSameSitePolicy,
-		cookieDomain:         cookieDomain,
+		manipulator:            manipulator,
+		jwks:                   jwks,
+		maxValidity:            maxValidity,
+		issuer:                 issuer,
+		audience:               audience,
+		cookieSameSitePolicy:   cookieSameSitePolicy,
+		cookieDomain:           cookieDomain,
+		trustCertificateHeader: trustCertificateHeader,
+		certificateHeader:      certificateHeader,
 	}
 }
 
@@ -82,7 +90,12 @@ func (p *IssueProcessor) ProcessCreate(bctx bahamut.Context) (err error) {
 	switch req.SourceType {
 
 	case api.IssueSourceTypeMTLS:
-		issuer, err = p.handleCertificateIssue(bctx.Context(), req, bctx.Request().TLSConnectionState)
+		issuer, err = p.handleCertificateIssue(
+			bctx.Context(),
+			req,
+			bctx.Request().TLSConnectionState,
+			bctx.Request().Headers.Get(p.certificateHeader),
+		)
 
 	case api.IssueSourceTypeLDAP:
 		issuer, err = p.handleLDAPIssue(bctx.Context(), req)
@@ -174,10 +187,21 @@ func (p *IssueProcessor) ProcessCreate(bctx bahamut.Context) (err error) {
 	return nil
 }
 
-func (p *IssueProcessor) handleCertificateIssue(ctx context.Context, req *api.Issue, tlsState *tls.ConnectionState) (token.Issuer, error) {
+func (p *IssueProcessor) handleCertificateIssue(ctx context.Context, req *api.Issue, tlsState *tls.ConnectionState, tlsHeader string) (token.Issuer, error) {
 
-	if tlsState == nil || len(tlsState.PeerCertificates) == 0 {
-		return nil, elemental.NewError("Bad Request", "No client certificates", "a3s", http.StatusBadRequest)
+	var cert []*x509.Certificate
+	var err error
+	if p.trustCertificateHeader {
+		if cert, err = mtls.CertificatesFromHeader(tlsHeader); err != nil {
+			return nil, err
+		}
+	} else {
+		if cert, err = mtls.CertificatesFromTLSState(tlsState); err != nil {
+			return nil, err
+		}
+	}
+	if len(cert) == 0 {
+		return nil, elemental.NewError("Bad Request", "No user certificates", "a3s:authn", http.StatusBadRequest)
 	}
 
 	out, err := retrieveSource(ctx, p.manipulator, req.SourceNamespace, req.SourceName, api.MTLSSourceIdentity)
@@ -186,8 +210,7 @@ func (p *IssueProcessor) handleCertificateIssue(ctx context.Context, req *api.Is
 	}
 	src := out.(*api.MTLSSource)
 
-	userCert := tlsState.PeerCertificates[0]
-	iss, err := mtlsissuer.New(ctx, src, userCert)
+	iss, err := mtlsissuer.New(ctx, src, cert[0])
 	if err != nil {
 		return nil, err
 	}

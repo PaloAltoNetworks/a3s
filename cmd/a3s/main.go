@@ -192,7 +192,20 @@ func main() {
 		zap.L().Fatal("Unable to install UI login handler", zap.Error(err))
 	}
 
-	bahamut.RegisterProcessorOrDie(server, processors.NewIssueProcessor(m, jwks, cfg.JWT.JWTMaxValidity, cfg.JWT.JWTIssuer, cfg.JWT.JWTAudience, cookiePolicy, cookieDomain), api.IssueIdentity)
+	bahamut.RegisterProcessorOrDie(server,
+		processors.NewIssueProcessor(
+			m,
+			jwks,
+			cfg.JWT.JWTMaxValidity,
+			cfg.JWT.JWTIssuer,
+			cfg.JWT.JWTAudience,
+			cookiePolicy,
+			cookieDomain,
+			cfg.MTLS.MTLSTrustHeader,
+			cfg.MTLS.MTLSHeader,
+		),
+		api.IssueIdentity,
+	)
 	bahamut.RegisterProcessorOrDie(server, processors.NewMTLSSourcesProcessor(m), api.MTLSSourceIdentity)
 	bahamut.RegisterProcessorOrDie(server, processors.NewLDAPSourcesProcessor(m), api.LDAPSourceIdentity)
 	bahamut.RegisterProcessorOrDie(server, processors.NewOIDCSourcesProcessor(m), api.OIDCSourceIdentity)

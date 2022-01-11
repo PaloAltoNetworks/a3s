@@ -17,7 +17,8 @@ type Conf struct {
 	InitContinue       bool   `mapstructure:"init-continue" desc:"Continues normal boot after init."`
 	InitRootUserCAPath string `mapstructure:"init-root-ca"  desc:"Path to the root CA to use to initialize root permissions"`
 
-	JWT JWTConf `mapstructure:",squash"`
+	JWT  JWTConf  `mapstructure:",squash"`
+	MTLS MTLSConf `mapstructure:",squash"`
 
 	conf.APIServerConf       `mapstructure:",squash"`
 	conf.HealthConfiguration `mapstructure:",squash"`
@@ -74,4 +75,10 @@ func (c *JWTConf) JWTCertificate() (*x509.Certificate, crypto.PrivateKey, error)
 	c.jwtKey = jwtKey
 
 	return jwtCert, jwtKey, nil
+}
+
+// MTLSConf holds the configuration for trusted certificate header.
+type MTLSConf struct {
+	MTLSTrustHeader bool   `mapstructure:"mtls-trust-header" desc:"trust the value of the defined header containing a user certificate. This is insecure if there is no proper tls verification happening upstream"`
+	MTLSHeader      string `mapstructure:"mtls-header" desc:"The header to check for user certificates" default:"x-tls-certificate"`
 }
