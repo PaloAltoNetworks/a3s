@@ -1,0 +1,4 @@
+apiVersion: v1
+description: Authentication As A Service
+name: a3s
+version: 0.0.0-dev

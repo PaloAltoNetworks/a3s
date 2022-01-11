@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: a3s
+  labels:
+    app: a3s
+    type: core
+spec:
+  selector:
+    app: a3s
+  clusterIP: None
+  ports:
+  - port: 1443
+    name: app
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: health-a3s
+  labels:
+    app: a3s
+    type: core
+spec:
+  selector:
+    app: a3s
+  clusterIP: None
+  ports:
+  - port: 1080
+    name: health
+---

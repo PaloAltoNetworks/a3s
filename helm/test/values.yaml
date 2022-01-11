@@ -1,0 +1,39 @@
+replicas: 1
+
+log:
+    level: info
+    format: console
+
+global:
+  audience: "a3s.com"
+  issuer: https://issuer.a3s.com
+  imageRegistry: gcr.io/aporetodev
+  log:
+    level: info
+    format: stackdriver
+
+  server:
+      cert: server-cert
+      key: server-key
+      pass: server-key-pass
+
+  mongo:
+    cert: mongo-cert
+    key: mongo-key
+    pass: mongo-key-pass
+    host: mongodb-shard-router-0.mongodb-shard-router,mongodb-shard-router-1.mongodb-shard-router,mongodb-shard-router-2.mongodb-shard-router
+    sharded: true
+    readConsistency: nearest
+    attributeEncryptionKey: "abcdefghijkl"
+
+  nats:
+    # cert:
+    # key:
+    # pass:
+    user: username
+    pass: password
+
+  profiling:
+    enabled: false
+    listen: ":6060"
+      

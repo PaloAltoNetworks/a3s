@@ -1,0 +1,141 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: a3s
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app: a3s
+      type: core
+  template:
+    metadata:
+      labels:
+        app: a3s
+        type: core
+    spec:
+      terminationGracePeriodSeconds: 60
+      containers:
+        - name: a3s
+          image: {{ required "global.imageRegistry is required" .Values.global.imageRegistry }}/a3s:test
+          imagePullPolicy: "Always"
+          env:
+            # General
+            - name: A3S_LISTEN
+              value: ":1443"
+            - name: A3S_ENCODING
+              value: "msgpack"
+            # - name: A3S_CORS_DEFAULT_ORIGIN
+            #   value: "https://127.0.0.1:44443"
+            # - name: A3S_CORS_ADDITIONAL_ORIGINS
+            #   value: "http://localhost:8080"
+
+            # Log
+            - name: A3S_LOG_FORMAT
+              value: {{ .Values.log.format | default .Values.global.log.format | quote }}
+            - name: A3S_LOG_LEVEL
+              value: {{ .Values.log.level | default .Values.global.log.level | quote }}
+            
+            # Health
+            - name: A3S_HEALTH_LISTEN
+              value: ":1080"
+            - name: A3S_HEALTH_ENABLED
+              value: "true"
+            
+            # Profiling
+            {{- if .Values.global.profiling.enabled }}
+            - name: A3S_PROFILING_ENABLED
+              value: "true"
+            - name: A3S_PROFILING_LISTEN
+              value: {{ required "global.profiling.listen is required" .Values.global.profiling.listen | quote }}
+            {{- end }}
+            
+            # TLS
+            - name: A3S_TLS_CERT
+              value: /certs/a3s-tls-cert.pem
+            - name: A3S_TLS_KEY
+              value: /certs/a3s-tls-key.pem
+            - name: A3S_TLS_KEY_PASS
+              value: file:///certs/a3s-tls-key.pass
+
+            # JWT
+            - name: A3S_JWT_CERT
+              value: /certs/jwt-cert.pem
+            - name: A3S_JWT_KEY
+              value: /certs/jwt-key.pem
+            - name: A3S_JWT_KEY_PASS
+              value: file:///certs/jwt-key.pass
+            - name: A3S_JWT_ISSUER
+              value: {{ required "global.issuer is required" .Values.global.issuer }}
+            - name: A3S_JWT_AUDIENCE
+              value: {{ required "global.audience is required" .Values.global.audience }}
+
+            # Mongo
+            - name: A3S_MONGO_URL
+              {{- if .Values.global.mongo.sharded }}
+              value: mongodb://{{ required "global.mongo.host is required" .Values.global.mongo.host }}?authMechanism=MONGODB-X509
+              {{- else }}
+              value: mongodb://{{ required "global.mongo.host is required" .Values.global.mongo.host }}?replicaSet=rs0&authMechanism=MONGODB-X509
+              {{- end }}
+            - name: A3S_MONGO_AUTH_DB
+              value: "$external"
+            - name: A3S_MONGO_USER
+              value: "CN=mongodb-admin,OU=users,O=mongodb"
+            # - name: A3S_MONGO_PASS
+            #   value: "a3s"
+            - name: A3S_MONGO_ENCRYPTION_KEY
+              value: file:///certs/attribute-encryption-key.pass
+            - name: A3S_MONGO_TLS_DISABLE
+              value: "true"
+            - name: A3S_MONGO_TLS_CERT
+              value: ""
+            - name: A3S_MONGO_TLS_KEY
+              value: ""
+            - name: A3S_MONGO_TLS_KEY_PASS
+              value: ""
+
+            # Nats 
+            - name: A3S_NATS_URL
+              value: "nats://nats:4222"
+            - name: A3S_NATS_USER
+              value: file:///certs/nats.user
+            - name: A3S_NATS_PASS
+              value: file:///certs/nats.user
+            - name: A3S_NATS_TLS_DISABLE
+              value: "true"
+                          
+          volumeMounts:
+            - name: certs
+              mountPath: /certs
+      volumes:
+        - name: certs
+          secret:
+            secretName: a3s-secrets
+            items:
+              # TLS
+              - key: a3s-tls-cert.pem
+                path: a3s-tls-cert.pem
+              - key: a3s-tls-key.pem
+                path: a3s-tls-key.pem
+              - key: a3s-tls-key.pass
+                path: a3s-tls-key.pass
+
+              # JWT
+              - key: jwt-cert.pem
+                path: jwt-cert.pem
+              - key: jwt-key.pem
+                path: jwt-key.pem
+              - key: jwt-key.pass
+                path: jwt-key.pass
+
+              # Mongo
+              - key: attribute-encryption-key.pass
+                path: attribute-encryption-key.pass
+
+              # Nats
+              - key: nats.user
+                path: nats.user
+              - key: nats.pass
+                path: nats.pass

@@ -1,0 +1,39 @@
+replicas: 1
+
+log:
+    level: info
+    format: console
+
+global:
+  audience: 
+  issuer: 
+  imageRegistry: gcr.io/aporetodev
+  log:
+    level: info
+    format: stackdriver
+
+  server:
+      cert:
+      key:
+      pass:
+
+  mongo:
+    cert:
+    key:
+    pass:
+    host: mongodb-shard-router-0.mongodb-shard-router,mongodb-shard-router-1.mongodb-shard-router,mongodb-shard-router-2.mongodb-shard-router
+    sharded: true
+    readConsistency: nearest
+    attributeEncryptionKey:
+
+  nats:
+    # cert:
+    # key:
+    # pass:
+    user:
+    pass:
+
+  profiling:
+    enabled: false
+    listen: ":6060"
+      
