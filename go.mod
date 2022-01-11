@@ -3,7 +3,7 @@ module go.aporeto.io/a3s
 go 1.17
 
 require (
-	go.aporeto.io/bahamut v1.112.1-0.20220107221426-cb8ad8ac14bc
+	go.aporeto.io/bahamut v1.112.1-0.20220111211610-763bf5536976
 	go.aporeto.io/elemental v1.100.1-0.20211130173545-6dea49cc9163
 	go.aporeto.io/manipulate v1.121.1-0.20211208190144-311efe3f1441
 	go.aporeto.io/tg v1.34.1-0.20220107235943-7d2aaa0dc6f5
