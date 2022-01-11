@@ -162,6 +162,8 @@ github.com/google/pprof v0.0.0-20190515194954-54271f7e092f/go.mod h1:zfwlbNMJ+OI
 github.com/google/renameio v0.1.0/go.mod h1:KWCgfxg9yswjAJkECMjeO8J8rahYeXnNhOm40UhjYkI=
 github.com/google/uuid v1.1.1 h1:Gkbcsh/GbpXz7lPftLA3P6TYMwjCLYm83jiFQZF/3gY=
 github.com/google/uuid v1.1.1/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
+github.com/google/uuid v1.3.0 h1:t6JiXgmwXMjEs8VusXIJk2BXHsn+wx8BZdTaoZ5fu7I=
+github.com/google/uuid v1.3.0/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
 github.com/googleapis/gax-go/v2 v2.0.4/go.mod h1:0Wqv26UfaUD9n4G6kQubkQ+KchISgw+vpHVxEJEs9eg=
 github.com/googleapis/gax-go/v2 v2.0.5/go.mod h1:DWXyrwAJ9X0FpwwEdw+IPEYBICEFu5mhpdKc/us6bOk=
 github.com/gopherjs/gopherjs v0.0.0-20181017120253-0766667cb4d1/go.mod h1:wJfORRmW1u3UXTncJ5qlYoELFm8eSnnEO6hX4iZ3EWY=
@@ -459,6 +461,8 @@ go.aporeto.io/elemental v1.100.1-0.20211130173545-6dea49cc9163 h1:XotBwJLq0aa/C3
 go.aporeto.io/elemental v1.100.1-0.20211130173545-6dea49cc9163/go.mod h1:1WRCDolBBhyTFah5tpf9DNVHaJefug7lV9V9UzPNDAE=
 go.aporeto.io/manipulate v1.121.1-0.20211208190144-311efe3f1441 h1:ZfVNgQaTM8ISA2Pta8CRLke/3QE5gyAw+Cn5ZDHvnCw=
 go.aporeto.io/manipulate v1.121.1-0.20211208190144-311efe3f1441/go.mod h1:kEPED4auCvUcmF9o6M7CZ9IBdrIF6DO+M4gEK5DW/fM=
+go.aporeto.io/manipulate v1.121.1-0.20220111213553-da0c7ebe7c47 h1:SLDHQ7HFuezjmZqHoFuH/eHXg+gmkgg3JUFCXJqSPJI=
+go.aporeto.io/manipulate v1.121.1-0.20220111213553-da0c7ebe7c47/go.mod h1:Qpwh0Upf5tZhULdMJuN53j+AWYSmPM4fy3d9pvgzpRY=
 go.aporeto.io/regolithe v1.50.1-0.20210528201106-653300479f97/go.mod h1:St1liiK+bGvmDNkVSfOP7iAlQmDkShfEcDZMXmFbyKk=
 go.aporeto.io/tg v1.34.1-0.20210528201128-159c302ba155/go.mod h1:Hgsce79sVOYB4LMv/RA/vzJyftp7FhZbJT6SB8OJlso=
 go.aporeto.io/tg v1.34.1-0.20220107235943-7d2aaa0dc6f5 h1:nh2ePOKiTyM9M+PfxxaUQaB4SEnIiIR1U0yO61IYozQ=

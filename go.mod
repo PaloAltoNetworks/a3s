@@ -5,7 +5,7 @@ go 1.17
 require (
 	go.aporeto.io/bahamut v1.112.1-0.20220111211610-763bf5536976
 	go.aporeto.io/elemental v1.100.1-0.20211130173545-6dea49cc9163
-	go.aporeto.io/manipulate v1.121.1-0.20211208190144-311efe3f1441
+	go.aporeto.io/manipulate v1.121.1-0.20220111213553-da0c7ebe7c47
 	go.aporeto.io/tg v1.34.1-0.20220107235943-7d2aaa0dc6f5
 	go.aporeto.io/wsc v1.36.1-0.20210528201141-2af38def4959 // indirect
 )
@@ -40,7 +40,7 @@ require (
 	github.com/gofrs/uuid v4.0.0+incompatible
 	github.com/golang-jwt/jwt/v4 v4.1.0
 	github.com/golang/protobuf v1.5.2 // indirect
-	github.com/google/uuid v1.1.1 // indirect
+	github.com/google/uuid v1.3.0 // indirect
 	github.com/gopherjs/gopherjs v0.0.0-20200217142428-fce0ec30dd00 // indirect
 	github.com/gorilla/websocket v1.4.2 // indirect
 	github.com/gravitational/trace v0.0.0-20190726142706-a535a178675f // indirect
