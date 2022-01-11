@@ -116,16 +116,20 @@ export function useIssue({
   )
 
   const issueWithOidc = useCallback(
-    ({ sourceNamespace, sourceName }: IssueParams) =>
-      fetch(issueUrl, {
+    ({ sourceNamespace, sourceName }: IssueParams) => {
+      // Remove the trailing slash
+      const oidcRedirectURL = (
+        window.location.origin + window.location.pathname
+      ).replace(/\/$/, "")
+      return fetch(issueUrl, {
         method: "POST",
         body: JSON.stringify({
           sourceType: "OIDC",
           sourceNamespace,
           sourceName,
           inputOIDC: {
-            redirectURL: window.location.origin + window.location.pathname,
-            redirectErrorURL: window.location.origin + window.location.pathname,
+            redirectURL: oidcRedirectURL,
+            redirectErrorURL: oidcRedirectURL,
             noAuthRedirect: true,
           },
         }),
@@ -139,7 +143,8 @@ export function useIssue({
           localStorage.setItem("sourceName", sourceName)
           localStorage.setItem("saveToken", saveTokenDefault ? "true" : "false")
           window.location.href = obj.inputOIDC.authURL
-        }),
+        })
+    },
     [issueUrl, saveTokenDefault]
   )
 
