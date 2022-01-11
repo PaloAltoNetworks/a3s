@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"crypto/tls"
+	"crypto/x509"
 	"errors"
 	"fmt"
 	"net"
@@ -103,6 +104,14 @@ func main() {
 		zap.L().Fatal("unable to build JWKS", zap.Error(err))
 	}
 
+	var trustedSourceCAPool *x509.CertPool
+	if cfg.MTLS.Enabled {
+		if trustedSourceCAPool, err = cfg.MTLS.TrustedCAPool(); err != nil {
+			zap.L().Fatal("Unable to get trusted source CA", zap.Error(err))
+		}
+		zap.L().Info("MTLS header trust set")
+	}
+
 	publicAPIURL := cfg.PublicAPIURL
 	if publicAPIURL == "" {
 		publicAPIURL = fmt.Sprintf("https://%s", getNotifierEndpoint(cfg.ListenAddress))
@@ -201,8 +210,9 @@ func main() {
 			cfg.JWT.JWTAudience,
 			cookiePolicy,
 			cookieDomain,
-			cfg.MTLS.MTLSTrustHeader,
-			cfg.MTLS.MTLSHeader,
+			cfg.MTLS.Enabled,
+			cfg.MTLS.HeaderKey,
+			trustedSourceCAPool,
 		),
 		api.IssueIdentity,
 	)

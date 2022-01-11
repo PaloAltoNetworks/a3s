@@ -4,6 +4,7 @@ import (
 	"crypto"
 	"crypto/x509"
 	"fmt"
+	"os"
 	"time"
 
 	"go.aporeto.io/a3s/pkgs/conf"
@@ -17,8 +18,8 @@ type Conf struct {
 	InitContinue       bool   `mapstructure:"init-continue" desc:"Continues normal boot after init."`
 	InitRootUserCAPath string `mapstructure:"init-root-ca"  desc:"Path to the root CA to use to initialize root permissions"`
 
-	JWT  JWTConf  `mapstructure:",squash"`
-	MTLS MTLSConf `mapstructure:",squash"`
+	JWT  JWTConf             `mapstructure:",squash"`
+	MTLS MTLSTrustHeaderConf `mapstructure:",squash"`
 
 	conf.APIServerConf       `mapstructure:",squash"`
 	conf.HealthConfiguration `mapstructure:",squash"`
@@ -77,8 +78,36 @@ func (c *JWTConf) JWTCertificate() (*x509.Certificate, crypto.PrivateKey, error)
 	return jwtCert, jwtKey, nil
 }
 
-// MTLSConf holds the configuration for trusted certificate header.
-type MTLSConf struct {
-	MTLSTrustHeader bool   `mapstructure:"mtls-trust-header" desc:"trust the value of the defined header containing a user certificate. This is insecure if there is no proper tls verification happening upstream"`
-	MTLSHeader      string `mapstructure:"mtls-header" desc:"The header to check for user certificates" default:"x-tls-certificate"`
+// MTLSTrustHeaderConf holds the configuration for trusted certificate header.
+type MTLSTrustHeaderConf struct {
+	Enabled         bool   `mapstructure:"mtls-trust-header-enabled"    desc:"Trust the value of the defined header containing a user certificate. This is insecure if there is no proper tls verification happening upstream"`
+	HeaderKey       string `mapstructure:"mtls-trust-header-key"        desc:"The header to check for user certificates" default:"x-tls-certificate"`
+	TrustedClientCA string `mapstructure:"mtls-trust-header-source-ca"  desc:"Set the CA to verify the certificate of the sender of the tls header."`
+
+	trustedClientCAPool *x509.CertPool
+}
+
+// TrustedCAPool returns the CA to verify the trusted source client certificate.
+func (
+	c *MTLSTrustHeaderConf) TrustedCAPool() (*x509.CertPool, error) {
+
+	if c.trustedClientCAPool != nil {
+		return c.trustedClientCAPool, nil
+	}
+
+	if c.TrustedClientCA == "" {
+		return nil, fmt.Errorf("you must set --mtls-trusted-source-client-ca when enabling --mtls-trust-header")
+	}
+
+	certData, err := os.ReadFile(c.TrustedClientCA)
+	if err != nil {
+		return nil, err
+	}
+
+	c.trustedClientCAPool = x509.NewCertPool()
+	if !c.trustedClientCAPool.AppendCertsFromPEM(certData) {
+		return nil, fmt.Errorf("unable to append trusted client ca")
+	}
+
+	return c.trustedClientCAPool, nil
 }

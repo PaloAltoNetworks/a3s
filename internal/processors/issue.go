@@ -41,6 +41,7 @@ type IssueProcessor struct {
 	issuer                 string
 	trustCertificateHeader bool
 	certificateHeader      string
+	trustedSourceCA        *x509.CertPool
 }
 
 // NewIssueProcessor returns a new IssueProcessor.
@@ -54,6 +55,7 @@ func NewIssueProcessor(
 	cookieDomain string,
 	trustCertificateHeader bool,
 	certificateHeader string,
+	trustedSourceCA *x509.CertPool,
 ) *IssueProcessor {
 
 	return &IssueProcessor{
@@ -66,6 +68,7 @@ func NewIssueProcessor(
 		cookieDomain:           cookieDomain,
 		trustCertificateHeader: trustCertificateHeader,
 		certificateHeader:      certificateHeader,
+		trustedSourceCA:        trustedSourceCA,
 	}
 }
 
@@ -191,15 +194,41 @@ func (p *IssueProcessor) handleCertificateIssue(ctx context.Context, req *api.Is
 
 	var cert []*x509.Certificate
 	var err error
+
+	if cert, err = mtls.CertificatesFromTLSState(tlsState); err != nil {
+		return nil, err
+	}
+
 	if p.trustCertificateHeader {
+
+		// We must ensure the call is coming from a trusted source.
+		// we don't want to trust the header containing the end user
+		// certificate if it comes from anywhere else than the trusted sources.
+
+		// If there is not exactly one certificate, we bail out
+		if l := len(cert); l != 1 {
+			return nil, fmt.Errorf("found %d client certificate(s) in tls state. wants 1", l)
+		}
+
+		// We verify the certificate is signed by our trusted source CA.
+		if _, err := cert[0].Verify(
+			x509.VerifyOptions{
+				Roots: p.trustedSourceCA,
+				KeyUsages: []x509.ExtKeyUsage{
+					x509.ExtKeyUsageClientAuth,
+				},
+			},
+		); err != nil {
+			return nil, fmt.Errorf("unable to to verify trusted source client certificate: %w", err)
+		}
+
+		// Now that we trust the source, we can safely trust the header containing
+		// the end user certificate and swap the current value with the one from the header.
 		if cert, err = mtls.CertificatesFromHeader(tlsHeader); err != nil {
 			return nil, err
 		}
-	} else {
-		if cert, err = mtls.CertificatesFromTLSState(tlsState); err != nil {
-			return nil, err
-		}
 	}
+
 	if len(cert) == 0 {
 		return nil, elemental.NewError("Bad Request", "No user certificates", "a3s:authn", http.StatusBadRequest)
 	}
