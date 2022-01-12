@@ -108,7 +108,7 @@ func TestMTLSIssuer(t *testing.T) {
 				So(err, ShouldBeNil)
 
 				idt := iss.Issue()
-				So(len(idt.Identity), ShouldEqual, 21)
+				So(len(idt.Identity), ShouldEqual, 22)
 				So(idt.Identity, ShouldContain, "commonname=jean-mich")
 				So(idt.Identity, ShouldContain, "country=US")
 				So(idt.Identity, ShouldContain, "country=France")
@@ -126,6 +126,7 @@ func TestMTLSIssuer(t *testing.T) {
 				So(idt.Identity, ShouldContain, "streetaddress=13 Rue de Mogador")
 				So(idt.Identity, ShouldContain, "email=me@me.com")
 				So(idt.Identity, ShouldContain, "serialnumber=42")
+				So(idt.Identity, ShouldContain, fmt.Sprintf("akid=%02X", cacert1.SubjectKeyId))
 				So(idt.Identity, ShouldContain, fmt.Sprintf("fingerprint=%s", token.Fingerprint(usercert1)))
 				So(idt.Identity, ShouldContain, fmt.Sprintf("issuerchain=%s", token.Fingerprint(cacert1)))
 			})
