@@ -8,6 +8,7 @@ import {
   FormGroup,
   FormControlLabel,
   Checkbox,
+  Divider,
 } from "@mui/material"
 import { useState } from "react"
 
@@ -20,6 +21,7 @@ export const CloakDialog = ({
   onConfirm(selected: string[]): void
 }) => {
   const [selected, setSelected] = useState<string[]>(identities)
+  const allSelected = selected.length === identities.length
   return (
     <Dialog open={!!identities.length}>
       <DialogTitle>Select Claims</DialogTitle>
@@ -27,7 +29,26 @@ export const CloakDialog = ({
         <DialogContentText>
           Please select the claims that you want to include.
         </DialogContentText>
-        <FormGroup>
+        <FormGroup sx={{ mt: 2 }}>
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={allSelected}
+                indeterminate={
+                  !allSelected && identities.some(id => selected.includes(id))
+                }
+                onChange={e => {
+                  if (e.target.checked) {
+                    setSelected([...identities])
+                  } else {
+                    setSelected([])
+                  }
+                }}
+              />
+            }
+            label="Select All"
+          />
+          <Divider />
           {identities.map(identity => (
             <FormControlLabel
               control={

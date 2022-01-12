@@ -47,7 +47,10 @@ export const Login = () => {
       const decoded = jwtDecode(token) as Record<string, any>
       if (Array.isArray(decoded.identity)) {
         // Dedupe
-        identities = [...new Set(decoded.identity)]
+        identities = [...new Set(decoded.identity)].filter(
+          // the @source:xxx tags should not be presented
+          identity => !identity.startsWith("@source:")
+        )
       }
     } catch (e) {
       console.error(e)
