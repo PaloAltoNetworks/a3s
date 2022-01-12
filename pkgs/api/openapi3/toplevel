@@ -664,6 +664,14 @@
             "description": "The description of the object.",
             "type": "string"
           },
+          "fingerprints": {
+            "description": "The fingerprint of the CAs in the chain.",
+            "items": {
+              "type": "string"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
           "modifier": {
             "$ref": "#/components/schemas/identitymodifier"
           },
@@ -676,6 +684,14 @@
             "description": "The namespace of the object.",
             "readOnly": true,
             "type": "string"
+          },
+          "subjectKeyIDs": {
+            "description": "Value of the CAs X.509 SubjectKeyIDs in the chain.",
+            "items": {
+              "type": "string"
+            },
+            "readOnly": true,
+            "type": "array"
           }
         },
         "required": [

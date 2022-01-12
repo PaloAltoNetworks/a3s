@@ -113,5 +113,4 @@ require (
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	k8s.io/helm v2.17.0+incompatible // indirect
 	rsc.io/qr v0.2.0 // indirect
-	sigs.k8s.io/yaml v1.3.0 // indirect
 )
