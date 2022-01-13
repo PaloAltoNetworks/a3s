@@ -453,6 +453,8 @@ github.com/xordataexchange/crypt v0.0.3-0.20170626215501-b2862e3d0a77/go.mod h1:
 github.com/yuin/goldmark v1.3.5/go.mod h1:mwnBkeHKe2W/ZEtQ+71ViKU8L12m81fl3OWwC1Zlc8k=
 go.aporeto.io/bahamut v1.112.1-0.20220111211610-763bf5536976 h1:ikZHeLEYd7kAVgXcYR6m/Af8++3Lkw9ldFzKrJKe4Oc=
 go.aporeto.io/bahamut v1.112.1-0.20220111211610-763bf5536976/go.mod h1:IfbPLUhn1ckrvDHbBMYJOKrVLfFdUXNhGaXeowFpi/g=
+go.aporeto.io/bahamut v1.112.1-0.20220113172527-169612633497 h1:nTRnJCnW/xoPzF4jht/hvhV4s3VrmYHAcAArbCS2bqw=
+go.aporeto.io/bahamut v1.112.1-0.20220113172527-169612633497/go.mod h1:s8ojdSp/2VHswoWGWC5rNIiurnIKSfaUEyOIkgk9DjQ=
 go.aporeto.io/elemental v1.100.1-0.20211130173545-6dea49cc9163 h1:XotBwJLq0aa/C3wcNLWYzqmeeWDOgzO1+JcKA9ACGuQ=
 go.aporeto.io/elemental v1.100.1-0.20211130173545-6dea49cc9163/go.mod h1:1WRCDolBBhyTFah5tpf9DNVHaJefug7lV9V9UzPNDAE=
 go.aporeto.io/manipulate v1.121.1-0.20220111213553-da0c7ebe7c47 h1:SLDHQ7HFuezjmZqHoFuH/eHXg+gmkgg3JUFCXJqSPJI=
