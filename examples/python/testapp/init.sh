@@ -12,7 +12,10 @@ export TLSGEN_OUT="./certs"
 export TLSGEN_FORCE="true"
 
 echo "* Generating certificates..."
-tg cert issue --is-ca --name "a3s-test-authority"
+tg cert issue --is-ca --name "a3s-test-root-authority"
+tg cert issue --is-ca --name "a3s-test-authority" \
+	--signing-cert "certs/a3s-test-authority-root-cert.pem" \
+	--signing-cert-key "certs/a3s-test-authority-root-key.pem"
 tg cert issue --auth-client \
 	--name "john" \
 	--signing-cert "certs/a3s-test-authority-cert.pem" \
@@ -49,7 +52,7 @@ echo
 echo "* Creating mtlssource"
 a3sctl api create mtlssource -n "/testapp" \
 	--with.name "default" \
-	--with.ca "$(cat certs/a3s-test-authority-cert.pem)" ||
+	--with.ca "$(cat certs/a3s-test-authority-root-cert.pem certs/a3s-test-authority-cert.pem)" ||
 	die "unable to create mtls resource"
 
 echo

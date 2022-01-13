@@ -66,10 +66,12 @@ var (
 			{"namespace", "ID"},
 		},
 		"mtlssource": {
+			{"subjectKeyIDs"},
 			{"namespace", "name"},
-			{":shard", ":unique", "zone", "zHash"},
 			{"namespace"},
 			{"namespace", "ID"},
+			{"fingerprints"},
+			{":shard", ":unique", "zone", "zHash"},
 		},
 		"namespace": {
 			{"namespace", "name"},

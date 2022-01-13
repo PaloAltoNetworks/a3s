@@ -136,6 +136,10 @@ func (c *mtlsIssuer) fromCertificate(ctx context.Context, cert *x509.Certificate
 		c.token.Identity = append(c.token.Identity, fmt.Sprintf("issuerchain=%s", strings.Join(fingerprints[1:], ",")))
 	}
 
+	if len(cert.AuthorityKeyId) > 0 {
+		c.token.Identity = append(c.token.Identity, fmt.Sprintf("akid=%02X", cert.AuthorityKeyId))
+	}
+
 	if srcmod := c.source.Modifier; srcmod != nil {
 
 		m, err := identitymodifier.NewRemote(srcmod, c.token.Source)
