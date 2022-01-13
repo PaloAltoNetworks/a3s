@@ -41,6 +41,13 @@ var (
 		api.PermissionsIdentity.Category,
 		api.AuthzIdentity.Category,
 	}
+	pushExcludedResources = []elemental.Identity{
+		api.PermissionsIdentity,
+
+		// safety: these ones are not an identifiable, so it would not be pushed anyway.
+		api.IssueIdentity,
+		api.AuthzIdentity,
+	}
 )
 
 func main() {
@@ -173,7 +180,7 @@ func main() {
 			},
 		),
 		bahamut.OptPushDispatchHandler(push.NewDispatcher(pauthz)),
-		bahamut.OptPushPublishHandler(bootstrap.MakePublishHandler(nil)),
+		bahamut.OptPushPublishHandler(bootstrap.MakePublishHandler(pushExcludedResources)),
 		bahamut.OptMTLS(nil, tls.RequestClientCert),
 		bahamut.OptErrorTransformer(errorTransformer),
 		bahamut.OptIdentifiableRetriever(bootstrap.MakeIdentifiableRetriever(m)),
