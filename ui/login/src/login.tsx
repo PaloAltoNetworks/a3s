@@ -11,7 +11,7 @@ import {
   Checkbox,
   Typography,
 } from "@mui/material"
-import { useIssue } from "./useIssue"
+import { useIssue } from "./use-issue"
 import { CloakDialog } from "./cloak-dialog"
 import jwtDecode from "jwt-decode"
 import { useLocalState } from "./use-local-state"
