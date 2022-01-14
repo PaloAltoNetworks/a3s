@@ -4,12 +4,12 @@ import "go.aporeto.io/elemental"
 
 var (
 	identityNamesMap = map[string]elemental.Identity{
-		"a3ssource":     A3SSourceIdentity,
-		"authorization": AuthorizationIdentity,
-		"authz":         AuthzIdentity,
-		"httpsource":    HTTPSourceIdentity,
-
-		"issue": IssueIdentity,
+		"a3ssource":        A3SSourceIdentity,
+		"authorization":    AuthorizationIdentity,
+		"authz":            AuthzIdentity,
+		"httpsource":       HTTPSourceIdentity,
+		"identitymodifier": IdentityModifierIdentity,
+		"issue":            IssueIdentity,
 
 		"ldapsource":  LDAPSourceIdentity,
 		"mtlssource":  MTLSSourceIdentity,
@@ -20,12 +20,12 @@ var (
 	}
 
 	identitycategoriesMap = map[string]elemental.Identity{
-		"a3ssources":     A3SSourceIdentity,
-		"authorizations": AuthorizationIdentity,
-		"authz":          AuthzIdentity,
-		"httpsources":    HTTPSourceIdentity,
-
-		"issue": IssueIdentity,
+		"a3ssources":       A3SSourceIdentity,
+		"authorizations":   AuthorizationIdentity,
+		"authz":            AuthzIdentity,
+		"httpsources":      HTTPSourceIdentity,
+		"identitymodifier": IdentityModifierIdentity,
+		"issue":            IssueIdentity,
 
 		"ldapsources": LDAPSourceIdentity,
 		"mtlssources": MTLSSourceIdentity,
@@ -43,6 +43,7 @@ var (
 			{":shard", ":unique", "zone", "zHash"},
 			{"namespace"},
 			{"namespace", "ID"},
+			{"namespace", "importLabel"},
 		},
 		"authorization": {
 			{"namespace", "flattenedSubject", "disabled"},
@@ -50,6 +51,7 @@ var (
 			{":shard", ":unique", "zone", "zHash"},
 			{"namespace"},
 			{"namespace", "ID"},
+			{"namespace", "importLabel"},
 		},
 		"authz": nil,
 		"httpsource": {
@@ -57,21 +59,25 @@ var (
 			{":shard", ":unique", "zone", "zHash"},
 			{"namespace"},
 			{"namespace", "ID"},
+			{"namespace", "importLabel"},
 		},
-		"issue": nil,
+		"identitymodifier": nil,
+		"issue":            nil,
 		"ldapsource": {
 			{"namespace", "name"},
 			{":shard", ":unique", "zone", "zHash"},
 			{"namespace"},
 			{"namespace", "ID"},
+			{"namespace", "importLabel"},
 		},
 		"mtlssource": {
+			{":shard", ":unique", "zone", "zHash"},
 			{"subjectKeyIDs"},
-			{"namespace", "name"},
+			{"namespace", "importLabel"},
 			{"namespace"},
 			{"namespace", "ID"},
+			{"namespace", "name"},
 			{"fingerprints"},
-			{":shard", ":unique", "zone", "zHash"},
 		},
 		"namespace": {
 			{"namespace", "name"},
@@ -85,6 +91,7 @@ var (
 			{":shard", ":unique", "zone", "zHash"},
 			{"namespace"},
 			{"namespace", "ID"},
+			{"namespace", "importLabel"},
 		},
 		"permissions": nil,
 		"root":        nil,
@@ -136,6 +143,8 @@ func (f modelManager) Identifiable(identity elemental.Identity) elemental.Identi
 		return NewAuthz()
 	case HTTPSourceIdentity:
 		return NewHTTPSource()
+	case IdentityModifierIdentity:
+		return NewIdentityModifier()
 	case IssueIdentity:
 		return NewIssue()
 	case LDAPSourceIdentity:
@@ -167,6 +176,8 @@ func (f modelManager) SparseIdentifiable(identity elemental.Identity) elemental.
 		return NewSparseAuthz()
 	case HTTPSourceIdentity:
 		return NewSparseHTTPSource()
+	case IdentityModifierIdentity:
+		return NewSparseIdentityModifier()
 	case IssueIdentity:
 		return NewSparseIssue()
 	case LDAPSourceIdentity:
@@ -206,6 +217,8 @@ func (f modelManager) Identifiables(identity elemental.Identity) elemental.Ident
 		return &AuthzsList{}
 	case HTTPSourceIdentity:
 		return &HTTPSourcesList{}
+	case IdentityModifierIdentity:
+		return &IdentityModifiersList{}
 	case IssueIdentity:
 		return &IssuesList{}
 	case LDAPSourceIdentity:
@@ -235,6 +248,8 @@ func (f modelManager) SparseIdentifiables(identity elemental.Identity) elemental
 		return &SparseAuthzsList{}
 	case HTTPSourceIdentity:
 		return &SparseHTTPSourcesList{}
+	case IdentityModifierIdentity:
+		return &SparseIdentityModifiersList{}
 	case IssueIdentity:
 		return &SparseIssuesList{}
 	case LDAPSourceIdentity:
@@ -279,6 +294,7 @@ func AllIdentities() []elemental.Identity {
 		AuthorizationIdentity,
 		AuthzIdentity,
 		HTTPSourceIdentity,
+		IdentityModifierIdentity,
 		IssueIdentity,
 		LDAPSourceIdentity,
 		MTLSSourceIdentity,
@@ -300,6 +316,8 @@ func AliasesForIdentity(identity elemental.Identity) []string {
 	case AuthzIdentity:
 		return []string{}
 	case HTTPSourceIdentity:
+		return []string{}
+	case IdentityModifierIdentity:
 		return []string{}
 	case IssueIdentity:
 		return []string{}

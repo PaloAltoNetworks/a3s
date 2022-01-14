@@ -135,6 +135,8 @@ func init() {
 		},
 	}
 
+	relationshipsRegistry[IdentityModifierIdentity] = &elemental.Relationship{}
+
 	relationshipsRegistry[IssueIdentity] = &elemental.Relationship{
 		Create: map[string]*elemental.RelationshipInfo{
 			"root": {},

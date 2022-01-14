@@ -515,6 +515,13 @@ Type: `string`
 Endpoint of the remote a3s server, in case it is different from the issuer. If
 left empty, the issuer value will be used.
 
+##### `importLabel` [`creation_only`]
+
+Type: `string`
+
+The user-defined import label that allows the system to group resources from the
+same import operation.
+
 ##### `issuer` [`required`]
 
 Type: `string`
@@ -642,6 +649,13 @@ endpoint does not support client certificate authentication.
 Type: `string`
 
 The description of the object.
+
+##### `importLabel` [`creation_only`]
+
+Type: `string`
+
+The user-defined import label that allows the system to group resources from the
+same import operation.
 
 ##### `key` [`required`]
 
@@ -873,6 +887,13 @@ Type: `[]string`
 A list of keys that must not be imported into the identity token. If
 `includedKeys` is also set, and a key is in both lists, the key will be ignored.
 
+##### `importLabel` [`creation_only`]
+
+Type: `string`
+
+The user-defined import label that allows the system to group resources from the
+same import operation.
+
 ##### `includedKeys`
 
 Type: `[]string`
@@ -985,6 +1006,13 @@ Type: `[]string`
 
 The fingerprint of the CAs in the chain.
 
+##### `importLabel` [`creation_only`]
+
+Type: `string`
+
+The user-defined import label that allows the system to group resources from the
+same import operation.
+
 ##### `modifier`
 
 Type: [`identitymodifier`](#identitymodifier)
@@ -1096,6 +1124,13 @@ Type: `string`
 OIDC [discovery
 endpoint](https://openid.net/specs/openid-connect-discovery-1_0.html#IssuerDiscovery).
 
+##### `importLabel` [`creation_only`]
+
+Type: `string`
+
+The user-defined import label that allows the system to group resources from the
+same import operation.
+
 ##### `modifier`
 
 Type: [`identitymodifier`](#identitymodifier)
@@ -1198,6 +1233,13 @@ Set the authorization to be disabled.
 Type: `boolean`
 
 Hides the policies in children namespaces.
+
+##### `importLabel` [`creation_only`]
+
+Type: `string`
+
+The user-defined import label that allows the system to group resources from the
+same import operation.
 
 ##### `name` [`required`]
 

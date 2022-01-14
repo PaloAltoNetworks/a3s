@@ -8,7 +8,6 @@ model:
   description: |-
     Information about a remote endpoint to call to eventually modify the identity
     claims about to be issued when using the parent source.
-  detached: true
 
 # Attributes
 attributes:
