@@ -54,7 +54,40 @@ func TestHash(t *testing.T) {
 					api.Manager(),
 				}
 			},
-			"2d30e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+			"30e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+			false,
+			nil,
+		},
+		{
+			"with nested object with explicit default value set",
+			func(*testing.T) args {
+				o := api.NewHTTPSource()
+				o.Name = "name"
+				o.Modifier = api.NewIdentityModifier()
+				o.Modifier.Method = api.IdentityModifierMethodPOST
+				return args{
+					o,
+					api.Manager(),
+				}
+			},
+			"39373933393238343838353037323338393835e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+			false,
+			nil,
+		},
+		{
+			"with no nested object",
+			func(*testing.T) args {
+				o := api.NewHTTPSource()
+				o.Name = "name"
+				o.ImportHash = "h"
+				o.ImportLabel = "l"
+				o.Namespace = "ns"
+				return args{
+					o,
+					api.Manager(),
+				}
+			},
+			"39373933393238343838353037323338393835e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
 			false,
 			nil,
 		},
@@ -334,7 +367,6 @@ func Test_cleanIrrelevantValues(t *testing.T) {
 func Test_hash(t *testing.T) {
 	type args struct {
 		data map[string]interface{}
-		ns   string
 	}
 	tests := []struct {
 		name string
@@ -349,10 +381,9 @@ func Test_hash(t *testing.T) {
 			func(*testing.T) args {
 				return args{
 					nil,
-					"",
 				}
 			},
-			"2d30e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+			"30e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
 			false,
 			nil,
 		},
@@ -368,10 +399,9 @@ func Test_hash(t *testing.T) {
 						"e": []interface{}{"a", "b"},
 						"f": map[string]interface{}{"a": "b"},
 					},
-					"",
 				}
 			},
-			"2d36353939373434343439343034313732353632e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+			"36353939373434343439343034313732353632e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
 			false,
 			nil,
 		},
@@ -381,7 +411,7 @@ func Test_hash(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			tArgs := tt.args(t)
 
-			got1, err := hash(tArgs.data, tArgs.ns)
+			got1, err := hash(tArgs.data)
 
 			if !reflect.DeepEqual(got1, tt.want1) {
 				t.Errorf("hash got1 = %v, want1: %v", got1, tt.want1)

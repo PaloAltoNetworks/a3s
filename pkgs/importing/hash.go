@@ -28,7 +28,7 @@ func Hash(obj Importable, manager elemental.ModelManager) (string, error) {
 		return "", fmt.Errorf("unable to sanitize data from indentifiable: %w", err)
 	}
 
-	return hash(data, obj.GetNamespace())
+	return hash(data)
 }
 
 func sanitize(obj elemental.AttributeSpecifiable, manager elemental.ModelManager) (map[string]interface{}, error) {
@@ -156,12 +156,12 @@ func toMap(obj interface{}) (map[string]interface{}, error) {
 	return m, nil
 }
 
-func hash(data map[string]interface{}, ns string) (string, error) {
+func hash(data map[string]interface{}) (string, error) {
 
 	h, err := hashstructure.Hash(data, nil)
 	if err != nil {
 		return "", fmt.Errorf("unable hash data: %w", err)
 	}
 
-	return fmt.Sprintf("%x", sha256.New().Sum([]byte(fmt.Sprintf("%s-%d", ns, h)))), nil
+	return fmt.Sprintf("%x", sha256.New().Sum([]byte(fmt.Sprintf("%d", h)))), nil
 }
