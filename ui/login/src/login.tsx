@@ -23,11 +23,11 @@ type DialogState =
   | { type: "Cloak"; token: string }
   | { type: "QrCode"; token: string }
 
-// const redirectUrl = "__REDIRECT_URL__"
-const redirectUrl = ""
+const redirectUrl = "__REDIRECT_URL__"
+// const redirectUrl = ""
 const enableCloak = "__ENABLE_CLOAKING__" as StringBoolean
-// const audience = ["__AUDIENCE__"]
-const audience = ["https://127.0.0.1:44443"]
+const audience = ["__AUDIENCE__"]
+// const audience = ["https://127.0.0.1:44443"]
 
 export const Login = () => {
   const [cloak, setCloak] = useLocalState(enableCloak, "cloak")
@@ -68,8 +68,8 @@ export const Login = () => {
     issueWithA3s,
     oidcIssuing,
   } = useIssue({
-    // apiUrl: "__API_URL__",
-    apiUrl: "https://localhost:44443",
+    apiUrl: "__API_URL__",
+    // apiUrl: "https://localhost:44443",
     audience,
     oidcRedirectUrl: shouldRedirectImmediately ? redirectUrl : undefined,
     onOidcSuccess: onToken,
