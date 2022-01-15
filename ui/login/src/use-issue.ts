@@ -54,9 +54,7 @@ export function useIssue({
           return (await res.json()).token as string
         }
       } else {
-        console.error(
-          "Request to issue failed. Please check the network tab for details"
-        )
+        throw Error("Request to issue failed. Please check the network tab for details")
       }
     },
     []
