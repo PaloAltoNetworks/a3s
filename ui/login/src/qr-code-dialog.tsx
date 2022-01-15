@@ -5,7 +5,6 @@ import {
   DialogActions,
   Button,
 } from "@mui/material"
-import { useState } from "react"
 import QrCode from "./qr-code-gen"
 
 export const QrCodeDialog = ({
@@ -15,8 +14,6 @@ export const QrCodeDialog = ({
   token: string
   onClose(): void
 }) => {
-  const [imageDataUrl, setImageDataUrl] = useState("")
-
   return (
     <Dialog open>
       <DialogTitle>Token QR Code</DialogTitle>
@@ -46,15 +43,11 @@ export const QrCodeDialog = ({
                   )
                 }
               }
-              setImageDataUrl(canvas.toDataURL("image/png"))
             }
           }}
         />
       </DialogContent>
       <DialogActions>
-        <Button variant="contained" component='a' href={imageDataUrl} download={`token.png`} sx={{mr: 1}} >
-          Save Image
-        </Button>
         <Button variant="outlined" onClick={onClose}>
           Close
         </Button>
