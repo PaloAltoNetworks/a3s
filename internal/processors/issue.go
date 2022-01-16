@@ -2,8 +2,8 @@ package processors
 
 import (
 	"context"
+	"crypto/aes"
 	"crypto/tls"
-	"crypto/x509"
 	"fmt"
 	"net/http"
 	"time"
@@ -32,16 +32,16 @@ import (
 
 // A IssueProcessor is a bahamut processor for Issue.
 type IssueProcessor struct {
-	manipulator            manipulate.Manipulator
-	jwks                   *token.JWKS
-	maxValidity            time.Duration
-	audience               string
-	cookieSameSitePolicy   http.SameSite
-	cookieDomain           string
-	issuer                 string
-	trustCertificateHeader bool
-	certificateHeader      string
-	trustedSourceCA        *x509.CertPool
+	manipulator          manipulate.Manipulator
+	jwks                 *token.JWKS
+	maxValidity          time.Duration
+	audience             string
+	cookieSameSitePolicy http.SameSite
+	cookieDomain         string
+	issuer               string
+	mtlsHeaderEnabled    bool
+	mtlsHeaderKey        string
+	mtlsHeaderPass       string
 }
 
 // NewIssueProcessor returns a new IssueProcessor.
@@ -53,22 +53,22 @@ func NewIssueProcessor(
 	audience string,
 	cookieSameSitePolicy http.SameSite,
 	cookieDomain string,
-	trustCertificateHeader bool,
-	certificateHeader string,
-	trustedSourceCA *x509.CertPool,
+	mtlsHeaderEnabled bool,
+	mtlsHeaderKey string,
+	mtlsHeaderPass string,
 ) *IssueProcessor {
 
 	return &IssueProcessor{
-		manipulator:            manipulator,
-		jwks:                   jwks,
-		maxValidity:            maxValidity,
-		issuer:                 issuer,
-		audience:               audience,
-		cookieSameSitePolicy:   cookieSameSitePolicy,
-		cookieDomain:           cookieDomain,
-		trustCertificateHeader: trustCertificateHeader,
-		certificateHeader:      certificateHeader,
-		trustedSourceCA:        trustedSourceCA,
+		manipulator:          manipulator,
+		jwks:                 jwks,
+		maxValidity:          maxValidity,
+		issuer:               issuer,
+		audience:             audience,
+		cookieSameSitePolicy: cookieSameSitePolicy,
+		cookieDomain:         cookieDomain,
+		mtlsHeaderEnabled:    mtlsHeaderEnabled,
+		mtlsHeaderKey:        mtlsHeaderKey,
+		mtlsHeaderPass:       mtlsHeaderPass,
 	}
 }
 
@@ -97,7 +97,7 @@ func (p *IssueProcessor) ProcessCreate(bctx bahamut.Context) (err error) {
 			bctx.Context(),
 			req,
 			bctx.Request().TLSConnectionState,
-			bctx.Request().Headers.Get(p.certificateHeader),
+			bctx.Request().Headers.Get(p.mtlsHeaderKey),
 		)
 
 	case api.IssueSourceTypeLDAP:
@@ -192,40 +192,27 @@ func (p *IssueProcessor) ProcessCreate(bctx bahamut.Context) (err error) {
 
 func (p *IssueProcessor) handleCertificateIssue(ctx context.Context, req *api.Issue, tlsState *tls.ConnectionState, tlsHeader string) (token.Issuer, error) {
 
-	var cert []*x509.Certificate
-	var err error
+	// We get the peer certificate.
+	cert := tlsState.PeerCertificates
 
-	if cert, err = mtls.CertificatesFromTLSState(tlsState); err != nil {
-		return nil, err
-	}
+	// If mtls header is enabled, and the header is not empty
+	// we will use it instead of the cert from the tls state.
+	if p.mtlsHeaderEnabled && tlsHeader != "" {
 
-	if p.trustCertificateHeader {
-
-		// We must ensure the call is coming from a trusted source.
-		// we don't want to trust the header containing the end user
-		// certificate if it comes from anywhere else than the trusted sources.
-
-		// If there is not exactly one certificate, we bail out
-		if l := len(cert); l != 1 {
-			return nil, fmt.Errorf("found %d client certificate(s) in tls state. wants 1", l)
+		// The header must be encrypted with the provided mtlsHeaderPass
+		// or we will not trust it.
+		bc, err := aes.NewCipher([]byte(p.mtlsHeaderPass))
+		if err != nil {
+			return nil, fmt.Errorf("unable to create aes cipher to decrypt mtls header: %w", err)
 		}
 
-		// We verify the certificate is signed by our trusted source CA.
-		if _, err := cert[0].Verify(
-			x509.VerifyOptions{
-				Roots: p.trustedSourceCA,
-				KeyUsages: []x509.ExtKeyUsage{
-					x509.ExtKeyUsageClientAuth,
-				},
-			},
-		); err != nil {
-			return nil, fmt.Errorf("unable to to verify trusted source client certificate: %w", err)
-		}
+		var dst []byte
+		bc.Decrypt(dst, []byte(tlsHeader))
 
-		// Now that we trust the source, we can safely trust the header containing
-		// the end user certificate and swap the current value with the one from the header.
-		if cert, err = mtls.CertificatesFromHeader(tlsHeader); err != nil {
-			return nil, err
+		// Then we try to extract a certificate out of the decrypted blob.
+		cert, err = mtls.CertificatesFromHeader(string(dst))
+		if err != nil {
+			return nil, fmt.Errorf("unable to retrieve certificate from mtls header: %w", err)
 		}
 	}
 

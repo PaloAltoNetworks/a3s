@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"crypto/tls"
-	"crypto/x509"
 	"errors"
 	"fmt"
 	"net"
@@ -111,12 +110,22 @@ func main() {
 		zap.L().Fatal("unable to build JWKS", zap.Error(err))
 	}
 
-	var trustedSourceCAPool *x509.CertPool
-	if cfg.MTLS.Enabled {
-		if trustedSourceCAPool, err = cfg.MTLS.TrustedCAPool(); err != nil {
-			zap.L().Fatal("Unable to get trusted source CA", zap.Error(err))
+	if cfg.MTLSHeader.Enabled {
+		if cfg.MTLSHeader.Passphrase == "" {
+			zap.L().Fatal("You must pass --mtls-header-passphrase when --mtls-header-enabled is set")
 		}
-		zap.L().Info("MTLS header trust set")
+		var cipher string
+		switch len(cfg.MTLSHeader.Passphrase) {
+		case 16:
+			cipher = "AES-128"
+		case 24:
+			cipher = "AES-192"
+		case 32:
+			cipher = "AES-256"
+		default:
+			zap.L().Fatal("The value for --mtls-header-passphrase must be 16, 24 or 32 bytes long to select AES-128, AES-192 or AES-256")
+		}
+		zap.L().Info("MTLS header trust set", zap.String("header", cfg.MTLSHeader.HeaderKey), zap.String("cipher", cipher))
 	}
 
 	publicAPIURL := cfg.PublicAPIURL
@@ -217,9 +226,9 @@ func main() {
 			cfg.JWT.JWTAudience,
 			cookiePolicy,
 			cookieDomain,
-			cfg.MTLS.Enabled,
-			cfg.MTLS.HeaderKey,
-			trustedSourceCAPool,
+			cfg.MTLSHeader.Enabled,
+			cfg.MTLSHeader.HeaderKey,
+			cfg.MTLSHeader.Passphrase,
 		),
 		api.IssueIdentity,
 	)
