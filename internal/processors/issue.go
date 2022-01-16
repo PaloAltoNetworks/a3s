@@ -2,7 +2,6 @@ package processors
 
 import (
 	"context"
-	"crypto/aes"
 	"crypto/tls"
 	"fmt"
 	"net/http"
@@ -199,21 +198,26 @@ func (p *IssueProcessor) handleCertificateIssue(ctx context.Context, req *api.Is
 	// we will use it instead of the cert from the tls state.
 	if p.mtlsHeaderEnabled && tlsHeader != "" {
 
-		// The header must be encrypted with the provided mtlsHeaderPass
-		// or we will not trust it.
-		bc, err := aes.NewCipher([]byte(p.mtlsHeaderPass))
+		// First we create an elemental.AESAttributeEncrypter
+		cipher, err := elemental.NewAESAttributeEncrypter(p.mtlsHeaderPass)
 		if err != nil {
-			return nil, fmt.Errorf("unable to create aes cipher to decrypt mtls header: %w", err)
+			return nil, fmt.Errorf("unable to build AES encrypter: %w", err)
 		}
 
-		var dst []byte
-		bc.Decrypt(dst, []byte(tlsHeader))
+		// Then we decrypt the content of the header.
+		header, err := cipher.DecryptString(tlsHeader)
+		if err != nil {
+			return nil, fmt.Errorf("unable to decrypt header: %w", err)
+		}
 
 		// Then we try to extract a certificate out of the decrypted blob.
-		cert, err = mtls.CertificatesFromHeader(string(dst))
+		cert, err = mtls.CertificatesFromHeader(header)
 		if err != nil {
 			return nil, fmt.Errorf("unable to retrieve certificate from mtls header: %w", err)
 		}
+
+		// If we reach here, the decoded certificate from the header will be used to
+		// to match against the source.
 	}
 
 	if len(cert) == 0 {
