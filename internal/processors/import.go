@@ -8,7 +8,7 @@ import (
 	"go.aporeto.io/elemental"
 )
 
-// A HTTPSourcesProcessor is a bahamut processor for HTTPSource.
+// A ImportProcessor is a bahamut processor for Import.
 type ImportProcessor struct {
 	bmanipMaker bearermanip.MakerFunc
 }

@@ -9,6 +9,13 @@ import (
 	"go.aporeto.io/manipulate"
 )
 
+// Import preforms the importing of the given
+// objects, in the given namespace, with the given label
+// using the given manipulator.
+// If removeMode is true, all the objects with the given
+// label will be deleted.
+// This function does not make any permission check, and will
+// fail if the given manipulator does not bear sufficient permissions.
 func Import(
 	ctx context.Context,
 	manager elemental.ModelManager,
