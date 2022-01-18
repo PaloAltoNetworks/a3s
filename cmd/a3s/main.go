@@ -220,7 +220,6 @@ func main() {
 		publicAPIURL,
 		&tls.Config{
 			RootCAs: bmanipPool,
-			// InsecureSkipVerify: true, // TODO: testing
 		},
 	)
 	if err != nil {
