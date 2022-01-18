@@ -31,13 +31,16 @@ relations:
     description: Sends a authz request.
 
 - rest_name: httpsource
-
   get:
     description: Retrieves the list of httpsources.
     global_parameters:
     - $queryable
   create:
     description: Creates a new httpsource.
+
+- rest_name: import
+  create:
+    description: Sends an import request.
 
 - rest_name: issue
   create:
@@ -78,7 +81,3 @@ relations:
 - rest_name: permissions
   create:
     description: Sends a permissions request.
-
-- rest_name: import
-  create:
-    description: Sends an import request.

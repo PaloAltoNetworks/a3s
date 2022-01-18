@@ -96,7 +96,7 @@ type Authorization struct {
 	Hidden bool `json:"hidden" msgpack:"hidden" bson:"hidden" mapstructure:"hidden,omitempty"`
 
 	// The hash of the structure used to compare with new import version.
-	ImportHash string `json:"-" msgpack:"-" bson:"importhash" mapstructure:"-,omitempty"`
+	ImportHash string `json:"importHash,omitempty" msgpack:"importHash,omitempty" bson:"importhash,omitempty" mapstructure:"importHash,omitempty"`
 
 	// The user-defined import label that allows the system to group resources from the
 	// same import operation.
@@ -652,6 +652,7 @@ var AuthorizationAttributesMap = map[string]elemental.AttributeSpecification{
 		BSONFieldName:  "importhash",
 		ConvertedName:  "ImportHash",
 		Description:    `The hash of the structure used to compare with new import version.`,
+		Exposed:        true,
 		Getter:         true,
 		Name:           "importHash",
 		ReadOnly:       true,
@@ -852,6 +853,7 @@ var AuthorizationLowerCaseAttributesMap = map[string]elemental.AttributeSpecific
 		BSONFieldName:  "importhash",
 		ConvertedName:  "ImportHash",
 		Description:    `The hash of the structure used to compare with new import version.`,
+		Exposed:        true,
 		Getter:         true,
 		Name:           "importHash",
 		ReadOnly:       true,
@@ -1067,7 +1069,7 @@ type SparseAuthorization struct {
 	Hidden *bool `json:"hidden,omitempty" msgpack:"hidden,omitempty" bson:"hidden,omitempty" mapstructure:"hidden,omitempty"`
 
 	// The hash of the structure used to compare with new import version.
-	ImportHash *string `json:"-" msgpack:"-" bson:"importhash,omitempty" mapstructure:"-,omitempty"`
+	ImportHash *string `json:"importHash,omitempty" msgpack:"importHash,omitempty" bson:"importhash,omitempty" mapstructure:"importHash,omitempty"`
 
 	// The user-defined import label that allows the system to group resources from the
 	// same import operation.
@@ -1465,7 +1467,7 @@ type mongoAttributesAuthorization struct {
 	Disabled         bool          `bson:"disabled"`
 	FlattenedSubject []string      `bson:"flattenedsubject"`
 	Hidden           bool          `bson:"hidden"`
-	ImportHash       string        `bson:"importhash"`
+	ImportHash       string        `bson:"importhash,omitempty"`
 	ImportLabel      string        `bson:"importlabel,omitempty"`
 	Name             string        `bson:"name"`
 	Namespace        string        `bson:"namespace"`

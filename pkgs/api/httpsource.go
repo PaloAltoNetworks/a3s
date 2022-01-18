@@ -100,7 +100,7 @@ type HTTPSource struct {
 	Description string `json:"description" msgpack:"description" bson:"description" mapstructure:"description,omitempty"`
 
 	// The hash of the structure used to compare with new import version.
-	ImportHash string `json:"-" msgpack:"-" bson:"importhash" mapstructure:"-,omitempty"`
+	ImportHash string `json:"importHash,omitempty" msgpack:"importHash,omitempty" bson:"importhash,omitempty" mapstructure:"importHash,omitempty"`
 
 	// The user-defined import label that allows the system to group resources from the
 	// same import operation.
@@ -629,6 +629,7 @@ endpoint does not support client certificate authentication.`,
 		BSONFieldName:  "importhash",
 		ConvertedName:  "ImportHash",
 		Description:    `The hash of the structure used to compare with new import version.`,
+		Exposed:        true,
 		Getter:         true,
 		Name:           "importHash",
 		ReadOnly:       true,
@@ -799,6 +800,7 @@ endpoint does not support client certificate authentication.`,
 		BSONFieldName:  "importhash",
 		ConvertedName:  "ImportHash",
 		Description:    `The hash of the structure used to compare with new import version.`,
+		Exposed:        true,
 		Getter:         true,
 		Name:           "importHash",
 		ReadOnly:       true,
@@ -981,7 +983,7 @@ type SparseHTTPSource struct {
 	Description *string `json:"description,omitempty" msgpack:"description,omitempty" bson:"description,omitempty" mapstructure:"description,omitempty"`
 
 	// The hash of the structure used to compare with new import version.
-	ImportHash *string `json:"-" msgpack:"-" bson:"importhash,omitempty" mapstructure:"-,omitempty"`
+	ImportHash *string `json:"importHash,omitempty" msgpack:"importHash,omitempty" bson:"importhash,omitempty" mapstructure:"importHash,omitempty"`
 
 	// The user-defined import label that allows the system to group resources from the
 	// same import operation.
@@ -1326,7 +1328,7 @@ type mongoAttributesHTTPSource struct {
 	URL         string            `bson:"url"`
 	Certificate string            `bson:"certificate"`
 	Description string            `bson:"description"`
-	ImportHash  string            `bson:"importhash"`
+	ImportHash  string            `bson:"importhash,omitempty"`
 	ImportLabel string            `bson:"importlabel,omitempty"`
 	Key         string            `bson:"key"`
 	Modifier    *IdentityModifier `bson:"modifier,omitempty"`

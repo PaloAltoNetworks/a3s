@@ -98,7 +98,7 @@ type A3SSource struct {
 	Endpoint string `json:"endpoint" msgpack:"endpoint" bson:"endpoint" mapstructure:"endpoint,omitempty"`
 
 	// The hash of the structure used to compare with new import version.
-	ImportHash string `json:"-" msgpack:"-" bson:"importhash" mapstructure:"-,omitempty"`
+	ImportHash string `json:"importHash,omitempty" msgpack:"importHash,omitempty" bson:"importhash,omitempty" mapstructure:"importHash,omitempty"`
 
 	// The user-defined import label that allows the system to group resources from the
 	// same import operation.
@@ -598,6 +598,7 @@ left empty, the issuer value will be used.`,
 		BSONFieldName:  "importhash",
 		ConvertedName:  "ImportHash",
 		Description:    `The hash of the structure used to compare with new import version.`,
+		Exposed:        true,
 		Getter:         true,
 		Name:           "importHash",
 		ReadOnly:       true,
@@ -763,6 +764,7 @@ left empty, the issuer value will be used.`,
 		BSONFieldName:  "importhash",
 		ConvertedName:  "ImportHash",
 		Description:    `The hash of the structure used to compare with new import version.`,
+		Exposed:        true,
 		Getter:         true,
 		Name:           "importHash",
 		ReadOnly:       true,
@@ -943,7 +945,7 @@ type SparseA3SSource struct {
 	Endpoint *string `json:"endpoint,omitempty" msgpack:"endpoint,omitempty" bson:"endpoint,omitempty" mapstructure:"endpoint,omitempty"`
 
 	// The hash of the structure used to compare with new import version.
-	ImportHash *string `json:"-" msgpack:"-" bson:"importhash,omitempty" mapstructure:"-,omitempty"`
+	ImportHash *string `json:"importHash,omitempty" msgpack:"importHash,omitempty" bson:"importhash,omitempty" mapstructure:"importHash,omitempty"`
 
 	// The user-defined import label that allows the system to group resources from the
 	// same import operation.
@@ -1288,7 +1290,7 @@ type mongoAttributesA3SSource struct {
 	Audience    string            `bson:"audience"`
 	Description string            `bson:"description"`
 	Endpoint    string            `bson:"endpoint"`
-	ImportHash  string            `bson:"importhash"`
+	ImportHash  string            `bson:"importhash,omitempty"`
 	ImportLabel string            `bson:"importlabel,omitempty"`
 	Issuer      string            `bson:"issuer"`
 	Modifier    *IdentityModifier `bson:"modifier,omitempty"`

@@ -26,6 +26,11 @@
             "description": "Endpoint of the remote a3s server, in case it is different from the issuer. If\nleft empty, the issuer value will be used.",
             "type": "string"
           },
+          "importHash": {
+            "description": "The hash of the structure used to compare with new import version.",
+            "readOnly": true,
+            "type": "string"
+          },
           "importLabel": {
             "description": "The user-defined import label that allows the system to group resources from the\nsame import operation.",
             "type": "string"
@@ -74,6 +79,11 @@
           "hidden": {
             "description": "Hides the policies in children namespaces.",
             "type": "boolean"
+          },
+          "importHash": {
+            "description": "The hash of the structure used to compare with new import version.",
+            "readOnly": true,
+            "type": "string"
           },
           "importLabel": {
             "description": "The user-defined import label that allows the system to group resources from the\nsame import operation.",
@@ -202,6 +212,11 @@
           },
           "description": {
             "description": "The description of the object.",
+            "type": "string"
+          },
+          "importHash": {
+            "description": "The hash of the structure used to compare with new import version.",
+            "readOnly": true,
             "type": "string"
           },
           "importLabel": {
@@ -685,6 +700,11 @@
             },
             "type": "array"
           },
+          "importHash": {
+            "description": "The hash of the structure used to compare with new import version.",
+            "readOnly": true,
+            "type": "string"
+          },
           "importLabel": {
             "description": "The user-defined import label that allows the system to group resources from the\nsame import operation.",
             "type": "string"
@@ -751,6 +771,11 @@
             },
             "readOnly": true,
             "type": "array"
+          },
+          "importHash": {
+            "description": "The hash of the structure used to compare with new import version.",
+            "readOnly": true,
+            "type": "string"
           },
           "importLabel": {
             "description": "The user-defined import label that allows the system to group resources from the\nsame import operation.",
@@ -841,6 +866,11 @@
           "endpoint": {
             "description": "OIDC [discovery\nendpoint](https://openid.net/specs/openid-connect-discovery-1_0.html#IssuerDiscovery).",
             "example": "https://accounts.google.com",
+            "type": "string"
+          },
+          "importHash": {
+            "description": "The hash of the structure used to compare with new import version.",
+            "readOnly": true,
             "type": "string"
           },
           "importLabel": {

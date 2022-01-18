@@ -93,7 +93,7 @@ type MTLSSource struct {
 	Fingerprints []string `json:"fingerprints" msgpack:"fingerprints" bson:"fingerprints" mapstructure:"fingerprints,omitempty"`
 
 	// The hash of the structure used to compare with new import version.
-	ImportHash string `json:"-" msgpack:"-" bson:"importhash" mapstructure:"-,omitempty"`
+	ImportHash string `json:"importHash,omitempty" msgpack:"importHash,omitempty" bson:"importhash,omitempty" mapstructure:"importHash,omitempty"`
 
 	// The user-defined import label that allows the system to group resources from the
 	// same import operation.
@@ -577,6 +577,7 @@ var MTLSSourceAttributesMap = map[string]elemental.AttributeSpecification{
 		BSONFieldName:  "importhash",
 		ConvertedName:  "ImportHash",
 		Description:    `The hash of the structure used to compare with new import version.`,
+		Exposed:        true,
 		Getter:         true,
 		Name:           "importHash",
 		ReadOnly:       true,
@@ -736,6 +737,7 @@ var MTLSSourceLowerCaseAttributesMap = map[string]elemental.AttributeSpecificati
 		BSONFieldName:  "importhash",
 		ConvertedName:  "ImportHash",
 		Description:    `The hash of the structure used to compare with new import version.`,
+		Exposed:        true,
 		Getter:         true,
 		Name:           "importHash",
 		ReadOnly:       true,
@@ -913,7 +915,7 @@ type SparseMTLSSource struct {
 	Fingerprints *[]string `json:"fingerprints,omitempty" msgpack:"fingerprints,omitempty" bson:"fingerprints,omitempty" mapstructure:"fingerprints,omitempty"`
 
 	// The hash of the structure used to compare with new import version.
-	ImportHash *string `json:"-" msgpack:"-" bson:"importhash,omitempty" mapstructure:"-,omitempty"`
+	ImportHash *string `json:"importHash,omitempty" msgpack:"importHash,omitempty" bson:"importhash,omitempty" mapstructure:"importHash,omitempty"`
 
 	// The user-defined import label that allows the system to group resources from the
 	// same import operation.
@@ -1248,7 +1250,7 @@ type mongoAttributesMTLSSource struct {
 	ID            bson.ObjectId     `bson:"_id,omitempty"`
 	Description   string            `bson:"description"`
 	Fingerprints  []string          `bson:"fingerprints"`
-	ImportHash    string            `bson:"importhash"`
+	ImportHash    string            `bson:"importhash,omitempty"`
 	ImportLabel   string            `bson:"importlabel,omitempty"`
 	Modifier      *IdentityModifier `bson:"modifier,omitempty"`
 	Name          string            `bson:"name"`

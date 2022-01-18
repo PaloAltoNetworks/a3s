@@ -102,7 +102,7 @@ type OIDCSource struct {
 	Endpoint string `json:"endpoint" msgpack:"endpoint" bson:"endpoint" mapstructure:"endpoint,omitempty"`
 
 	// The hash of the structure used to compare with new import version.
-	ImportHash string `json:"-" msgpack:"-" bson:"importhash" mapstructure:"-,omitempty"`
+	ImportHash string `json:"importHash,omitempty" msgpack:"importHash,omitempty" bson:"importhash,omitempty" mapstructure:"importHash,omitempty"`
 
 	// The user-defined import label that allows the system to group resources from the
 	// same import operation.
@@ -656,6 +656,7 @@ endpoint](https://openid.net/specs/openid-connect-discovery-1_0.html#IssuerDisco
 		BSONFieldName:  "importhash",
 		ConvertedName:  "ImportHash",
 		Description:    `The hash of the structure used to compare with new import version.`,
+		Exposed:        true,
 		Getter:         true,
 		Name:           "importHash",
 		ReadOnly:       true,
@@ -836,6 +837,7 @@ endpoint](https://openid.net/specs/openid-connect-discovery-1_0.html#IssuerDisco
 		BSONFieldName:  "importhash",
 		ConvertedName:  "ImportHash",
 		Description:    `The hash of the structure used to compare with new import version.`,
+		Exposed:        true,
 		Getter:         true,
 		Name:           "importHash",
 		ReadOnly:       true,
@@ -1020,7 +1022,7 @@ type SparseOIDCSource struct {
 	Endpoint *string `json:"endpoint,omitempty" msgpack:"endpoint,omitempty" bson:"endpoint,omitempty" mapstructure:"endpoint,omitempty"`
 
 	// The hash of the structure used to compare with new import version.
-	ImportHash *string `json:"-" msgpack:"-" bson:"importhash,omitempty" mapstructure:"-,omitempty"`
+	ImportHash *string `json:"importHash,omitempty" msgpack:"importHash,omitempty" bson:"importhash,omitempty" mapstructure:"importHash,omitempty"`
 
 	// The user-defined import label that allows the system to group resources from the
 	// same import operation.
@@ -1395,7 +1397,7 @@ type mongoAttributesOIDCSource struct {
 	ClientSecret string            `bson:"clientsecret"`
 	Description  string            `bson:"description"`
 	Endpoint     string            `bson:"endpoint"`
-	ImportHash   string            `bson:"importhash"`
+	ImportHash   string            `bson:"importhash,omitempty"`
 	ImportLabel  string            `bson:"importlabel,omitempty"`
 	Modifier     *IdentityModifier `bson:"modifier,omitempty"`
 	Name         string            `bson:"name"`

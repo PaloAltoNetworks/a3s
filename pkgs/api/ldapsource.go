@@ -124,7 +124,7 @@ type LDAPSource struct {
 	IgnoredKeys []string `json:"ignoredKeys,omitempty" msgpack:"ignoredKeys,omitempty" bson:"ignoredkeys,omitempty" mapstructure:"ignoredKeys,omitempty"`
 
 	// The hash of the structure used to compare with new import version.
-	ImportHash string `json:"-" msgpack:"-" bson:"importhash" mapstructure:"-,omitempty"`
+	ImportHash string `json:"importHash,omitempty" msgpack:"importHash,omitempty" bson:"importhash,omitempty" mapstructure:"importHash,omitempty"`
 
 	// The user-defined import label that allows the system to group resources from the
 	// same import operation.
@@ -763,6 +763,7 @@ systems, the value may be ` + "`" + `uid={USERNAME}` + "`" + `.`,
 		BSONFieldName:  "importhash",
 		ConvertedName:  "ImportHash",
 		Description:    `The hash of the structure used to compare with new import version.`,
+		Exposed:        true,
 		Getter:         true,
 		Name:           "importHash",
 		ReadOnly:       true,
@@ -993,6 +994,7 @@ systems, the value may be ` + "`" + `uid={USERNAME}` + "`" + `.`,
 		BSONFieldName:  "importhash",
 		ConvertedName:  "ImportHash",
 		Description:    `The hash of the structure used to compare with new import version.`,
+		Exposed:        true,
 		Getter:         true,
 		Name:           "importHash",
 		ReadOnly:       true,
@@ -1200,7 +1202,7 @@ type SparseLDAPSource struct {
 	IgnoredKeys *[]string `json:"ignoredKeys,omitempty" msgpack:"ignoredKeys,omitempty" bson:"ignoredkeys,omitempty" mapstructure:"ignoredKeys,omitempty"`
 
 	// The hash of the structure used to compare with new import version.
-	ImportHash *string `json:"-" msgpack:"-" bson:"importhash,omitempty" mapstructure:"-,omitempty"`
+	ImportHash *string `json:"importHash,omitempty" msgpack:"importHash,omitempty" bson:"importhash,omitempty" mapstructure:"importHash,omitempty"`
 
 	// The user-defined import label that allows the system to group resources from the
 	// same import operation.
@@ -1618,7 +1620,7 @@ type mongoAttributesLDAPSource struct {
 	BindSearchFilter string                          `bson:"bindsearchfilter"`
 	Description      string                          `bson:"description"`
 	IgnoredKeys      []string                        `bson:"ignoredkeys,omitempty"`
-	ImportHash       string                          `bson:"importhash"`
+	ImportHash       string                          `bson:"importhash,omitempty"`
 	ImportLabel      string                          `bson:"importlabel,omitempty"`
 	IncludedKeys     []string                        `bson:"includedkeys,omitempty"`
 	Modifier         *IdentityModifier               `bson:"modifier,omitempty"`
