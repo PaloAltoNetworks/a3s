@@ -215,16 +215,13 @@ func main() {
 	if err != nil {
 		zap.L().Fatal("Unable to read server TLS certificate", zap.Error(err))
 	}
-	bmanipMaker, err := bearermanip.Configure(
+	bmanipMaker := bearermanip.Configure(
 		ctx,
 		publicAPIURL,
 		&tls.Config{
 			RootCAs: bmanipPool,
 		},
 	)
-	if err != nil {
-		zap.L().Fatal("Unable to prepare bearer manipulator maker", zap.Error(err))
-	}
 
 	server := bahamut.New(opts...)
 
