@@ -78,3 +78,7 @@ relations:
 - rest_name: permissions
   create:
     description: Sends a permissions request.
+
+- rest_name: import
+  create:
+    description: Sends an import request.

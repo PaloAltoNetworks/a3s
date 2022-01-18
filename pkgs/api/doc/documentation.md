@@ -1501,3 +1501,81 @@ not its full path.
 Type: `string`
 
 The namespace of the object.
+
+## core/import
+
+### Import
+
+Import multiple resource at once.
+
+#### Example
+
+```json
+{
+  "label": "my-super-import",
+  "mode": "Import"
+}
+```
+
+#### Relations
+
+##### `POST /import`
+
+Sends an import request.
+
+#### Attributes
+
+##### `A3SSources`
+
+Type: [`[]a3ssource`](#a3ssource)
+
+A3S sources to import.
+
+##### `HTTPSources`
+
+Type: [`[]httpsource`](#httpsource)
+
+HTTP sources to import.
+
+##### `LDAPSources`
+
+Type: [`[]ldapsource`](#ldapsource)
+
+LDAP sources to import.
+
+##### `MTLSSources`
+
+Type: [`[]mtlssource`](#mtlssource)
+
+MTLS sources to import.
+
+##### `OIDCSources`
+
+Type: [`[]oidcsource`](#oidcsource)
+
+OIDC sources to import.
+
+##### `authorizations`
+
+Type: [`[]authorization`](#authorization)
+
+Authorizations to import.
+
+##### `label` [`required`]
+
+Type: `string`
+
+Import label that will be used to identify all the resources imported by this
+resource.
+
+##### `mode`
+
+Type: `enum(Import | Remove)`
+
+Import mode. If set to Remove, the previously imported data will be removed.
+
+Default value:
+
+```json
+"Import"
+```

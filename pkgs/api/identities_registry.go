@@ -9,6 +9,7 @@ var (
 		"authz":            AuthzIdentity,
 		"httpsource":       HTTPSourceIdentity,
 		"identitymodifier": IdentityModifierIdentity,
+		"import":           ImportIdentity,
 		"issue":            IssueIdentity,
 
 		"ldapsource":  LDAPSourceIdentity,
@@ -25,6 +26,7 @@ var (
 		"authz":            AuthzIdentity,
 		"httpsources":      HTTPSourceIdentity,
 		"identitymodifier": IdentityModifierIdentity,
+		"import":           ImportIdentity,
 		"issue":            IssueIdentity,
 
 		"ldapsources": LDAPSourceIdentity,
@@ -62,6 +64,7 @@ var (
 			{"namespace", "importLabel"},
 		},
 		"identitymodifier": nil,
+		"import":           nil,
 		"issue":            nil,
 		"ldapsource": {
 			{"namespace", "name"},
@@ -145,6 +148,8 @@ func (f modelManager) Identifiable(identity elemental.Identity) elemental.Identi
 		return NewHTTPSource()
 	case IdentityModifierIdentity:
 		return NewIdentityModifier()
+	case ImportIdentity:
+		return NewImport()
 	case IssueIdentity:
 		return NewIssue()
 	case LDAPSourceIdentity:
@@ -178,6 +183,8 @@ func (f modelManager) SparseIdentifiable(identity elemental.Identity) elemental.
 		return NewSparseHTTPSource()
 	case IdentityModifierIdentity:
 		return NewSparseIdentityModifier()
+	case ImportIdentity:
+		return NewSparseImport()
 	case IssueIdentity:
 		return NewSparseIssue()
 	case LDAPSourceIdentity:
@@ -219,6 +226,8 @@ func (f modelManager) Identifiables(identity elemental.Identity) elemental.Ident
 		return &HTTPSourcesList{}
 	case IdentityModifierIdentity:
 		return &IdentityModifiersList{}
+	case ImportIdentity:
+		return &ImportsList{}
 	case IssueIdentity:
 		return &IssuesList{}
 	case LDAPSourceIdentity:
@@ -250,6 +259,8 @@ func (f modelManager) SparseIdentifiables(identity elemental.Identity) elemental
 		return &SparseHTTPSourcesList{}
 	case IdentityModifierIdentity:
 		return &SparseIdentityModifiersList{}
+	case ImportIdentity:
+		return &SparseImportsList{}
 	case IssueIdentity:
 		return &SparseIssuesList{}
 	case LDAPSourceIdentity:
@@ -295,6 +306,7 @@ func AllIdentities() []elemental.Identity {
 		AuthzIdentity,
 		HTTPSourceIdentity,
 		IdentityModifierIdentity,
+		ImportIdentity,
 		IssueIdentity,
 		LDAPSourceIdentity,
 		MTLSSourceIdentity,
@@ -318,6 +330,8 @@ func AliasesForIdentity(identity elemental.Identity) []string {
 	case HTTPSourceIdentity:
 		return []string{}
 	case IdentityModifierIdentity:
+		return []string{}
+	case ImportIdentity:
 		return []string{}
 	case IssueIdentity:
 		return []string{}

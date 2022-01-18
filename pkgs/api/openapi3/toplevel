@@ -278,6 +278,70 @@
         ],
         "type": "object"
       },
+      "import": {
+        "description": "Import multiple resource at once.",
+        "properties": {
+          "A3SSources": {
+            "description": "A3S sources to import.",
+            "items": {
+              "$ref": "#/components/schemas/a3ssource"
+            },
+            "type": "array"
+          },
+          "HTTPSources": {
+            "description": "HTTP sources to import.",
+            "items": {
+              "$ref": "#/components/schemas/httpsource"
+            },
+            "type": "array"
+          },
+          "LDAPSources": {
+            "description": "LDAP sources to import.",
+            "items": {
+              "$ref": "#/components/schemas/ldapsource"
+            },
+            "type": "array"
+          },
+          "MTLSSources": {
+            "description": "MTLS sources to import.",
+            "items": {
+              "$ref": "#/components/schemas/mtlssource"
+            },
+            "type": "array"
+          },
+          "OIDCSources": {
+            "description": "OIDC sources to import.",
+            "items": {
+              "$ref": "#/components/schemas/oidcsource"
+            },
+            "type": "array"
+          },
+          "authorizations": {
+            "description": "Authorizations to import.",
+            "items": {
+              "$ref": "#/components/schemas/authorization"
+            },
+            "type": "array"
+          },
+          "label": {
+            "description": "Import label that will be used to identify all the resources imported by this\nresource.",
+            "example": "my-super-import",
+            "type": "string"
+          },
+          "mode": {
+            "default": "Import",
+            "description": "Import mode. If set to Remove, the previously imported data will be removed.",
+            "enum": [
+              "Import",
+              "Remove"
+            ]
+          }
+        },
+        "required": [
+          "label"
+        ],
+        "type": "object"
+      },
       "issue": {
         "description": "Issues a new a normalized token using various authentication sources.",
         "properties": {
@@ -1388,6 +1452,37 @@
         ]
       }
     },
+    "/import": {
+      "post": {
+        "description": "Sends an import request.",
+        "operationId": "create-a-new-import",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/import"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/import"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core/import",
+          "a3s"
+        ]
+      }
+    },
     "/issue": {
       "post": {
         "description": "Ask to issue a new authentication token.",
@@ -2063,6 +2158,10 @@
     {
       "description": "This tag is for group 'core'",
       "name": "core"
+    },
+    {
+      "description": "This tag is for group 'core/import'",
+      "name": "core/import"
     }
   ]
 }
