@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"crypto/tls"
+	"crypto/x509"
 	"errors"
 	"fmt"
 	"net"
@@ -19,6 +20,7 @@ import (
 	"go.aporeto.io/a3s/pkgs/api"
 	"go.aporeto.io/a3s/pkgs/authenticator"
 	"go.aporeto.io/a3s/pkgs/authorizer"
+	"go.aporeto.io/a3s/pkgs/bearermanip"
 	"go.aporeto.io/a3s/pkgs/bootstrap"
 	"go.aporeto.io/a3s/pkgs/indexes"
 	"go.aporeto.io/a3s/pkgs/notification"
@@ -207,6 +209,20 @@ func main() {
 		)
 	}
 
+	certData, err := os.ReadFile(cfg.APIServerConf.TLSCertificate)
+	bmanipPool := x509.NewCertPool()
+	bmanipPool.AppendCertsFromPEM(certData)
+	if err != nil {
+		zap.L().Fatal("Unable to read server TLS certificate", zap.Error(err))
+	}
+	bmanipMaker := bearermanip.Configure(
+		ctx,
+		publicAPIURL,
+		&tls.Config{
+			RootCAs: bmanipPool,
+		},
+	)
+
 	server := bahamut.New(opts...)
 
 	if err := server.RegisterCustomRouteHandler("/.well-known/jwks.json", makeJWKSHandler(jwks)); err != nil {
@@ -241,6 +257,7 @@ func main() {
 	bahamut.RegisterProcessorOrDie(server, processors.NewAuthzProcessor(pauthz, jwks, cfg.JWT.JWTIssuer, cfg.JWT.JWTAudience), api.AuthzIdentity)
 	bahamut.RegisterProcessorOrDie(server, processors.NewNamespacesProcessor(m, pubsub), api.NamespaceIdentity)
 	bahamut.RegisterProcessorOrDie(server, processors.NewAuthorizationProcessor(m, pubsub, retriever), api.AuthorizationIdentity)
+	bahamut.RegisterProcessorOrDie(server, processors.NewImportProcessor(bmanipMaker, pauthz), api.ImportIdentity)
 
 	notification.Subscribe(ctx, pubsub, nscache.NotificationNamespaceChanges, makeNamespaceCleaner(ctx, m))
 

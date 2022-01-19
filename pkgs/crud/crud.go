@@ -2,6 +2,7 @@ package crud
 
 import (
 	"go.aporeto.io/a3s/pkgs/api"
+	"go.aporeto.io/a3s/pkgs/importing"
 	"go.aporeto.io/bahamut"
 	"go.aporeto.io/elemental"
 	"go.aporeto.io/manipulate"
@@ -114,6 +115,11 @@ func Update(bctx bahamut.Context, m manipulate.Manipulator, obj elemental.Identi
 
 	if cfg.postHook != nil {
 		cfg.postHook(obj)
+	}
+
+	// We now reset the import hash, if any
+	if imp, ok := obj.(importing.Importable); ok {
+		imp.SetImportHash("")
 	}
 
 	bctx.SetOutputData(obj)

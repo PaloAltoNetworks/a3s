@@ -1,0 +1,14 @@
+label: claimmod-data
+MTLSSources:
+- name: default
+  CA: |-
+{{ readFile "certs/ca-cert.pem" | indent 6}}
+  modifier:
+    url: https://127.0.0.1:5001/mod
+    method: GET
+    CA: |-
+{{ readFile "certs/ca-cert.pem" | indent 8 }}
+    certificate: |-
+{{ readFile "certs/access-cert.pem" | indent 8 }}
+    key: |-
+{{ readFile "certs/access-key.pem" | indent 8 }}

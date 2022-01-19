@@ -55,6 +55,11 @@ func TestGetIndexes(t *testing.T) {
 						Key:        []string{"namespace", "_id"},
 						Background: true,
 					},
+					{
+						Name:       "index_authorization_namespace_importlabel",
+						Key:        []string{"namespace", "importlabel"},
+						Background: true,
+					},
 				},
 			},
 		},

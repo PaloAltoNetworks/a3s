@@ -1,0 +1,10 @@
+label: httpsource-data
+HTTPSources:
+- name: default
+  CA: |-
+{{ readFile "certs/ca-cert.pem" | indent 4}}
+  url: https://127.0.0.1:5001/mod
+  certificate: |-
+{{ readFile "certs/access-cert.pem" | indent 4 }}
+  key: |-
+{{ readFile "certs/access-key.pem" | indent 4 }}

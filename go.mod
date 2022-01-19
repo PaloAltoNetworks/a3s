@@ -4,8 +4,8 @@ go 1.17
 
 require (
 	go.aporeto.io/bahamut v1.112.1-0.20220113172527-169612633497
-	go.aporeto.io/elemental v1.100.1-0.20211130173545-6dea49cc9163
-	go.aporeto.io/manipulate v1.121.1-0.20220111213553-da0c7ebe7c47
+	go.aporeto.io/elemental v1.100.1-0.20220119003946-1287f77e72fb
+	go.aporeto.io/manipulate v1.121.1-0.20220119003841-28e585f91757
 	go.aporeto.io/tg v1.34.1-0.20220107235943-7d2aaa0dc6f5
 	go.aporeto.io/wsc v1.36.1-0.20210528201141-2af38def4959 // indirect
 )
@@ -63,7 +63,8 @@ require (
 	github.com/mdp/qrterminal v1.0.1
 	github.com/mitchellh/copystructure v1.2.0
 	github.com/mitchellh/go-homedir v1.1.0
-	github.com/mitchellh/mapstructure v1.1.2 // indirect
+	github.com/mitchellh/hashstructure v1.1.0
+	github.com/mitchellh/mapstructure v1.1.2
 	github.com/mitchellh/reflectwalk v1.0.2 // indirect
 	github.com/nats-io/nats.go v1.10.1-0.20210228004050-ed743748acac // indirect
 	github.com/nats-io/nkeys v0.3.0 // indirect
