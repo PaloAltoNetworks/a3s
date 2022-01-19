@@ -8,17 +8,6 @@ import (
 	"go.aporeto.io/elemental"
 )
 
-// ImportModeValue represents the possible values for attribute "mode".
-type ImportModeValue string
-
-const (
-	// ImportModeImport represents the value Import.
-	ImportModeImport ImportModeValue = "Import"
-
-	// ImportModeRemove represents the value Remove.
-	ImportModeRemove ImportModeValue = "Remove"
-)
-
 // ImportIdentity represents the Identity of the object.
 var ImportIdentity = elemental.Identity{
 	Name:     "import",
@@ -113,9 +102,6 @@ type Import struct {
 	// resource.
 	Label string `json:"label" msgpack:"label" bson:"-" mapstructure:"label,omitempty"`
 
-	// Import mode. If set to Remove, the previously imported data will be removed.
-	Mode ImportModeValue `json:"mode" msgpack:"mode" bson:"-" mapstructure:"mode,omitempty"`
-
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
 }
 
@@ -130,7 +116,6 @@ func NewImport() *Import {
 		MTLSSources:    MTLSSourcesList{},
 		Authorizations: AuthorizationsList{},
 		OIDCSources:    OIDCSourcesList{},
-		Mode:           ImportModeImport,
 	}
 }
 
@@ -223,7 +208,6 @@ func (o *Import) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			OIDCSources:    &o.OIDCSources,
 			Authorizations: &o.Authorizations,
 			Label:          &o.Label,
-			Mode:           &o.Mode,
 		}
 	}
 
@@ -244,8 +228,6 @@ func (o *Import) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.Authorizations = &(o.Authorizations)
 		case "label":
 			sp.Label = &(o.Label)
-		case "mode":
-			sp.Mode = &(o.Mode)
 		}
 	}
 
@@ -279,9 +261,6 @@ func (o *Import) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.Label != nil {
 		o.Label = *so.Label
-	}
-	if so.Mode != nil {
-		o.Mode = *so.Mode
 	}
 }
 
@@ -379,10 +358,6 @@ func (o *Import) Validate() error {
 		requiredErrors = requiredErrors.Append(err)
 	}
 
-	if err := elemental.ValidateStringInList("mode", string(o.Mode), []string{"Import", "Remove"}, false); err != nil {
-		errors = errors.Append(err)
-	}
-
 	if len(requiredErrors) > 0 {
 		return requiredErrors
 	}
@@ -431,8 +406,6 @@ func (o *Import) ValueForAttribute(name string) interface{} {
 		return o.Authorizations
 	case "label":
 		return o.Label
-	case "mode":
-		return o.Mode
 	}
 
 	return nil
@@ -504,15 +477,6 @@ resource.`,
 		Required: true,
 		Type:     "string",
 	},
-	"Mode": {
-		AllowedChoices: []string{"Import", "Remove"},
-		ConvertedName:  "Mode",
-		DefaultValue:   ImportModeImport,
-		Description:    `Import mode. If set to Remove, the previously imported data will be removed.`,
-		Exposed:        true,
-		Name:           "mode",
-		Type:           "enum",
-	},
 }
 
 // ImportLowerCaseAttributesMap represents the map of attribute for Import.
@@ -580,15 +544,6 @@ resource.`,
 		Name:     "label",
 		Required: true,
 		Type:     "string",
-	},
-	"mode": {
-		AllowedChoices: []string{"Import", "Remove"},
-		ConvertedName:  "Mode",
-		DefaultValue:   ImportModeImport,
-		Description:    `Import mode. If set to Remove, the previously imported data will be removed.`,
-		Exposed:        true,
-		Name:           "mode",
-		Type:           "enum",
 	},
 }
 
@@ -677,9 +632,6 @@ type SparseImport struct {
 	// resource.
 	Label *string `json:"label,omitempty" msgpack:"label,omitempty" bson:"-" mapstructure:"label,omitempty"`
 
-	// Import mode. If set to Remove, the previously imported data will be removed.
-	Mode *ImportModeValue `json:"mode,omitempty" msgpack:"mode,omitempty" bson:"-" mapstructure:"mode,omitempty"`
-
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
 }
 
@@ -764,9 +716,6 @@ func (o *SparseImport) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.Label != nil {
 		out.Label = *o.Label
-	}
-	if o.Mode != nil {
-		out.Mode = *o.Mode
 	}
 
 	return out

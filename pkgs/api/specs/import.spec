@@ -60,12 +60,3 @@ attributes:
     exposed: true
     required: true
     example_value: my-super-import
-
-  - name: mode
-    description: Import mode. If set to Remove, the previously imported data will be removed.
-    type: enum
-    exposed: true
-    allowed_choices:
-    - Import
-    - Remove
-    default_value: Import

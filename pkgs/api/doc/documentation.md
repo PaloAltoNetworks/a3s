@@ -1548,8 +1548,7 @@ Import multiple resource at once.
 
 ```json
 {
-  "label": "my-super-import",
-  "mode": "Import"
+  "label": "my-super-import"
 }
 ```
 
@@ -1558,6 +1557,10 @@ Import multiple resource at once.
 ##### `POST /import`
 
 Sends an import request.
+
+Parameters:
+
+- `delete` (`boolean`): If set, delete the current imported data.
 
 #### Attributes
 
@@ -1603,15 +1606,3 @@ Type: `string`
 
 Import label that will be used to identify all the resources imported by this
 resource.
-
-##### `mode`
-
-Type: `enum(Import | Remove)`
-
-Import mode. If set to Remove, the previously imported data will be removed.
-
-Default value:
-
-```json
-"Import"
-```

@@ -41,6 +41,11 @@ relations:
 - rest_name: import
   create:
     description: Sends an import request.
+    parameters:
+      entries:
+      - name: delete
+        description: If set, delete the current imported data.
+        type: boolean
 
 - rest_name: issue
   create:

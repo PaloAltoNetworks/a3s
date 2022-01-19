@@ -342,14 +342,6 @@
             "description": "Import label that will be used to identify all the resources imported by this\nresource.",
             "example": "my-super-import",
             "type": "string"
-          },
-          "mode": {
-            "default": "Import",
-            "description": "Import mode. If set to Remove, the previously imported data will be removed.",
-            "enum": [
-              "Import",
-              "Remove"
-            ]
           }
         },
         "required": [
@@ -1486,6 +1478,16 @@
       "post": {
         "description": "Sends an import request.",
         "operationId": "create-a-new-import",
+        "parameters": [
+          {
+            "description": "If set, delete the current imported data.",
+            "in": "query",
+            "name": "delete",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
