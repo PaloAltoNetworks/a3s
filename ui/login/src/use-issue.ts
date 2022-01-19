@@ -175,7 +175,6 @@ export function useIssue({
   useEffect(() => {
     const sourceNamespace = localStorage.getItem("sourceNamespace")
     const sourceName = localStorage.getItem("sourceName")
-    const saveTokenStorage = localStorage.getItem("saveToken") === "true"
     if (OIDCstate && OIDCcode && sourceNamespace && sourceName) {
       fetch(issueUrl, {
         method: "POST",
@@ -187,7 +186,7 @@ export function useIssue({
             state: OIDCstate,
             code: OIDCcode,
           },
-          cookie: !saveTokenStorage,
+          cookie: !!oidcRedirectUrl,
           cookieDomain: window.location.hostname,
           audience,
         }),

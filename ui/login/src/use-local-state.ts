@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 
 /**
  * Similar to `useState` but its initial state will come from the local storage,
@@ -8,12 +8,8 @@ import { useCallback, useState } from "react"
 export function useLocalState<T extends string = string>(defaultState: T, name: string): [T, (state: T) => void] {
   const initialState = localStorage.getItem(name) as T || defaultState
   const [state, setState] = useState(initialState)
-  const setStateWithLocal = useCallback(
-    (newState: T) => {
-      setState(newState)
-      localStorage.setItem(name, newState)
-    },
-    [setState]
-  )
-  return [state, setStateWithLocal]
+  useEffect(() => {
+    localStorage.setItem(name, state)
+  }, [state])
+  return [state, setState]
 }
