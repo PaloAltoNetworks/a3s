@@ -18,6 +18,10 @@ func GetLogin(api string, redirect string, audience string) ([]byte, error) {
 		return nil, err
 	}
 
+	if audience == "" {
+		audience = "public"
+	}
+
 	doc = bytes.Replace(doc, apiURLPlaceholder, []byte(api), 1)
 	doc = bytes.Replace(doc, redirectAPIPlaceholder, []byte(redirect), 1)
 	doc = bytes.Replace(doc, audiencePlaceholder, []byte(audience), 1)
