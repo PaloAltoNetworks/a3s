@@ -45,11 +45,8 @@ A3SCTL_TOKEN="$(
 export A3SCTL_TOKEN
 
 echo
-echo "* Deleting existing /claimmod namespace"
+echo "* Deleting / recreating /claimmod namespace"
 a3sctl api delete namespace "/claimmod" -n /
-
-echo
-echo "* Creating /claimmod namespace"
 a3sctl api create namespace --with.name "claimmod" -n "/" ||
 	die "unable to create /claimmod namespace"
 
@@ -60,8 +57,6 @@ a3sctl api create import -n /claimmod \
 	die "unable to import data"
 
 echo
-echo "* Success"
-
 echo
 echo "Here is a command to check the modified claims:"
 echo

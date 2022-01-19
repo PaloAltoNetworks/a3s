@@ -37,22 +37,19 @@ A3SCTL_TOKEN="$(
 )"
 export A3SCTL_TOKEN
 
-echo
-echo "* Deleting/Creating existing /testapp namespace"
+echo "* Deleting / recreating /testapp namespace"
 a3sctl api delete namespace "/testapp" -n /
 a3sctl api create namespace --with.name "testapp" -n "/" ||
 	die "unable to create /testapp namespace"
 
 echo
-echo "Importing data"
+echo "* Importing data"
 a3sctl api create import \
 	-n /testapp \
 	--input-file=import.gotmpl ||
 	die "unable to import data"
 
 echo
-echo "* Success"
-
 echo
 echo "Here is a command to get a token for john:"
 echo

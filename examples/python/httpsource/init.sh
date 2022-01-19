@@ -40,11 +40,8 @@ A3SCTL_TOKEN="$(
 export A3SCTL_TOKEN
 
 echo
-echo "* Deleting existing /httpsource namespace"
+echo "* Deleting / recreating /httpsource namespace"
 a3sctl api delete namespace "/httpsource" -n /
-
-echo
-echo "* Creating /httpsource namespace"
 a3sctl api create namespace --with.name "httpsource" -n "/" ||
 	die "unable to create /httpsource namespace"
 
@@ -55,8 +52,6 @@ a3sctl api create import -n /httpsource \
 	die "unable to import data"
 
 echo
-echo "* Success"
-
 echo
 echo "Here is a command to check the modified claims:"
 echo
