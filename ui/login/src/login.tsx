@@ -46,7 +46,8 @@ export const Login = () => {
 
   // @ts-ignore
   const isQrCodeMode = redirectUrl === ""
-  const shouldRedirectImmediately = !isQrCodeMode && cloak === "false"
+  // Not using `cloak === "false"` in case `__ENABLE_CLOAKING__` is not replaced
+  const shouldRedirectImmediately = !isQrCodeMode && cloak !== "true"
   const onToken = useCallback(
     token => {
       if (shouldRedirectImmediately) {
