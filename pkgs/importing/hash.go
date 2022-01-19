@@ -133,11 +133,8 @@ func cleanIrrelevantValues(data, template map[string]interface{}) map[string]int
 				shouldDelete = true
 			}
 
-		case []interface{}, []string, []int:
-			shouldDelete = reflect.DeepEqual(v, tv)
-
 		default:
-			shouldDelete = tv == v
+			shouldDelete = reflect.DeepEqual(v, tv)
 		}
 
 		if shouldDelete {
