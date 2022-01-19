@@ -49,14 +49,10 @@ a3sctl api create namespace --with.name "httpsource" -n "/" ||
 	die "unable to create /httpsource namespace"
 
 echo
-echo "* Creating mtlssource"
-a3sctl api create httpsource -n "/httpsource" \
-	--with.name "default" \
-	--with.ca "$(cat certs/ca-cert.pem)" \
-	--with.url https://127.0.0.1:5002/login \
-	--with.certificate "$(cat certs/access-cert.pem)" \
-	--with.key "$(cat certs/access-key.pem)" ||
-	die "unable to create mtls resource"
+echo "* Importing data"
+a3sctl api create import -n /httpsource \
+	--input-file import.gotmpl ||
+	die "unable to import data"
 
 echo
 echo "* Success"

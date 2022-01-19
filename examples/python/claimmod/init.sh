@@ -54,16 +54,10 @@ a3sctl api create namespace --with.name "claimmod" -n "/" ||
 	die "unable to create /claimmod namespace"
 
 echo
-echo "* Creating mtlssource"
-a3sctl api create mtlssource -n "/claimmod" \
-	--with.name "default" \
-	--with.ca "$(cat certs/ca-cert.pem)" \
-	--with.modifier.url https://127.0.0.1:5001/mod \
-	--with.modifier.method GET \
-	--with.modifier.ca "$(cat certs/ca-cert.pem)" \
-	--with.modifier.certificate "$(cat certs/access-cert.pem)" \
-	--with.modifier.key "$(cat certs/access-key.pem)" ||
-	die "unable to create mtls resource"
+echo "* Importing data"
+a3sctl api create import -n /claimmod \
+	--input-file import.gotmpl ||
+	die "unable to import data"
 
 echo
 echo "* Success"
