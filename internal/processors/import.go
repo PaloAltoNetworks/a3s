@@ -1,10 +1,15 @@
 package processors
 
 import (
+	"fmt"
+	"net/http"
+
 	"go.aporeto.io/a3s/pkgs/api"
 	"go.aporeto.io/a3s/pkgs/authorizer"
 	"go.aporeto.io/a3s/pkgs/bearermanip"
 	"go.aporeto.io/a3s/pkgs/importing"
+	"go.aporeto.io/a3s/pkgs/permissions"
+	"go.aporeto.io/a3s/pkgs/token"
 	"go.aporeto.io/bahamut"
 	"go.aporeto.io/elemental"
 )
@@ -38,7 +43,47 @@ func (p *ImportProcessor) ProcessCreate(bctx bahamut.Context) error {
 		req.Authorizations,
 	}
 
+	restrictions, err := permissions.GetRestrictions(token.FromRequest(bctx.Request()))
+	if err != nil {
+		return err
+	}
+
 	for _, lst := range values {
+
+		if len(lst.List()) == 0 {
+			continue
+		}
+
+		for _, perm := range []string{"retrieve-many", "create", "delete"} {
+			ok, err := p.authz.CheckAuthorization(
+				bctx.Context(),
+				bctx.Claims(),
+				perm,
+				ns,
+				lst.Identity().Category,
+				authorizer.OptionCheckRestrictions(restrictions),
+				authorizer.OptionCheckSourceIP(bctx.Request().ClientIP),
+			)
+			if err != nil {
+				return err
+			}
+			if !ok {
+				return elemental.NewError(
+					"Permission Denied",
+					fmt.Sprintf("You don't have the permission to '%s' on '%s'", perm, lst.Identity().Category),
+					"a3s:import",
+					http.StatusForbidden,
+				)
+			}
+		}
+	}
+
+	for _, lst := range values {
+
+		if len(lst.List()) == 0 {
+			continue
+		}
+
 		if err := importing.Import(
 			bctx.Context(),
 			api.Manager(),
