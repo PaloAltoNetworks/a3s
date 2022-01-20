@@ -390,17 +390,12 @@ func makeUILoginHandler(api string) http.HandlerFunc {
 
 	return func(w http.ResponseWriter, req *http.Request) {
 
-		redirect := req.URL.Query().Get("redirect")
-		if redirect == "" {
-			redirect = req.Header.Get("referer")
-		}
+		q := req.URL.Query()
 
-		audience := req.URL.Query().Get("audience")
-		if audience == "" {
-			audience = redirect
-		}
+		redirect := q.Get("redirect")
+		audience := q.Get("audience")
 
-		if proxy := req.URL.Query().Get("proxy"); proxy != "" {
+		if proxy := q.Get("proxy"); proxy != "" {
 			api = proxy
 		}
 

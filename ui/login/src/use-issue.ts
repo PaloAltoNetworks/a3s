@@ -1,13 +1,9 @@
-import { useCallback, useEffect } from "react"
+import { useCallback } from "react"
 
 interface IssueParams {
   sourceNamespace: string
   sourceName: string
-  /**
-   * The redirect url after we've authenticated the user.
-   * If empty, the token will be returned in the promise.
-   */
-  redirectUrl?: string
+  cookie: boolean
 }
 
 interface IssueLdapParams extends IssueParams {
@@ -25,40 +21,14 @@ interface UseIssueOptions {
    * The audience for the JWT.
    */
   audience: string[]
-  /**
-   * Used to immediatly redirct the user after OIDC login is successful.
-   * If empty, `onOidcSuccess` will be called with the token.
-   */
-  oidcRedirectUrl?: string
-  onOidcSuccess?: (token: string) => void
 }
 
 /**
  * TODO: Support custom fetch function.
  * TODO: Add error handling
  */
-export function useIssue({
-  apiUrl,
-  audience,
-  oidcRedirectUrl,
-  onOidcSuccess,
-}: UseIssueOptions) {
+export function useIssue({ apiUrl, audience }: UseIssueOptions) {
   const issueUrl = `${apiUrl}/issue`
-
-  const handleIssueResponse = useCallback(
-    (redirectUrl?: string) => async (res: Response) => {
-      if (res.status === 200) {
-        if (redirectUrl) {
-          window.location.href = redirectUrl
-        } else {
-          return (await res.json()).token as string
-        }
-      } else {
-        throw Error("Request to issue failed. Please check the network tab for details")
-      }
-    },
-    []
-  )
 
   const issueWithLdap = useCallback(
     ({
@@ -66,7 +36,7 @@ export function useIssue({
       sourceName,
       username,
       password,
-      redirectUrl,
+      cookie,
     }: IssueLdapParams) =>
       fetch(issueUrl, {
         method: "POST",
@@ -78,38 +48,42 @@ export function useIssue({
             username,
             password,
           },
-          cookie: !!redirectUrl,
+          cookie,
           cookieDomain: window.location.hostname,
           audience,
         }),
         headers: {
           "Content-Type": "application/json",
         },
-      }).then(handleIssueResponse(redirectUrl)),
-    [issueUrl, audience, handleIssueResponse]
+      }),
+    [issueUrl, audience]
   )
 
   const issueWithMtls = useCallback(
-    ({ sourceNamespace, sourceName, redirectUrl }: IssueParams) =>
+    ({ sourceNamespace, sourceName, cookie }: IssueParams) =>
       fetch(issueUrl, {
         method: "POST",
         body: JSON.stringify({
           sourceType: "MTLS",
           sourceNamespace,
           sourceName,
-          cookie: !!redirectUrl,
+          cookie,
           cookieDomain: window.location.hostname,
           audience,
         }),
         headers: {
           "Content-Type": "application/json",
         },
-      }).then(handleIssueResponse(redirectUrl)),
-    [issueUrl, audience, handleIssueResponse]
+      }),
+    [issueUrl, audience]
   )
 
   const issueWithOidc = useCallback(
-    ({ sourceNamespace, sourceName }: IssueParams) => {
+    ({
+      sourceNamespace,
+      sourceName,
+      redirectUrl,
+    }: Omit<IssueParams, "cookie"> & { redirectUrl: string }) => {
       // Remove the trailing slash
       const currentUrl = (
         window.location.origin + window.location.pathname
@@ -132,6 +106,7 @@ export function useIssue({
       })
         .then(res => res.json())
         .then(obj => {
+          redirectUrl && localStorage.setItem("redirectUrl", redirectUrl)
           window.location.href = obj.inputOIDC.authURL
         })
     },
@@ -143,11 +118,11 @@ export function useIssue({
     ({
       cloak,
       token,
-      redirectUrl,
+      cookie,
     }: {
       cloak: string[]
       token: string
-      redirectUrl?: string
+      cookie: boolean
     }) =>
       fetch(issueUrl, {
         method: "POST",
@@ -157,60 +132,21 @@ export function useIssue({
             token,
           },
           cloak,
-          cookie: !!redirectUrl,
+          cookie,
           cookieDomain: window.location.hostname,
           audience,
         }),
         headers: {
           "Content-Type": "application/json",
         },
-      }).then(handleIssueResponse(redirectUrl)),
+      }),
     [audience, issueUrl]
   )
 
-  // Auto login after OIDC redirection
-  const params = new URLSearchParams(window.location.search)
-  const OIDCstate = params.get("state")
-  const OIDCcode = params.get("code")
-  useEffect(() => {
-    const sourceNamespace = localStorage.getItem("sourceNamespace")
-    const sourceName = localStorage.getItem("sourceName")
-    const saveTokenStorage = localStorage.getItem("saveToken") === "true"
-    if (OIDCstate && OIDCcode && sourceNamespace && sourceName) {
-      fetch(issueUrl, {
-        method: "POST",
-        body: JSON.stringify({
-          sourceType: "OIDC",
-          sourceNamespace,
-          sourceName,
-          inputOIDC: {
-            state: OIDCstate,
-            code: OIDCcode,
-          },
-          cookie: !saveTokenStorage,
-          cookieDomain: window.location.hostname,
-          audience,
-        }),
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }).then(res => {
-        // Clear the state and code
-        history.replaceState(null, "", window.location.pathname)
-        handleIssueResponse(oidcRedirectUrl)(res).then(token => {
-          token && onOidcSuccess && onOidcSuccess(token)
-        })
-      })
-    }
-  }, [
-    OIDCstate,
-    OIDCcode,
-    issueUrl,
-    audience,
-    handleIssueResponse,
-    onOidcSuccess,
-    oidcRedirectUrl,
-  ])
-
-  return { issueWithLdap, issueWithOidc, issueWithMtls, issueWithA3s, oidcIssuing: OIDCstate && OIDCcode }
+  return {
+    issueWithLdap,
+    issueWithOidc,
+    issueWithMtls,
+    issueWithA3s,
+  }
 }
