@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react"
+import { useCallback, useState, useEffect } from "react"
 import { Box } from "@mui/system"
 import {
   Button,
@@ -23,11 +23,24 @@ type DialogState =
   | { type: "Cloak"; token: string }
   | { type: "QrCode"; token: string }
 
-const redirectUrl = "__REDIRECT_URL__"
-// const redirectUrl = ""
-const enableCloak = "__ENABLE_CLOAKING__" as StringBoolean
 const audience = ["__AUDIENCE__"]
+const apiUrl = "__API_URL__"
+let redirectUrl = "__REDIRECT_URL__"
 // const audience = ["https://127.0.0.1:44443"]
+// const apiUrl = "https://localhost:44443"
+// let redirectUrl = "https://google.com"
+const redirectUrlInLocalStorage = localStorage.getItem("redirectUrl")
+if (redirectUrlInLocalStorage) {
+  redirectUrl = redirectUrlInLocalStorage
+  localStorage.removeItem("redirectUrl")
+}
+// A temp solution to avoid the issue of the `audience` being empty
+if (audience.length === 1 && audience[0] === "") {
+  audience[0] = "public"
+}
+// @ts-ignore
+const isQrCodeMode = redirectUrl === ""
+const enableCloak = "__ENABLE_CLOAKING__" as StringBoolean
 
 export const Login = () => {
   const [cloak, setCloak] = useLocalState(enableCloak, "cloak")
@@ -43,40 +56,91 @@ export const Login = () => {
   const [ldapUsername, setLdapUsername] = useState("")
   const [ldapPassword, setLdapPassword] = useState("")
   const [dialogState, setDialogState] = useState<DialogState>({ type: "None" })
+  const { issueWithLdap, issueWithMtls, issueWithOidc, issueWithA3s } =
+    useIssue({
+      apiUrl,
+      audience,
+    })
 
-  // @ts-ignore
-  const isQrCodeMode = redirectUrl === ""
-  // Not using `cloak === "false"` in case `__ENABLE_CLOAKING__` is not replaced
-  const shouldRedirectImmediately = !isQrCodeMode && cloak !== "true"
-  const onToken = useCallback(
-    token => {
-      if (shouldRedirectImmediately) {
-        return
-      }
-      if (cloak === "true") {
-        setDialogState({ type: "Cloak", token })
-      } else if (isQrCodeMode) {
-        setDialogState({ type: "QrCode", token })
+  const handleIssueResponse = useCallback(
+    (shouldRedirect: boolean) => async (res: Response) => {
+      if (res.status === 200) {
+        if (shouldRedirect) {
+          window.location.href = redirectUrl
+        } else {
+          return (await res.json()).token as string
+        }
+      } else {
+        throw Error(
+          "Request to issue failed. Please check the network tab for details"
+        )
       }
     },
-    [cloak, isQrCodeMode]
+    []
   )
 
-  const {
-    issueWithLdap,
-    issueWithMtls,
-    issueWithOidc,
-    issueWithA3s,
-    oidcIssuing,
-  } = useIssue({
-    apiUrl: "__API_URL__",
-    // apiUrl: "https://localhost:44443",
-    audience,
-    oidcRedirectUrl: shouldRedirectImmediately ? redirectUrl : undefined,
-    onOidcSuccess: onToken,
-  })
+  const onToken = useCallback((token?: string) => {
+    if (!token) {
+      return
+    }
+    if (cloak === "true") {
+      setDialogState({
+        type: "Cloak",
+        token,
+      })
+    } else if (isQrCodeMode) {
+      setDialogState({
+        type: "QrCode",
+        token,
+      })
+    }
+  }, [cloak, isQrCodeMode])
 
-  if (oidcIssuing) {
+  // Not using `cloak === "false"` in case `__ENABLE_CLOAKING__` is not replaced
+  const shouldRedirect = !isQrCodeMode && cloak !== "true"
+
+  // Below for OIDC auto login
+  const params = new URLSearchParams(window.location.search)
+  const OIDCstate = params.get("state")
+  const OIDCcode = params.get("code")
+  useEffect(() => {
+    if (OIDCstate && OIDCcode) {
+      fetch(`${apiUrl}/issue`, {
+        method: "POST",
+        body: JSON.stringify({
+          sourceType: "OIDC",
+          sourceNamespace,
+          sourceName,
+          inputOIDC: {
+            state: OIDCstate,
+            code: OIDCcode,
+          },
+          cookie: shouldRedirect,
+          cookieDomain: window.location.hostname,
+          audience,
+        }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+        .then(res => {
+          // Clear the state and code
+          history.replaceState(null, "", window.location.pathname)
+          return handleIssueResponse(shouldRedirect)(res)
+        })
+        .then(onToken)
+    }
+  }, [
+    OIDCstate,
+    OIDCcode,
+    sourceNamespace,
+    sourceName,
+    shouldRedirect,
+    handleIssueResponse,
+    onToken,
+  ])
+
+  if (OIDCstate && OIDCcode) {
     return <Typography>Authenticating using OIDC...</Typography>
   }
 
@@ -104,10 +168,16 @@ export const Login = () => {
           issueWithA3s({
             cloak,
             token: dialogState.token,
-            redirectUrl: isQrCodeMode ? undefined : redirectUrl,
-          }).then(token => {
-            token && setDialogState({ type: "QrCode", token })
+            cookie: !isQrCodeMode,
           })
+            .then(handleIssueResponse(!isQrCodeMode))
+            .then(token => {
+              token &&
+                setDialogState({
+                  type: "QrCode",
+                  token,
+                })
+            })
         }}
       />
     )
@@ -216,23 +286,24 @@ export const Login = () => {
               ? issueWithMtls({
                   sourceNamespace,
                   sourceName,
-                  redirectUrl: shouldRedirectImmediately
-                    ? redirectUrl
-                    : undefined,
-                }).then(onToken)
+                  cookie: shouldRedirect,
+                })
+                  .then(handleIssueResponse(shouldRedirect))
+                  .then(onToken)
               : sourceType === "LDAP"
               ? issueWithLdap({
                   sourceNamespace,
                   sourceName,
                   username: ldapUsername,
                   password: ldapPassword,
-                  redirectUrl: shouldRedirectImmediately
-                    ? redirectUrl
-                    : undefined,
-                }).then(onToken)
+                  cookie: shouldRedirect,
+                })
+                  .then(handleIssueResponse(shouldRedirect))
+                  .then(onToken)
               : issueWithOidc({
                   sourceNamespace,
                   sourceName,
+                  redirectUrl,
                 })
           }}
           variant="outlined"
