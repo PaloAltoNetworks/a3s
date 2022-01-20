@@ -1,6 +1,6 @@
-# JS Demo
+# Login UI
 
-A simple UI that handles authentication using a3s. Currently it supports `MTLS`, `LDAP` and `OIDC`.
+A simple UI that handles authentication using A3S. Currently it supports `MTLS`, `LDAP` and `OIDC`.
 
 ## Install requirements
 
