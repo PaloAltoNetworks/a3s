@@ -18,6 +18,7 @@ func newVerifierConf() verifierConf {
 	return verifierConf{
 		cacheMaxSize:  2048,
 		cacheDuration: 10 * time.Minute,
+		timeout:       10 * time.Second,
 	}
 }
 
