@@ -41,7 +41,7 @@ func getECCert() (*x509.Certificate, crypto.PrivateKey) {
 	return cert, key
 }
 
-func TestMakeTLSVerifyPeerCertificate(t *testing.T) {
+func TestMakeTLSPeerCertificateVerifier(t *testing.T) {
 
 	Convey("Given a cert and a manipulator", t, func() {
 
@@ -52,7 +52,7 @@ func TestMakeTLSVerifyPeerCertificate(t *testing.T) {
 
 		m := maniptest.NewTestManipulator()
 
-		verifier := MakeTLSVerifyPeerCertificate(
+		verifier := MakeTLSPeerCertificateVerifier(
 			context.Background(),
 			m,
 			OptionTimeout(time.Second),

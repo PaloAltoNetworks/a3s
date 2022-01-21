@@ -16,7 +16,7 @@ import (
 	"go.aporeto.io/tg/tglib"
 )
 
-// MakeTLSVerifyPeerCertificate returns a function you can use as
+// MakeTLSPeerCertificateVerifier returns a function you can use as
 // tls.Config.VerifyPeerCertificate. You will need to do this if you want to
 // support user authentication through MTLS while you are behind a
 // bahamut.Gateway.
@@ -32,7 +32,7 @@ import (
 //
 // The results are cached for the provided cacheDuration and a maximum of
 // cacheSize items will be kept.
-func MakeTLSVerifyPeerCertificate(
+func MakeTLSPeerCertificateVerifier(
 	ctx context.Context,
 	m manipulate.Manipulator,
 	opts ...VerifierOption,
@@ -123,7 +123,7 @@ func MakeTLSVerifyPeerCertificate(
 // A3S-192 or AES-256.
 //
 // WARNING: You MUST NOT use this function without installing a custom peer
-// certificate verifier with MakeTLSVerifyPeerCertificate in the gateway's
+// certificate verifier with MakeTLSPeerCertificateVerifier in the gateway's
 // server TLS config. A3S will blindly trust the certificate in the header,
 // which is why you MUST verify it before.
 func MakeTLSPeerCertificateForwarder(encryptionPassphrase string) gateway.InterceptorFunc {

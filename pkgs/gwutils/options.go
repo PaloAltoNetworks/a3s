@@ -5,7 +5,7 @@ import (
 )
 
 // VerifierOption can be used to configure
-// optional aspect of MAkeTLSVerifyPeerCertificate
+// optional aspect of MakeTLSPeerCertificateVerifier.
 type VerifierOption func(*verifierConf)
 
 type verifierConf struct {
