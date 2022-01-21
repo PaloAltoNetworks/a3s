@@ -5,7 +5,7 @@ go 1.17
 require (
 	go.aporeto.io/bahamut v1.112.1-0.20220113172527-169612633497
 	go.aporeto.io/elemental v1.100.1-0.20220119003946-1287f77e72fb
-	go.aporeto.io/manipulate v1.121.1-0.20220121180411-54689b2423ae
+	go.aporeto.io/manipulate v1.121.1-0.20220121190600-0a428d1d7413
 	go.aporeto.io/tg v1.34.1-0.20220107235943-7d2aaa0dc6f5
 	go.aporeto.io/wsc v1.36.1-0.20210528201141-2af38def4959 // indirect
 )
