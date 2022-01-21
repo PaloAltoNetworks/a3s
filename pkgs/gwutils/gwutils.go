@@ -11,7 +11,6 @@ import (
 
 	"github.com/karlseguin/ccache/v2"
 	"go.aporeto.io/a3s/pkgs/api"
-	"go.aporeto.io/a3s/pkgs/token"
 	"go.aporeto.io/bahamut/gateway"
 	"go.aporeto.io/elemental"
 	"go.aporeto.io/manipulate"
@@ -56,7 +55,7 @@ func MakeTLSVerifyPeerCertificate(
 			return fmt.Errorf("tls: failed to parse certificate from server: %w", err)
 		}
 
-		authorityKeyId := token.Fingerprint(cert)
+		authorityKeyId := fmt.Sprintf("%02X", cert.AuthorityKeyId)
 		item := cache.Get(authorityKeyId)
 		var pool *x509.CertPool
 
