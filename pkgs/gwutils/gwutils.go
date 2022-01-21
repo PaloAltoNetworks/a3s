@@ -59,8 +59,8 @@ func MakeTLSPeerCertificateVerifier(
 			return fmt.Errorf("tls: failed to parse certificate from server: %w", err)
 		}
 
-		authorityKeyId := fmt.Sprintf("%02X", cert.AuthorityKeyId)
-		item := cache.Get(authorityKeyId)
+		authorityKeyID := fmt.Sprintf("%02X", cert.AuthorityKeyId)
+		item := cache.Get(authorityKeyID)
 		var pool *x509.CertPool
 
 		if item == nil || item.Expired() {
@@ -72,7 +72,7 @@ func MakeTLSPeerCertificateVerifier(
 				tctx,
 				manipulate.ContextOptionFilter(
 					elemental.NewFilterComposer().
-						WithKey("subjectKeyIDs").Equals(authorityKeyId).
+						WithKey("subjectKeyIDs").Equals(authorityKeyID).
 						Done(),
 				),
 			)
@@ -92,7 +92,7 @@ func MakeTLSPeerCertificateVerifier(
 
 			pool = x509.NewCertPool()
 			pool.AppendCertsFromPEM([]byte(sources[0].CA))
-			cache.Set(authorityKeyId, pool, cfg.cacheDuration)
+			cache.Set(authorityKeyID, pool, cfg.cacheDuration)
 		} else {
 			pool = item.Value().(*x509.CertPool)
 		}

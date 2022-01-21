@@ -82,7 +82,7 @@ func TestMakeTLSPeerCertificateVerifier(t *testing.T) {
 			So(err.Error(), ShouldEqual, "unable to retrieve mtlssources: boom")
 		})
 
-		Convey("Calling with a certificate that matches an exising mtls source should work", func() {
+		Convey("Calling with a certificate that matches an existing mtls source should work", func() {
 
 			called := 0
 			m.MockRetrieveMany(t, func(mctx manipulate.Context, dest elemental.Identifiables) error {
@@ -107,7 +107,7 @@ func TestMakeTLSPeerCertificateVerifier(t *testing.T) {
 			})
 		})
 
-		Convey("Calling with a certificate that matches an exising mtls with a wrong cert should fail", func() {
+		Convey("Calling with a certificate that matches an existing mtls with a wrong cert should fail", func() {
 
 			m.MockRetrieveMany(t, func(mctx manipulate.Context, dest elemental.Identifiables) error {
 				*dest.(*api.MTLSSourcesList) = append(
@@ -124,7 +124,7 @@ func TestMakeTLSPeerCertificateVerifier(t *testing.T) {
 			So(err.Error(), ShouldStartWith, "unable to validate client certificate: x509: certificate signed by unknown authority")
 		})
 
-		Convey("Calling with a certificate that does not matche any exising mtls source should fail", func() {
+		Convey("Calling with a certificate that does not matche any existing mtls source should fail", func() {
 
 			m.MockRetrieveMany(t, func(mctx manipulate.Context, dest elemental.Identifiables) error {
 				return nil
