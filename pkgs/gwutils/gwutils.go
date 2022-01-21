@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
-	"time"
 
 	"github.com/karlseguin/ccache/v2"
 	"go.aporeto.io/a3s/pkgs/api"
@@ -34,12 +33,17 @@ import (
 // The results are cached for the provided cacheDuration and a maximum of
 // cacheSize items will be kept.
 func MakeTLSVerifyPeerCertificate(
+	ctx context.Context,
 	m manipulate.Manipulator,
-	cacheSize int64,
-	cacheDuration time.Duration,
+	opts ...VerifierOption,
 ) func([][]byte, [][]*x509.Certificate) error {
 
-	cache := ccache.New(ccache.Configure().MaxSize(cacheSize))
+	cfg := newVerifierConf()
+	for _, o := range opts {
+		o(&cfg)
+	}
+
+	cache := ccache.New(ccache.Configure().MaxSize(cfg.cacheMaxSize))
 
 	return func(
 		rawCerts [][]byte,
@@ -61,8 +65,11 @@ func MakeTLSVerifyPeerCertificate(
 
 		if item == nil || item.Expired() {
 
+			tctx, cancel := context.WithTimeout(ctx, cfg.timeout)
+			defer cancel()
+
 			mctx := manipulate.NewContext(
-				context.Background(),
+				tctx,
 				manipulate.ContextOptionFilter(
 					elemental.NewFilterComposer().
 						WithKey("subjectKeyIDs").Equals(authorityKeyId).
@@ -76,16 +83,16 @@ func MakeTLSVerifyPeerCertificate(
 			}
 
 			switch len(sources) {
+			case 1:
 			case 0:
 				return fmt.Errorf("unable to retrieve any matching mtlssource")
-			case 1:
 			default:
 				return fmt.Errorf("more than one mtls sources hold the signing CA. this is not supported")
 			}
 
 			pool = x509.NewCertPool()
 			pool.AppendCertsFromPEM([]byte(sources[0].CA))
-			cache.Set(authorityKeyId, pool, cacheDuration)
+			cache.Set(authorityKeyId, pool, cfg.cacheDuration)
 		} else {
 			pool = item.Value().(*x509.CertPool)
 		}

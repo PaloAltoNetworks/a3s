@@ -1,6 +1,7 @@
 package gwutils
 
 import (
+	"context"
 	"crypto"
 	"crypto/tls"
 	"crypto/x509"
@@ -51,7 +52,13 @@ func TestMakeTLSVerifyPeerCertificate(t *testing.T) {
 
 		m := maniptest.NewTestManipulator()
 
-		verifier := MakeTLSVerifyPeerCertificate(m, 10, time.Second)
+		verifier := MakeTLSVerifyPeerCertificate(
+			context.Background(),
+			m,
+			OptionTimeout(time.Second),
+			OptionCacheSize(10),
+			OptionCacheDuration(time.Second),
+		)
 
 		Convey("When no cert are passed, nothing should happen", func() {
 			err := verifier(nil, nil)
