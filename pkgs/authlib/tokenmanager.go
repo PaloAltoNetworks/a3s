@@ -88,8 +88,8 @@ func (t *x509TokenManager) SetManipulator(m manipulate.Manipulator) {
 
 // NewX509TokenManager returns a new X.509 backed manipulate.SelfTokenManager.
 func NewX509TokenManager(
-	sourceName string,
 	sourceNamespace string,
+	sourceName string,
 	opts ...Option,
 ) manipulate.SelfTokenManager {
 
@@ -107,8 +107,8 @@ func NewX509TokenManager(
 	t.issuerFunc = func(ctx context.Context, v time.Duration) (string, error) {
 		return t.c.AuthFromCertificate(
 			ctx,
-			sourceName,
 			sourceNamespace,
+			sourceName,
 			opts...,
 		)
 	}
