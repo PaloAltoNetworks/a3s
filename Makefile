@@ -10,6 +10,7 @@ default: codegen lint sec test a3s cli
 .PHONY: ui
 
 lint:
+	# --enable=typecheck: for fomr reason it finds errors that are not errors.
 	golangci-lint run \
 		--timeout 5m \
 		--disable-all \
@@ -27,7 +28,6 @@ lint:
 		--enable=misspell \
 		--enable=prealloc \
 		--enable=nakedret \
-		--enable=typecheck \
 		--enable=nilerr \
 		./...
 
