@@ -13,7 +13,7 @@ lint:
 	# --enable=typecheck: for fomr reason it finds errors that are not errors.
 	golangci-lint run \
 		--timeout 5m \
-		--disable-all \
+		--disable=typecheck \
 		--exclude-use-default=false \
 		--enable=errcheck \
 		--enable=goimports \
