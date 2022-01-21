@@ -120,9 +120,7 @@ func MakeTLSVerifyPeerCertificate(
 // certificate verifier with MakeTLSVerifyPeerCertificate in the gateway's
 // server TLS config. A3S will blindly trust the certificate in the header,
 // which is why you MUST verify it before.
-func MakeTLSPeerCertificateForwarder(
-	encryptionPassphrase string,
-) gateway.InterceptorFunc {
+func MakeTLSPeerCertificateForwarder(encryptionPassphrase string) gateway.InterceptorFunc {
 
 	return func(
 		w http.ResponseWriter,
@@ -131,7 +129,7 @@ func MakeTLSPeerCertificateForwarder(
 		corsInjector func(),
 	) (gateway.InterceptorAction, string, error) {
 
-		if len(req.TLS.PeerCertificates) != 1 {
+		if len(req.TLS.PeerCertificates) == 0 {
 			return gateway.InterceptorActionForward, "", nil
 		}
 

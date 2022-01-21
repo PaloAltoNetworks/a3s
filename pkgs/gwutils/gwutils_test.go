@@ -2,15 +2,18 @@ package gwutils
 
 import (
 	"crypto"
+	"crypto/tls"
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"encoding/pem"
 	"fmt"
+	"net/http"
 	"testing"
 	"time"
 
 	. "github.com/smartystreets/goconvey/convey"
 	"go.aporeto.io/a3s/pkgs/api"
+	"go.aporeto.io/bahamut/gateway"
 	"go.aporeto.io/elemental"
 	"go.aporeto.io/manipulate"
 	"go.aporeto.io/manipulate/maniptest"
@@ -145,5 +148,74 @@ func TestMakeTLSVerifyPeerCertificate(t *testing.T) {
 			So(err, ShouldNotBeNil)
 			So(err.Error(), ShouldEqual, "more than one mtls sources hold the signing CA. this is not supported")
 		})
+	})
+}
+
+func TestMakeTLSPeerCertificateForwarder(t *testing.T) {
+
+	cert, _ := getECCert()
+
+	Convey("Given I have a passphrase and an interceptor and no peer cert", t, func() {
+		f := MakeTLSPeerCertificateForwarder("1234567890abcdef")
+		action, upstream, err := f(nil, &http.Request{TLS: &tls.ConnectionState{}}, nil, nil)
+		So(action, ShouldEqual, gateway.InterceptorActionForward)
+		So(upstream, ShouldBeEmpty)
+		So(err, ShouldBeNil)
+	})
+
+	Convey("A bad certificate should be handled", t, func() {
+		f := MakeTLSPeerCertificateForwarder("1234567890abcdef")
+		action, upstream, err := f(
+			nil,
+			&http.Request{
+				TLS: &tls.ConnectionState{
+					PeerCertificates: []*x509.Certificate{nil},
+				},
+			},
+			nil,
+			nil,
+		)
+		So(action, ShouldEqual, gateway.InterceptorActionStop)
+		So(upstream, ShouldBeEmpty)
+		So(err, ShouldNotBeNil)
+		So(err.Error(), ShouldEqual, "nil certificate provided")
+	})
+
+	Convey("A bad encryption pass should be handled", t, func() {
+		f := MakeTLSPeerCertificateForwarder("oh no")
+		action, upstream, err := f(
+			nil,
+			&http.Request{
+				TLS: &tls.ConnectionState{
+					PeerCertificates: []*x509.Certificate{cert},
+				},
+			},
+			nil,
+			nil,
+		)
+		So(action, ShouldEqual, gateway.InterceptorActionStop)
+		So(upstream, ShouldBeEmpty)
+		So(err, ShouldNotBeNil)
+		So(err.Error(), ShouldEqual, "invalid passphrase: size must be exactly 16 bytes")
+	})
+
+	Convey("When everything is fine, the header should be provided", t, func() {
+		f := MakeTLSPeerCertificateForwarder("1234567890abcdef")
+		req := &http.Request{
+			Header: http.Header{},
+			TLS: &tls.ConnectionState{
+				PeerCertificates: []*x509.Certificate{cert},
+			},
+		}
+		action, upstream, err := f(
+			nil,
+			req,
+			nil,
+			nil,
+		)
+		So(action, ShouldEqual, gateway.InterceptorActionForward)
+		So(upstream, ShouldBeEmpty)
+		So(err, ShouldBeEmpty)
+		So(req.Header.Get("X-TLS-Certificate"), ShouldNotBeEmpty)
 	})
 }
