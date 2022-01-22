@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"crypto/tls"
+	"crypto/x509"
 	"errors"
 	"fmt"
 	"net"
@@ -19,6 +20,7 @@ import (
 	"go.aporeto.io/a3s/pkgs/api"
 	"go.aporeto.io/a3s/pkgs/authenticator"
 	"go.aporeto.io/a3s/pkgs/authorizer"
+	"go.aporeto.io/a3s/pkgs/bearermanip"
 	"go.aporeto.io/a3s/pkgs/bootstrap"
 	"go.aporeto.io/a3s/pkgs/indexes"
 	"go.aporeto.io/a3s/pkgs/notification"
@@ -39,6 +41,13 @@ var (
 		api.IssueIdentity.Category,
 		api.PermissionsIdentity.Category,
 		api.AuthzIdentity.Category,
+	}
+	pushExcludedResources = []elemental.Identity{
+		api.PermissionsIdentity,
+
+		// safety: these ones are not an identifiable, so it would not be pushed anyway.
+		api.IssueIdentity,
+		api.AuthzIdentity,
 	}
 )
 
@@ -103,6 +112,24 @@ func main() {
 		zap.L().Fatal("unable to build JWKS", zap.Error(err))
 	}
 
+	if cfg.MTLSHeader.Enabled {
+		if cfg.MTLSHeader.Passphrase == "" {
+			zap.L().Fatal("You must pass --mtls-header-passphrase when --mtls-header-enabled is set")
+		}
+		var cipher string
+		switch len(cfg.MTLSHeader.Passphrase) {
+		case 16:
+			cipher = "AES-128"
+		case 24:
+			cipher = "AES-192"
+		case 32:
+			cipher = "AES-256"
+		default:
+			zap.L().Fatal("The value for --mtls-header-passphrase must be 16, 24 or 32 bytes long to select AES-128, AES-192 or AES-256")
+		}
+		zap.L().Info("MTLS header trust set", zap.String("header", cfg.MTLSHeader.HeaderKey), zap.String("cipher", cipher))
+	}
+
 	publicAPIURL := cfg.PublicAPIURL
 	if publicAPIURL == "" {
 		publicAPIURL = fmt.Sprintf("https://%s", getNotifierEndpoint(cfg.ListenAddress))
@@ -164,7 +191,7 @@ func main() {
 			},
 		),
 		bahamut.OptPushDispatchHandler(push.NewDispatcher(pauthz)),
-		bahamut.OptPushPublishHandler(bootstrap.MakePublishHandler(nil)),
+		bahamut.OptPushPublishHandler(bootstrap.MakePublishHandler(pushExcludedResources)),
 		bahamut.OptMTLS(nil, tls.RequestClientCert),
 		bahamut.OptErrorTransformer(errorTransformer),
 		bahamut.OptIdentifiableRetriever(bootstrap.MakeIdentifiableRetriever(m)),
@@ -182,6 +209,20 @@ func main() {
 		)
 	}
 
+	certData, err := os.ReadFile(cfg.APIServerConf.TLSCertificate)
+	bmanipPool := x509.NewCertPool()
+	bmanipPool.AppendCertsFromPEM(certData)
+	if err != nil {
+		zap.L().Fatal("Unable to read server TLS certificate", zap.Error(err))
+	}
+	bmanipMaker := bearermanip.Configure(
+		ctx,
+		publicAPIURL,
+		&tls.Config{
+			RootCAs: bmanipPool,
+		},
+	)
+
 	server := bahamut.New(opts...)
 
 	if err := server.RegisterCustomRouteHandler("/.well-known/jwks.json", makeJWKSHandler(jwks)); err != nil {
@@ -192,7 +233,21 @@ func main() {
 		zap.L().Fatal("Unable to install UI login handler", zap.Error(err))
 	}
 
-	bahamut.RegisterProcessorOrDie(server, processors.NewIssueProcessor(m, jwks, cfg.JWT.JWTMaxValidity, cfg.JWT.JWTIssuer, cfg.JWT.JWTAudience, cookiePolicy, cookieDomain), api.IssueIdentity)
+	bahamut.RegisterProcessorOrDie(server,
+		processors.NewIssueProcessor(
+			m,
+			jwks,
+			cfg.JWT.JWTMaxValidity,
+			cfg.JWT.JWTIssuer,
+			cfg.JWT.JWTAudience,
+			cookiePolicy,
+			cookieDomain,
+			cfg.MTLSHeader.Enabled,
+			cfg.MTLSHeader.HeaderKey,
+			cfg.MTLSHeader.Passphrase,
+		),
+		api.IssueIdentity,
+	)
 	bahamut.RegisterProcessorOrDie(server, processors.NewMTLSSourcesProcessor(m), api.MTLSSourceIdentity)
 	bahamut.RegisterProcessorOrDie(server, processors.NewLDAPSourcesProcessor(m), api.LDAPSourceIdentity)
 	bahamut.RegisterProcessorOrDie(server, processors.NewOIDCSourcesProcessor(m), api.OIDCSourceIdentity)
@@ -202,6 +257,7 @@ func main() {
 	bahamut.RegisterProcessorOrDie(server, processors.NewAuthzProcessor(pauthz, jwks, cfg.JWT.JWTIssuer, cfg.JWT.JWTAudience), api.AuthzIdentity)
 	bahamut.RegisterProcessorOrDie(server, processors.NewNamespacesProcessor(m, pubsub), api.NamespaceIdentity)
 	bahamut.RegisterProcessorOrDie(server, processors.NewAuthorizationProcessor(m, pubsub, retriever), api.AuthorizationIdentity)
+	bahamut.RegisterProcessorOrDie(server, processors.NewImportProcessor(bmanipMaker, pauthz), api.ImportIdentity)
 
 	notification.Subscribe(ctx, pubsub, nscache.NotificationNamespaceChanges, makeNamespaceCleaner(ctx, m))
 
@@ -334,17 +390,12 @@ func makeUILoginHandler(api string) http.HandlerFunc {
 
 	return func(w http.ResponseWriter, req *http.Request) {
 
-		redirect := req.URL.Query().Get("redirect")
-		if redirect == "" {
-			redirect = req.Header.Get("referer")
-		}
+		q := req.URL.Query()
 
-		audience := req.URL.Query().Get("audience")
-		if audience == "" {
-			audience = redirect
-		}
+		redirect := q.Get("redirect")
+		audience := q.Get("audience")
 
-		if proxy := req.URL.Query().Get("proxy"); proxy != "" {
+		if proxy := q.Get("proxy"); proxy != "" {
 			api = proxy
 		}
 

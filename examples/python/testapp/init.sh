@@ -13,6 +13,7 @@ export TLSGEN_FORCE="true"
 
 echo "* Generating certificates..."
 tg cert issue --is-ca --name "a3s-test-authority"
+
 tg cert issue --auth-client \
 	--name "john" \
 	--signing-cert "certs/a3s-test-authority-cert.pem" \
@@ -36,58 +37,19 @@ A3SCTL_TOKEN="$(
 )"
 export A3SCTL_TOKEN
 
-echo
-echo "* Deleting existing /testapp namespace"
+echo "* Deleting / recreating /testapp namespace"
 a3sctl api delete namespace "/testapp" -n /
-
-echo
-echo "* Creating /testapp namespace"
 a3sctl api create namespace --with.name "testapp" -n "/" ||
 	die "unable to create /testapp namespace"
 
 echo
-echo "* Creating mtlssource"
-a3sctl api create mtlssource -n "/testapp" \
-	--with.name "default" \
-	--with.ca "$(cat certs/a3s-test-authority-cert.pem)" ||
-	die "unable to create mtls resource"
+echo "* Importing data"
+a3sctl api create import \
+	-n /testapp \
+	--input-file=import.gotmpl ||
+	die "unable to import data"
 
 echo
-echo "* Creating authorization for /secret"
-a3sctl api create authorization -n "/testapp" \
-	--with.name "secret-access" \
-	--with.subject '[
-		[
-			"@source:type=mtls",
-			"@source:name=default",
-			"@source:namespace=/testapp",
-			"commonname=john"
-		]
-	]' \
-	--with.permissions '["/secret:GET"]' ||
-	die "unable to create authorization for /secret"
-
-echo
-echo "* Creating authorization for /topsecret"
-a3sctl api create authorization -n "/testapp" \
-	--with.name "top-secret-access" \
-	--with.subject '[
-		[
-			"@source:type=mtls",
-			"@source:name=default",
-			"@source:namespace=/testapp",
-			"commonname=michael"
-		]
-	]' \
-	--with.permissions '[
-		"/secret:GET",
-		"/topsecret:GET"
-	]' ||
-	die "unable to create authorization for /topsecret"
-
-echo
-echo "* Success"
-
 echo
 echo "Here is a command to get a token for john:"
 echo

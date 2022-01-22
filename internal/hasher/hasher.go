@@ -41,6 +41,16 @@ func (t *Hasher) Hash(z sharder.Shardable) error {
 	case *api.SparseLDAPSource:
 		z.SetZHash(hash(fmt.Sprintf("%s:%s", *oo.Namespace, *oo.Name)))
 
+	case *api.OIDCSource:
+		z.SetZHash(hash(fmt.Sprintf("%s:%s", oo.Namespace, oo.Name)))
+	case *api.SparseOIDCSource:
+		z.SetZHash(hash(fmt.Sprintf("%s:%s", *oo.Namespace, *oo.Name)))
+
+	case *api.HTTPSource:
+		z.SetZHash(hash(fmt.Sprintf("%s:%s", oo.Namespace, oo.Name)))
+	case *api.SparseHTTPSource:
+		z.SetZHash(hash(fmt.Sprintf("%s:%s", *oo.Namespace, *oo.Name)))
+
 	case *api.A3SSource:
 		z.SetZHash(hash(fmt.Sprintf("%s:%s", oo.Namespace, oo.Name)))
 	case *api.SparseA3SSource:

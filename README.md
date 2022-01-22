@@ -38,50 +38,53 @@ particular namespace.
 
 * [Quick start](#quick-start)
 * [Using the system](#using-the-system)
-    * [Install a3sctl](#install-a3sctl)
-    * [Obtain a root token](#obtain-a-root-token)
-    * [Test with the sample app](#test-with-the-sample-app)
+	* [Install a3sctl](#install-a3sctl)
+	* [Obtain a root token](#obtain-a-root-token)
+	* [Test with the sample app](#test-with-the-sample-app)
 * [Obtaining identity tokens](#obtaining-identity-tokens)
-    * [Restrictions](#restrictions)
-    * [Cloaking](#cloaking)
-    * [Identity modifiers](#identity-modifiers)
-    * [Authentication sources](#authentication-sources)
-        * [MTLS](#mtls)
-            * [Create an MTLS source](#create-an-mtls-source)
-            * [Obtain a token](#obtain-a-token)
-        * [LDAP](#ldap)
-            * [Create an LDAP source](#create-an-ldap-source)
-            * [Obtain a token](#obtain-a-token-1)
-        * [HTTP](#http)
-            * [Create an HTTP source](#create-an-http-source)
-            * [Obtain a token](#obtain-a-token-2)
-        * [OIDC](#oidc)
-            * [Create an OIDC source](#create-an-oidc-source)
-            * [Obtain a token](#obtain-a-token-3)
-        * [A3S remote identity token](#a3s-remote-identity-token)
-            * [Create an A3S source](#create-an-a3s-source)
-            * [Obtain a token](#obtain-a-token-4)
-        * [Amazon STS](#amazon-sts)
-        * [Google Cloud Platform token](#google-cloud-platform-token)
-        * [Azure token](#azure-token)
-        * [A3S local identity token](#a3s-local-identity-token)
+	* [Restrictions](#restrictions)
+	* [Cloaking](#cloaking)
+	* [Identity modifiers](#identity-modifiers)
+	* [Authentication sources](#authentication-sources)
+		* [MTLS](#mtls)
+			* [Create an MTLS source](#create-an-mtls-source)
+			* [Obtain a token](#obtain-a-token)
+		* [LDAP](#ldap)
+			* [Create an LDAP source](#create-an-ldap-source)
+			* [Obtain a token](#obtain-a-token-1)
+		* [HTTP](#http)
+			* [Create an HTTP source](#create-an-http-source)
+			* [Obtain a token](#obtain-a-token-2)
+		* [OIDC](#oidc)
+			* [Create an OIDC source](#create-an-oidc-source)
+			* [Obtain a token](#obtain-a-token-3)
+		* [A3S remote identity token](#a3s-remote-identity-token)
+			* [Create an A3S source](#create-an-a3s-source)
+			* [Obtain a token](#obtain-a-token-4)
+		* [Amazon STS](#amazon-sts)
+		* [Google Cloud Platform token](#google-cloud-platform-token)
+		* [Azure token](#azure-token)
+		* [A3S local identity token](#a3s-local-identity-token)
 * [Writing authorizations](#writing-authorizations)
-    * [Subject](#subject)
-    * [Permissions](#permissions)
-    * [Target namespaces](#target-namespaces)
-    * [Examples](#examples)
+	* [Subject](#subject)
+	* [Permissions](#permissions)
+	* [Target namespaces](#target-namespaces)
+	* [Examples](#examples)
 * [Check for permissions from your app](#check-for-permissions-from-your-app)
 * [Using a3sctl](#using-a3sctl)
-    * [Completion](#completion)
-        * [Bash](#bash)
-        * [Zsh](#zsh)
-        * [Fish](#fish)
-    * [Configuration file](#configuration-file)
-    * [Auto authentication](#auto-authentication)
+	* [Completion](#completion)
+		* [Bash](#bash)
+		* [Zsh](#zsh)
+		* [Fish](#fish)
+	* [Configuration file](#configuration-file)
+	* [Auto authentication](#auto-authentication)
+* [Import](#import)
+	* [Simple Import files with a3sctl](#simple-import-files-with-a3sctl)
+	* [Templating with a3sctl](#templating-with-a3sctl)
 * [Dev environment](#dev-environment)
-    * [Prerequesites](#prerequesites)
-    * [Initialize the environment](#initialize-the-environment)
-    * [Start everything](#start-everything)
+	* [Prerequesites](#prerequesites)
+	* [Initialize the environment](#initialize-the-environment)
+	* [Start everything](#start-everything)
 * [Support](#support)
 * [Contributing](#contributing)
 
@@ -374,9 +377,10 @@ To obtain a token from the newly created source:
 
 #### HTTP
 
-A3S supports using a remote HTTP server as authentication source. The HTTP server must
-be accessible from A3S. A3S will refuse to connect if the server does not
-support MTLS. This can be used to link to your own internal account system.
+A3S supports using a remote HTTP server as authentication source. The HTTP
+server must be accessible from A3S. A3S will refuse to connect if the server
+does not support MTLS. This can be used to link to your own internal account
+system.
 
 When an HTTP source is used, A3S will send a POST request to the corresponding
 server containing a json encoded map with the following items:
@@ -784,6 +788,106 @@ automatically renew if it's past its half-life.
 
 > NOTE: using `-` for secrets will automatically prompt the user for input during
 > retrieval or renewing of the token.
+
+## Import
+
+A3S allows to manage the content of a namespace through declarative import. At
+its core, importing is done using the `/import` api.
+
+The following resources can be imported.
+
+* All kind of sources (`oidcsources`, `mtlssources`, etc...)
+* `authorizations`
+
+An import must provide a label in order to recognize all the resources imported.
+This will help the system to realign any changes between the import declarartion
+and the current state of the system. You must ensure the provided label is
+unique to an import in a namespace, or you may face unintended side effects. The
+label will be stored into the `importLabel` property of the resources.
+
+Imported resources uses a hash (stored in `importHash`) to determine if the data
+provided in the import request has changed or not. If the data is unmodified,
+the import will leave the object in place. If it has been modified, the import
+system will delete, then recreate a new version of the object (that means its
+`ID` will change).
+
+### Simple Import files with a3sctl
+
+a3sctl provides an easy way to deal with import declarations stored in a YAML
+file.
+
+For instance:
+
+	label: my-import-label
+	Authorizations:
+	  - name: authorization-a
+		subject:
+		- - "@source:type=mtls"
+		  - "@source:name=default"
+		  - "@source:namespace=/ns"
+		  - "commonname=john"
+		permissions:
+		- /resource-a:GET
+	  - name: top-secret-access
+		subject:
+		- - "@source:type=mtls"
+		  - "@source:name=default"
+		  - "@source:namespace=/ns"
+		  - "commonname=michael"
+		permissions:
+		- /resource-b:GET
+		- /resource-c:GET
+
+This file declares two `authorizations`, under the label `my-import-label`.
+
+To import this file, run:
+
+	a3sctl api create import \
+		--input-file path/to/file.yaml
+
+### Templating with a3sctl
+
+Import files support [go templating](https://pkg.go.dev/text/template) with
+[sprig](https://masterminds.github.io/sprig/) functions, as well as `helm` style
+values management.
+
+> NOTE: you can check the rendering of the template by passing `--render`
+
+For instance, consider the following file:
+
+	label: my-templated-import:
+	MTLSSources:
+	- name: {{ .Values.name }}
+	  description: {{ .Values.desc }}
+	  CA: |-
+	  {{ readFile "path/to/ca.pem" | indent 4 }}
+
+This file can be imported using the following command:
+
+	a3sctl api create import --input-file mytemplate.gotmpl \
+		--input-set name=hello \
+		--input-set "desc=the description"
+
+This will replace `{{ .Values.name }}` and `{{ .Values.desc }}` by `hello` and
+`the description` respectively. You can also notice the call to `readFile` that
+will be replaced by the content of the file given as parameter.
+
+In addition to the `.Values` dictionary, there are the following additional
+values that can be accessed:
+
+- `{{ .Common.API }}`: the value of the --api flag
+- `{{ .Common.Namespace }}`: The value of --namespace flag
+
+Finally, you can store the values in their own files, and use it to populate a
+template. For instance:
+
+	name: hello world
+	description: the description
+
+You can use the values in that file by doing:
+
+	a3sctl api create import --input-file mytemplate.gotmpl \
+		--input-values myvalues.yaml
 
 ## Dev environment
 

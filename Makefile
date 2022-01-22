@@ -7,6 +7,7 @@ DOCKER_TAG ?= "dev"
 export GO111MODULE = on
 
 default: codegen lint sec test a3s cli
+.PHONY: ui
 
 lint:
 	golangci-lint run \
@@ -43,10 +44,10 @@ generate:
 api:
 	cd pkgs/api && make codegen
 
-build_ui:
+ui:
 	cd ui/login && yarn && yarn build
 
-codegen: api build_ui generate
+codegen: api ui generate
 
 a3s:
 	cd cmd/a3s && CGO_ENABLED=0 go build -ldflags="-w -s" -trimpath

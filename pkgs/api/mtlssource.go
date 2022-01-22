@@ -89,6 +89,16 @@ type MTLSSource struct {
 	// The description of the object.
 	Description string `json:"description" msgpack:"description" bson:"description" mapstructure:"description,omitempty"`
 
+	// The fingerprint of the CAs in the chain.
+	Fingerprints []string `json:"fingerprints" msgpack:"fingerprints" bson:"fingerprints" mapstructure:"fingerprints,omitempty"`
+
+	// The hash of the structure used to compare with new import version.
+	ImportHash string `json:"importHash,omitempty" msgpack:"importHash,omitempty" bson:"importhash,omitempty" mapstructure:"importHash,omitempty"`
+
+	// The user-defined import label that allows the system to group resources from the
+	// same import operation.
+	ImportLabel string `json:"importLabel,omitempty" msgpack:"importLabel,omitempty" bson:"importlabel,omitempty" mapstructure:"importLabel,omitempty"`
+
 	// Contains optional information about a remote service that can be used to modify
 	// the claims that are about to be delivered using this authentication source.
 	Modifier *IdentityModifier `json:"modifier,omitempty" msgpack:"modifier,omitempty" bson:"modifier,omitempty" mapstructure:"modifier,omitempty"`
@@ -98,6 +108,9 @@ type MTLSSource struct {
 
 	// The namespace of the object.
 	Namespace string `json:"namespace" msgpack:"namespace" bson:"namespace" mapstructure:"namespace,omitempty"`
+
+	// Value of the CAs X.509 SubjectKeyIDs in the chain.
+	SubjectKeyIDs []string `json:"subjectKeyIDs" msgpack:"subjectKeyIDs" bson:"subjectkeyids" mapstructure:"subjectKeyIDs,omitempty"`
 
 	// Hash of the object used to shard the data.
 	ZHash int `json:"-" msgpack:"-" bson:"zhash" mapstructure:"-,omitempty"`
@@ -112,7 +125,9 @@ type MTLSSource struct {
 func NewMTLSSource() *MTLSSource {
 
 	return &MTLSSource{
-		ModelVersion: 1,
+		ModelVersion:  1,
+		Fingerprints:  []string{},
+		SubjectKeyIDs: []string{},
 	}
 }
 
@@ -149,9 +164,13 @@ func (o *MTLSSource) GetBSON() (interface{}, error) {
 		s.ID = bson.ObjectIdHex(o.ID)
 	}
 	s.Description = o.Description
+	s.Fingerprints = o.Fingerprints
+	s.ImportHash = o.ImportHash
+	s.ImportLabel = o.ImportLabel
 	s.Modifier = o.Modifier
 	s.Name = o.Name
 	s.Namespace = o.Namespace
+	s.SubjectKeyIDs = o.SubjectKeyIDs
 	s.ZHash = o.ZHash
 	s.Zone = o.Zone
 
@@ -174,9 +193,13 @@ func (o *MTLSSource) SetBSON(raw bson.Raw) error {
 	o.CA = s.CA
 	o.ID = s.ID.Hex()
 	o.Description = s.Description
+	o.Fingerprints = s.Fingerprints
+	o.ImportHash = s.ImportHash
+	o.ImportLabel = s.ImportLabel
 	o.Modifier = s.Modifier
 	o.Name = s.Name
 	o.Namespace = s.Namespace
+	o.SubjectKeyIDs = s.SubjectKeyIDs
 	o.ZHash = s.ZHash
 	o.Zone = s.Zone
 
@@ -224,6 +247,30 @@ func (o *MTLSSource) SetID(ID string) {
 	o.ID = ID
 }
 
+// GetImportHash returns the ImportHash of the receiver.
+func (o *MTLSSource) GetImportHash() string {
+
+	return o.ImportHash
+}
+
+// SetImportHash sets the property ImportHash of the receiver using the given value.
+func (o *MTLSSource) SetImportHash(importHash string) {
+
+	o.ImportHash = importHash
+}
+
+// GetImportLabel returns the ImportLabel of the receiver.
+func (o *MTLSSource) GetImportLabel() string {
+
+	return o.ImportLabel
+}
+
+// SetImportLabel sets the property ImportLabel of the receiver using the given value.
+func (o *MTLSSource) SetImportLabel(importLabel string) {
+
+	o.ImportLabel = importLabel
+}
+
 // GetNamespace returns the Namespace of the receiver.
 func (o *MTLSSource) GetNamespace() string {
 
@@ -267,14 +314,18 @@ func (o *MTLSSource) ToSparse(fields ...string) elemental.SparseIdentifiable {
 	if len(fields) == 0 {
 		// nolint: goimports
 		return &SparseMTLSSource{
-			CA:          &o.CA,
-			ID:          &o.ID,
-			Description: &o.Description,
-			Modifier:    o.Modifier,
-			Name:        &o.Name,
-			Namespace:   &o.Namespace,
-			ZHash:       &o.ZHash,
-			Zone:        &o.Zone,
+			CA:            &o.CA,
+			ID:            &o.ID,
+			Description:   &o.Description,
+			Fingerprints:  &o.Fingerprints,
+			ImportHash:    &o.ImportHash,
+			ImportLabel:   &o.ImportLabel,
+			Modifier:      o.Modifier,
+			Name:          &o.Name,
+			Namespace:     &o.Namespace,
+			SubjectKeyIDs: &o.SubjectKeyIDs,
+			ZHash:         &o.ZHash,
+			Zone:          &o.Zone,
 		}
 	}
 
@@ -287,12 +338,20 @@ func (o *MTLSSource) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.ID = &(o.ID)
 		case "description":
 			sp.Description = &(o.Description)
+		case "fingerprints":
+			sp.Fingerprints = &(o.Fingerprints)
+		case "importHash":
+			sp.ImportHash = &(o.ImportHash)
+		case "importLabel":
+			sp.ImportLabel = &(o.ImportLabel)
 		case "modifier":
 			sp.Modifier = o.Modifier
 		case "name":
 			sp.Name = &(o.Name)
 		case "namespace":
 			sp.Namespace = &(o.Namespace)
+		case "subjectKeyIDs":
+			sp.SubjectKeyIDs = &(o.SubjectKeyIDs)
 		case "zHash":
 			sp.ZHash = &(o.ZHash)
 		case "zone":
@@ -319,6 +378,15 @@ func (o *MTLSSource) Patch(sparse elemental.SparseIdentifiable) {
 	if so.Description != nil {
 		o.Description = *so.Description
 	}
+	if so.Fingerprints != nil {
+		o.Fingerprints = *so.Fingerprints
+	}
+	if so.ImportHash != nil {
+		o.ImportHash = *so.ImportHash
+	}
+	if so.ImportLabel != nil {
+		o.ImportLabel = *so.ImportLabel
+	}
 	if so.Modifier != nil {
 		o.Modifier = so.Modifier
 	}
@@ -327,6 +395,9 @@ func (o *MTLSSource) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.Namespace != nil {
 		o.Namespace = *so.Namespace
+	}
+	if so.SubjectKeyIDs != nil {
+		o.SubjectKeyIDs = *so.SubjectKeyIDs
 	}
 	if so.ZHash != nil {
 		o.ZHash = *so.ZHash
@@ -425,12 +496,20 @@ func (o *MTLSSource) ValueForAttribute(name string) interface{} {
 		return o.ID
 	case "description":
 		return o.Description
+	case "fingerprints":
+		return o.Fingerprints
+	case "importHash":
+		return o.ImportHash
+	case "importLabel":
+		return o.ImportLabel
 	case "modifier":
 		return o.Modifier
 	case "name":
 		return o.Name
 	case "namespace":
 		return o.Namespace
+	case "subjectKeyIDs":
+		return o.SubjectKeyIDs
 	case "zHash":
 		return o.ZHash
 	case "zone":
@@ -479,6 +558,47 @@ var MTLSSourceAttributesMap = map[string]elemental.AttributeSpecification{
 		Stored:         true,
 		Type:           "string",
 	},
+	"Fingerprints": {
+		AllowedChoices: []string{},
+		Autogenerated:  true,
+		BSONFieldName:  "fingerprints",
+		ConvertedName:  "Fingerprints",
+		Description:    `The fingerprint of the CAs in the chain.`,
+		Exposed:        true,
+		Name:           "fingerprints",
+		ReadOnly:       true,
+		Stored:         true,
+		SubType:        "string",
+		Type:           "list",
+	},
+	"ImportHash": {
+		AllowedChoices: []string{},
+		Autogenerated:  true,
+		BSONFieldName:  "importhash",
+		ConvertedName:  "ImportHash",
+		Description:    `The hash of the structure used to compare with new import version.`,
+		Exposed:        true,
+		Getter:         true,
+		Name:           "importHash",
+		ReadOnly:       true,
+		Setter:         true,
+		Stored:         true,
+		Type:           "string",
+	},
+	"ImportLabel": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "importlabel",
+		ConvertedName:  "ImportLabel",
+		CreationOnly:   true,
+		Description: `The user-defined import label that allows the system to group resources from the
+same import operation.`,
+		Exposed: true,
+		Getter:  true,
+		Name:    "importLabel",
+		Setter:  true,
+		Stored:  true,
+		Type:    "string",
+	},
 	"Modifier": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "modifier",
@@ -516,6 +636,19 @@ the claims that are about to be delivered using this authentication source.`,
 		Setter:         true,
 		Stored:         true,
 		Type:           "string",
+	},
+	"SubjectKeyIDs": {
+		AllowedChoices: []string{},
+		Autogenerated:  true,
+		BSONFieldName:  "subjectkeyids",
+		ConvertedName:  "SubjectKeyIDs",
+		Description:    `Value of the CAs X.509 SubjectKeyIDs in the chain.`,
+		Exposed:        true,
+		Name:           "subjectKeyIDs",
+		ReadOnly:       true,
+		Stored:         true,
+		SubType:        "string",
+		Type:           "list",
 	},
 	"ZHash": {
 		AllowedChoices: []string{},
@@ -585,6 +718,47 @@ var MTLSSourceLowerCaseAttributesMap = map[string]elemental.AttributeSpecificati
 		Stored:         true,
 		Type:           "string",
 	},
+	"fingerprints": {
+		AllowedChoices: []string{},
+		Autogenerated:  true,
+		BSONFieldName:  "fingerprints",
+		ConvertedName:  "Fingerprints",
+		Description:    `The fingerprint of the CAs in the chain.`,
+		Exposed:        true,
+		Name:           "fingerprints",
+		ReadOnly:       true,
+		Stored:         true,
+		SubType:        "string",
+		Type:           "list",
+	},
+	"importhash": {
+		AllowedChoices: []string{},
+		Autogenerated:  true,
+		BSONFieldName:  "importhash",
+		ConvertedName:  "ImportHash",
+		Description:    `The hash of the structure used to compare with new import version.`,
+		Exposed:        true,
+		Getter:         true,
+		Name:           "importHash",
+		ReadOnly:       true,
+		Setter:         true,
+		Stored:         true,
+		Type:           "string",
+	},
+	"importlabel": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "importlabel",
+		ConvertedName:  "ImportLabel",
+		CreationOnly:   true,
+		Description: `The user-defined import label that allows the system to group resources from the
+same import operation.`,
+		Exposed: true,
+		Getter:  true,
+		Name:    "importLabel",
+		Setter:  true,
+		Stored:  true,
+		Type:    "string",
+	},
 	"modifier": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "modifier",
@@ -622,6 +796,19 @@ the claims that are about to be delivered using this authentication source.`,
 		Setter:         true,
 		Stored:         true,
 		Type:           "string",
+	},
+	"subjectkeyids": {
+		AllowedChoices: []string{},
+		Autogenerated:  true,
+		BSONFieldName:  "subjectkeyids",
+		ConvertedName:  "SubjectKeyIDs",
+		Description:    `Value of the CAs X.509 SubjectKeyIDs in the chain.`,
+		Exposed:        true,
+		Name:           "subjectKeyIDs",
+		ReadOnly:       true,
+		Stored:         true,
+		SubType:        "string",
+		Type:           "list",
 	},
 	"zhash": {
 		AllowedChoices: []string{},
@@ -724,6 +911,16 @@ type SparseMTLSSource struct {
 	// The description of the object.
 	Description *string `json:"description,omitempty" msgpack:"description,omitempty" bson:"description,omitempty" mapstructure:"description,omitempty"`
 
+	// The fingerprint of the CAs in the chain.
+	Fingerprints *[]string `json:"fingerprints,omitempty" msgpack:"fingerprints,omitempty" bson:"fingerprints,omitempty" mapstructure:"fingerprints,omitempty"`
+
+	// The hash of the structure used to compare with new import version.
+	ImportHash *string `json:"importHash,omitempty" msgpack:"importHash,omitempty" bson:"importhash,omitempty" mapstructure:"importHash,omitempty"`
+
+	// The user-defined import label that allows the system to group resources from the
+	// same import operation.
+	ImportLabel *string `json:"importLabel,omitempty" msgpack:"importLabel,omitempty" bson:"importlabel,omitempty" mapstructure:"importLabel,omitempty"`
+
 	// Contains optional information about a remote service that can be used to modify
 	// the claims that are about to be delivered using this authentication source.
 	Modifier *IdentityModifier `json:"modifier,omitempty" msgpack:"modifier,omitempty" bson:"modifier,omitempty" mapstructure:"modifier,omitempty"`
@@ -733,6 +930,9 @@ type SparseMTLSSource struct {
 
 	// The namespace of the object.
 	Namespace *string `json:"namespace,omitempty" msgpack:"namespace,omitempty" bson:"namespace,omitempty" mapstructure:"namespace,omitempty"`
+
+	// Value of the CAs X.509 SubjectKeyIDs in the chain.
+	SubjectKeyIDs *[]string `json:"subjectKeyIDs,omitempty" msgpack:"subjectKeyIDs,omitempty" bson:"subjectkeyids,omitempty" mapstructure:"subjectKeyIDs,omitempty"`
 
 	// Hash of the object used to shard the data.
 	ZHash *int `json:"-" msgpack:"-" bson:"zhash,omitempty" mapstructure:"-,omitempty"`
@@ -792,6 +992,15 @@ func (o *SparseMTLSSource) GetBSON() (interface{}, error) {
 	if o.Description != nil {
 		s.Description = o.Description
 	}
+	if o.Fingerprints != nil {
+		s.Fingerprints = o.Fingerprints
+	}
+	if o.ImportHash != nil {
+		s.ImportHash = o.ImportHash
+	}
+	if o.ImportLabel != nil {
+		s.ImportLabel = o.ImportLabel
+	}
 	if o.Modifier != nil {
 		s.Modifier = o.Modifier
 	}
@@ -800,6 +1009,9 @@ func (o *SparseMTLSSource) GetBSON() (interface{}, error) {
 	}
 	if o.Namespace != nil {
 		s.Namespace = o.Namespace
+	}
+	if o.SubjectKeyIDs != nil {
+		s.SubjectKeyIDs = o.SubjectKeyIDs
 	}
 	if o.ZHash != nil {
 		s.ZHash = o.ZHash
@@ -832,6 +1044,15 @@ func (o *SparseMTLSSource) SetBSON(raw bson.Raw) error {
 	if s.Description != nil {
 		o.Description = s.Description
 	}
+	if s.Fingerprints != nil {
+		o.Fingerprints = s.Fingerprints
+	}
+	if s.ImportHash != nil {
+		o.ImportHash = s.ImportHash
+	}
+	if s.ImportLabel != nil {
+		o.ImportLabel = s.ImportLabel
+	}
 	if s.Modifier != nil {
 		o.Modifier = s.Modifier
 	}
@@ -840,6 +1061,9 @@ func (o *SparseMTLSSource) SetBSON(raw bson.Raw) error {
 	}
 	if s.Namespace != nil {
 		o.Namespace = s.Namespace
+	}
+	if s.SubjectKeyIDs != nil {
+		o.SubjectKeyIDs = s.SubjectKeyIDs
 	}
 	if s.ZHash != nil {
 		o.ZHash = s.ZHash
@@ -870,6 +1094,15 @@ func (o *SparseMTLSSource) ToPlain() elemental.PlainIdentifiable {
 	if o.Description != nil {
 		out.Description = *o.Description
 	}
+	if o.Fingerprints != nil {
+		out.Fingerprints = *o.Fingerprints
+	}
+	if o.ImportHash != nil {
+		out.ImportHash = *o.ImportHash
+	}
+	if o.ImportLabel != nil {
+		out.ImportLabel = *o.ImportLabel
+	}
 	if o.Modifier != nil {
 		out.Modifier = o.Modifier
 	}
@@ -878,6 +1111,9 @@ func (o *SparseMTLSSource) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.Namespace != nil {
 		out.Namespace = *o.Namespace
+	}
+	if o.SubjectKeyIDs != nil {
+		out.SubjectKeyIDs = *o.SubjectKeyIDs
 	}
 	if o.ZHash != nil {
 		out.ZHash = *o.ZHash
@@ -903,6 +1139,38 @@ func (o *SparseMTLSSource) GetID() (out string) {
 func (o *SparseMTLSSource) SetID(ID string) {
 
 	o.ID = &ID
+}
+
+// GetImportHash returns the ImportHash of the receiver.
+func (o *SparseMTLSSource) GetImportHash() (out string) {
+
+	if o.ImportHash == nil {
+		return
+	}
+
+	return *o.ImportHash
+}
+
+// SetImportHash sets the property ImportHash of the receiver using the address of the given value.
+func (o *SparseMTLSSource) SetImportHash(importHash string) {
+
+	o.ImportHash = &importHash
+}
+
+// GetImportLabel returns the ImportLabel of the receiver.
+func (o *SparseMTLSSource) GetImportLabel() (out string) {
+
+	if o.ImportLabel == nil {
+		return
+	}
+
+	return *o.ImportLabel
+}
+
+// SetImportLabel sets the property ImportLabel of the receiver using the address of the given value.
+func (o *SparseMTLSSource) SetImportLabel(importLabel string) {
+
+	o.ImportLabel = &importLabel
 }
 
 // GetNamespace returns the Namespace of the receiver.
@@ -978,22 +1246,30 @@ func (o *SparseMTLSSource) DeepCopyInto(out *SparseMTLSSource) {
 }
 
 type mongoAttributesMTLSSource struct {
-	CA          string            `bson:"ca"`
-	ID          bson.ObjectId     `bson:"_id,omitempty"`
-	Description string            `bson:"description"`
-	Modifier    *IdentityModifier `bson:"modifier,omitempty"`
-	Name        string            `bson:"name"`
-	Namespace   string            `bson:"namespace"`
-	ZHash       int               `bson:"zhash"`
-	Zone        int               `bson:"zone"`
+	CA            string            `bson:"ca"`
+	ID            bson.ObjectId     `bson:"_id,omitempty"`
+	Description   string            `bson:"description"`
+	Fingerprints  []string          `bson:"fingerprints"`
+	ImportHash    string            `bson:"importhash,omitempty"`
+	ImportLabel   string            `bson:"importlabel,omitempty"`
+	Modifier      *IdentityModifier `bson:"modifier,omitempty"`
+	Name          string            `bson:"name"`
+	Namespace     string            `bson:"namespace"`
+	SubjectKeyIDs []string          `bson:"subjectkeyids"`
+	ZHash         int               `bson:"zhash"`
+	Zone          int               `bson:"zone"`
 }
 type mongoAttributesSparseMTLSSource struct {
-	CA          *string           `bson:"ca,omitempty"`
-	ID          bson.ObjectId     `bson:"_id,omitempty"`
-	Description *string           `bson:"description,omitempty"`
-	Modifier    *IdentityModifier `bson:"modifier,omitempty"`
-	Name        *string           `bson:"name,omitempty"`
-	Namespace   *string           `bson:"namespace,omitempty"`
-	ZHash       *int              `bson:"zhash,omitempty"`
-	Zone        *int              `bson:"zone,omitempty"`
+	CA            *string           `bson:"ca,omitempty"`
+	ID            bson.ObjectId     `bson:"_id,omitempty"`
+	Description   *string           `bson:"description,omitempty"`
+	Fingerprints  *[]string         `bson:"fingerprints,omitempty"`
+	ImportHash    *string           `bson:"importhash,omitempty"`
+	ImportLabel   *string           `bson:"importlabel,omitempty"`
+	Modifier      *IdentityModifier `bson:"modifier,omitempty"`
+	Name          *string           `bson:"name,omitempty"`
+	Namespace     *string           `bson:"namespace,omitempty"`
+	SubjectKeyIDs *[]string         `bson:"subjectkeyids,omitempty"`
+	ZHash         *int              `bson:"zhash,omitempty"`
+	Zone          *int              `bson:"zone,omitempty"`
 }

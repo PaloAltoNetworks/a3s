@@ -1,0 +1,23 @@
+label: testapp-data
+MTLSSources:
+  - name: default
+    CA: |-
+{{ readFile "certs/a3s-test-authority-cert.pem" | indent 6}}
+Authorizations:
+  - name: secret-access
+    subject:
+    - - "@source:type=mtls"
+      - "@source:name=default"
+      - "@source:namespace=/testapp"
+      - "commonname=john"
+    permissions:
+    - "/secret:GET"
+  - name: top-secret-access
+    subject:
+    - - "@source:type=mtls"
+      - "@source:name=default"
+      - "@source:namespace=/testapp"
+      - "commonname=michael"
+    permissions:
+    - "/secret:GET"
+    - "/topsecret:GET"

@@ -135,6 +135,21 @@ func init() {
 		},
 	}
 
+	relationshipsRegistry[IdentityModifierIdentity] = &elemental.Relationship{}
+
+	relationshipsRegistry[ImportIdentity] = &elemental.Relationship{
+		Create: map[string]*elemental.RelationshipInfo{
+			"root": {
+				Parameters: []elemental.ParameterDefinition{
+					{
+						Name: "delete",
+						Type: "boolean",
+					},
+				},
+			},
+		},
+	}
+
 	relationshipsRegistry[IssueIdentity] = &elemental.Relationship{
 		Create: map[string]*elemental.RelationshipInfo{
 			"root": {},

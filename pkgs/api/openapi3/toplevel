@@ -26,6 +26,15 @@
             "description": "Endpoint of the remote a3s server, in case it is different from the issuer. If\nleft empty, the issuer value will be used.",
             "type": "string"
           },
+          "importHash": {
+            "description": "The hash of the structure used to compare with new import version.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "importLabel": {
+            "description": "The user-defined import label that allows the system to group resources from the\nsame import operation.",
+            "type": "string"
+          },
           "issuer": {
             "description": "The issuer that represents the remote a3s server.",
             "example": "https://remote-a3s.com",
@@ -70,6 +79,15 @@
           "hidden": {
             "description": "Hides the policies in children namespaces.",
             "type": "boolean"
+          },
+          "importHash": {
+            "description": "The hash of the structure used to compare with new import version.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "importLabel": {
+            "description": "The user-defined import label that allows the system to group resources from the\nsame import operation.",
+            "type": "string"
           },
           "name": {
             "description": "The name of the Authorization.",
@@ -196,6 +214,15 @@
             "description": "The description of the object.",
             "type": "string"
           },
+          "importHash": {
+            "description": "The hash of the structure used to compare with new import version.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "importLabel": {
+            "description": "The user-defined import label that allows the system to group resources from the\nsame import operation.",
+            "type": "string"
+          },
           "key": {
             "description": "Key associated to the client certificate.",
             "example": "-----BEGIN PRIVATE KEY-----\nMIIBPzCB5qADAgECAhEAwbx3c+QW24ePXyD94geytzAKBggqhkjOPQQDAjAPMQ0w\nCwYDVQQDEwR0b3RvMB4XDTE5MDIyMjIzNDA1MFoXDTI4MTIzMTIzNDA1MFowDzEN\nMAsGA1UEAxMEdG90bzBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABJi6CwRDeKks\nXb3pDEslmFGR7k9Aeh5RK+XmdqKKPGb3NQWEFPGolnqOR34iVuf7KSxTuzaaVWfu\nXEa94faUQEqjIzAhMA4GA1UdDwEB/wQEAwIBBjAPBgNVHRMBAf8EBTADAQH/MAoG\nCCqGSM49BAMCA0gAMEUCIQD+nL9RF9EvQXHyYuJ31Lz9yWd9hsK91stnpAs890gS\n/AIgQIKjBBpiyQNZZWso5H04qke9QYMVPegiQQufFFBj32c=\n-----END PRIVATE KEY-----",
@@ -263,6 +290,62 @@
           "certificate",
           "key",
           "method"
+        ],
+        "type": "object"
+      },
+      "import": {
+        "description": "Import multiple resource at once.",
+        "properties": {
+          "A3SSources": {
+            "description": "A3S sources to import.",
+            "items": {
+              "$ref": "#/components/schemas/a3ssource"
+            },
+            "type": "array"
+          },
+          "HTTPSources": {
+            "description": "HTTP sources to import.",
+            "items": {
+              "$ref": "#/components/schemas/httpsource"
+            },
+            "type": "array"
+          },
+          "LDAPSources": {
+            "description": "LDAP sources to import.",
+            "items": {
+              "$ref": "#/components/schemas/ldapsource"
+            },
+            "type": "array"
+          },
+          "MTLSSources": {
+            "description": "MTLS sources to import.",
+            "items": {
+              "$ref": "#/components/schemas/mtlssource"
+            },
+            "type": "array"
+          },
+          "OIDCSources": {
+            "description": "OIDC sources to import.",
+            "items": {
+              "$ref": "#/components/schemas/oidcsource"
+            },
+            "type": "array"
+          },
+          "authorizations": {
+            "description": "Authorizations to import.",
+            "items": {
+              "$ref": "#/components/schemas/authorization"
+            },
+            "type": "array"
+          },
+          "label": {
+            "description": "Import label that will be used to identify all the resources imported by this\nresource.",
+            "example": "my-super-import",
+            "type": "string"
+          }
+        },
+        "required": [
+          "label"
         ],
         "type": "object"
       },
@@ -609,6 +692,15 @@
             },
             "type": "array"
           },
+          "importHash": {
+            "description": "The hash of the structure used to compare with new import version.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "importLabel": {
+            "description": "The user-defined import label that allows the system to group resources from the\nsame import operation.",
+            "type": "string"
+          },
           "includedKeys": {
             "description": "A list of keys that must be imported into the identity token. If `ignoredKeys`\nis also set, and a key is in both lists, the key will be ignored.",
             "items": {
@@ -664,6 +756,23 @@
             "description": "The description of the object.",
             "type": "string"
           },
+          "fingerprints": {
+            "description": "The fingerprint of the CAs in the chain.",
+            "items": {
+              "type": "string"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
+          "importHash": {
+            "description": "The hash of the structure used to compare with new import version.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "importLabel": {
+            "description": "The user-defined import label that allows the system to group resources from the\nsame import operation.",
+            "type": "string"
+          },
           "modifier": {
             "$ref": "#/components/schemas/identitymodifier"
           },
@@ -676,6 +785,14 @@
             "description": "The namespace of the object.",
             "readOnly": true,
             "type": "string"
+          },
+          "subjectKeyIDs": {
+            "description": "Value of the CAs X.509 SubjectKeyIDs in the chain.",
+            "items": {
+              "type": "string"
+            },
+            "readOnly": true,
+            "type": "array"
           }
         },
         "required": [
@@ -741,6 +858,15 @@
           "endpoint": {
             "description": "OIDC [discovery\nendpoint](https://openid.net/specs/openid-connect-discovery-1_0.html#IssuerDiscovery).",
             "example": "https://accounts.google.com",
+            "type": "string"
+          },
+          "importHash": {
+            "description": "The hash of the structure used to compare with new import version.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "importLabel": {
+            "description": "The user-defined import label that allows the system to group resources from the\nsame import operation.",
             "type": "string"
           },
           "modifier": {
@@ -1344,6 +1470,47 @@
         },
         "tags": [
           "authn/source",
+          "a3s"
+        ]
+      }
+    },
+    "/import": {
+      "post": {
+        "description": "Sends an import request.",
+        "operationId": "create-a-new-import",
+        "parameters": [
+          {
+            "description": "If set, delete the current imported data.",
+            "in": "query",
+            "name": "delete",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/import"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/import"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core/import",
           "a3s"
         ]
       }
@@ -2023,6 +2190,10 @@
     {
       "description": "This tag is for group 'core'",
       "name": "core"
+    },
+    {
+      "description": "This tag is for group 'core/import'",
+      "name": "core/import"
     }
   ]
 }

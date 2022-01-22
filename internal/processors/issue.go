@@ -23,6 +23,7 @@ import (
 	"go.aporeto.io/a3s/pkgs/permissions"
 	"go.aporeto.io/a3s/pkgs/token"
 	"go.aporeto.io/bahamut"
+	"go.aporeto.io/bahamut/authorizer/mtls"
 	"go.aporeto.io/elemental"
 	"go.aporeto.io/manipulate"
 	"golang.org/x/oauth2"
@@ -37,6 +38,9 @@ type IssueProcessor struct {
 	cookieSameSitePolicy http.SameSite
 	cookieDomain         string
 	issuer               string
+	mtlsHeaderEnabled    bool
+	mtlsHeaderKey        string
+	mtlsHeaderPass       string
 }
 
 // NewIssueProcessor returns a new IssueProcessor.
@@ -48,6 +52,9 @@ func NewIssueProcessor(
 	audience string,
 	cookieSameSitePolicy http.SameSite,
 	cookieDomain string,
+	mtlsHeaderEnabled bool,
+	mtlsHeaderKey string,
+	mtlsHeaderPass string,
 ) *IssueProcessor {
 
 	return &IssueProcessor{
@@ -58,6 +65,9 @@ func NewIssueProcessor(
 		audience:             audience,
 		cookieSameSitePolicy: cookieSameSitePolicy,
 		cookieDomain:         cookieDomain,
+		mtlsHeaderEnabled:    mtlsHeaderEnabled,
+		mtlsHeaderKey:        mtlsHeaderKey,
+		mtlsHeaderPass:       mtlsHeaderPass,
 	}
 }
 
@@ -82,7 +92,12 @@ func (p *IssueProcessor) ProcessCreate(bctx bahamut.Context) (err error) {
 	switch req.SourceType {
 
 	case api.IssueSourceTypeMTLS:
-		issuer, err = p.handleCertificateIssue(bctx.Context(), req, bctx.Request().TLSConnectionState)
+		issuer, err = p.handleCertificateIssue(
+			bctx.Context(),
+			req,
+			bctx.Request().TLSConnectionState,
+			bctx.Request().Headers.Get(p.mtlsHeaderKey),
+		)
 
 	case api.IssueSourceTypeLDAP:
 		issuer, err = p.handleLDAPIssue(bctx.Context(), req)
@@ -174,10 +189,39 @@ func (p *IssueProcessor) ProcessCreate(bctx bahamut.Context) (err error) {
 	return nil
 }
 
-func (p *IssueProcessor) handleCertificateIssue(ctx context.Context, req *api.Issue, tlsState *tls.ConnectionState) (token.Issuer, error) {
+func (p *IssueProcessor) handleCertificateIssue(ctx context.Context, req *api.Issue, tlsState *tls.ConnectionState, tlsHeader string) (token.Issuer, error) {
 
-	if tlsState == nil || len(tlsState.PeerCertificates) == 0 {
-		return nil, elemental.NewError("Bad Request", "No client certificates", "a3s", http.StatusBadRequest)
+	// We get the peer certificate.
+	cert := tlsState.PeerCertificates
+
+	// If mtls header is enabled, and the header is not empty
+	// we will use it instead of the cert from the tls state.
+	if p.mtlsHeaderEnabled && tlsHeader != "" {
+
+		// First we create an elemental.AESAttributeEncrypter
+		cipher, err := elemental.NewAESAttributeEncrypter(p.mtlsHeaderPass)
+		if err != nil {
+			return nil, fmt.Errorf("unable to build AES encrypter: %w", err)
+		}
+
+		// Then we decrypt the content of the header.
+		header, err := cipher.DecryptString(tlsHeader)
+		if err != nil {
+			return nil, fmt.Errorf("unable to decrypt header: %w", err)
+		}
+
+		// Then we try to extract a certificate out of the decrypted blob.
+		cert, err = mtls.CertificatesFromHeader(header)
+		if err != nil {
+			return nil, fmt.Errorf("unable to retrieve certificate from mtls header: %w", err)
+		}
+
+		// If we reach here, the decoded certificate from the header will be used to
+		// to match against the source.
+	}
+
+	if len(cert) == 0 {
+		return nil, elemental.NewError("Bad Request", "No user certificates", "a3s:authn", http.StatusBadRequest)
 	}
 
 	out, err := retrieveSource(ctx, p.manipulator, req.SourceNamespace, req.SourceName, api.MTLSSourceIdentity)
@@ -186,8 +230,7 @@ func (p *IssueProcessor) handleCertificateIssue(ctx context.Context, req *api.Is
 	}
 	src := out.(*api.MTLSSource)
 
-	userCert := tlsState.PeerCertificates[0]
-	iss, err := mtlsissuer.New(ctx, src, userCert)
+	iss, err := mtlsissuer.New(ctx, src, cert[0])
 	if err != nil {
 		return nil, err
 	}

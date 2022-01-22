@@ -8,7 +8,7 @@ import (
 	"go.aporeto.io/a3s/pkgs/api"
 )
 
-func TestShard(t *testing.T) {
+func TestHash(t *testing.T) {
 
 	Convey("Given I have a hasher", t, func() {
 
@@ -69,6 +69,38 @@ func TestShard(t *testing.T) {
 			So(o.ZHash, ShouldEqual, hash(fmt.Sprintf("%s:%s", aString, aString)))
 
 			so := api.NewSparseLDAPSource()
+			so.Namespace = &aString
+			so.Name = &aString
+			So(s.Hash(so), ShouldBeNil)
+			So(*so.Zone, ShouldEqual, 0)
+			So(o.ZHash, ShouldEqual, hash(fmt.Sprintf("%s:%s", aString, aString)))
+		})
+
+		Convey("Then sharding an OIDCSource should work", func() {
+			o := api.NewOIDCSource()
+			o.Namespace = aString
+			o.Name = aString
+			So(s.Hash(o), ShouldBeNil)
+			So(o.Zone, ShouldEqual, 0)
+			So(o.ZHash, ShouldEqual, hash(fmt.Sprintf("%s:%s", aString, aString)))
+
+			so := api.NewSparseOIDCSource()
+			so.Namespace = &aString
+			so.Name = &aString
+			So(s.Hash(so), ShouldBeNil)
+			So(*so.Zone, ShouldEqual, 0)
+			So(o.ZHash, ShouldEqual, hash(fmt.Sprintf("%s:%s", aString, aString)))
+		})
+
+		Convey("Then sharding an HTTPSource should work", func() {
+			o := api.NewHTTPSource()
+			o.Namespace = aString
+			o.Name = aString
+			So(s.Hash(o), ShouldBeNil)
+			So(o.Zone, ShouldEqual, 0)
+			So(o.ZHash, ShouldEqual, hash(fmt.Sprintf("%s:%s", aString, aString)))
+
+			so := api.NewSparseHTTPSource()
 			so.Namespace = &aString
 			so.Name = &aString
 			So(s.Hash(so), ShouldBeNil)

@@ -17,6 +17,7 @@ model:
   extends:
   - '@sharded'
   - '@identifiable'
+  - '@importable'
 
 # Indexes
 indexes:
