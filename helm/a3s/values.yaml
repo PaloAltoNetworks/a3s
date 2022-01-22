@@ -1,4 +1,6 @@
 replicas: 1
+updateStrategy: RollingUpdate
+clusterIP: None
 
 log:
     level: info
@@ -8,6 +10,8 @@ global:
   audience: 
   issuer: 
   imageRegistry: gcr.io/aporetodev
+  imageTag: latest
+  terminationGracePeriodSeconds: 60
   log:
     level: info
     format: stackdriver
@@ -18,9 +22,14 @@ global:
       pass:
 
   mongo:
-    cert:
-    key:
-    pass:
+    tls:
+      disable:
+      cert:
+      key:
+      pass:
+    authdb: "$external"
+    user: "CN=mongodb-admin,OU=users,O=mongodb"
+
     host: mongodb-shard-router-0.mongodb-shard-router,mongodb-shard-router-1.mongodb-shard-router,mongodb-shard-router-2.mongodb-shard-router
     sharded: true
     readConsistency: nearest

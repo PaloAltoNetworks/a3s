@@ -3,9 +3,9 @@ kind: Deployment
 metadata:
   name: a3s
 spec:
-  replicas: 1
+  replicas: {{ .Values.replicas | default 1}}
   strategy:
-    type: RollingUpdate
+    type: {{ required "updateStrategy is required" .Values.updateStrategy }}
   selector:
     matchLabels:
       app: a3s
@@ -16,10 +16,10 @@ spec:
         app: a3s
         type: core
     spec:
-      terminationGracePeriodSeconds: 60
+      terminationGracePeriodSeconds: {{ required "global.terminationGracePeriodSeconds is required" .Values.global.terminationGracePeriodSeconds }}
       containers:
         - name: a3s
-          image: {{ required "global.imageRegistry is required" .Values.global.imageRegistry }}/a3s:test
+          image: {{ required "global.imageRegistry is required" .Values.global.imageRegistry }}/a3s:{{ required "global.imageTag is required" .Values.global.imageTag }}
           imagePullPolicy: "Always"
           env:
             # General
@@ -80,31 +80,39 @@ spec:
               value: mongodb://{{ required "global.mongo.host is required" .Values.global.mongo.host }}?replicaSet=rs0&authMechanism=MONGODB-X509
               {{- end }}
             - name: A3S_MONGO_AUTH_DB
-              value: "$external"
+              value: {{ required "global.mongo.authdb is required" .Values.global.mongo.authdb | quote }}
             - name: A3S_MONGO_USER
-              value: "CN=mongodb-admin,OU=users,O=mongodb"
-            # - name: A3S_MONGO_PASS
-            #   value: "a3s"
+              value: {{ required "global.mongo.user is required" .Values.global.mongo.user | quote}}
             - name: A3S_MONGO_ENCRYPTION_KEY
               value: file:///certs/attribute-encryption-key.pass
             - name: A3S_MONGO_TLS_DISABLE
-              value: "true"
+              value: {{ .Values.global.mongo.tls.disable | default "false" | quote }}
+            {{- if not .Values.global.mongo.tls.disabled }}
             - name: A3S_MONGO_TLS_CERT
-              value: ""
+              value: file:///certs/mongo-cert.pem
             - name: A3S_MONGO_TLS_KEY
-              value: ""
+              value: file:///certs/mongo-key.pem
             - name: A3S_MONGO_TLS_KEY_PASS
-              value: ""
+              value: file:///certs/mongo-key.pass
+            {{- end }}
 
             # Nats 
             - name: A3S_NATS_URL
-              value: "nats://nats:4222"
+              value: {{ required "global.nats.host is required" .Values.global.nats.host }}
             - name: A3S_NATS_USER
               value: file:///certs/nats.user
             - name: A3S_NATS_PASS
-              value: file:///certs/nats.user
+              value: file:///certs/nats.pass
             - name: A3S_NATS_TLS_DISABLE
-              value: "true"
+              value: {{ required "global.nats.tls.disabled is required" .Values.global.nats.tls.disabled }}
+            {{- if not .Values.global.mongo.tls.disabled }}
+            - name: A3S_NATS_TLS_CERT
+              value: file:///certs/nats-cert.pem
+            - name: A3S_NATS_TLS_KEY
+              value: file:///certs/nats-key.pem
+            - name: A3S_NATS_TLS_KEY_PASS
+              value: file:///certs/nats-key.pass
+            {{- end }}
                           
           volumeMounts:
             - name: certs
@@ -131,6 +139,12 @@ spec:
                 path: jwt-key.pass
 
               # Mongo
+              - key: mongo-cert.pem
+                path: mongo-cert.pem
+              - key: mongo-key.pem
+                path: mongo-key.pem
+              - key: mongo-key.pass
+                path: mongo-key.pass
               - key: attribute-encryption-key.pass
                 path: attribute-encryption-key.pass
 
@@ -139,3 +153,9 @@ spec:
                 path: nats.user
               - key: nats.pass
                 path: nats.pass
+              - key: nats-cert.pem
+                path: nats-cert.pem
+              - key: nats-key.pem
+                path: nats-key.pem
+              - key: nats-key.pass
+                path: nats-key.pass

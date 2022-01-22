@@ -23,7 +23,7 @@ metadata:
 spec:
   selector:
     app: a3s
-  clusterIP: None
+  clusterIP: {{ required "clusterIP is required" .Values.clusterIP }}
   ports:
   - port: 1080
     name: health

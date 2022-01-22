@@ -6,3 +6,4 @@ remod.dev
 .remod
 .data
 docker/in
+helm/**.tgz
