@@ -1,42 +1,49 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: a3s
+  name: {{ .Values.labels.name | default "a3s" }}
 spec:
   replicas: {{ .Values.replicas | default 1}}
   strategy:
-    type: {{ required "updateStrategy is required" .Values.updateStrategy }}
+    type: {{ .Values.updateStrategy | default "RollingUpdate" }}
   selector:
     matchLabels:
-      app: a3s
-      type: core
+      app: {{ .Values.labels.name | default "a3s" }}
+      type: {{ .Values.labels.type | default "core" }}
   template:
     metadata:
       labels:
-        app: a3s
-        type: core
+        app: {{ .Values.labels.name | default "a3s" }}
+        type: {{ .Values.labels.type | default "core" }}
     spec:
-      terminationGracePeriodSeconds: {{ required "global.terminationGracePeriodSeconds is required" .Values.global.terminationGracePeriodSeconds }}
+      terminationGracePeriodSeconds: {{ .Values.terminationGracePeriodSeconds | default 60 }}
       containers:
         - name: a3s
           image: {{ required "global.imageRegistry is required" .Values.global.imageRegistry }}/a3s:{{ required "global.imageTag is required" .Values.global.imageTag }}
-          imagePullPolicy: "Always"
+          imagePullPolicy: {{ .Values.imagePullPolicy | default "Always" }}
           env:
             # General
             - name: A3S_LISTEN
-              value: ":1443"
+              value: ":{{ .Values.service.port | default 1443 }}"
+
+            {{- if .Values.global.encoding }}
             - name: A3S_ENCODING
-              value: "msgpack"
+              value: {{ .Values.global.encoding | quote }}
+            {{- end }}
 
             # Log
+            {{- if .Values.log.format }}
             - name: A3S_LOG_FORMAT
-              value: {{ .Values.log.format | default .Values.global.log.format | quote }}
+              value: {{ .Values.log.format | quote }}
+            {{- end }}
+            {{- if .Values.log.level }}
             - name: A3S_LOG_LEVEL
-              value: {{ .Values.log.level | default .Values.global.log.level | quote }}
+              value: {{ .Values.log.level | quote }}
+            {{- end }}
             
             # Health
             - name: A3S_HEALTH_LISTEN
-              value: ":1080"
+              value: ":{{ .Values.service.healthPort | default 1080 }}"
             - name: A3S_HEALTH_ENABLED
               value: "true"
             

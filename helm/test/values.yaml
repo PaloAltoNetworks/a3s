@@ -1,21 +1,25 @@
 replicas: 1
-updateStrategy: RollingUpdate
 clusterIP: None
 
+service:
+  port:
+  healthPort: 
+
+labels:
+  name:
+  type:
+
 log:
-    level: info
-    format: console
+    level:
+    format:
 
 global:
+  encoding:
   audience: "a3s.com"
   issuer: https://issuer.a3s.com
   imageRegistry: gcr.io/aporetodev
   imageTag: latest
-  terminationGracePeriodSeconds: 60
-  log:
-    level: info
-    format: stackdriver
-
+  
   server:
       cert: server-cert
       key: server-key

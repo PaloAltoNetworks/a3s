@@ -1,6 +1,6 @@
 export PROJECT_VERSION ?= v0.0.0-dev
 
-all: lint charts
+default: lint charts
 
 lint:
 	helm lint ./a3s --values ./test/values.yaml
