@@ -7,3 +7,5 @@ lint:
 
 charts: lint
 	helm package a3s --version $(PROJECT_VERSION) -d .
+	helm push --force ./a3s-$(PROJECT_VERSION).tgz local;
+	helm repo update

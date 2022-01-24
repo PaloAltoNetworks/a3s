@@ -8,7 +8,6 @@ metadata:
 spec:
   selector:
     app: a3s
-  clusterIP: None
   ports:
   - port: 1443
     name: app

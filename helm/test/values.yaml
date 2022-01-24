@@ -21,13 +21,19 @@ global:
       key: server-key
       pass: server-key-pass
 
+  jwt:
+    cert: jwt-cert
+    key: jwt-key
+    pass: jwt-pass
+
   mongo:
     tls:
       disable: false
+      ca: mongo-ca
       cert: mongo-cert
       key: mongo-key
       pass: mongo-key-pass
-    authdb: "$external"
+    db: "$external"
     user: "CN=mongodb-admin,OU=users,O=mongodb"
     host: mongodb-shard-router-0.mongodb-shard-router,mongodb-shard-router-1.mongodb-shard-router,mongodb-shard-router-2.mongodb-shard-router
     sharded: true
@@ -36,7 +42,8 @@ global:
 
   nats:
     tls:
-      disabled: false
+      disable: false
+      ca: nats-ca
       cert: nats-cert
       key: nats-key
       pass: nats-key-pass

@@ -27,10 +27,6 @@ spec:
               value: ":1443"
             - name: A3S_ENCODING
               value: "msgpack"
-            # - name: A3S_CORS_DEFAULT_ORIGIN
-            #   value: "https://127.0.0.1:44443"
-            # - name: A3S_CORS_ADDITIONAL_ORIGINS
-            #   value: "http://localhost:8080"
 
             # Log
             - name: A3S_LOG_FORMAT
@@ -54,11 +50,11 @@ spec:
             
             # TLS
             - name: A3S_TLS_CERT
-              value: /certs/a3s-tls-cert.pem
+              value: /certs/server-cert.pem
             - name: A3S_TLS_KEY
-              value: /certs/a3s-tls-key.pem
+              value: /certs/server-key.pem
             - name: A3S_TLS_KEY_PASS
-              value: file:///certs/a3s-tls-key.pass
+              value: file:///certs/server-key.pass
 
             # JWT
             - name: A3S_JWT_CERT
@@ -68,30 +64,28 @@ spec:
             - name: A3S_JWT_KEY_PASS
               value: file:///certs/jwt-key.pass
             - name: A3S_JWT_ISSUER
-              value: {{ required "global.issuer is required" .Values.global.issuer }}
+              value: {{ required "global.issuer is required" .Values.global.issuer | quote }}
             - name: A3S_JWT_AUDIENCE
-              value: {{ required "global.audience is required" .Values.global.audience }}
+              value: {{ required "global.audience is required" .Values.global.audience | quote }}
 
             # Mongo
             - name: A3S_MONGO_URL
-              {{- if .Values.global.mongo.sharded }}
-              value: mongodb://{{ required "global.mongo.host is required" .Values.global.mongo.host }}?authMechanism=MONGODB-X509
-              {{- else }}
-              value: mongodb://{{ required "global.mongo.host is required" .Values.global.mongo.host }}?replicaSet=rs0&authMechanism=MONGODB-X509
-              {{- end }}
+              value: {{ required "global.mongo.host is required" .Values.global.mongo.host }}
             - name: A3S_MONGO_AUTH_DB
-              value: {{ required "global.mongo.authdb is required" .Values.global.mongo.authdb | quote }}
+              value: {{ required "global.mongo.db is required" .Values.global.mongo.db | quote }}
             - name: A3S_MONGO_USER
               value: {{ required "global.mongo.user is required" .Values.global.mongo.user | quote}}
             - name: A3S_MONGO_ENCRYPTION_KEY
               value: file:///certs/attribute-encryption-key.pass
             - name: A3S_MONGO_TLS_DISABLE
               value: {{ .Values.global.mongo.tls.disable | default "false" | quote }}
-            {{- if not .Values.global.mongo.tls.disabled }}
+            {{- if eq .Values.global.mongo.tls.disable false }}
+            - name: A3S_MONGO_CUSTOM_CA
+              value: /certs/mongo-ca.pem
             - name: A3S_MONGO_TLS_CERT
-              value: file:///certs/mongo-cert.pem
+              value: /certs/mongo-full.pem
             - name: A3S_MONGO_TLS_KEY
-              value: file:///certs/mongo-key.pem
+              value: /certs/mongo-key.pem
             - name: A3S_MONGO_TLS_KEY_PASS
               value: file:///certs/mongo-key.pass
             {{- end }}
@@ -104,12 +98,14 @@ spec:
             - name: A3S_NATS_PASS
               value: file:///certs/nats.pass
             - name: A3S_NATS_TLS_DISABLE
-              value: {{ required "global.nats.tls.disabled is required" .Values.global.nats.tls.disabled }}
-            {{- if not .Values.global.mongo.tls.disabled }}
+              value: {{ required "global.nats.tls.disable is required" .Values.global.nats.tls.disable | quote }}
+            {{- if eq .Values.global.mongo.tls.disable false }}
+            - name: A3S_NATS_TLS_CA
+              value: /certs/nats-ca.pem
             - name: A3S_NATS_TLS_CERT
-              value: file:///certs/nats-cert.pem
+              value: /certs/nats-cert.pem
             - name: A3S_NATS_TLS_KEY
-              value: file:///certs/nats-key.pem
+              value: /certs/nats-key.pem
             - name: A3S_NATS_TLS_KEY_PASS
               value: file:///certs/nats-key.pass
             {{- end }}
@@ -117,18 +113,19 @@ spec:
           volumeMounts:
             - name: certs
               mountPath: /certs
+              readOnly: true
       volumes:
         - name: certs
           secret:
             secretName: a3s-secrets
             items:
               # TLS
-              - key: a3s-tls-cert.pem
-                path: a3s-tls-cert.pem
-              - key: a3s-tls-key.pem
-                path: a3s-tls-key.pem
-              - key: a3s-tls-key.pass
-                path: a3s-tls-key.pass
+              - key: server-cert.pem
+                path: server-cert.pem
+              - key: server-key.pem
+                path: server-key.pem
+              - key: server-key.pass
+                path: server-key.pass
 
               # JWT
               - key: jwt-cert.pem
@@ -139,6 +136,10 @@ spec:
                 path: jwt-key.pass
 
               # Mongo
+              - key: mongo-ca.pem
+                path: mongo-ca.pem
+              - key: mongo-full.pem
+                path: mongo-full.pem
               - key: mongo-cert.pem
                 path: mongo-cert.pem
               - key: mongo-key.pem
@@ -149,13 +150,15 @@ spec:
                 path: attribute-encryption-key.pass
 
               # Nats
-              - key: nats.user
-                path: nats.user
-              - key: nats.pass
-                path: nats.pass
+              - key: nats-ca.pem
+                path: nats-ca.pem
               - key: nats-cert.pem
                 path: nats-cert.pem
               - key: nats-key.pem
                 path: nats-key.pem
               - key: nats-key.pass
                 path: nats-key.pass
+              - key: nats.user
+                path: nats.user
+              - key: nats.pass
+                path: nats.pass
