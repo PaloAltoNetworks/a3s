@@ -1,17 +1,32 @@
 import { Box, Typography } from "@mui/material"
 import { useEffect, useRef, useState } from "react"
 import QrScanner from "qr-scanner"
+import jwtDecode from "jwt-decode"
+// @ts-ignore
+import qrScannerWorkerSource from 'qr-scanner/qr-scanner-worker.min.js?raw'
+QrScanner.WORKER_PATH = URL.createObjectURL(new Blob([qrScannerWorkerSource]));
 
 export const QrScan = () => {
   const videoRef = useRef<HTMLVideoElement>(null)
-  const [rawString, setRawString] = useState("")
+  const [jwt, setJwt] = useState<Record<string, any>>()
+  const [error, setError] = useState<string>()
   useEffect(() => {
     const qrScanner = new QrScanner(
       videoRef.current!,
       result => {
-        result !== rawString && setRawString(result)
+        try {
+          const decoded = jwtDecode(result) as Record<string, any>
+          setJwt(decoded)
+          qrScanner.stop()
+        } catch (e){
+          console.error(e)
+          setError(`${e}`)
+        }
       },
-      undefined,
+      err => {
+        console.error(err)
+        setError(err)
+      },
       video => {
         return {
           x: 0,
@@ -29,16 +44,25 @@ export const QrScan = () => {
     }
   }, [])
   return (
-    <Box         style={{
-      width: "40vw",
-    }}>
-      <video
-        ref={videoRef}
-        style={{
-          width: '100%',
-        }}
-      ></video>
-      {rawString && <Typography sx={{wordWrap: 'break-word'}}>{rawString}</Typography>}
+    <Box
+      sx={{
+        width: "90vw",
+        "@media screen and (min-width: 600px)": {
+          width: "40vw",
+        },
+      }}
+    >
+      {error}
+      {jwt ? (
+        JSON.stringify(jwt)
+      ) : (
+        <video
+          ref={videoRef}
+          style={{
+            width: "100%",
+          }}
+        ></video>
+      )}
     </Box>
   )
 }

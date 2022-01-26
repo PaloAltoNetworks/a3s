@@ -10,6 +10,7 @@ import {
   FormLabel,
   Checkbox,
   Typography,
+  useTheme,
 } from "@mui/material"
 import { useIssue } from "./use-issue"
 import { CloakDialog } from "./cloak-dialog"
@@ -44,6 +45,7 @@ const isQrCodeMode = redirectUrl === ""
 const enableCloak = "__ENABLE_CLOAKING__" as StringBoolean
 
 export const Login = () => {
+  const theme = useTheme()
   const [cloak, setCloak] = useLocalState(enableCloak, "cloak")
   const [sourceType, setSourceType] = useLocalState<string>(
     "MTLS",
@@ -201,10 +203,13 @@ export const Login = () => {
   return (
     <Box
       sx={{
-        display: "flex",
-        // Avoid vertical position shift of the auth sources when switching between them.
-        minHeight: "400px",
-        alignItems: "flex-start",
+        "@media screen and (min-width: 600px)": {
+          display: "flex",
+          // Avoid vertical position shift of the auth sources when switching between them.
+          minHeight: "400px",
+          alignItems: "flex-start",
+        },
+        p: 2
       }}
     >
       <FormControl component="fieldset">
@@ -225,10 +230,17 @@ export const Login = () => {
         sx={{
           display: "flex",
           flexDirection: "column",
+          "@media screen and (max-width: 599px)": {
+            borderTop: `1px solid ${theme.palette.divider}`,
+            pt: 2,
+            mt: 2,
+          },
+          "@media screen and (min-width: 600px)": {
+            borderLeft: `1px solid ${theme.palette.divider}`,
+            pl: 2,
+            ml: 2,
+          },
           "& .MuiTextField-root": { mt: 1, mb: 1, width: "32ch" },
-          borderLeft: "1px solid #ccc",
-          pl: 2,
-          ml: 2,
         }}
       >
         {sourceType === "QR" && <QrScan />}
