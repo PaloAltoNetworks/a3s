@@ -25,6 +25,7 @@ func makeRemoteA3SCmd(mmaker manipcli.ManipulatorMaker, restrictions *permission
 			fCloak := viper.GetStringSlice("cloak")
 			fQRCode := viper.GetBool("qrcode")
 			fValidity := viper.GetDuration("validity")
+			fRefresh := viper.GetBool("refresh")
 
 			if fToken == "" {
 				fToken = viper.GetString("token")
@@ -45,6 +46,7 @@ func makeRemoteA3SCmd(mmaker manipcli.ManipulatorMaker, restrictions *permission
 				authlib.OptCloak(fCloak...),
 				authlib.OptRestrictions(*restrictions),
 				authlib.OptValidity(fValidity),
+				authlib.OptRefresh(fRefresh),
 			)
 			if err != nil {
 				return err

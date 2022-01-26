@@ -154,6 +154,7 @@ func Test_computeNewValidity(t *testing.T) {
 	type args struct {
 		originalExpUNIX   *jwt.NumericDate
 		requestedValidity time.Duration
+		renew             bool
 	}
 	tests := []struct {
 		name    string
@@ -166,6 +167,7 @@ func Test_computeNewValidity(t *testing.T) {
 			args{
 				nil,
 				0,
+				false,
 			},
 			nil,
 			true,
@@ -175,6 +177,7 @@ func Test_computeNewValidity(t *testing.T) {
 			args{
 				exp,
 				0,
+				false,
 			},
 			exp,
 			false,
@@ -184,6 +187,7 @@ func Test_computeNewValidity(t *testing.T) {
 			args{
 				exp,
 				30 * time.Minute,
+				false,
 			},
 			jwt.NewNumericDate(now.Add(30 * time.Minute)),
 			false,
@@ -193,6 +197,7 @@ func Test_computeNewValidity(t *testing.T) {
 			args{
 				exp,
 				48 * time.Hour,
+				false,
 			},
 			exp,
 			false,
@@ -202,14 +207,25 @@ func Test_computeNewValidity(t *testing.T) {
 			args{
 				exp,
 				time.Until(exp.Local()),
+				false,
 			},
 			exp,
+			false,
+		},
+		{
+			"request bigger but with renew on",
+			args{
+				exp,
+				48 * time.Hour,
+				true,
+			},
+			jwt.NewNumericDate(now.Add(48 * time.Hour)),
 			false,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := computeNewValidity(tt.args.originalExpUNIX, tt.args.requestedValidity)
+			got, err := computeNewValidity(tt.args.originalExpUNIX, tt.args.requestedValidity, tt.args.renew)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("computeNewValidity() error = %v, wantErr %v", err, tt.wantErr)
 				return

@@ -74,7 +74,7 @@ func (c *a3sIssuer) fromToken(
 		c.token.Restrictions = &orest
 	}
 
-	c.token.ExpiresAt, err = computeNewValidity(c.token.ExpiresAt, validity)
+	c.token.ExpiresAt, err = computeNewValidity(c.token.ExpiresAt, validity, c.token.Refresh)
 	if err != nil {
 		return ErrComputeRestrictions{Err: err}
 	}
@@ -88,7 +88,7 @@ func (c *a3sIssuer) Issue() *token.IdentityToken {
 	return c.token
 }
 
-func computeNewValidity(originalExpUNIX *jwt.NumericDate, requestedValidity time.Duration) (*jwt.NumericDate, error) {
+func computeNewValidity(originalExpUNIX *jwt.NumericDate, requestedValidity time.Duration, isRefresh bool) (*jwt.NumericDate, error) {
 
 	if originalExpUNIX == nil || originalExpUNIX.Unix() == 0 {
 		return nil, fmt.Errorf("unable to compute new validity: original expiration is zero")
@@ -101,7 +101,7 @@ func computeNewValidity(originalExpUNIX *jwt.NumericDate, requestedValidity time
 	now := time.Now()
 
 	originalExp := originalExpUNIX.Local()
-	if now.Add(requestedValidity).After(originalExp) {
+	if now.Add(requestedValidity).After(originalExp) && !isRefresh {
 		return jwt.NewNumericDate(originalExp), nil
 	}
 

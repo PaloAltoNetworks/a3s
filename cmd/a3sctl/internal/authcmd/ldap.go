@@ -29,6 +29,7 @@ func makeLDAPCmd(mmaker manipcli.ManipulatorMaker, restrictions *permissions.Res
 			fCloak := viper.GetStringSlice("cloak")
 			fQRCode := viper.GetBool("qrcode")
 			fValidity := viper.GetDuration("validity")
+			fRefresh := viper.GetBool("refresh")
 
 			if fSourceNamespace == "" {
 				fSourceNamespace = viper.GetString("namespace")
@@ -43,6 +44,7 @@ func makeLDAPCmd(mmaker manipcli.ManipulatorMaker, restrictions *permissions.Res
 				fAudience,
 				fCloak,
 				fValidity,
+				fRefresh,
 				restrictions,
 			)
 			if err != nil {
@@ -79,6 +81,7 @@ func GetLDAPToken(
 	audience []string,
 	cloak []string,
 	validity time.Duration,
+	refresh bool,
 	restrictions *permissions.Restrictions,
 ) (string, error) {
 
@@ -91,6 +94,7 @@ func GetLDAPToken(
 		authlib.OptAudience(audience...),
 		authlib.OptCloak(cloak...),
 		authlib.OptValidity(validity),
+		authlib.OptRefresh(refresh),
 	}
 
 	if restrictions != nil {

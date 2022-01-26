@@ -31,6 +31,10 @@ type IdentityToken struct {
 	// The identity claims of the token.
 	Identity []string `json:"identity"`
 
+	// If true, the token can be used to get a new token.
+	// with a longer expiration time.
+	Refresh bool `json:"refresh,omitempty"`
+
 	// Opaque user information transmitted in the token.
 	Opaque map[string]string `json:"opaque,omitempty"`
 

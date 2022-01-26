@@ -43,6 +43,17 @@ const (
 	IssueSourceTypeSAML IssueSourceTypeValue = "SAML"
 )
 
+// IssueTokenTypeValue represents the possible values for attribute "tokenType".
+type IssueTokenTypeValue string
+
+const (
+	// IssueTokenTypeIdentity represents the value Identity.
+	IssueTokenTypeIdentity IssueTokenTypeValue = "Identity"
+
+	// IssueTokenTypeRefresh represents the value Refresh.
+	IssueTokenTypeRefresh IssueTokenTypeValue = "Refresh"
+)
+
 // IssueIdentity represents the Identity of the object.
 var IssueIdentity = elemental.Identity{
 	Name:     "issue",
@@ -203,6 +214,9 @@ type Issue struct {
 	// Issued token.
 	Token string `json:"token,omitempty" msgpack:"token,omitempty" bson:"-" mapstructure:"token,omitempty"`
 
+	// The type of token to issue.
+	TokenType IssueTokenTypeValue `json:"tokenType,omitempty" msgpack:"tokenType,omitempty" bson:"-" mapstructure:"tokenType,omitempty"`
+
 	// Configures the maximum length of validity for a token, using
 	// [Golang duration syntax](https://golang.org/pkg/time/#example_Duration). If it
 	// is bigger than the configured max validity, it will be capped. Default: `24h`.
@@ -216,11 +230,12 @@ func NewIssue() *Issue {
 
 	return &Issue{
 		ModelVersion:          1,
-		Cloak:                 []string{},
+		Audience:              []string{},
 		Opaque:                map[string]string{},
 		RestrictedNetworks:    []string{},
-		Audience:              []string{},
 		RestrictedPermissions: []string{},
+		Cloak:                 []string{},
+		TokenType:             IssueTokenTypeIdentity,
 		Validity:              "24h",
 	}
 }
@@ -327,6 +342,7 @@ func (o *Issue) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			SourceNamespace:       &o.SourceNamespace,
 			SourceType:            &o.SourceType,
 			Token:                 &o.Token,
+			TokenType:             &o.TokenType,
 			Validity:              &o.Validity,
 		}
 	}
@@ -374,6 +390,8 @@ func (o *Issue) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.SourceType = &(o.SourceType)
 		case "token":
 			sp.Token = &(o.Token)
+		case "tokenType":
+			sp.TokenType = &(o.TokenType)
 		case "validity":
 			sp.Validity = &(o.Validity)
 		}
@@ -448,6 +466,9 @@ func (o *Issue) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.Token != nil {
 		o.Token = *so.Token
+	}
+	if so.TokenType != nil {
+		o.TokenType = *so.TokenType
 	}
 	if so.Validity != nil {
 		o.Validity = *so.Validity
@@ -552,6 +573,10 @@ func (o *Issue) Validate() error {
 		errors = errors.Append(err)
 	}
 
+	if err := elemental.ValidateStringInList("tokenType", string(o.TokenType), []string{"Identity", "Refresh"}, false); err != nil {
+		errors = errors.Append(err)
+	}
+
 	if err := ValidateDuration("validity", o.Validity); err != nil {
 		errors = errors.Append(err)
 	}
@@ -635,6 +660,8 @@ func (o *Issue) ValueForAttribute(name string) interface{} {
 		return o.SourceType
 	case "token":
 		return o.Token
+	case "tokenType":
+		return o.TokenType
 	case "validity":
 		return o.Validity
 	}
@@ -847,6 +874,15 @@ credentials from internal or external source of authentication.`,
 		Name:           "token",
 		ReadOnly:       true,
 		Type:           "string",
+	},
+	"TokenType": {
+		AllowedChoices: []string{"Identity", "Refresh"},
+		ConvertedName:  "TokenType",
+		DefaultValue:   IssueTokenTypeIdentity,
+		Description:    `The type of token to issue.`,
+		Exposed:        true,
+		Name:           "tokenType",
+		Type:           "enum",
 	},
 	"Validity": {
 		AllowedChoices: []string{},
@@ -1067,6 +1103,15 @@ credentials from internal or external source of authentication.`,
 		ReadOnly:       true,
 		Type:           "string",
 	},
+	"tokentype": {
+		AllowedChoices: []string{"Identity", "Refresh"},
+		ConvertedName:  "TokenType",
+		DefaultValue:   IssueTokenTypeIdentity,
+		Description:    `The type of token to issue.`,
+		Exposed:        true,
+		Name:           "tokenType",
+		Type:           "enum",
+	},
 	"validity": {
 		AllowedChoices: []string{},
 		ConvertedName:  "Validity",
@@ -1231,6 +1276,9 @@ type SparseIssue struct {
 	// Issued token.
 	Token *string `json:"token,omitempty" msgpack:"token,omitempty" bson:"-" mapstructure:"token,omitempty"`
 
+	// The type of token to issue.
+	TokenType *IssueTokenTypeValue `json:"tokenType,omitempty" msgpack:"tokenType,omitempty" bson:"-" mapstructure:"tokenType,omitempty"`
+
 	// Configures the maximum length of validity for a token, using
 	// [Golang duration syntax](https://golang.org/pkg/time/#example_Duration). If it
 	// is bigger than the configured max validity, it will be capped. Default: `24h`.
@@ -1359,6 +1407,9 @@ func (o *SparseIssue) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.Token != nil {
 		out.Token = *o.Token
+	}
+	if o.TokenType != nil {
+		out.TokenType = *o.TokenType
 	}
 	if o.Validity != nil {
 		out.Validity = *o.Validity

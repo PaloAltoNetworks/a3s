@@ -25,6 +25,7 @@ func New(mmaker manipcli.ManipulatorMaker) *cobra.Command {
 	cmd.PersistentFlags().StringSlice("audience", nil, "Requested audience for the token.")
 	cmd.PersistentFlags().StringSlice("cloak", nil, "Cloak identity claims. Only claims with a prefix matching of of the given string will be used in the token.")
 	cmd.PersistentFlags().Bool("qrcode", false, "If passed, display the token as a QR code.")
+	cmd.PersistentFlags().Bool("refresh", false, "If set, ask for a refresh token.")
 
 	// Freaking pglags and its non configurable split char
 	// and missing GetStringArray...
