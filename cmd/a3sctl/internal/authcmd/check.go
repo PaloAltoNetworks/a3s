@@ -80,7 +80,15 @@ func DisplayToken(token string, printRaw bool, qrcode bool) error {
 
 	fmt.Println("alg:", t.Method.Alg())
 	fmt.Println("kid:", t.Header["kid"])
-	fmt.Println("remaining:", time.Until(time.Unix(int64(claims["exp"].(float64)), 0)))
+	if exp, ok := claims["exp"].(float64); ok {
+
+		remaining := time.Until(time.Unix(int64(exp), 0))
+		if remaining <= 0 {
+			fmt.Println("exp: the token has expired", -remaining.Truncate(time.Second), "ago")
+		} else {
+			fmt.Println("exp:", remaining.Truncate(time.Second))
+		}
+	}
 	fmt.Println()
 
 	fmt.Println(string(data))
