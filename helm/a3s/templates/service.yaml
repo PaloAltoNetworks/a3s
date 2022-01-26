@@ -6,11 +6,13 @@ metadata:
     app: {{ .Values.labels.name | default "a3s" }}
     type: {{ .Values.labels.type | default "core" }}
 spec:
+  type: {{ .Values.service.type | default "LoadBalancer" }}
   selector:
     app: {{ .Values.labels.name | default "a3s" }}
   ports:
-  - port: {{ .Values.service.port | default "1443" }}
-    name: {{ .Values.labels.name | default "a3s" }}
+  - targetPort: {{ .Values.service.targetPort | default "1443" }}
+    port: {{ .Values.service.port | default "443" }}
+    name: https
 ---
 apiVersion: v1
 kind: Service

@@ -22,6 +22,16 @@ spec:
           image: {{ required "global.imageRegistry is required" .Values.global.imageRegistry }}/a3s:{{ required "global.imageTag is required" .Values.global.imageTag }}
           imagePullPolicy: {{ .Values.imagePullPolicy | default "Always" }}
           env:
+            # Init
+            - name: A3S_INIT
+              value: "{{ .Values.init.run | default "false" }}"
+            
+            - name: A3S_INIT_CONTINUE
+              value: "{{ .Values.init.continue | default "false" }}"
+
+            - name: A3S_INIT_CONTINUE
+              value: /certs/init-root-ca.pem
+
             # General
             - name: A3S_LISTEN
               value: ":{{ .Values.service.port | default 1443 }}"
@@ -126,6 +136,10 @@ spec:
           secret:
             secretName: a3s-secrets
             items:
+              # Init
+              - key: init-root-ca.pem
+                path: init-root-ca.pem
+
               # TLS
               - key: server-cert.pem
                 path: server-cert.pem

@@ -2,7 +2,9 @@ replicas: 1
 clusterIP: None
 
 service:
+  type:
   port:
+  targetPort:
   healthPort:
 
 labels:
@@ -13,6 +15,11 @@ log:
     level:
     format:
 
+init:
+  run:
+  continue:
+  ca: init-root-ca
+  
 global:
   encoding:
   audience: 
