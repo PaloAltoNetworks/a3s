@@ -29,7 +29,7 @@ spec:
             - name: A3S_INIT_CONTINUE
               value: "{{ .Values.init.continue | default "false" }}"
 
-            - name: A3S_INIT_CONTINUE
+            - name: A3S_INIT_ROOT_CA
               value: /certs/init-root-ca.pem
 
             # General
