@@ -2,30 +2,35 @@ import { Box, Typography } from "@mui/material"
 import { useEffect, useRef, useState } from "react"
 import QrScanner from "qr-scanner"
 import jwtDecode from "jwt-decode"
+import { JwtDialog } from "./jwt-dialog"
 // @ts-ignore
-import qrScannerWorkerSource from 'qr-scanner/qr-scanner-worker.min.js?raw'
-QrScanner.WORKER_PATH = URL.createObjectURL(new Blob([qrScannerWorkerSource]));
+import qrScannerWorkerSource from "qr-scanner/qr-scanner-worker.min.js?raw"
+import { DecodedJWT } from "./types"
+QrScanner.WORKER_PATH = URL.createObjectURL(new Blob([qrScannerWorkerSource]))
 
 export const QrScan = () => {
   const videoRef = useRef<HTMLVideoElement>(null)
-  const [jwt, setJwt] = useState<Record<string, any>>()
-  const [error, setError] = useState<string>()
+  const [jwt, setJwt] = useState<DecodedJWT>()
+  // const [error, setError] = useState<string>()
   useEffect(() => {
     const qrScanner = new QrScanner(
       videoRef.current!,
       result => {
         try {
-          const decoded = jwtDecode(result) as Record<string, any>
-          setJwt(decoded)
+          const payload = jwtDecode(result) as DecodedJWT["payload"]
+          const header = jwtDecode(result, {
+            header: true,
+          }) as DecodedJWT["header"]
+          setJwt({ payload, header })
           qrScanner.stop()
-        } catch (e){
+        } catch (e) {
           console.error(e)
-          setError(`${e}`)
+          // setError(`${e}`)
         }
       },
       err => {
         console.error(err)
-        setError(err)
+        // setError(err)
       },
       video => {
         return {
@@ -52,9 +57,14 @@ export const QrScan = () => {
         },
       }}
     >
-      {error}
       {jwt ? (
-        JSON.stringify(jwt)
+        <JwtDialog
+          payload={jwt.payload}
+          header={jwt.header}
+          onClose={() => {
+            setJwt(undefined)
+          }}
+        />
       ) : (
         <video
           ref={videoRef}
