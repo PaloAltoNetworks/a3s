@@ -149,8 +149,19 @@ func (p *IssueProcessor) ProcessCreate(bctx bahamut.Context) (err error) {
 		)
 	}
 
+	if req.TokenType == api.IssueTokenTypeRefresh {
+		idt.Refresh = true
+	}
+
 	k := p.jwks.GetLast()
-	tkn, err := idt.JWT(k.PrivateKey(), k.KID, p.issuer, audience, exp, req.Cloak)
+	tkn, err := idt.JWT(
+		k.PrivateKey(),
+		k.KID,
+		p.issuer,
+		audience,
+		exp,
+		req.Cloak,
+	)
 	if err != nil {
 		return err
 	}

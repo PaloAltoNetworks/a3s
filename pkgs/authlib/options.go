@@ -12,6 +12,7 @@ type config struct {
 	audience     []string
 	restrictions permissions.Restrictions
 	cloak        []string
+	refresh      bool
 }
 
 func newConfig() config {
@@ -61,5 +62,12 @@ func OptAudience(audience ...string) Option {
 func OptRestrictions(restrictions permissions.Restrictions) Option {
 	return func(opts *config) {
 		opts.restrictions = restrictions
+	}
+}
+
+// OptRefresh asks for a renew token.
+func OptRefresh(refresh bool) Option {
+	return func(opts *config) {
+		opts.refresh = refresh
 	}
 }

@@ -34,6 +34,7 @@ Issues a new a normalized token using various authentication sources.
   "sourceName": "/my/ns",
   "sourceNamespace": "/my/ns",
   "sourceType": "OIDC",
+  "tokenType": "Identity",
   "validity": "24h"
 }
 ```
@@ -193,6 +194,18 @@ credentials from internal or external source of authentication.
 Type: `string`
 
 Issued token.
+
+##### `tokenType`
+
+Type: `enum(Identity | Refresh)`
+
+The type of token to issue.
+
+Default value:
+
+```json
+"Identity"
+```
 
 ##### `validity`
 

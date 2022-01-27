@@ -95,5 +95,14 @@ func (a *Authenticator) commonAuth(tokenString string) (bahamut.AuthAction, []st
 		)
 	}
 
+	if idt.Refresh {
+		return bahamut.AuthActionKO, nil, elemental.NewError(
+			"Unauthorized",
+			fmt.Sprintf("Authentication impossible from a refresh token"),
+			"a3s:authn",
+			http.StatusUnauthorized,
+		)
+	}
+
 	return bahamut.AuthActionContinue, idt.Identity, nil
 }

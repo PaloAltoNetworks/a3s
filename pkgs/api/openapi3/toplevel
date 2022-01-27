@@ -470,6 +470,14 @@
             "readOnly": true,
             "type": "string"
           },
+          "tokenType": {
+            "default": "Identity",
+            "description": "The type of token to issue.",
+            "enum": [
+              "Identity",
+              "Refresh"
+            ]
+          },
           "validity": {
             "default": "24h",
             "description": "Configures the maximum length of validity for a token, using\n[Golang duration syntax](https://golang.org/pkg/time/#example_Duration). If it\nis bigger than the configured max validity, it will be capped. Default: `24h`.",

@@ -2,6 +2,7 @@ package authcmd
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/hokaccha/go-prettyjson"
@@ -26,6 +27,7 @@ func makeCheckCmd(mmaker manipcli.ManipulatorMaker) *cobra.Command {
 				"",
 				nil,
 				nil,
+				false,
 				false,
 			); err != nil {
 				return fmt.Errorf("auto auth error: %w", err)
@@ -53,6 +55,7 @@ func makeCheckCmd(mmaker manipcli.ManipulatorMaker) *cobra.Command {
 		_ = cmd.Flags().MarkHidden("restrict-namespace")
 		_ = cmd.Flags().MarkHidden("restrict-permissions")
 		_ = cmd.Flags().MarkHidden("restrict-network")
+		_ = cmd.Flags().MarkHidden("refresh")
 		cmd.Parent().HelpFunc()(cmd, args)
 	})
 
@@ -77,6 +80,15 @@ func DisplayToken(token string, printRaw bool, qrcode bool) error {
 
 	fmt.Println("alg:", t.Method.Alg())
 	fmt.Println("kid:", t.Header["kid"])
+	if exp, ok := claims["exp"].(float64); ok {
+
+		remaining := time.Until(time.Unix(int64(exp), 0))
+		if remaining <= 0 {
+			fmt.Println("exp: the token has expired", -remaining.Truncate(time.Second), "ago")
+		} else {
+			fmt.Println("exp:", remaining.Truncate(time.Second))
+		}
+	}
 	fmt.Println()
 
 	fmt.Println(string(data))
