@@ -50,6 +50,7 @@ func TestAuthFromCertificate(t *testing.T) {
 			"/ns",
 			"name",
 			OptAudience("aud"),
+			OptRefresh(true),
 		)
 
 		So(err, ShouldBeNil)
@@ -58,6 +59,7 @@ func TestAuthFromCertificate(t *testing.T) {
 		So(expectedRequest.SourceName, ShouldEqual, "name")
 		So(expectedRequest.Audience, ShouldResemble, []string{"aud"})
 		So(expectedRequest.Validity, ShouldEqual, time.Hour.String())
+		So(expectedRequest.TokenType, ShouldEqual, api.IssueTokenTypeRefresh)
 		So(token, ShouldEqual, "yeay!")
 	})
 }

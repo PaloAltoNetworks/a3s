@@ -40,4 +40,9 @@ func TestBahamut_Options(t *testing.T) {
 		OptRestrictions(r)(&c)
 		So(c.restrictions, ShouldResemble, r)
 	})
+
+	Convey("Calling OptRenew should workd", t, func() {
+		OptRefresh(true)(&c)
+		So(c.refresh, ShouldBeTrue)
+	})
 }

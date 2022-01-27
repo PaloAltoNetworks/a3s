@@ -24,6 +24,7 @@ func makeGCPCmd(mmaker manipcli.ManipulatorMaker, restrictions *permissions.Rest
 			fCloak := viper.GetStringSlice("cloak")
 			fQRCode := viper.GetBool("qrcode")
 			fValidity := viper.GetDuration("validity")
+			fRefresh := viper.GetBool("refresh")
 
 			m, err := mmaker()
 			if err != nil {
@@ -39,6 +40,7 @@ func makeGCPCmd(mmaker manipcli.ManipulatorMaker, restrictions *permissions.Rest
 				authlib.OptCloak(fCloak...),
 				authlib.OptRestrictions(*restrictions),
 				authlib.OptValidity(fValidity),
+				authlib.OptRefresh(fRefresh),
 			)
 			if err != nil {
 				return err

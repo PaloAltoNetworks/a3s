@@ -29,6 +29,7 @@ func makePermsCmd(mmaker manipcli.ManipulatorMaker) *cobra.Command {
 				nil,
 				nil,
 				false,
+				false,
 			); err != nil {
 				return fmt.Errorf("auto auth error: %w", err)
 			}

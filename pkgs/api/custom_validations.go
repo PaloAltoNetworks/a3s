@@ -145,6 +145,9 @@ func ValidateIssue(iss *Issue) error {
 		if iss.InputA3S == nil {
 			return makeErr("inputA3S", "You must set inputA3S for the requested sourceType")
 		}
+		if iss.TokenType == IssueTokenTypeRefresh {
+			return makeErr("tokenType", "You cannot ask for a resfresh token for the request source type")
+		}
 	case IssueSourceTypeRemoteA3S:
 		if iss.InputRemoteA3S == nil {
 			return makeErr("inputRemoteA3S", "You must set inputRemoteA3S for the requested sourceType")

@@ -93,6 +93,23 @@ func TestCommonAuth(t *testing.T) {
 			So(claims, ShouldResemble, []string{"color=blue", "@source:type=test"})
 		})
 
+		Convey("Calling commonAuth on a refresh token should fail", func() {
+
+			token := makeToken(
+				&token.IdentityToken{Identity: []string{"color=blue", "@source:type=test"}, Refresh: true},
+				jwt.SigningMethodES256,
+				k,
+				kid1,
+			)
+
+			action, claims, err := a.commonAuth(token)
+
+			So(err, ShouldNotBeNil)
+			So(err.Error(), ShouldEqual, "error 401 (a3s:authn): Unauthorized: Authentication impossible from a refresh token")
+			So(action, ShouldEqual, bahamut.AuthActionKO)
+			So(claims, ShouldBeNil)
+		})
+
 		Convey("Calling commonAuth on a token signed by the wrong signer should fail", func() {
 
 			token := makeToken(

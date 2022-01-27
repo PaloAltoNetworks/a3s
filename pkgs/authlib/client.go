@@ -285,6 +285,11 @@ func applyOptions(req *api.Issue, cfg config) {
 	if cfg.validity != 0 {
 		req.Validity = cfg.validity.String()
 	}
+
+	if cfg.refresh {
+		req.TokenType = api.IssueTokenTypeRefresh
+	}
+
 	req.Cloak = cfg.cloak
 	req.Opaque = cfg.opaque
 	req.Audience = cfg.audience

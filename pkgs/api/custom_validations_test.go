@@ -736,6 +736,20 @@ func TestValidateIssue(t *testing.T) {
 			nil,
 		},
 		{
+			"test refresh token with a3s source",
+			func(*testing.T) args {
+				return args{
+					&Issue{
+						SourceType: IssueSourceTypeA3S,
+						InputA3S:   &IssueA3S{},
+						TokenType:  IssueTokenTypeRefresh,
+					},
+				}
+			},
+			true,
+			nil,
+		},
+		{
 			"test remote token present",
 			func(*testing.T) args {
 				return args{

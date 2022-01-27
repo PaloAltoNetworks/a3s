@@ -35,6 +35,7 @@ func makeAutoCmd(mmaker manipcli.ManipulatorMaker) *cobra.Command {
 				viper.GetString("auto-auth-method"),
 				viper.GetStringSlice("audience"),
 				viper.GetStringSlice("cloak"),
+				viper.GetBool("renew"),
 				true,
 			); err != nil {
 				return err
@@ -56,7 +57,7 @@ func makeAutoCmd(mmaker manipcli.ManipulatorMaker) *cobra.Command {
 
 	cmd.SetHelpFunc(func(cmd *cobra.Command, args []string) {
 		_ = cmd.Flags().MarkHidden("namespace")
-		_ = cmd.Flags().MarkHidden("refresh-cached-token")
+		_ = cmd.Flags().MarkHidden("renew-cached-token")
 		_ = cmd.Flags().MarkHidden("token")
 		cmd.Parent().HelpFunc()(cmd, args)
 	})
@@ -86,7 +87,14 @@ func makeAutoCmd(mmaker manipcli.ManipulatorMaker) *cobra.Command {
 //      autoauth.http.pass: the password.
 //      autoauth.http.source.name: the name of the HTTP source to use.
 //      autoauth.http.source.namespace: the namespace of the HTTP source to use.
-func HandleAutoAuth(mmaker manipcli.ManipulatorMaker, method string, overrideAudience []string, overrideCloak []string, refresh bool) error {
+func HandleAutoAuth(
+	mmaker manipcli.ManipulatorMaker,
+	method string,
+	overrideAudience []string,
+	overrideCloak []string,
+	refresh bool,
+	renewCached bool,
+) error {
 
 	if viper.GetString("token") != "" {
 		zap.L().Debug("autoauth: using --token")
@@ -117,7 +125,7 @@ func HandleAutoAuth(mmaker manipcli.ManipulatorMaker, method string, overrideAud
 
 	tokenCache := path.Join(cache, fmt.Sprintf("token-%s-%x", method, sha256.Sum256([]byte(viper.GetString("api")))))
 
-	if refresh {
+	if renewCached {
 		if err := os.Remove(tokenCache); err != nil && !os.IsNotExist(err) {
 			return err
 		}
@@ -149,6 +157,7 @@ func HandleAutoAuth(mmaker manipcli.ManipulatorMaker, method string, overrideAud
 				overrideIfNeeded("autoauth.mtls.audience", overrideAudience),
 				overrideIfNeeded("autoauth.mtls.cloak", overrideCloak),
 				24*time.Hour,
+				refresh,
 				nil,
 			)
 			if err != nil {
@@ -167,6 +176,7 @@ func HandleAutoAuth(mmaker manipcli.ManipulatorMaker, method string, overrideAud
 				overrideIfNeeded("autoauth.ldap.audience", overrideAudience),
 				overrideIfNeeded("autoauth.ldap.cloak", overrideCloak),
 				24*time.Hour,
+				refresh,
 				nil,
 			)
 			if err != nil {
@@ -186,6 +196,7 @@ func HandleAutoAuth(mmaker manipcli.ManipulatorMaker, method string, overrideAud
 				overrideIfNeeded("autoauth.http.audience", overrideAudience),
 				overrideIfNeeded("autoauth.http.cloak", overrideCloak),
 				24*time.Hour,
+				refresh,
 				nil,
 			)
 			if err != nil {
@@ -217,7 +228,7 @@ func HandleAutoAuth(mmaker manipcli.ManipulatorMaker, method string, overrideAud
 		if err := os.Remove(tokenCache); err != nil {
 			return fmt.Errorf("unable to clean currently cached token: %w", err)
 		}
-		return HandleAutoAuth(mmaker, method, overrideAudience, overrideCloak, false)
+		return HandleAutoAuth(mmaker, method, overrideAudience, overrideCloak, refresh, false)
 	}
 
 	zap.L().Debug("autoauth: token set from cache", zap.String("path", tokenCache))

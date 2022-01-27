@@ -32,6 +32,7 @@ func makeOIDCCmd(mmaker manipcli.ManipulatorMaker, restrictions *permissions.Res
 			fAudience := viper.GetStringSlice("audience")
 			fCloak := viper.GetStringSlice("cloak")
 			fQRCode := viper.GetBool("qrcode")
+			fRefresh := viper.GetBool("refresh")
 
 			if fSourceNamespace == "" {
 				fSourceNamespace = viper.GetString("namespace")
@@ -75,6 +76,7 @@ func makeOIDCCmd(mmaker manipcli.ManipulatorMaker, restrictions *permissions.Res
 				authlib.OptAudience(fAudience...),
 				authlib.OptCloak(fCloak...),
 				authlib.OptRestrictions(*restrictions),
+				authlib.OptRefresh(fRefresh),
 			)
 			if err != nil {
 				return err
