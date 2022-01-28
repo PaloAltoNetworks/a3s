@@ -84,7 +84,7 @@ func DocsA3sctlMd() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "../../docs/a3sctl.md", size: 2327, mode: os.FileMode(420), modTime: time.Unix(1637627526, 0)}
+	info := bindataFileInfo{name: "../../docs/a3sctl.md", size: 2327, mode: os.FileMode(420), modTime: time.Unix(1637619290, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -104,7 +104,7 @@ func DocsAuthMd() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "../../docs/auth.md", size: 2300, mode: os.FileMode(420), modTime: time.Unix(1637627526, 0)}
+	info := bindataFileInfo{name: "../../docs/auth.md", size: 2300, mode: os.FileMode(420), modTime: time.Unix(1637620383, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
