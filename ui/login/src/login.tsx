@@ -10,12 +10,14 @@ import {
   FormLabel,
   Checkbox,
   Typography,
+  useTheme,
 } from "@mui/material"
 import { useIssue } from "./use-issue"
 import { CloakDialog } from "./cloak-dialog"
 import jwtDecode from "jwt-decode"
 import { useLocalState } from "./use-local-state"
 import { QrCodeDialog } from "./qr-code-dialog"
+import { QrScan } from "./qr-scan"
 
 type StringBoolean = "true" | "false"
 type DialogState =
@@ -43,6 +45,7 @@ const isQrCodeMode = redirectUrl === ""
 const enableCloak = "__ENABLE_CLOAKING__" as StringBoolean
 
 export const Login = () => {
+  const theme = useTheme()
   const [cloak, setCloak] = useLocalState(enableCloak, "cloak")
   const [sourceType, setSourceType] = useLocalState<string>(
     "MTLS",
@@ -79,22 +82,25 @@ export const Login = () => {
     []
   )
 
-  const onToken = useCallback((token?: string) => {
-    if (!token) {
-      return
-    }
-    if (cloak === "true") {
-      setDialogState({
-        type: "Cloak",
-        token,
-      })
-    } else if (isQrCodeMode) {
-      setDialogState({
-        type: "QrCode",
-        token,
-      })
-    }
-  }, [cloak, isQrCodeMode])
+  const onToken = useCallback(
+    (token?: string) => {
+      if (!token) {
+        return
+      }
+      if (cloak === "true") {
+        setDialogState({
+          type: "Cloak",
+          token,
+        })
+      } else if (isQrCodeMode) {
+        setDialogState({
+          type: "QrCode",
+          token,
+        })
+      }
+    },
+    [cloak, isQrCodeMode]
+  )
 
   // Not using `cloak === "false"` in case `__ENABLE_CLOAKING__` is not replaced
   const shouldRedirect = !isQrCodeMode && cloak !== "true"
@@ -197,10 +203,13 @@ export const Login = () => {
   return (
     <Box
       sx={{
-        display: "flex",
-        // Avoid vertical position shift of the auth sources when switching between them.
-        minHeight: "400px",
-        alignItems: "flex-start",
+        "@media screen and (min-width: 600px)": {
+          display: "flex",
+          // Avoid vertical position shift of the auth sources when switching between them.
+          minHeight: "400px",
+          alignItems: "flex-start",
+        },
+        p: 2
       }}
     >
       <FormControl component="fieldset">
@@ -214,105 +223,118 @@ export const Login = () => {
           <FormControlLabel value="MTLS" control={<Radio />} label="MTLS" />
           <FormControlLabel value="LDAP" control={<Radio />} label="LDAP" />
           <FormControlLabel value="OIDC" control={<Radio />} label="OIDC" />
+          <FormControlLabel value="QR" control={<Radio />} label="QR Code" />
         </RadioGroup>
       </FormControl>
       <Box
         sx={{
           display: "flex",
           flexDirection: "column",
+          "@media screen and (max-width: 599px)": {
+            borderTop: `1px solid ${theme.palette.divider}`,
+            pt: 2,
+            mt: 2,
+          },
+          "@media screen and (min-width: 600px)": {
+            borderLeft: `1px solid ${theme.palette.divider}`,
+            pl: 2,
+            ml: 2,
+          },
           "& .MuiTextField-root": { mt: 1, mb: 1, width: "32ch" },
-          borderLeft: "1px solid #ccc",
-          pl: 2,
-          ml: 2,
         }}
       >
-        <TextField
-          label="Source Namespace"
-          value={sourceNamespace}
-          onChange={e => {
-            setSourceNamespace(e.target.value)
-          }}
-        />
-        <TextField
-          label="Source Name"
-          value={sourceName}
-          placeholder={`The name of the ${sourceType} source`}
-          onChange={e => {
-            setSourceName(e.target.value)
-          }}
-          InputLabelProps={{
-            shrink: true,
-          }}
-        />
-        {sourceType === "LDAP" && (
+        {sourceType === "QR" && <QrScan />}
+        {sourceType !== "QR" && (
           <>
             <TextField
-              label="LDAP Username"
-              value={ldapUsername}
+              label="Source Namespace"
+              value={sourceNamespace}
               onChange={e => {
-                setLdapUsername(e.target.value)
-              }}
-              InputLabelProps={{
-                shrink: true,
+                setSourceNamespace(e.target.value)
               }}
             />
             <TextField
-              label="LDAP Password"
-              value={ldapPassword}
+              label="Source Name"
+              value={sourceName}
+              placeholder={`The name of the ${sourceType} source`}
               onChange={e => {
-                setLdapPassword(e.target.value)
+                setSourceName(e.target.value)
               }}
               InputLabelProps={{
                 shrink: true,
               }}
-              type="password"
             />
+            {sourceType === "LDAP" && (
+              <>
+                <TextField
+                  label="LDAP Username"
+                  value={ldapUsername}
+                  onChange={e => {
+                    setLdapUsername(e.target.value)
+                  }}
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
+                />
+                <TextField
+                  label="LDAP Password"
+                  value={ldapPassword}
+                  onChange={e => {
+                    setLdapPassword(e.target.value)
+                  }}
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
+                  type="password"
+                />
+              </>
+            )}
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={cloak === "true"}
+                  onChange={e => {
+                    setCloak(e.target.checked ? "true" : "false")
+                  }}
+                />
+              }
+              label="Cloak claims"
+            />
+            <Button
+              onClick={() => {
+                sourceType === "MTLS"
+                  ? issueWithMtls({
+                      sourceNamespace,
+                      sourceName,
+                      cookie: shouldRedirect,
+                    })
+                      .then(handleIssueResponse(shouldRedirect))
+                      .then(onToken)
+                  : sourceType === "LDAP"
+                  ? issueWithLdap({
+                      sourceNamespace,
+                      sourceName,
+                      username: ldapUsername,
+                      password: ldapPassword,
+                      cookie: shouldRedirect,
+                    })
+                      .then(handleIssueResponse(shouldRedirect))
+                      .then(onToken)
+                  : issueWithOidc({
+                      sourceNamespace,
+                      sourceName,
+                      redirectUrl,
+                    })
+              }}
+              variant="outlined"
+              sx={{
+                mt: 2,
+              }}
+            >
+              Sign in
+            </Button>
           </>
         )}
-        <FormControlLabel
-          control={
-            <Checkbox
-              checked={cloak === "true"}
-              onChange={e => {
-                setCloak(e.target.checked ? "true" : "false")
-              }}
-            />
-          }
-          label="Cloak claims"
-        />
-        <Button
-          onClick={() => {
-            sourceType === "MTLS"
-              ? issueWithMtls({
-                  sourceNamespace,
-                  sourceName,
-                  cookie: shouldRedirect,
-                })
-                  .then(handleIssueResponse(shouldRedirect))
-                  .then(onToken)
-              : sourceType === "LDAP"
-              ? issueWithLdap({
-                  sourceNamespace,
-                  sourceName,
-                  username: ldapUsername,
-                  password: ldapPassword,
-                  cookie: shouldRedirect,
-                })
-                  .then(handleIssueResponse(shouldRedirect))
-                  .then(onToken)
-              : issueWithOidc({
-                  sourceNamespace,
-                  sourceName,
-                  redirectUrl,
-                })
-          }}
-          variant="outlined"
-          sx={{
-            mt: 2,
-          }}
-        >
-          Sign in
-        </Button>
       </Box>
     </Box>
   )

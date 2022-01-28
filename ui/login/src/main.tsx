@@ -21,13 +21,14 @@ const App = () => {
     <ThemeProvider theme={theme}>
       <Box
         sx={{
-          display: "flex",
+          "@media screen and (min-width: 600px)": {
+            alignItems: "center",
+            justifyContent: "center",
+            display: "flex",
+          },
           height: "100vh",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          bgcolor: 'background.default',
-          color: 'text.primary',
+          bgcolor: "background.default",
+          color: "text.primary",
         }}
       >
         <Login />
