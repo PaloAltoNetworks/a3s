@@ -236,7 +236,6 @@ func NewIssue() *Issue {
 		RestrictedPermissions: []string{},
 		Cloak:                 []string{},
 		TokenType:             IssueTokenTypeIdentity,
-		Validity:              "24h",
 	}
 }
 
@@ -887,7 +886,6 @@ credentials from internal or external source of authentication.`,
 	"Validity": {
 		AllowedChoices: []string{},
 		ConvertedName:  "Validity",
-		DefaultValue:   "24h",
 		Description: `Configures the maximum length of validity for a token, using
 [Golang duration syntax](https://golang.org/pkg/time/#example_Duration). If it
 is bigger than the configured max validity, it will be capped. Default: ` + "`" + `24h` + "`" + `.`,
@@ -1115,7 +1113,6 @@ credentials from internal or external source of authentication.`,
 	"validity": {
 		AllowedChoices: []string{},
 		ConvertedName:  "Validity",
-		DefaultValue:   "24h",
 		Description: `Configures the maximum length of validity for a token, using
 [Golang duration syntax](https://golang.org/pkg/time/#example_Duration). If it
 is bigger than the configured max validity, it will be capped. Default: ` + "`" + `24h` + "`" + `.`,
