@@ -78,7 +78,16 @@ func (p *IssueProcessor) ProcessCreate(bctx bahamut.Context) (err error) {
 
 	validity, _ := time.ParseDuration(req.Validity) // elemental already validated this
 	if validity > p.maxValidity {
-		validity = p.maxValidity
+		return elemental.NewError(
+			"Invalid validity",
+			fmt.Sprintf(
+				"The requested validity '%s' is greater than the maximum allowed ('%s')",
+				req.Validity,
+				p.maxValidity,
+			),
+			"a3s:authn",
+			http.StatusBadRequest,
+		)
 	}
 	exp := time.Now().Add(validity)
 

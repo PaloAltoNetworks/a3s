@@ -199,17 +199,17 @@ func Test_computeNewValidity(t *testing.T) {
 				48 * time.Hour,
 				false,
 			},
-			exp,
-			false,
+			nil,
+			true,
 		},
 		{
-			"requested the same",
+			"requested roughly the same",
 			args{
 				exp,
-				time.Until(exp.Local()),
+				time.Until(exp.Local()) - time.Millisecond,
 				false,
 			},
-			exp,
+			jwt.NewNumericDate(exp.Add(-time.Millisecond)),
 			false,
 		},
 		{
