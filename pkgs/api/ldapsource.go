@@ -15,6 +15,9 @@ const (
 	// LDAPSourceSecurityProtocolInbandTLS represents the value InbandTLS.
 	LDAPSourceSecurityProtocolInbandTLS LDAPSourceSecurityProtocolValue = "InbandTLS"
 
+	// LDAPSourceSecurityProtocolNone represents the value None.
+	LDAPSourceSecurityProtocolNone LDAPSourceSecurityProtocolValue = "None"
+
 	// LDAPSourceSecurityProtocolTLS represents the value TLS.
 	LDAPSourceSecurityProtocolTLS LDAPSourceSecurityProtocolValue = "TLS"
 )
@@ -164,7 +167,7 @@ func NewLDAPSource() *LDAPSource {
 		BindSearchFilter: "uid={USERNAME}",
 		IgnoredKeys:      []string{},
 		IncludedKeys:     []string{},
-		SecurityProtocol: LDAPSourceSecurityProtocolInbandTLS,
+		SecurityProtocol: LDAPSourceSecurityProtocolTLS,
 	}
 }
 
@@ -565,7 +568,7 @@ func (o *LDAPSource) Validate() error {
 		requiredErrors = requiredErrors.Append(err)
 	}
 
-	if err := elemental.ValidateStringInList("securityProtocol", string(o.SecurityProtocol), []string{"TLS", "InbandTLS"}, false); err != nil {
+	if err := elemental.ValidateStringInList("securityProtocol", string(o.SecurityProtocol), []string{"TLS", "InbandTLS", "None"}, false); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -836,10 +839,10 @@ the claims that are about to be delivered using this authentication source.`,
 		Type:           "string",
 	},
 	"SecurityProtocol": {
-		AllowedChoices: []string{"TLS", "InbandTLS"},
+		AllowedChoices: []string{"TLS", "InbandTLS", "None"},
 		BSONFieldName:  "securityprotocol",
 		ConvertedName:  "SecurityProtocol",
-		DefaultValue:   LDAPSourceSecurityProtocolInbandTLS,
+		DefaultValue:   LDAPSourceSecurityProtocolTLS,
 		Description:    `Specifies the connection type for the LDAP provider.`,
 		Exposed:        true,
 		Name:           "securityProtocol",
@@ -1067,10 +1070,10 @@ the claims that are about to be delivered using this authentication source.`,
 		Type:           "string",
 	},
 	"securityprotocol": {
-		AllowedChoices: []string{"TLS", "InbandTLS"},
+		AllowedChoices: []string{"TLS", "InbandTLS", "None"},
 		BSONFieldName:  "securityprotocol",
 		ConvertedName:  "SecurityProtocol",
-		DefaultValue:   LDAPSourceSecurityProtocolInbandTLS,
+		DefaultValue:   LDAPSourceSecurityProtocolTLS,
 		Description:    `Specifies the connection type for the LDAP provider.`,
 		Exposed:        true,
 		Name:           "securityProtocol",

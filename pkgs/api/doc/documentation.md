@@ -815,7 +815,7 @@ CCqGSM49BAMCA0gAMEUCIQD+nL9RF9EvQXHyYuJ31Lz9yWd9hsK91stnpAs890gS
   "bindPassword": "s3cr3t",
   "bindSearchFilter": "uid={USERNAME}",
   "name": "mypki",
-  "securityProtocol": "InbandTLS"
+  "securityProtocol": "TLS"
 }
 ```
 
@@ -953,14 +953,14 @@ The namespace of the object.
 
 ##### `securityProtocol`
 
-Type: `enum(TLS | InbandTLS)`
+Type: `enum(TLS | InbandTLS | None)`
 
 Specifies the connection type for the LDAP provider.
 
 Default value:
 
 ```json
-"InbandTLS"
+"TLS"
 ```
 
 ### MTLSSource

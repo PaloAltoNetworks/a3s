@@ -103,10 +103,14 @@ func (c *ldapIssuer) retrieveEntry(username string, password string) (*ldap.Entr
 		if err != nil {
 			return nil, nil, ErrLDAP{Err: fmt.Errorf("cannot dial: %w", err)}
 		}
+	}
+
+	if c.source.SecurityProtocol == api.LDAPSourceSecurityProtocolInbandTLS {
 		if err = conn.StartTLS(tlsConfig); err != nil {
 			return nil, nil, ErrLDAP{Err: fmt.Errorf("cannot start tls: %w", err)}
 		}
 	}
+
 	defer conn.Close()
 
 	if err = conn.Bind(c.source.BindDN, c.source.BindPassword); err != nil {
