@@ -34,8 +34,7 @@ Issues a new a normalized token using various authentication sources.
   "sourceName": "/my/ns",
   "sourceNamespace": "/my/ns",
   "sourceType": "OIDC",
-  "tokenType": "Identity",
-  "validity": "24h"
+  "tokenType": "Identity"
 }
 ```
 
@@ -214,12 +213,6 @@ Type: `string`
 Configures the maximum length of validity for a token, using
 [Golang duration syntax](https://golang.org/pkg/time/#example_Duration). If it
 is bigger than the configured max validity, it will be capped. Default: `24h`.
-
-Default value:
-
-```json
-"24h"
-```
 
 ### IssueA3S
 

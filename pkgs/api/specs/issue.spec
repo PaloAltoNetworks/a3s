@@ -249,7 +249,6 @@ attributes:
       is bigger than the configured max validity, it will be capped. Default: `24h`.
     type: string
     exposed: true
-    default_value: 24h
     omit_empty: true
     validations:
     - $duration

@@ -78,8 +78,22 @@ func (p *IssueProcessor) ProcessCreate(bctx bahamut.Context) (err error) {
 
 	validity, _ := time.ParseDuration(req.Validity) // elemental already validated this
 	if validity > p.maxValidity {
+		return elemental.NewError(
+			"Invalid validity",
+			fmt.Sprintf(
+				"The requested validity '%s' is greater than the maximum allowed ('%s')",
+				req.Validity,
+				p.maxValidity,
+			),
+			"a3s:authn",
+			http.StatusBadRequest,
+		)
+	}
+
+	if validity == 0 {
 		validity = p.maxValidity
 	}
+
 	exp := time.Now().Add(validity)
 
 	audience := req.Audience
@@ -124,6 +138,9 @@ func (p *IssueProcessor) ProcessCreate(bctx bahamut.Context) (err error) {
 		}
 
 	case api.IssueSourceTypeA3S:
+		if req.Validity == "" {
+			validity = 0
+		}
 		issuer, err = p.handleTokenIssue(bctx.Context(), req, validity, audience)
 		// we reset to 0 to skip setting exp during issuing of the token
 		// as the token issers already caps it.

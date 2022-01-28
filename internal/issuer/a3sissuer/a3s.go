@@ -102,7 +102,7 @@ func computeNewValidity(originalExpUNIX *jwt.NumericDate, requestedValidity time
 
 	originalExp := originalExpUNIX.Local()
 	if now.Add(requestedValidity).After(originalExp) && !isRefresh {
-		return jwt.NewNumericDate(originalExp), nil
+		return nil, fmt.Errorf("the request validity is greater than the original non refresh token")
 	}
 
 	return jwt.NewNumericDate(now.Add(requestedValidity)), nil
