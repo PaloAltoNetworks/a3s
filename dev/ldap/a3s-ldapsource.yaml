@@ -1,0 +1,8 @@
+label: a3s:dev:ldap
+LDAPSources:
+- name: a3s-dev-ldap
+  address: 127.0.0.1:11389
+  baseDN: dc=universe,dc=io
+  bindDN: cn=admin,dc=universe,dc=io
+  bindPassword: "password"
+  securityProtocol: None
