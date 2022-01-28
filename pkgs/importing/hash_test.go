@@ -205,7 +205,7 @@ func Test_sanitize(t *testing.T) {
 				obj.ImportHash = "should be removed"
 				obj.ImportLabel = "should be removed"
 				obj.Namespace = "should be removed because it's autogen"
-				obj.SecurityProtocol = api.LDAPSourceSecurityProtocolInbandTLS
+				obj.SecurityProtocol = api.LDAPSourceSecurityProtocolTLS
 				return args{
 					obj,
 					api.Manager(),
@@ -227,7 +227,7 @@ func Test_sanitize(t *testing.T) {
 				obj.ImportHash = "should be removed"
 				obj.ImportLabel = "should be removed"
 				obj.Namespace = "should be removed because it's autogen"
-				obj.SecurityProtocol = api.LDAPSourceSecurityProtocolTLS
+				obj.SecurityProtocol = api.LDAPSourceSecurityProtocolInbandTLS
 				return args{
 					obj,
 					api.Manager(),
@@ -236,7 +236,7 @@ func Test_sanitize(t *testing.T) {
 			map[string]interface{}{
 				"name":             "name",
 				"CA":               "ca",
-				"securityProtocol": api.LDAPSourceSecurityProtocolTLS,
+				"securityProtocol": api.LDAPSourceSecurityProtocolInbandTLS,
 			},
 			false,
 			nil,
