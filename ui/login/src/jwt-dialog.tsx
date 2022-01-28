@@ -75,6 +75,9 @@ export const JwtDialog = ({
           encodedArrayBuffer
         )
 
+        if(!result) {
+          setVerificationError(`Signature doesn't match`)
+        }
         setIsValid(result)
       } catch (error) {
         if (error instanceof Error) {
