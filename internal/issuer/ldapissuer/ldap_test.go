@@ -40,6 +40,7 @@ func TestFromCredential(t *testing.T) {
 		src := api.NewLDAPSource()
 		src.Namespace = "/my/ns"
 		src.Name = "my-src"
+		src.SecurityProtocol = api.LDAPSourceSecurityProtocolInbandTLS
 		iss := newLDAPIssuer(src)
 		err := iss.fromCredentials(context.Background(), "", "")
 		So(err, ShouldNotBeNil)
@@ -51,6 +52,7 @@ func TestFromCredential(t *testing.T) {
 		src.Namespace = "/my/ns"
 		src.Name = "my-src"
 		src.CA = "a-ca"
+		src.SecurityProtocol = api.LDAPSourceSecurityProtocolInbandTLS
 		iss := newLDAPIssuer(src)
 		err := iss.fromCredentials(context.Background(), "", "")
 		So(err, ShouldNotBeNil)
