@@ -146,4 +146,5 @@ attributes:
     allowed_choices:
     - TLS
     - InbandTLS
-    default_value: InbandTLS
+    - None
+    default_value: TLS

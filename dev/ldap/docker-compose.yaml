@@ -1,0 +1,11 @@
+services:
+  ldap:
+    image: bitnami/openldap
+    ports:
+      - "11389:1389"
+    hostname: ldap
+    environment:
+      LDAP_ADMIN_PASSWORD: password
+      LDAP_ROOT: dc=universe,dc=io
+      LDAP_USERS: okenobi,dvader
+      LDAP_PASSWORDS: pass,pass

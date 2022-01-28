@@ -730,11 +730,12 @@
             "type": "string"
           },
           "securityProtocol": {
-            "default": "InbandTLS",
+            "default": "TLS",
             "description": "Specifies the connection type for the LDAP provider.",
             "enum": [
               "TLS",
-              "InbandTLS"
+              "InbandTLS",
+              "None"
             ]
           }
         },
