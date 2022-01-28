@@ -10,7 +10,7 @@ QrScanner.WORKER_PATH = URL.createObjectURL(new Blob([qrScannerWorkerSource]))
 
 export const QrScan = () => {
   const videoRef = useRef<HTMLVideoElement>(null)
-  const [jwt, setJwt] = useState<DecodedJWT>()
+  const [jwt, setJwt] = useState<DecodedJWT & {rawToken: string}>()
   // const [error, setError] = useState<string>()
   useEffect(() => {
     const qrScanner = new QrScanner(
@@ -21,7 +21,7 @@ export const QrScan = () => {
           const header = jwtDecode(result, {
             header: true,
           }) as DecodedJWT["header"]
-          setJwt({ payload, header })
+          setJwt({ payload, header, rawToken: result })
           qrScanner.stop()
         } catch (e) {
           console.error(e)
@@ -59,8 +59,7 @@ export const QrScan = () => {
     >
       {jwt ? (
         <JwtDialog
-          payload={jwt.payload}
-          header={jwt.header}
+          {...jwt}
           onClose={() => {
             setJwt(undefined)
           }}

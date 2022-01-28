@@ -1,4 +1,5 @@
 import {
+  Alert,
   Button,
   Dialog,
   DialogActions,
@@ -8,16 +9,76 @@ import {
   useMediaQuery,
 } from "@mui/material"
 import { Box } from "@mui/system"
+import { useEffect, useState } from "react"
+import { decodeBase64url, stringToBuffer } from "./utils"
 import type { DecodedJWT } from "./types"
 
 export const JwtDialog = ({
   payload,
   header,
+  rawToken,
   onClose,
 }: {
+  rawToken: string
   onClose(): void
 } & DecodedJWT) => {
   const fullScreen = useMediaQuery("(max-width: 600px)")
+  const [isValid, setIsValid] = useState<boolean>()
+  useEffect(() => {
+    const verify = async () => {
+      // Fetch the JWKS from the issuer
+      const jwks = await fetch(payload.iss + "/.well-known/jwks.json").then(p =>
+        p.json()
+      )
+
+      // Get the JWK to use
+      const jwk = jwks.keys.find((k: { kid: string }) => k.kid === header.kid)
+      if (!jwk) {
+        console.error("No matching JWK from", jwks)
+        return
+      }
+
+      // Remove extra fields which are not supported by `crypto.subtle.importKey`
+      const jwkToUse = {
+        crv: jwk.crv,
+        kty: jwk.kty,
+        x: jwk.x,
+        y: jwk.y,
+      }
+
+      // Import the public key with the `CryptoKey` interface of the Web Crypto API
+      const cryptoKeyPublic = await crypto.subtle.importKey(
+        "jwk",
+        jwkToUse,
+        {
+          name: "ECDSA",
+          namedCurve: "P-256",
+        },
+        false, // not extractable
+        ["verify"]
+      )
+
+      // Convert the signature and the payload to ArrayBuffers
+      const splitted = rawToken.split(".")
+      const signature = splitted[2]
+      const encoded = splitted.slice(0, 2).join(".")
+      const decodedSign = decodeBase64url(signature)
+      const signatureArrayBuffer = stringToBuffer(decodedSign)
+      const encodedArrayBuffer = stringToBuffer(encoded)
+
+      // Verify the signature
+      const result = await crypto.subtle.verify(
+        { name: "ECDSA", hash: "SHA-256" },
+        cryptoKeyPublic,
+        signatureArrayBuffer,
+        encodedArrayBuffer
+      )
+
+      setIsValid(result)
+    }
+
+    verify()
+  }, [])
   return (
     <Dialog open fullScreen={fullScreen}>
       <DialogTitle>Decoded JWT</DialogTitle>
@@ -29,14 +90,26 @@ export const JwtDialog = ({
             borderRadius: 2,
             overflowX: "auto",
             px: 2,
-            mt: 1
+            mt: 1,
+            mb: 2,
           }}
-        ><pre>
-          {JSON.stringify(payload, null, 2)}
-          </pre></Box>
+        >
+          <pre>{JSON.stringify(payload, null, 2)}</pre>
+        </Box>
+        {isValid === undefined ? null : isValid ? (
+          <Alert variant="outlined" severity="success">
+            Signature Verified
+          </Alert>
+        ) : (
+          <Alert variant="outlined" severity="error">
+            Signature Verification Failed
+          </Alert>
+        )}
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose} variant="contained">Close</Button>
+        <Button onClick={onClose} variant="contained">
+          Close
+        </Button>
       </DialogActions>
     </Dialog>
   )
