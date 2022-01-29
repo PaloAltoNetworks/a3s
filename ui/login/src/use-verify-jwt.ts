@@ -1,7 +1,11 @@
 import jwtDecode from "jwt-decode"
 import { useCallback } from "react"
-import { DecodedJWT } from "./types"
 import { decodeBase64url, stringToBuffer } from "./utils"
+
+interface DecodedJWT {
+  payload: Record<string, any>
+  header: { alg: string; typ: string; kid: string }
+}
 
 export const useVerifyJwt = () =>
   useCallback(async ({ token }: { token: string }) => {

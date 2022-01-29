@@ -5,23 +5,19 @@ import jwtDecode from "jwt-decode"
 import { JwtDialog } from "./jwt-dialog"
 // @ts-ignore
 import qrScannerWorkerSource from "qr-scanner/qr-scanner-worker.min.js?raw"
-import { DecodedJWT } from "./types"
 QrScanner.WORKER_PATH = URL.createObjectURL(new Blob([qrScannerWorkerSource]))
 
 export const QrScan = () => {
   const videoRef = useRef<HTMLVideoElement>(null)
-  const [jwt, setJwt] = useState<DecodedJWT & {rawToken: string}>()
+  const [jwt, setJwt] = useState<{ payload: Record<string, any>; token: string }>()
   // const [error, setError] = useState<string>()
   useEffect(() => {
     const qrScanner = new QrScanner(
       videoRef.current!,
       result => {
         try {
-          const payload = jwtDecode(result) as DecodedJWT["payload"]
-          const header = jwtDecode(result, {
-            header: true,
-          }) as DecodedJWT["header"]
-          setJwt({ payload, header, rawToken: result })
+          const payload = jwtDecode(result) as Record<string, any>
+          setJwt({ payload, token: result })
           qrScanner.stop()
         } catch (e) {
           console.error(e)

@@ -12,19 +12,18 @@ import {
   useMediaQuery,
 } from "@mui/material"
 import { useEffect, useState } from "react"
-import type { DecodedJWT } from "./types"
 import { useVerifyJwt } from "./use-verify-jwt"
 import { formatDuration, intervalToDuration } from "date-fns"
 
 export const JwtDialog = ({
   payload,
-  header,
   token,
   onClose,
 }: {
+  payload: Record<string, any>
   token: string
   onClose(): void
-} & DecodedJWT) => {
+}) => {
   const fullScreen = useMediaQuery("(max-width: 600px)")
   const [isValid, setIsValid] = useState<boolean>()
   const [error, setError] = useState<string>()
@@ -61,10 +60,14 @@ export const JwtDialog = ({
           }
         })
         .catch(err => {
+          setIsValid(false)
           if (err instanceof Error) {
             setError(err.message)
           }
         })
+    } else {
+      setIsValid(false)
+      setError("Token has expired")
     }
   }, [token, isExpired])
 
@@ -117,11 +120,11 @@ export const JwtDialog = ({
             <Typography key={audience}>{audience}</Typography>
           ))}
         </Stack>
-        <DialogContentText mt={3}>
-          {isExpired
-            ? "Token has expired."
-            : `Token will expire in ${lifetime}`}
-        </DialogContentText>
+        {!isExpired && (
+          <DialogContentText mt={3}>
+            Token will expire in {lifetime}.
+          </DialogContentText>
+        )}
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose} variant="contained">
