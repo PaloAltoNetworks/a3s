@@ -95,7 +95,14 @@ particular namespace.
 The easiest way to get started is to use the `docker-compose.yaml` in the `dev`
 folder.
 
-First, generate the needed certificates:
+First, install the tools needed:
+
+    go get -u go.aporeto.io/tg
+    go get -u go.aporeto.io/elemental/cmd/elegen
+    go get -u go.aporeto.io/regolithe/cmd/rego
+    go get -u github.com/go-bindata/go-bindata
+
+Then generate the needed certificates:
 
 	dev/certs-init
 
