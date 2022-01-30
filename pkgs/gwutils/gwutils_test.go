@@ -68,7 +68,7 @@ func TestMakeTLSPeerCertificateVerifier(t *testing.T) {
 		Convey("When given certs are garbage, it should fail", func() {
 			err := verifier([][]byte{[]byte("garbage")}, nil)
 			So(err, ShouldNotBeNil)
-			So(err.Error(), ShouldEqual, "tls: failed to parse certificate from server: x509: malformed certificate")
+			So(err.Error(), ShouldStartWith, "tls: failed to parse certificate from server: asn1: ")
 		})
 
 		Convey("When the manipulator returns an error", func() {

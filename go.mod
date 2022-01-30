@@ -12,6 +12,7 @@ require (
 
 require (
 	cloud.google.com/go v0.46.3
+	github.com/AlekSi/gocov-xml v1.0.0 // indirect
 	github.com/Azure/go-ntlmssp v0.0.0-20200615164410-66371956d46c // indirect
 	github.com/HdrHistogram/hdrhistogram-go v1.1.2 // indirect
 	github.com/Masterminds/goutils v1.1.0 // indirect
