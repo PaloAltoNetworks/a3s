@@ -1,0 +1,185 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.labels.name | default "a3s" }}
+spec:
+  replicas: {{ .Values.replicas | default 1}}
+  strategy:
+    type: {{ .Values.updateStrategy | default "RollingUpdate" }}
+  selector:
+    matchLabels:
+      app: {{ .Values.labels.name | default "a3s" }}
+      type: {{ .Values.labels.type | default "core" }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.labels.name | default "a3s" }}
+        type: {{ .Values.labels.type | default "core" }}
+    spec:
+      terminationGracePeriodSeconds: {{ .Values.terminationGracePeriodSeconds | default 60 }}
+      containers:
+        - name: a3s
+          image: {{ required "global.imageRegistry is required" .Values.global.imageRegistry }}/a3s:{{ required "global.imageTag is required" .Values.global.imageTag }}
+          imagePullPolicy: {{ .Values.imagePullPolicy | default "Always" }}
+          env:
+            # Init
+            - name: A3S_INIT
+              value: "{{ .Values.init.run | default "false" }}"
+            
+            - name: A3S_INIT_CONTINUE
+              value: "{{ .Values.init.continue | default "false" }}"
+
+            - name: A3S_INIT_ROOT_CA
+              value: /certs/init-root-ca.pem
+
+            # General
+            - name: A3S_LISTEN
+              value: ":{{ .Values.service.port | default 1443 }}"
+
+            {{- if .Values.global.encoding }}
+            - name: A3S_ENCODING
+              value: {{ .Values.global.encoding | quote }}
+            {{- end }}
+
+            # Log
+            {{- if .Values.log.format }}
+            - name: A3S_LOG_FORMAT
+              value: {{ .Values.log.format | quote }}
+            {{- end }}
+            {{- if .Values.log.level }}
+            - name: A3S_LOG_LEVEL
+              value: {{ .Values.log.level | quote }}
+            {{- end }}
+            
+            # Health
+            - name: A3S_HEALTH_LISTEN
+              value: ":{{ .Values.service.healthPort | default 1080 }}"
+            - name: A3S_HEALTH_ENABLED
+              value: "true"
+            
+            # Profiling
+            {{- if .Values.global.profiling.enabled }}
+            - name: A3S_PROFILING_ENABLED
+              value: "true"
+            - name: A3S_PROFILING_LISTEN
+              value: {{ required "global.profiling.listen is required" .Values.global.profiling.listen | quote }}
+            {{- end }}
+            
+            # TLS
+            - name: A3S_TLS_CERT
+              value: /certs/server-cert.pem
+            - name: A3S_TLS_KEY
+              value: /certs/server-key.pem
+            - name: A3S_TLS_KEY_PASS
+              value: file:///certs/server-key.pass
+
+            # JWT
+            - name: A3S_JWT_CERT
+              value: /certs/jwt-cert.pem
+            - name: A3S_JWT_KEY
+              value: /certs/jwt-key.pem
+            - name: A3S_JWT_KEY_PASS
+              value: file:///certs/jwt-key.pass
+            - name: A3S_JWT_ISSUER
+              value: {{ required "global.issuer is required" .Values.global.issuer | quote }}
+            - name: A3S_JWT_AUDIENCE
+              value: {{ required "global.audience is required" .Values.global.audience | quote }}
+
+            # Mongo
+            - name: A3S_MONGO_URL
+              value: {{ required "global.mongo.host is required" .Values.global.mongo.host }}
+            - name: A3S_MONGO_AUTH_DB
+              value: {{ required "global.mongo.db is required" .Values.global.mongo.db | quote }}
+            - name: A3S_MONGO_USER
+              value: {{ required "global.mongo.user is required" .Values.global.mongo.user | quote}}
+            - name: A3S_MONGO_ENCRYPTION_KEY
+              value: file:///certs/attribute-encryption-key.pass
+            - name: A3S_MONGO_TLS_DISABLE
+              value: {{ .Values.global.mongo.tls.disable | default "false" | quote }}
+            {{- if eq .Values.global.mongo.tls.disable false }}
+            - name: A3S_MONGO_CUSTOM_CA
+              value: /certs/mongo-ca.pem
+            - name: A3S_MONGO_TLS_CERT
+              value: /certs/mongo-full.pem
+            - name: A3S_MONGO_TLS_KEY
+              value: /certs/mongo-key.pem
+            - name: A3S_MONGO_TLS_KEY_PASS
+              value: file:///certs/mongo-key.pass
+            {{- end }}
+
+            # Nats 
+            - name: A3S_NATS_URL
+              value: {{ required "global.nats.host is required" .Values.global.nats.host }}
+            - name: A3S_NATS_USER
+              value: file:///certs/nats.user
+            - name: A3S_NATS_PASS
+              value: file:///certs/nats.pass
+            - name: A3S_NATS_TLS_DISABLE
+              value: {{ required "global.nats.tls.disable is required" .Values.global.nats.tls.disable | quote }}
+            {{- if eq .Values.global.mongo.tls.disable false }}
+            - name: A3S_NATS_TLS_CA
+              value: /certs/nats-ca.pem
+            - name: A3S_NATS_TLS_CERT
+              value: /certs/nats-cert.pem
+            - name: A3S_NATS_TLS_KEY
+              value: /certs/nats-key.pem
+            - name: A3S_NATS_TLS_KEY_PASS
+              value: file:///certs/nats-key.pass
+            {{- end }}
+                          
+          volumeMounts:
+            - name: certs
+              mountPath: /certs
+              readOnly: true
+      volumes:
+        - name: certs
+          secret:
+            secretName: a3s-secrets
+            items:
+              # Init
+              - key: init-root-ca.pem
+                path: init-root-ca.pem
+
+              # TLS
+              - key: server-cert.pem
+                path: server-cert.pem
+              - key: server-key.pem
+                path: server-key.pem
+              - key: server-key.pass
+                path: server-key.pass
+
+              # JWT
+              - key: jwt-cert.pem
+                path: jwt-cert.pem
+              - key: jwt-key.pem
+                path: jwt-key.pem
+              - key: jwt-key.pass
+                path: jwt-key.pass
+
+              # Mongo
+              - key: mongo-ca.pem
+                path: mongo-ca.pem
+              - key: mongo-full.pem
+                path: mongo-full.pem
+              - key: mongo-cert.pem
+                path: mongo-cert.pem
+              - key: mongo-key.pem
+                path: mongo-key.pem
+              - key: mongo-key.pass
+                path: mongo-key.pass
+              - key: attribute-encryption-key.pass
+                path: attribute-encryption-key.pass
+
+              # Nats
+              - key: nats-ca.pem
+                path: nats-ca.pem
+              - key: nats-cert.pem
+                path: nats-cert.pem
+              - key: nats-key.pem
+                path: nats-key.pem
+              - key: nats-key.pass
+                path: nats-key.pass
+              - key: nats.user
+                path: nats.user
+              - key: nats.pass
+                path: nats.pass

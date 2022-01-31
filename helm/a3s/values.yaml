@@ -1,0 +1,69 @@
+replicas: 1
+clusterIP: None
+
+service:
+  type:
+  port:
+  targetPort:
+  healthPort:
+
+labels:
+  name:
+  type:
+
+log:
+    level:
+    format:
+
+init:
+  run:
+  continue:
+  ca: init-root-ca
+  
+global:
+  encoding:
+  audience: 
+  issuer: 
+  imageRegistry: gcr.io/aporetodev
+  imageTag: latest
+  terminationGracePeriodSeconds: 60
+
+  server:
+      cert:
+      key:
+      pass:
+
+  jwt:
+    cert: jwt-cert
+    key: jwt-key
+    pass: jwt-pass
+
+  mongo:
+    tls:
+      disable:
+      ca:
+      cert:
+      key:
+      pass:
+    db: "$external"
+    user: "CN=mongodb-admin,OU=users,O=mongodb"
+
+    host: mongodb-shard-router-0.mongodb-shard-router,mongodb-shard-router-1.mongodb-shard-router,mongodb-shard-router-2.mongodb-shard-router
+    sharded: true
+    readConsistency: nearest
+    attributeEncryptionKey:
+
+  nats:
+    tls:
+      disable:
+      ca:
+      cert:
+      key:
+      pass:
+    user:
+    pass:
+
+  profiling:
+    enabled: false
+    listen: ":6060"
+      

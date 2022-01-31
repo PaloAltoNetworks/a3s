@@ -73,3 +73,6 @@ package_ca_certs:
 	mkdir -p docker/in
 	extract-nss-root-certs > docker/in/ca-certificates.pem
 	rm -f certdata.txt
+
+charts:
+	cd helm && make all
