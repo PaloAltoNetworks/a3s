@@ -133,7 +133,7 @@ func TestNewRemoteJWKS(t *testing.T) {
 		So(jwks, ShouldBeNil)
 		So(err, ShouldNotBeNil)
 		So(errors.As(err, &ErrJWKSRemote{}), ShouldBeTrue)
-		So(err.Error(), ShouldStartWith, `remote jwks error: unable to send request: Get "https://122.33.33.33": `)
+		So(err.Error(), ShouldEqual, `remote jwks error: unable to send request: Get "https://122.33.33.33": context deadline exceeded`)
 	})
 
 	Convey("Given a http server that returns invalid body", t, func() {
