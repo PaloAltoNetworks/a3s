@@ -95,17 +95,15 @@ particular namespace.
 The easiest way to get started is to use the `docker-compose.yaml` in the `dev`
 folder.
 
-First, install the dev tools needed:
+First, install the tools needed:
 
     go install go.aporeto.io/tg@master
     go install go.aporeto.io/elemental/cmd/elegen@master
     go install go.aporeto.io/regolithe/cmd/rego@master
     go install github.com/aporeto-inc/go-bindata@master
-
-Then, install the test tools needed:
-
     go install github.com/axw/gocov/gocov@master
     go install github.com/AlekSi/gocov-xml@master
+
 
 Then generate the needed certificates:
 
