@@ -139,7 +139,7 @@ the server:
 		--api-skip-verify \
 		--cert dev/.data/certificates/user-cert.pem \
 		--key dev/.data/certificates/user-key.pem \
-		--source-name root \
+		--source-name root
 
 > NOTE: In production environment, never use --api-skip-verify. You should
 > instead trust the CA used to issue A3S TLS certificate.
@@ -192,8 +192,11 @@ to retrieve a token from them, apply restrictions or apply cloaking.
 All the following examples will assume to work in the namespace `/tutorial`. To
 create it, you can run:
 
-	a3sctl api create namespace --name tutorial --namespace /
+	export A3SCTL_API="https://127.0.0.1:44443"
+	export A3SCTL_API_SKIP_VERIFY="true"
 	export A3SCTL_NAMESPACE=/tutorial
+
+	a3sctl api create namespace --with.name tutorial --namespace /
 
 > NOTE: the env variable will tell a3sctl which namespace to target without
 > having to pass the `--namespace` flag every time.
