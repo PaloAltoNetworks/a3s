@@ -31,7 +31,11 @@ lint:
 		--enable=nilerr \
 		./...
 
-test:
+testdeps:
+	go install github.com/axw/gocov/gocov@latest
+	go install github.com/AlekSi/gocov-xml@latest
+
+test: testdeps
 	go test ./... -race -cover -covermode=atomic -coverprofile=unit_coverage.cov
 	gocov convert ./unit_coverage.cov | gocov-xml > ./coverage.xml
 
