@@ -34,6 +34,7 @@ type IssueProcessor struct {
 	manipulator          manipulate.Manipulator
 	jwks                 *token.JWKS
 	maxValidity          time.Duration
+	defaultValidity      time.Duration
 	audience             string
 	cookieSameSitePolicy http.SameSite
 	cookieDomain         string
@@ -47,6 +48,7 @@ type IssueProcessor struct {
 func NewIssueProcessor(
 	manipulator manipulate.Manipulator,
 	jwks *token.JWKS,
+	defaultValidity time.Duration,
 	maxValidity time.Duration,
 	issuer string,
 	audience string,
@@ -60,6 +62,7 @@ func NewIssueProcessor(
 	return &IssueProcessor{
 		manipulator:          manipulator,
 		jwks:                 jwks,
+		defaultValidity:      defaultValidity,
 		maxValidity:          maxValidity,
 		issuer:               issuer,
 		audience:             audience,
@@ -91,7 +94,7 @@ func (p *IssueProcessor) ProcessCreate(bctx bahamut.Context) (err error) {
 	}
 
 	if validity == 0 {
-		validity = p.maxValidity
+		validity = p.defaultValidity
 	}
 
 	exp := time.Now().Add(validity)

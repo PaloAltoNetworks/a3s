@@ -218,8 +218,7 @@ type Issue struct {
 	TokenType IssueTokenTypeValue `json:"tokenType,omitempty" msgpack:"tokenType,omitempty" bson:"-" mapstructure:"tokenType,omitempty"`
 
 	// Configures the maximum length of validity for a token, using
-	// [Golang duration syntax](https://golang.org/pkg/time/#example_Duration). If it
-	// is bigger than the configured max validity, it will be capped. Default: `24h`.
+	// [Golang duration syntax](https://golang.org/pkg/time/#example_Duration).
 	Validity string `json:"validity,omitempty" msgpack:"validity,omitempty" bson:"-" mapstructure:"validity,omitempty"`
 
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
@@ -887,8 +886,7 @@ credentials from internal or external source of authentication.`,
 		AllowedChoices: []string{},
 		ConvertedName:  "Validity",
 		Description: `Configures the maximum length of validity for a token, using
-[Golang duration syntax](https://golang.org/pkg/time/#example_Duration). If it
-is bigger than the configured max validity, it will be capped. Default: ` + "`" + `24h` + "`" + `.`,
+[Golang duration syntax](https://golang.org/pkg/time/#example_Duration).`,
 		Exposed: true,
 		Name:    "validity",
 		Type:    "string",
@@ -1114,8 +1112,7 @@ credentials from internal or external source of authentication.`,
 		AllowedChoices: []string{},
 		ConvertedName:  "Validity",
 		Description: `Configures the maximum length of validity for a token, using
-[Golang duration syntax](https://golang.org/pkg/time/#example_Duration). If it
-is bigger than the configured max validity, it will be capped. Default: ` + "`" + `24h` + "`" + `.`,
+[Golang duration syntax](https://golang.org/pkg/time/#example_Duration).`,
 		Exposed: true,
 		Name:    "validity",
 		Type:    "string",
@@ -1277,8 +1274,7 @@ type SparseIssue struct {
 	TokenType *IssueTokenTypeValue `json:"tokenType,omitempty" msgpack:"tokenType,omitempty" bson:"-" mapstructure:"tokenType,omitempty"`
 
 	// Configures the maximum length of validity for a token, using
-	// [Golang duration syntax](https://golang.org/pkg/time/#example_Duration). If it
-	// is bigger than the configured max validity, it will be capped. Default: `24h`.
+	// [Golang duration syntax](https://golang.org/pkg/time/#example_Duration).
 	Validity *string `json:"validity,omitempty" msgpack:"validity,omitempty" bson:"-" mapstructure:"validity,omitempty"`
 
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`

@@ -237,6 +237,7 @@ func main() {
 		processors.NewIssueProcessor(
 			m,
 			jwks,
+			cfg.JWT.JWTDefaultValidity,
 			cfg.JWT.JWTMaxValidity,
 			cfg.JWT.JWTIssuer,
 			cfg.JWT.JWTAudience,

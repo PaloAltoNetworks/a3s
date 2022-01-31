@@ -156,7 +156,7 @@ func HandleAutoAuth(
 				viper.GetString("autoauth.mtls.source.name"),
 				overrideIfNeeded("autoauth.mtls.audience", overrideAudience),
 				overrideIfNeeded("autoauth.mtls.cloak", overrideCloak),
-				24*time.Hour,
+				viper.GetDuration("validity"),
 				refresh,
 				nil,
 			)
@@ -175,7 +175,7 @@ func HandleAutoAuth(
 				viper.GetString("autoauth.ldap.source.name"),
 				overrideIfNeeded("autoauth.ldap.audience", overrideAudience),
 				overrideIfNeeded("autoauth.ldap.cloak", overrideCloak),
-				24*time.Hour,
+				viper.GetDuration("validity"),
 				refresh,
 				nil,
 			)
@@ -195,7 +195,7 @@ func HandleAutoAuth(
 				viper.GetString("autoauth.http.source.name"),
 				overrideIfNeeded("autoauth.http.audience", overrideAudience),
 				overrideIfNeeded("autoauth.http.cloak", overrideCloak),
-				24*time.Hour,
+				viper.GetDuration("validity"),
 				refresh,
 				nil,
 			)

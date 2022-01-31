@@ -245,8 +245,7 @@ attributes:
   - name: validity
     description: |-
       Configures the maximum length of validity for a token, using
-      [Golang duration syntax](https://golang.org/pkg/time/#example_Duration). If it
-      is bigger than the configured max validity, it will be capped. Default: `24h`.
+      [Golang duration syntax](https://golang.org/pkg/time/#example_Duration).
     type: string
     exposed: true
     omit_empty: true
