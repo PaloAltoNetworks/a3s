@@ -35,8 +35,6 @@ jobs:
           go install go.aporeto.io/regolithe/cmd/rego@master
           go install github.com/securego/gosec/cmd/gosec@latest
           go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
-          go install github.com/axw/gocov/gocov@latest
-          go install github.com/AlekSi/gocov-xml@latest
 
       - name: build
         run: |

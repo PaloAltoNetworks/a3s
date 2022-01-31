@@ -32,8 +32,8 @@ lint:
 		./...
 
 testdeps:
-	go install github.com/axw/gocov/gocov@master
-	go install github.com/AlekSi/gocov-xml@master
+	go install github.com/axw/gocov/gocov@latest
+	go install github.com/AlekSi/gocov-xml@latest
 
 test: testdeps
 	go test ./... -race -cover -covermode=atomic -coverprofile=unit_coverage.cov
