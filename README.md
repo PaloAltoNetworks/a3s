@@ -315,7 +315,7 @@ Then we need to create the MTLS auth source:
 
 	a3sctl api create mtlssource \
 		--with.name my-mtls-source \
-		--with.certificate-auhority "$(cat myca-cert.pem)"
+		--with.ca "$(cat myca-cert.pem)"
 
 ##### Obtain a token
 
