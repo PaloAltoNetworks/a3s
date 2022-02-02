@@ -57,15 +57,18 @@ func MakeImportCmd(mmaker manipcli.ManipulatorMaker) *cobra.Command {
 				fNamespace,
 				ffile,
 				furl,
-				"",
 				fValues,
 				fSet,
-				fRender,
 				false,
 				true,
 			)
 			if err != nil {
 				return err
+			}
+
+			if fRender {
+				fmt.Println(string(data))
+				return nil
 			}
 
 			importFile := api.NewImport()
