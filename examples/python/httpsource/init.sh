@@ -47,8 +47,7 @@ a3sctl api create namespace --with.name "httpsource" -n "/" ||
 
 echo
 echo "* Importing data"
-a3sctl api create import -n /httpsource \
-	--input-file import.gotmpl ||
+a3sctl import -n /httpsource import.gotmpl ||
 	die "unable to import data"
 
 echo

@@ -47,6 +47,7 @@ func main() {
 		},
 	}
 	mflags := manipcli.ManipulatorFlagSet()
+	mflags.MarkHidden("tracking-id")
 	mmaker := manipcli.ManipulatorMakerFromFlags()
 
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default: $HOME/.config/a3sctl/default.yaml)")

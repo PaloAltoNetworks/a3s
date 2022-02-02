@@ -52,8 +52,7 @@ a3sctl api create namespace --with.name "claimmod" -n "/" ||
 
 echo
 echo "* Importing data"
-a3sctl api create import -n /claimmod \
-	--input-file import.gotmpl ||
+a3sctl import -n /claimmod import.gotmpl ||
 	die "unable to import data"
 
 echo

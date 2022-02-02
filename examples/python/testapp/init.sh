@@ -44,9 +44,7 @@ a3sctl api create namespace --with.name "testapp" -n "/" ||
 
 echo
 echo "* Importing data"
-a3sctl api create import \
-	-n /testapp \
-	--input-file=import.gotmpl ||
+a3sctl import -n /testapp import.gotmpl ||
 	die "unable to import data"
 
 echo
