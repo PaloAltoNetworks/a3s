@@ -852,8 +852,13 @@ This file declares two `authorizations`, under the label `my-import-label`.
 
 To import this file, run:
 
-	a3sctl api create import \
-		--input-file path/to/file.yaml
+	a3sctl import path/to/file.yaml
+
+a3sctl also allows to point to an URL.
+
+For instance:
+
+	apoctl import https://server.com/import.yaml
 
 ### Templating with a3sctl
 
@@ -874,9 +879,9 @@ For instance, consider the following file:
 
 This file can be imported using the following command:
 
-	a3sctl api create import --input-file mytemplate.gotmpl \
-		--input-set name=hello \
-		--input-set "desc=the description"
+	a3sctl import mytemplate.gotmpl \
+		--set name=hello \
+		--set "desc=the description"
 
 This will replace `{{ .Values.name }}` and `{{ .Values.desc }}` by `hello` and
 `the description` respectively. You can also notice the call to `readFile` that
@@ -896,8 +901,7 @@ template. For instance:
 
 You can use the values in that file by doing:
 
-	a3sctl api create import --input-file mytemplate.gotmpl \
-		--input-values myvalues.yaml
+	a3sctl import mytemplate.gotmpl --values myvalues.yaml
 
 ## Dev environment
 

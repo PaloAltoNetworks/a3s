@@ -25,11 +25,6 @@ It contains 2 additional pre-populated users:
 To use the ldap server as an A3S ldap source, import its declaration with the
 following command:
 
-	a3sctl api create import \
-		--input-file ./a3s-ldapsource.yaml \
-		--namespace /
-
-> Note: There will be a helper subcommand to handle imports soon. The version
-> above uses the raw API. Check apoctl --help.
+	a3sctl import ./a3s-ldapsource.yaml --namespace /
 
 The source name is `a3s-dev-ldap`.

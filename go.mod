@@ -5,7 +5,7 @@ go 1.17
 require (
 	go.aporeto.io/bahamut v1.112.1-0.20220121191906-807a48f2710f
 	go.aporeto.io/elemental v1.100.1-0.20220119003946-1287f77e72fb
-	go.aporeto.io/manipulate v1.121.1-0.20220121191909-991feff27a10
+	go.aporeto.io/manipulate v1.121.1-0.20220202234105-aaaac044c2b9
 	go.aporeto.io/tg v1.34.1-0.20220107235943-7d2aaa0dc6f5
 	go.aporeto.io/wsc v1.36.1-0.20210528201141-2af38def4959 // indirect
 )
@@ -20,7 +20,7 @@ require (
 	github.com/NYTimes/gziphandler v1.1.1 // indirect
 	github.com/StackExchange/wmi v0.0.0-20190523213315-cbe66965904d // indirect
 	github.com/apparentlymart/go-cidr v1.1.0
-	github.com/araddon/dateparse v0.0.0-20200409225146-d820a6159ab1 // indirect
+	github.com/araddon/dateparse v0.0.0-20210429162001-6b43995a97de // indirect
 	github.com/armon/go-proxyproto v0.0.0-20200108142055-f0b8253b1507 // indirect
 	github.com/aws/aws-sdk-go v1.42.39
 	github.com/beorn7/perks v1.0.1 // indirect
@@ -38,7 +38,7 @@ require (
 	github.com/go-ldap/ldap/v3 v3.4.1
 	github.com/go-ole/go-ole v1.2.4 // indirect
 	github.com/go-zoo/bone v1.3.0 // indirect
-	github.com/gofrs/uuid v3.3.0+incompatible
+	github.com/gofrs/uuid v4.2.0+incompatible
 	github.com/golang-jwt/jwt/v4 v4.2.0
 	github.com/golang/protobuf v1.4.2 // indirect
 	github.com/google/uuid v1.3.0 // indirect
@@ -59,7 +59,7 @@ require (
 	github.com/mailgun/timetools v0.0.0-20141028012446-7e6055773c51 // indirect
 	github.com/mattn/go-colorable v0.0.9 // indirect
 	github.com/mattn/go-isatty v0.0.3 // indirect
-	github.com/mattn/go-runewidth v0.0.9 // indirect
+	github.com/mattn/go-runewidth v0.0.10 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.1 // indirect
 	github.com/mdp/qrterminal v1.0.1
 	github.com/mitchellh/copystructure v1.2.0
@@ -78,6 +78,7 @@ require (
 	github.com/prometheus/client_model v0.2.0 // indirect
 	github.com/prometheus/common v0.10.0 // indirect
 	github.com/prometheus/procfs v0.1.3 // indirect
+	github.com/rivo/uniseg v0.1.0 // indirect
 	github.com/shirou/gopsutil v2.20.6+incompatible // indirect
 	github.com/sirupsen/logrus v1.8.1 // indirect
 	github.com/smartystreets/assertions v1.0.0 // indirect
@@ -92,7 +93,7 @@ require (
 	github.com/subosito/gotenv v1.2.0 // indirect
 	github.com/uber/jaeger-client-go v2.30.0+incompatible
 	github.com/uber/jaeger-lib v2.4.1+incompatible // indirect
-	github.com/ugorji/go/codec v1.2.4
+	github.com/ugorji/go/codec v1.2.6
 	github.com/valyala/tcplisten v0.0.0-20161114210144-ceec8f93295a // indirect
 	github.com/vulcand/oxy v1.1.0 // indirect
 	github.com/vulcand/predicate v1.1.0 // indirect

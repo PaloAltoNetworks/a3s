@@ -14,6 +14,7 @@ import (
 	"go.aporeto.io/a3s/cmd/a3sctl/internal/compcmd"
 	"go.aporeto.io/a3s/cmd/a3sctl/internal/flagsets"
 	"go.aporeto.io/a3s/cmd/a3sctl/internal/help"
+	"go.aporeto.io/a3s/cmd/a3sctl/internal/importcmd"
 	"go.aporeto.io/a3s/pkgs/api"
 	"go.aporeto.io/a3s/pkgs/bootstrap"
 	"go.aporeto.io/a3s/pkgs/conf"
@@ -46,6 +47,7 @@ func main() {
 		},
 	}
 	mflags := manipcli.ManipulatorFlagSet()
+	_ = mflags.MarkHidden("tracking-id")
 	mmaker := manipcli.ManipulatorMakerFromFlags()
 
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default: $HOME/.config/a3sctl/default.yaml)")
@@ -75,11 +77,15 @@ func main() {
 	authCmd := authcmd.New(mmaker)
 	authCmd.PersistentFlags().AddFlagSet(mflags)
 
+	importCmd := importcmd.MakeImportCmd(mmaker)
+	importCmd.PersistentFlags().AddFlagSet(mflags)
+
 	compCmd := compcmd.New()
 
 	rootCmd.AddCommand(
 		apiCmd,
 		authCmd,
+		importCmd,
 		compCmd,
 	)
 
