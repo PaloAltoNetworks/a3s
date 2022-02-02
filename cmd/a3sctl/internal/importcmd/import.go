@@ -102,7 +102,7 @@ func MakeImportCmd(mmaker manipcli.ManipulatorMaker) *cobra.Command {
 				return err
 			}
 
-			fmt.Fprintf(os.Stderr, "Successfuly %s data with label '%s' in namespace %s\n", actionString, importFile.Label, fNamespace)
+			fmt.Fprintf(os.Stderr, "Successfully %s data with label '%s' in namespace %s\n", actionString, importFile.Label, fNamespace)
 
 			return nil
 		},
