@@ -1,13 +1,16 @@
 MAKEFLAGS += --warn-undefined-variables
 SHELL := /bin/bash -o pipefail
-DOCKER_REPO ?= "a3s"
-DOCKER_IMAGE ?= "a3s"
-DOCKER_TAG ?= "dev"
+CONTAINER_ENGINE ?= docker
+CONTAINER_REPO ?= "a3s"
+CONTAINER_IMAGE ?= "a3s"
+CONTAINER_TAG ?= "dev"
 
 export GO111MODULE = on
 
 default: codegen lint sec test a3s cli
 .PHONY: ui
+
+## Tests
 
 lint:
 	golangci-lint run \
@@ -42,6 +45,9 @@ test: testdeps
 sec:
 	gosec -quiet ./...
 
+
+## Code generation
+
 generate:
 	go generate ./...
 
@@ -52,6 +58,9 @@ ui:
 	cd ui/login && yarn && yarn build
 
 codegen: api ui generate
+
+
+## Main build
 
 a3s:
 	cd cmd/a3s && CGO_ENABLED=0 go build -ldflags="-w -s" -trimpath
@@ -65,10 +74,19 @@ cli:
 cli_linux:
 	cd cmd/a3sctl && CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go install -ldflags="-w -s" -trimpath
 
-docker: codegen generate a3s_linux package_ca_certs
+
+## Containers
+
+docker:
+	CONTAINER_ENGINE=docker make container
+
+podman:
+	CONTAINER_ENGINE=podman make container
+
+container: codegen generate a3s_linux package_ca_certs
 	mkdir -p docker/in
 	cp cmd/a3s/a3s docker/in
-	cd docker && docker build -t ${DOCKER_REPO}/${DOCKER_IMAGE}:${DOCKER_TAG} .
+	cd docker && ${CONTAINER_ENGINE} build -t ${CONTAINER_REPO}/${CONTAINER_IMAGE}:${CONTAINER_TAG} .
 
 package_ca_certs:
 	mkdir -p docker/in
