@@ -3,6 +3,8 @@ import { Box } from "@mui/system"
 import { Login } from "./login"
 import { createTheme, ThemeProvider, useMediaQuery } from "@mui/material"
 import { useMemo } from "react"
+import { RequestPage } from "./request/request-page"
+import './main.css'
 
 const App = () => {
   // https://mui.com/customization/dark-mode/#system-preference
@@ -16,6 +18,9 @@ const App = () => {
       }),
     [prefersDarkMode]
   )
+
+  const pathname = window.location.pathname.toLowerCase()
+  const isRequestMode = pathname.endsWith("request.html") || pathname.endsWith("request")
 
   return (
     <ThemeProvider theme={theme}>
@@ -31,7 +36,7 @@ const App = () => {
           color: "text.primary",
         }}
       >
-        <Login />
+        {isRequestMode ? <RequestPage/> : <Login />}
       </Box>
     </ThemeProvider>
   )

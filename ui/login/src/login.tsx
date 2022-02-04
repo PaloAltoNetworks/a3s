@@ -15,7 +15,7 @@ import {
 import { useIssue } from "./use-issue"
 import { CloakDialog } from "./cloak-dialog"
 import jwtDecode from "jwt-decode"
-import { useLocalState } from "./use-local-state"
+import { useLocalState } from "./utils/use-local-state"
 import { QrCodeDialog } from "./qr-code-dialog"
 import { QrScan } from "./qr-scan"
 
