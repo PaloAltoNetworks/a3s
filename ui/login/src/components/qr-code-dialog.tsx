@@ -12,19 +12,25 @@ export const QrCodeDialog = ({
   title,
   onClose,
 }: {
-  data: string
+  data: string | Uint8Array
   title?: string
   onClose(): void
 }) => {
   return (
     <Dialog open>
       {title && <DialogTitle>{title}</DialogTitle>}
-      <DialogContent>
+      <DialogContent sx={{ display: "flex", justifyContent: "center" }}>
         <canvas
           ref={canvas => {
             if (canvas) {
               const dpi = window.devicePixelRatio
-              const qr = QrCode.encodeText(data, QrCode.Ecc.LOW)
+              const qr =
+                typeof data === "string"
+                  ? QrCode.encodeText(data, QrCode.Ecc.LOW)
+                  : QrCode.encodeBinary(
+                      data as unknown as number[],
+                      QrCode.Ecc.LOW
+                    )
               const border = 3
               const scale = 3
               const width: number = (qr.size + border * 2) * scale

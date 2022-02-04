@@ -193,7 +193,7 @@ export const Login = () => {
     return (
       <QrCodeDialog
         data={dialogState.token}
-        title='Token QR Code'
+        title="Token QR Code"
         onClose={() => {
           setDialogState({ type: "None" })
         }}
@@ -205,12 +205,14 @@ export const Login = () => {
     <Box
       sx={{
         "@media screen and (min-width: 600px)": {
+          mt: "auto",
+          mb: 'auto',
           display: "flex",
           // Avoid vertical position shift of the auth sources when switching between them.
           minHeight: "400px",
           alignItems: "flex-start",
         },
-        p: 2
+        p: 2,
       }}
     >
       <FormControl component="fieldset">

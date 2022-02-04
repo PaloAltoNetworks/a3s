@@ -1,10 +1,12 @@
-import { Button, Card, IconButton, Typography } from "@mui/material"
+import { Button, Card, IconButton, Tooltip, Typography } from "@mui/material"
 import { Box } from "@mui/system"
 import { useLocalJsonState } from "../utils/use-local-json-state"
 import { RequestEntry } from "./types"
 import { useState } from "react"
 import { EditDialog } from "./edit-dialog"
-import { Delete, Edit, Add } from "@mui/icons-material"
+import { Delete, Edit, Add, QrCode } from "@mui/icons-material"
+import { encode } from "@msgpack/msgpack"
+import { QrCodeDialog } from "../components/qr-code-dialog"
 
 export const RequestPage = () => {
   const [entries, setEntries] = useLocalJsonState<RequestEntry[]>(
@@ -12,14 +14,14 @@ export const RequestPage = () => {
     "requestEntries"
   )
   const [editEntryIndex, setEditEntryIndex] = useState<number>()
+  const [qrCodeEntryIndex, setQrCodeEntryIndex] = useState<number>()
+
   return (
     <Box
       sx={{
-        height: "calc(100vh - 64px)",
-        "@media screen and (min-width: 600px)": {
-          width: 800,
-        },
+        p: 3,
         width: "100%",
+        maxWidth: "800px",
       }}
     >
       <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
@@ -49,22 +51,36 @@ export const RequestPage = () => {
             <Typography color="text.secondary">{entry.description}</Typography>
           </Box>
           <Box display="flex">
-            <IconButton
-              aria-label="edit"
-              onClick={() => {
-                setEditEntryIndex(index)
-              }}
-            >
-              <Edit />
-            </IconButton>
-            <IconButton
-              aria-label="delete"
-              onClick={() => {
-                setEntries(entries.filter(e => e.ID !== entry.ID))
-              }}
-            >
-              <Delete />
-            </IconButton>
+            <Tooltip title="Request with QR code">
+              <IconButton
+                aria-label="qr-code"
+                onClick={() => {
+                  setQrCodeEntryIndex(index)
+                }}
+              >
+                <QrCode />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title="Edit">
+              <IconButton
+                aria-label="edit"
+                onClick={() => {
+                  setEditEntryIndex(index)
+                }}
+              >
+                <Edit />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title="Delete">
+              <IconButton
+                aria-label="delete"
+                onClick={() => {
+                  setEntries(entries.filter(e => e.ID !== entry.ID))
+                }}
+              >
+                <Delete />
+              </IconButton>
+            </Tooltip>
           </Box>
         </Card>
       ))}
@@ -87,6 +103,22 @@ export const RequestPage = () => {
           }}
           onCancel={() => {
             setEditEntryIndex(undefined)
+          }}
+        />
+      )}
+      {qrCodeEntryIndex !== undefined && (
+        <QrCodeDialog
+          data={encode({
+            meta: {
+              version: "0.0.0",
+            },
+            claims: entries[qrCodeEntryIndex].claims,
+            issuers: entries[qrCodeEntryIndex].issuers,
+            message: entries[qrCodeEntryIndex].message,
+          })}
+          title={`Requesting ${entries[qrCodeEntryIndex].name}`}
+          onClose={() => {
+            setQrCodeEntryIndex(undefined)
           }}
         />
       )}
