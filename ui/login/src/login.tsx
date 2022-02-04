@@ -16,7 +16,7 @@ import { useIssue } from "./use-issue"
 import { CloakDialog } from "./cloak-dialog"
 import jwtDecode from "jwt-decode"
 import { useLocalState } from "./utils/use-local-state"
-import { QrCodeDialog } from "./qr-code-dialog"
+import { QrCodeDialog } from "./components/qr-code-dialog"
 import { QrScan } from "./qr-scan"
 
 type StringBoolean = "true" | "false"
@@ -192,7 +192,8 @@ export const Login = () => {
   if (dialogState.type === "QrCode") {
     return (
       <QrCodeDialog
-        token={dialogState.token}
+        data={dialogState.token}
+        title='Token QR Code'
         onClose={() => {
           setDialogState({ type: "None" })
         }}

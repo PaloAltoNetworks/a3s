@@ -5,24 +5,26 @@ import {
   DialogActions,
   Button,
 } from "@mui/material"
-import QrCode from "./qr-code-gen"
+import QrCode from "../utils/qr-code-gen"
 
 export const QrCodeDialog = ({
-  token,
+  data,
+  title,
   onClose,
 }: {
-  token: string
+  data: string
+  title?: string
   onClose(): void
 }) => {
   return (
     <Dialog open>
-      <DialogTitle>Token QR Code</DialogTitle>
+      {title && <DialogTitle>{title}</DialogTitle>}
       <DialogContent>
         <canvas
           ref={canvas => {
             if (canvas) {
               const dpi = window.devicePixelRatio
-              const qr = QrCode.encodeText(token, QrCode.Ecc.LOW)
+              const qr = QrCode.encodeText(data, QrCode.Ecc.LOW)
               const border = 3
               const scale = 3
               const width: number = (qr.size + border * 2) * scale
