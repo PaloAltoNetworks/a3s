@@ -1,23 +1,29 @@
 import { Box, Typography } from "@mui/material"
 import { useEffect, useRef, useState } from "react"
 import QrScanner from "qr-scanner"
-import jwtDecode from "jwt-decode"
+
 import { JwtDialog } from "./jwt-dialog"
 // @ts-ignore
 import qrScannerWorkerSource from "qr-scanner/qr-scanner-worker.min.js?raw"
 QrScanner.WORKER_PATH = URL.createObjectURL(new Blob([qrScannerWorkerSource]))
 
-export const QrScan = () => {
+export const QrScan = ({
+  onResult,
+}: {
+  /**
+   * Must throw if the result is not usable so the scan can keep going
+   */
+  onResult(result: string): void
+}) => {
   const videoRef = useRef<HTMLVideoElement>(null)
-  const [jwt, setJwt] = useState<{ payload: Record<string, any>; token: string }>()
+
   // const [error, setError] = useState<string>()
   useEffect(() => {
     const qrScanner = new QrScanner(
       videoRef.current!,
       result => {
         try {
-          const payload = jwtDecode(result) as Record<string, any>
-          setJwt({ payload, token: result })
+          onResult(result)
           qrScanner.stop()
         } catch (e) {
           console.error(e)
@@ -45,29 +51,11 @@ export const QrScan = () => {
     }
   }, [])
   return (
-    <Box
-      sx={{
-        width: "90vw",
-        "@media screen and (min-width: 600px)": {
-          width: "40vw",
-        },
+    <video
+      ref={videoRef}
+      style={{
+        width: "100%",
       }}
-    >
-      {jwt ? (
-        <JwtDialog
-          {...jwt}
-          onClose={() => {
-            setJwt(undefined)
-          }}
-        />
-      ) : (
-        <video
-          ref={videoRef}
-          style={{
-            width: "100%",
-          }}
-        ></video>
-      )}
-    </Box>
+    ></video>
   )
 }

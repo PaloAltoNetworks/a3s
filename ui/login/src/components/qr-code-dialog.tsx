@@ -7,6 +7,9 @@ import {
 } from "@mui/material"
 import QrCode from "../utils/qr-code-gen"
 
+/**
+ * Encode data into QR code
+ */
 export const QrCodeDialog = ({
   data,
   title,

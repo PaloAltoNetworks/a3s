@@ -13,15 +13,20 @@ import {
   useTheme,
 } from "@mui/material"
 import { useIssue } from "./use-issue"
-import { CloakDialog } from "./cloak-dialog"
+import { MultiSelectDialog } from "./multi-select-dialog"
 import jwtDecode from "jwt-decode"
 import { useLocalState } from "./utils/use-local-state"
 import { QrCodeDialog } from "./components/qr-code-dialog"
 import { QrScan } from "./qr-scan"
+import { useLocalJsonState } from "./utils/use-local-json-state"
+import { JwtDialog } from "./jwt-dialog"
 
 type StringBoolean = "true" | "false"
 type DialogState =
   | { type: "None" }
+  | { type: "PrefixSelection" }
+  | { type: "ScanningRequestQR" }
+  | { type: "JwtDisplay"; payload: Record<string, any>; token: string }
   | { type: "Cloak"; token: string }
   | { type: "QrCode"; token: string }
 
@@ -56,6 +61,10 @@ export const Login = () => {
     "sourceNamespace"
   )
   const [sourceName, setSourceName] = useLocalState<string>("", "sourceName")
+  const [requestedClaims, setRequestedClaims] = useLocalJsonState<string[]>(
+    [],
+    "requestedClaims"
+  )
   const [ldapUsername, setLdapUsername] = useState("")
   const [ldapPassword, setLdapPassword] = useState("")
   const [dialogState, setDialogState] = useState<DialogState>({ type: "None" })
@@ -150,6 +159,23 @@ export const Login = () => {
     return <Typography>Authenticating using OIDC...</Typography>
   }
 
+  if (dialogState.type === "PrefixSelection") {
+    return (
+      <MultiSelectDialog
+        options={["a", "b", "c"]}
+        title="Select Claims Prefixes"
+        description="Please select the claims prefixes that you want to show to the requester."
+        onConfirm={claims => {
+          setRequestedClaims(claims)
+          setDialogState({ type: "None" })
+        }}
+        onCancel={() => {
+          setDialogState({ type: "None" })
+        }}
+      />
+    )
+  }
+
   if (dialogState.type === "Cloak") {
     // Render identities for cloak mode
     let identities: string[] = []
@@ -168,8 +194,10 @@ export const Login = () => {
     }
 
     return (
-      <CloakDialog
-        identities={identities}
+      <MultiSelectDialog
+        options={identities}
+        title="Select Claims"
+        description="Please select the claims that you want to include"
         onConfirm={cloak => {
           issueWithA3s({
             cloak,
@@ -184,6 +212,18 @@ export const Login = () => {
                   token,
                 })
             })
+        }}
+      />
+    )
+  }
+
+  if (dialogState.type === "JwtDisplay") {
+    return (
+      <JwtDialog
+        token={dialogState.token}
+        payload={dialogState.payload}
+        onClose={() => {
+          setDialogState({ type: "None" })
         }}
       />
     )
@@ -206,7 +246,7 @@ export const Login = () => {
       sx={{
         "@media screen and (min-width: 600px)": {
           mt: "auto",
-          mb: 'auto',
+          mb: "auto",
           display: "flex",
           // Avoid vertical position shift of the auth sources when switching between them.
           minHeight: "400px",
@@ -215,20 +255,38 @@ export const Login = () => {
         p: 2,
       }}
     >
-      <FormControl component="fieldset">
-        <FormLabel>Authentication Source</FormLabel>
-        <RadioGroup
-          value={sourceType}
-          onChange={e => {
-            setSourceType(e.target.value)
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+        }}
+      >
+        <FormControl component="fieldset">
+          <FormLabel>Authentication Source</FormLabel>
+          <RadioGroup
+            value={sourceType}
+            onChange={e => {
+              setSourceType(e.target.value)
+            }}
+          >
+            <FormControlLabel value="MTLS" control={<Radio />} label="MTLS" />
+            <FormControlLabel value="LDAP" control={<Radio />} label="LDAP" />
+            <FormControlLabel value="OIDC" control={<Radio />} label="OIDC" />
+            <FormControlLabel value="QR" control={<Radio />} label="QR Code" />
+          </RadioGroup>
+        </FormControl>
+        <Button
+          sx={{
+            mt: 1,
+          }}
+          variant="outlined"
+          onClick={() => {
+            setDialogState({ type: "PrefixSelection" })
           }}
         >
-          <FormControlLabel value="MTLS" control={<Radio />} label="MTLS" />
-          <FormControlLabel value="LDAP" control={<Radio />} label="LDAP" />
-          <FormControlLabel value="OIDC" control={<Radio />} label="OIDC" />
-          <FormControlLabel value="QR" control={<Radio />} label="QR Code" />
-        </RadioGroup>
-      </FormControl>
+          Scan request QR
+        </Button>
+      </Box>
       <Box
         sx={{
           display: "flex",
@@ -246,7 +304,23 @@ export const Login = () => {
           "& .MuiTextField-root": { mt: 1, mb: 1, width: "32ch" },
         }}
       >
-        {sourceType === "QR" && <QrScan />}
+        {sourceType === "QR" && (
+          <Box
+            sx={{
+              width: "90vw",
+              "@media screen and (min-width: 600px)": {
+                width: "40vw",
+              },
+            }}
+          >
+            <QrScan
+              onResult={result => {
+                const payload = jwtDecode(result) as Record<string, any>
+                setDialogState({ type: "JwtDisplay", payload, token: result })
+              }}
+            />
+          </Box>
+        )}
         {sourceType !== "QR" && (
           <>
             <TextField
@@ -337,6 +411,11 @@ export const Login = () => {
               Sign in
             </Button>
           </>
+        )}
+        {requestedClaims.length > 0 && (
+          <Typography sx={{ mt: 1 }} variant="body2" color="text.secondary">
+            Selected claim prefixes: {requestedClaims.join(", ")}
+          </Typography>
         )}
       </Box>
     </Box>
