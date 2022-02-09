@@ -44,12 +44,12 @@ type DialogState =
   | { type: "Cloak"; token: string }
   | { type: "QrCode"; token: string }
 
-// const audience = ["__AUDIENCE__"]
-// const apiUrl = "__API_URL__"
-// let redirectUrl = "__REDIRECT_URL__"
-const audience = ["https://127.0.0.1:44443"]
-const apiUrl = "https://localhost:44443"
-let redirectUrl = "https://google.com"
+const audience = ["__AUDIENCE__"]
+const apiUrl = "__API_URL__"
+let redirectUrl = "__REDIRECT_URL__"
+// const audience = ["https://127.0.0.1:44443"]
+// const apiUrl = "https://localhost:44443"
+// let redirectUrl = "https://google.com"
 const redirectUrlInLocalStorage = localStorage.getItem("redirectUrl")
 if (redirectUrlInLocalStorage) {
   redirectUrl = redirectUrlInLocalStorage
