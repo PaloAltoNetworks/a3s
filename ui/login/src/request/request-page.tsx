@@ -5,7 +5,6 @@ import { RequestEntry } from "./types"
 import { useState } from "react"
 import { EditDialog } from "./edit-dialog"
 import { Delete, Edit, Add, QrCode } from "@mui/icons-material"
-import { encode } from "@msgpack/msgpack"
 import { QrCodeDialog } from "../components/qr-code-dialog"
 
 export const RequestPage = () => {
@@ -108,7 +107,7 @@ export const RequestPage = () => {
       )}
       {qrCodeEntryIndex !== undefined && (
         <QrCodeDialog
-          data={encode({
+          data={JSON.stringify({
             meta: {
               version: "0.0.0",
             },

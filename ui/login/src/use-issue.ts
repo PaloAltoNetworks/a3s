@@ -4,6 +4,7 @@ interface IssueParams {
   sourceNamespace: string
   sourceName: string
   cookie: boolean
+  cloak?: string[]
 }
 
 interface IssueLdapParams extends IssueParams {
@@ -37,6 +38,7 @@ export function useIssue({ apiUrl, audience }: UseIssueOptions) {
       username,
       password,
       cookie,
+      cloak,
     }: IssueLdapParams) =>
       fetch(issueUrl, {
         method: "POST",
@@ -51,6 +53,7 @@ export function useIssue({ apiUrl, audience }: UseIssueOptions) {
           cookie,
           cookieDomain: window.location.hostname,
           audience,
+          cloak,
         }),
         headers: {
           "Content-Type": "application/json",
@@ -60,7 +63,7 @@ export function useIssue({ apiUrl, audience }: UseIssueOptions) {
   )
 
   const issueWithMtls = useCallback(
-    ({ sourceNamespace, sourceName, cookie }: IssueParams) =>
+    ({ sourceNamespace, sourceName, cookie, cloak }: IssueParams) =>
       fetch(issueUrl, {
         method: "POST",
         body: JSON.stringify({
@@ -70,6 +73,7 @@ export function useIssue({ apiUrl, audience }: UseIssueOptions) {
           cookie,
           cookieDomain: window.location.hostname,
           audience,
+          cloak,
         }),
         headers: {
           "Content-Type": "application/json",
@@ -83,6 +87,7 @@ export function useIssue({ apiUrl, audience }: UseIssueOptions) {
       sourceNamespace,
       sourceName,
       redirectUrl,
+      cloak,
     }: Omit<IssueParams, "cookie"> & { redirectUrl: string }) => {
       // Remove the trailing slash
       const currentUrl = (
@@ -99,6 +104,7 @@ export function useIssue({ apiUrl, audience }: UseIssueOptions) {
             redirectErrorURL: currentUrl,
             noAuthRedirect: true,
           },
+          cloak
         }),
         headers: {
           "Content-Type": "application/json",

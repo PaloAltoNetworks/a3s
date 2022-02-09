@@ -10,7 +10,7 @@ import {
   Checkbox,
   Divider,
 } from "@mui/material"
-import { useState } from "react"
+import { useState, ReactNode } from "react"
 
 export const MultiSelectDialog = ({
   options,
@@ -18,6 +18,7 @@ export const MultiSelectDialog = ({
   description,
   onConfirm,
   onCancel,
+  children
 }: {
   title: string
   // Should be unique
@@ -25,6 +26,7 @@ export const MultiSelectDialog = ({
   description?: string
   onConfirm(selected: string[]): void
   onCancel?: () => void
+  children?: ReactNode
 }) => {
   const [selected, setSelected] = useState<string[]>(options)
   const allSelected = selected.length === options.length
@@ -33,6 +35,7 @@ export const MultiSelectDialog = ({
       <DialogTitle>{title}</DialogTitle>
       <DialogContent>
         {description && <DialogContentText>{description}</DialogContentText>}
+        {children}
         <FormGroup sx={{ mt: 2 }}>
           <FormControlLabel
             control={

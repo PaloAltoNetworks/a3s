@@ -367,11 +367,6 @@
   resolved "https://registry.yarnpkg.com/@emotion/weak-memoize/-/weak-memoize-0.2.5.tgz#8eed982e2ee6f7f4e44c253e12962980791efd46"
   integrity sha512-6U71C2Wp7r5XtFtQzYrW5iKFT67OixrSxjI4MptCHzdSVlgabczzqLe0ZSgnub/5Kp4hSbpDB1tMytZY9pwxxA==
 
-"@msgpack/msgpack@^2.7.1":
-  version "2.7.1"
-  resolved "https://registry.yarnpkg.com/@msgpack/msgpack/-/msgpack-2.7.1.tgz#f01954baadc502f3c82e9c3f72c740ce65eae1cc"
-  integrity sha512-ApwiSL2c9ObewdOE/sqt788P1C5lomBOHyO8nUBCr4ofErBCnYQ003NtJ8lS9OQZc11ximkbmgAZJjB8y6cCdA==
-
 "@mui/base@5.0.0-alpha.59":
   version "5.0.0-alpha.59"
   resolved "https://registry.yarnpkg.com/@mui/base/-/base-5.0.0-alpha.59.tgz#ca14f4597b30a342e5ec622a7164304478acd601"

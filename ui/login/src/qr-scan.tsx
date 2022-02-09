@@ -1,8 +1,5 @@
-import { Box, Typography } from "@mui/material"
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useRef } from "react"
 import QrScanner from "qr-scanner"
-
-import { JwtDialog } from "./jwt-dialog"
 // @ts-ignore
 import qrScannerWorkerSource from "qr-scanner/qr-scanner-worker.min.js?raw"
 QrScanner.WORKER_PATH = URL.createObjectURL(new Blob([qrScannerWorkerSource]))
@@ -31,7 +28,7 @@ export const QrScan = ({
         }
       },
       err => {
-        console.error(err)
+        // console.error(err)
         // setError(err)
       },
       video => {
