@@ -233,6 +233,11 @@ func main() {
 		zap.L().Fatal("Unable to install UI login handler", zap.Error(err))
 	}
 
+	// Reusing `makeUILoginHandler` since we are serving the same html file. The UI will render the content based on the URL.
+	if err := server.RegisterCustomRouteHandler("/ui/request.html", makeUILoginHandler(publicAPIURL)); err != nil {
+		zap.L().Fatal("Unable to install UI request handler", zap.Error(err))
+	}
+
 	bahamut.RegisterProcessorOrDie(server,
 		processors.NewIssueProcessor(
 			m,

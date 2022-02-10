@@ -5,24 +5,33 @@ import {
   DialogActions,
   Button,
 } from "@mui/material"
-import QrCode from "./qr-code-gen"
+import { ReactNode } from "react"
+import QrCode from "../utils/qr-code-gen"
 
+/**
+ * Encode data into QR code
+ */
 export const QrCodeDialog = ({
-  token,
+  data,
+  title,
+  children,
   onClose,
 }: {
-  token: string
+  data: string
+  title?: string
+  children?: ReactNode
   onClose(): void
 }) => {
   return (
     <Dialog open>
-      <DialogTitle>Token QR Code</DialogTitle>
-      <DialogContent>
+      {title && <DialogTitle>{title}</DialogTitle>}
+      <DialogContent sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+        {children}
         <canvas
           ref={canvas => {
             if (canvas) {
               const dpi = window.devicePixelRatio
-              const qr = QrCode.encodeText(token, QrCode.Ecc.LOW)
+              const qr = QrCode.encodeText(data, QrCode.Ecc.LOW)
               const border = 3
               const scale = 3
               const width: number = (qr.size + border * 2) * scale

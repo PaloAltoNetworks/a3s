@@ -11,17 +11,36 @@ import {
   Checkbox,
   Typography,
   useTheme,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  useMediaQuery,
+  DialogContentText,
+  IconButton,
 } from "@mui/material"
 import { useIssue } from "./use-issue"
-import { CloakDialog } from "./cloak-dialog"
+import { MultiSelectDialog } from "./multi-select-dialog"
 import jwtDecode from "jwt-decode"
-import { useLocalState } from "./use-local-state"
-import { QrCodeDialog } from "./qr-code-dialog"
+import { useLocalState } from "./utils/use-local-state"
+import { QrCodeDialog } from "./components/qr-code-dialog"
 import { QrScan } from "./qr-scan"
+import { useLocalJsonState } from "./utils/use-local-json-state"
+import { JwtDialog } from "./jwt-dialog"
+import { RequestQrJson } from "./request/types"
+import { Cancel } from "@mui/icons-material"
 
 type StringBoolean = "true" | "false"
 type DialogState =
   | { type: "None" }
+  | {
+      type: "PrefixSelection"
+      claims: string[]
+      message: string
+      issuers: string[]
+    }
+  | { type: "ScanningRequestQR" }
+  | { type: "JwtDisplay"; payload: Record<string, any>; token: string }
   | { type: "Cloak"; token: string }
   | { type: "QrCode"; token: string }
 
@@ -40,8 +59,6 @@ if (redirectUrlInLocalStorage) {
 if (audience.length === 1 && audience[0] === "") {
   audience[0] = "public"
 }
-// @ts-ignore
-const isQrCodeMode = redirectUrl === ""
 const enableCloak = "__ENABLE_CLOAKING__" as StringBoolean
 
 export const Login = () => {
@@ -56,6 +73,10 @@ export const Login = () => {
     "sourceNamespace"
   )
   const [sourceName, setSourceName] = useLocalState<string>("", "sourceName")
+  const [requestedClaims, setRequestedClaims] = useLocalJsonState<string[]>(
+    [],
+    "requestedClaims"
+  )
   const [ldapUsername, setLdapUsername] = useState("")
   const [ldapPassword, setLdapPassword] = useState("")
   const [dialogState, setDialogState] = useState<DialogState>({ type: "None" })
@@ -64,6 +85,16 @@ export const Login = () => {
       apiUrl,
       audience,
     })
+  const fullScreen = useMediaQuery("(max-width: 600px)")
+
+  const isClaimRequestMode = requestedClaims.length > 0
+  // @ts-ignore
+  const isQrCodeMode = redirectUrl === "" || isClaimRequestMode
+
+  // Reset cloak mode if we are in the QR request mode.
+  if (isClaimRequestMode && cloak === "true") {
+    setCloak("false")
+  }
 
   const handleIssueResponse = useCallback(
     (shouldRedirect: boolean) => async (res: Response) => {
@@ -124,6 +155,7 @@ export const Login = () => {
           cookie: shouldRedirect,
           cookieDomain: window.location.hostname,
           audience,
+          cloak: isClaimRequestMode ? requestedClaims : undefined,
         }),
         headers: {
           "Content-Type": "application/json",
@@ -150,6 +182,70 @@ export const Login = () => {
     return <Typography>Authenticating using OIDC...</Typography>
   }
 
+  if (dialogState.type === "PrefixSelection") {
+    return (
+      <MultiSelectDialog
+        options={dialogState.claims}
+        title="Claim Request"
+        onConfirm={claims => {
+          setRequestedClaims(claims)
+          setDialogState({ type: "None" })
+        }}
+        onCancel={() => {
+          setDialogState({ type: "None" })
+        }}
+      >
+        <DialogContentText paragraph>
+          You are being requested to show your claims.
+        </DialogContentText>
+        <DialogContentText paragraph>
+          The allowed issuers are: {dialogState.issuers.join(", ")}.
+        </DialogContentText>
+        {dialogState.message && (
+          <DialogContentText paragraph>
+            The requester also says: {dialogState.message}
+          </DialogContentText>
+        )}
+        <DialogContentText paragraph>
+          Please select the claim prefixes that you want to show to the
+          requester.
+        </DialogContentText>
+      </MultiSelectDialog>
+    )
+  }
+
+  if (dialogState.type === "ScanningRequestQR") {
+    return (
+      <Dialog open fullScreen={fullScreen}>
+        <DialogTitle>Scan QR</DialogTitle>
+        <DialogContent>
+          <QrScan
+            onResult={result => {
+              const { claims, issuers, message } = JSON.parse(
+                result
+              ) as RequestQrJson
+              setDialogState({
+                type: "PrefixSelection",
+                claims,
+                issuers,
+                message,
+              })
+            }}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={() => {
+              setDialogState({ type: "None" })
+            }}
+          >
+            Cancel
+          </Button>
+        </DialogActions>
+      </Dialog>
+    )
+  }
+
   if (dialogState.type === "Cloak") {
     // Render identities for cloak mode
     let identities: string[] = []
@@ -168,8 +264,10 @@ export const Login = () => {
     }
 
     return (
-      <CloakDialog
-        identities={identities}
+      <MultiSelectDialog
+        options={identities}
+        title="Select Claims"
+        description="Please select the claims that you want to include"
         onConfirm={cloak => {
           issueWithA3s({
             cloak,
@@ -189,10 +287,11 @@ export const Login = () => {
     )
   }
 
-  if (dialogState.type === "QrCode") {
+  if (dialogState.type === "JwtDisplay") {
     return (
-      <QrCodeDialog
+      <JwtDialog
         token={dialogState.token}
+        payload={dialogState.payload}
         onClose={() => {
           setDialogState({ type: "None" })
         }}
@@ -200,32 +299,71 @@ export const Login = () => {
     )
   }
 
+  if (dialogState.type === "QrCode") {
+    console.log(dialogState.token)
+    return (
+      <QrCodeDialog
+        data={dialogState.token}
+        title="Token QR Code"
+        onClose={() => {
+          setDialogState({ type: "None" })
+        }}
+      >
+        <DialogContentText sx={{ mb: 2 }}>
+          The QR code below contains your claims.
+        </DialogContentText>
+      </QrCodeDialog>
+    )
+  }
+
   return (
     <Box
       sx={{
         "@media screen and (min-width: 600px)": {
+          mt: "auto",
+          mb: "auto",
           display: "flex",
           // Avoid vertical position shift of the auth sources when switching between them.
           minHeight: "400px",
           alignItems: "flex-start",
         },
-        p: 2
+        p: 2,
       }}
     >
-      <FormControl component="fieldset">
-        <FormLabel>Authentication Source</FormLabel>
-        <RadioGroup
-          value={sourceType}
-          onChange={e => {
-            setSourceType(e.target.value)
-          }}
-        >
-          <FormControlLabel value="MTLS" control={<Radio />} label="MTLS" />
-          <FormControlLabel value="LDAP" control={<Radio />} label="LDAP" />
-          <FormControlLabel value="OIDC" control={<Radio />} label="OIDC" />
-          <FormControlLabel value="QR" control={<Radio />} label="QR Code" />
-        </RadioGroup>
-      </FormControl>
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+        }}
+      >
+        <FormControl component="fieldset">
+          <FormLabel>Authentication Source</FormLabel>
+          <RadioGroup
+            value={sourceType}
+            onChange={e => {
+              setSourceType(e.target.value)
+            }}
+          >
+            <FormControlLabel value="MTLS" control={<Radio />} label="MTLS" />
+            <FormControlLabel value="LDAP" control={<Radio />} label="LDAP" />
+            <FormControlLabel value="OIDC" control={<Radio />} label="OIDC" />
+            <FormControlLabel value="QR" control={<Radio />} label="QR Code" />
+          </RadioGroup>
+        </FormControl>
+        {!isClaimRequestMode && (
+          <Button
+            sx={{
+              mt: 1,
+            }}
+            variant="outlined"
+            onClick={() => {
+              setDialogState({ type: "ScanningRequestQR" })
+            }}
+          >
+            Scan request QR
+          </Button>
+        )}
+      </Box>
       <Box
         sx={{
           display: "flex",
@@ -243,7 +381,23 @@ export const Login = () => {
           "& .MuiTextField-root": { mt: 1, mb: 1, width: "32ch" },
         }}
       >
-        {sourceType === "QR" && <QrScan />}
+        {sourceType === "QR" && (
+          <Box
+            sx={{
+              width: "90vw",
+              "@media screen and (min-width: 600px)": {
+                width: "40vw",
+              },
+            }}
+          >
+            <QrScan
+              onResult={result => {
+                const payload = jwtDecode(result) as Record<string, any>
+                setDialogState({ type: "JwtDisplay", payload, token: result })
+              }}
+            />
+          </Box>
+        )}
         {sourceType !== "QR" && (
           <>
             <TextField
@@ -289,17 +443,19 @@ export const Login = () => {
                 />
               </>
             )}
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={cloak === "true"}
-                  onChange={e => {
-                    setCloak(e.target.checked ? "true" : "false")
-                  }}
-                />
-              }
-              label="Cloak claims"
-            />
+            {!isClaimRequestMode && (
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={cloak === "true"}
+                    onChange={e => {
+                      setCloak(e.target.checked ? "true" : "false")
+                    }}
+                  />
+                }
+                label="Cloak claims"
+              />
+            )}
             <Button
               onClick={() => {
                 sourceType === "MTLS"
@@ -307,6 +463,7 @@ export const Login = () => {
                       sourceNamespace,
                       sourceName,
                       cookie: shouldRedirect,
+                      cloak: isClaimRequestMode ? requestedClaims : undefined,
                     })
                       .then(handleIssueResponse(shouldRedirect))
                       .then(onToken)
@@ -317,6 +474,7 @@ export const Login = () => {
                       username: ldapUsername,
                       password: ldapPassword,
                       cookie: shouldRedirect,
+                      cloak: isClaimRequestMode ? requestedClaims : undefined,
                     })
                       .then(handleIssueResponse(shouldRedirect))
                       .then(onToken)
@@ -324,6 +482,7 @@ export const Login = () => {
                       sourceNamespace,
                       sourceName,
                       redirectUrl,
+                      cloak: isClaimRequestMode ? requestedClaims : undefined,
                     })
               }}
               variant="outlined"
@@ -334,6 +493,26 @@ export const Login = () => {
               Sign in
             </Button>
           </>
+        )}
+        {isClaimRequestMode && (
+          <Typography
+            sx={{ mt: 1, maxWidth: 256 }}
+            variant="body2"
+            color="text.secondary"
+          >
+            You are going to show claims with those prefixes:{" "}
+            {requestedClaims.join(", ")}.
+            <IconButton
+              aria-label="delete"
+              size="small"
+              color="inherit"
+              onClick={() => {
+                setRequestedClaims([])
+              }}
+            >
+              <Cancel fontSize="inherit" />
+            </IconButton>
+          </Typography>
         )}
       </Box>
     </Box>

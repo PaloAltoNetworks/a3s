@@ -10,36 +10,43 @@ import {
   Checkbox,
   Divider,
 } from "@mui/material"
-import { useState } from "react"
+import { useState, ReactNode } from "react"
 
-export const CloakDialog = ({
-  identities,
+export const MultiSelectDialog = ({
+  options,
+  title,
+  description,
   onConfirm,
+  onCancel,
+  children
 }: {
-  // Unique list of identities
-  identities: string[]
+  title: string
+  // Should be unique
+  options: string[]
+  description?: string
   onConfirm(selected: string[]): void
+  onCancel?: () => void
+  children?: ReactNode
 }) => {
-  const [selected, setSelected] = useState<string[]>(identities)
-  const allSelected = selected.length === identities.length
+  const [selected, setSelected] = useState<string[]>(options)
+  const allSelected = selected.length === options.length
   return (
-    <Dialog open={!!identities.length}>
-      <DialogTitle>Select Claims</DialogTitle>
+    <Dialog open={!!options.length}>
+      <DialogTitle>{title}</DialogTitle>
       <DialogContent>
-        <DialogContentText>
-          Please select the claims that you want to include.
-        </DialogContentText>
+        {description && <DialogContentText>{description}</DialogContentText>}
+        {children}
         <FormGroup sx={{ mt: 2 }}>
           <FormControlLabel
             control={
               <Checkbox
                 checked={allSelected}
                 indeterminate={
-                  !allSelected && identities.some(id => selected.includes(id))
+                  !allSelected && options.some(id => selected.includes(id))
                 }
                 onChange={e => {
                   if (e.target.checked) {
-                    setSelected([...identities])
+                    setSelected([...options])
                   } else {
                     setSelected([])
                   }
@@ -49,27 +56,28 @@ export const CloakDialog = ({
             label="Select All"
           />
           <Divider />
-          {identities.map(identity => (
+          {options.map(option => (
             <FormControlLabel
               control={
                 <Checkbox
-                  checked={selected.includes(identity)}
+                  checked={selected.includes(option)}
                   onChange={e => {
                     if (e.target.checked) {
-                      setSelected([...selected, identity])
+                      setSelected([...selected, option])
                     } else {
-                      setSelected(selected.filter(i => i !== identity))
+                      setSelected(selected.filter(i => i !== option))
                     }
                   }}
                 />
               }
-              label={identity}
-              key={identity}
+              label={option}
+              key={option}
             />
           ))}
         </FormGroup>
       </DialogContent>
       <DialogActions>
+        {onCancel && <Button onClick={onCancel}>Cancel</Button>}
         <Button
           variant="outlined"
           onClick={() => {
