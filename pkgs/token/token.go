@@ -144,6 +144,8 @@ func (t *IdentityToken) JWT(key crypto.PrivateKey, kid string, issuer string, au
 		t.Identity = append(t.Identity, fmt.Sprintf("@source:name=%s", t.Source.Name))
 	}
 
+	t.Identity = append(t.Identity, fmt.Sprintf("@issuer=%s", t.Issuer))
+
 	j := jwt.NewWithClaims(jwt.SigningMethodES256, t)
 
 	if kid != "" {
