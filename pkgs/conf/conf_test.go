@@ -30,7 +30,7 @@ func TestAPIServerConf(t *testing.T) {
 		tlscfg, err := cfg.TLSConfig()
 		So(err, ShouldBeNil)
 		So(tlscfg, ShouldNotBeNil)
-		So(tlscfg.ClientCAs.Subjects(), ShouldResemble, clientpool.Subjects())
+		So(tlscfg.ClientCAs.Subjects(), ShouldResemble, clientpool.Subjects()) // nolint: staticcheck
 	})
 
 	Convey("tls config with certificate", t, func() {
@@ -121,7 +121,7 @@ func TestMongoConf(t *testing.T) {
 		tlscfg, err := cfg.TLSConfig()
 		So(err, ShouldBeNil)
 		So(tlscfg, ShouldNotBeNil)
-		So(tlscfg.RootCAs.Subjects(), ShouldResemble, syspool.Subjects())
+		So(tlscfg.RootCAs.Subjects(), ShouldResemble, syspool.Subjects()) // nolint: staticcheck
 	})
 
 	Convey("tls config with custom CA", t, func() {
@@ -131,7 +131,7 @@ func TestMongoConf(t *testing.T) {
 		tlscfg, err := cfg.TLSConfig()
 		So(err, ShouldBeNil)
 		So(tlscfg, ShouldNotBeNil)
-		So(tlscfg.RootCAs.Subjects(), ShouldResemble, cuspool.Subjects())
+		So(tlscfg.RootCAs.Subjects(), ShouldResemble, cuspool.Subjects()) // nolint: staticcheck
 	})
 
 	Convey("tls config with certificate", t, func() {
@@ -195,7 +195,7 @@ func TestNATSConf(t *testing.T) {
 		tlscfg, err := cfg.TLSConfig()
 		So(err, ShouldBeNil)
 		So(tlscfg, ShouldNotBeNil)
-		So(tlscfg.RootCAs.Subjects(), ShouldResemble, syspool.Subjects())
+		So(tlscfg.RootCAs.Subjects(), ShouldResemble, syspool.Subjects()) // nolint: staticcheck
 	})
 
 	Convey("tls config with custom CA", t, func() {
@@ -205,7 +205,7 @@ func TestNATSConf(t *testing.T) {
 		tlscfg, err := cfg.TLSConfig()
 		So(err, ShouldBeNil)
 		So(tlscfg, ShouldNotBeNil)
-		So(tlscfg.RootCAs.Subjects(), ShouldResemble, cuspool.Subjects())
+		So(tlscfg.RootCAs.Subjects(), ShouldResemble, cuspool.Subjects()) // nolint: staticcheck
 	})
 
 	Convey("tls config with certificate", t, func() {

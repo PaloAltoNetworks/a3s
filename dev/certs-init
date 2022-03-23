@@ -58,7 +58,8 @@ tg cert \
 	--signing-cert-key-pass "password"
 
 ## Test User Cert CA and Cert
-tg cert --name "ca-acme" \
+tg cert \
+	--name "ca-acme" \
 	--is-ca \
 	--pass "password" \
 	--common-name "ACME CA"
@@ -69,3 +70,13 @@ tg cert \
 	--signing-cert "$TLSGEN_OUT/ca-acme-cert.pem" \
 	--signing-cert-key "$TLSGEN_OUT/ca-acme-key.pem" \
 	--signing-cert-key-pass "password"
+
+## Platform CA
+# This CA is used to issue server certificates for internal services
+# as well as validating service's client certificates against
+# the internal Platform MTLS source.
+tg cert \
+	--name "ca-platform-internal" \
+	--is-ca \
+	--pass "password" \
+	--common-name "Platform"

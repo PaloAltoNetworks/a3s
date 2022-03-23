@@ -82,14 +82,28 @@ func main() {
 	}
 
 	if cfg.Init {
-		initialized, err := initRootPermissions(ctx, m, cfg.InitRootUserCAPath, cfg.InitContinue)
-		if err != nil {
-			zap.L().Fatal("unable to initialize root permissions", zap.Error(err))
-			return
+		if cfg.InitRootUserCAPath != "" {
+			initialized, err := initRootPermissions(ctx, m, cfg.InitRootUserCAPath, cfg.InitContinue)
+			if err != nil {
+				zap.L().Fatal("unable to initialize root permissions", zap.Error(err))
+				return
+			}
+
+			if initialized {
+				zap.L().Info("Root auth initialized")
+			}
 		}
 
-		if initialized {
-			zap.L().Info("Root auth initialized")
+		if cfg.InitPlatformCAPath != "" {
+			initialized, err := initPlatformPermissions(ctx, m, cfg.InitPlatformCAPath, cfg.InitContinue)
+			if err != nil {
+				zap.L().Fatal("unable to initialize platform permissions", zap.Error(err))
+				return
+			}
+
+			if initialized {
+				zap.L().Info("platform auth initialized")
+			}
 		}
 
 		if !cfg.InitContinue {
@@ -353,11 +367,64 @@ func initRootPermissions(ctx context.Context, m manipulate.Manipulator, caPath s
 	auth := api.NewAuthorization()
 	auth.Namespace = "/"
 	auth.Name = "root-mtls-authorization"
-	auth.Description = "Root authorization for certificates issued from the CA declared  in the root auth mtls source."
+	auth.Description = "Authorization to allow root users"
 	auth.Subject = [][]string{
 		{
 			"@source:type=mtls",
 			"@source:name=root",
+			"@source:namespace=/",
+			fmt.Sprintf("issuerchain=%s", strings.Join(chain, ",")),
+		},
+	}
+	auth.FlattenedSubject = auth.Subject[0]
+	auth.Permissions = []string{"*:*"}
+	auth.TargetNamespaces = []string{"/"}
+	auth.Hidden = true
+
+	if err := m.Create(manipulate.NewContext(ctx), auth); err != nil {
+		return false, fmt.Errorf("unable to create root auth: %w", err)
+	}
+
+	return true, nil
+}
+
+func initPlatformPermissions(ctx context.Context, m manipulate.Manipulator, caPath string, ifNeeded bool) (bool, error) {
+
+	caData, err := os.ReadFile(caPath)
+	if err != nil {
+		return false, fmt.Errorf("unable to read platform ca: %w", err)
+	}
+
+	caCerts, err := tglib.ParseCertificates(caData)
+	if err != nil {
+		return false, fmt.Errorf("unable to parse platform ca: %w", err)
+	}
+
+	chain := make([]string, len(caCerts))
+	for i, cert := range caCerts {
+		chain[i] = token.Fingerprint(cert)
+	}
+
+	source := api.NewMTLSSource()
+	source.Namespace = "/"
+	source.Name = "platform"
+	source.Description = "Auth source used to authenticate internal platform services"
+	source.CA = string(caData)
+	if err := m.Create(manipulate.NewContext(ctx), source); err != nil {
+		if errors.As(err, &manipulate.ErrConstraintViolation{}) && ifNeeded {
+			return false, nil
+		}
+		return false, fmt.Errorf("unable to create platform mtls auth source: %w", err)
+	}
+
+	auth := api.NewAuthorization()
+	auth.Namespace = "/"
+	auth.Name = "platform-mtls-authorization"
+	auth.Description = "Authorization to allow internal services"
+	auth.Subject = [][]string{
+		{
+			"@source:type=mtls",
+			"@source:name=platform",
 			"@source:namespace=/",
 			fmt.Sprintf("issuerchain=%s", strings.Join(chain, ",")),
 		},
