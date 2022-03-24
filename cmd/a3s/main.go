@@ -212,14 +212,26 @@ func main() {
 	)
 
 	if cfg.NATSGWTopic != "" {
+
+		gwAnnouncedAddress := cfg.NATSGWAnnouncedAddress
+		if gwAnnouncedAddress == "" {
+			gwAnnouncedAddress = getNotifierEndpoint(cfg.ListenAddress)
+		}
+
 		opts = append(
 			opts,
 			bootstrap.MakeBahamutGatewayNotifier(
 				ctx,
 				pubsub,
 				cfg.NATSGWTopic,
-				getNotifierEndpoint(cfg.ListenAddress),
+				gwAnnouncedAddress,
 			)...,
+		)
+
+		zap.L().Info(
+			"Gateway announcement configured",
+			zap.String("address", gwAnnouncedAddress),
+			zap.String("topic", cfg.NATSGWTopic),
 		)
 	}
 

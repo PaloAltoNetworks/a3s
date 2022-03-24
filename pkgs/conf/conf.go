@@ -156,18 +156,19 @@ func (c *MongoConf) TLSConfig() (*tls.Config, error) {
 
 // NATSConf holds the configuration for pubsub connection.
 type NATSConf struct {
-	NATSClientID       string `mapstructure:"nats-client-id"        desc:"Nats client ID"`
-	NATSClusterID      string `mapstructure:"nats-cluster-id"       desc:"Nats cluster ID"                                default:"test-cluster"`
-	NATSGWTopic        string `mapstructure:"nats-gateway-topic"    desc:"Topic to use for gateway services discovery"`
-	NATSPassword       string `mapstructure:"nats-pass"             desc:"Password to use to connect to Nats"             secret:"true" file:"true"`
-	NATSTLSCA          string `mapstructure:"nats-tls-ca"           desc:"Path to the CA used by Nats"`
-	NATSTLSCertificate string `mapstructure:"nats-tls-cert"         desc:"Path to the client certificate"`
-	NATSTLSDisable     bool   `mapstructure:"nats-tls-disable"      desc:"Disable TLS completely"`
-	NATSTLSKey         string `mapstructure:"nats-tls-key"          desc:"Path to the client key"`
-	NATSTLSKeyPass     string `mapstructure:"nats-tls-key-pass"     desc:"Password for the client key"                    secret:"true" file:"true"`
-	NATSTLSSkip        bool   `mapstructure:"nats-tls-skip"         desc:"Skip CA verification"`
-	NATSURL            string `mapstructure:"nats-url"              desc:"URL of the nats service"`
-	NATSUser           string `mapstructure:"nats-user"             desc:"User name to use to connect to Nats"            secret:"true" file:"true"`
+	NATSClientID           string `mapstructure:"nats-client-id"                 desc:"Nats client ID"`
+	NATSClusterID          string `mapstructure:"nats-cluster-id"                desc:"Nats cluster ID"                                default:"test-cluster"`
+	NATSGWAnnouncedAddress string `mapstructure:"nats-gateway-announce-address"  desc:"If set, announce as the service address to the gateway"`
+	NATSGWTopic            string `mapstructure:"nats-gateway-topic"             desc:"Topic to use for gateway services discovery"`
+	NATSPassword           string `mapstructure:"nats-pass"                      desc:"Password to use to connect to Nats"             secret:"true" file:"true"`
+	NATSTLSCA              string `mapstructure:"nats-tls-ca"                    desc:"Path to the CA used by Nats"`
+	NATSTLSCertificate     string `mapstructure:"nats-tls-cert"                  desc:"Path to the client certificate"`
+	NATSTLSDisable         bool   `mapstructure:"nats-tls-disable"               desc:"Disable TLS completely"`
+	NATSTLSKey             string `mapstructure:"nats-tls-key"                   desc:"Path to the client key"`
+	NATSTLSKeyPass         string `mapstructure:"nats-tls-key-pass"              desc:"Password for the client key"                    secret:"true" file:"true"`
+	NATSTLSSkip            bool   `mapstructure:"nats-tls-skip"                  desc:"Skip CA verification"`
+	NATSURL                string `mapstructure:"nats-url"                       desc:"URL of the nats service"`
+	NATSUser               string `mapstructure:"nats-user"                      desc:"User name to use to connect to Nats"            secret:"true" file:"true"`
 }
 
 // TLSConfig returns the configured TLS configuration as *tls.Config.
