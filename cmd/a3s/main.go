@@ -367,8 +367,18 @@ func initRootPermissions(ctx context.Context, m manipulate.Manipulator, caPath s
 	source := api.NewMTLSSource()
 	source.Namespace = "/"
 	source.Name = "root"
-	source.Description = "Root auth source used to bootstrap permissions."
+	source.Description = "Auth source to authenticate root users"
 	source.CA = string(caData)
+	certs, err := tglib.ParseCertificates([]byte(source.CA))
+	if err != nil {
+		return false, err
+	}
+	source.Fingerprints = make([]string, len(certs))
+	source.SubjectKeyIDs = make([]string, len(certs))
+	for i, cert := range certs {
+		source.Fingerprints[i] = token.Fingerprint(cert)
+		source.SubjectKeyIDs[i] = fmt.Sprintf("%02X", cert.SubjectKeyId)
+	}
 	if err := m.Create(manipulate.NewContext(ctx), source); err != nil {
 		if errors.As(err, &manipulate.ErrConstraintViolation{}) && ifNeeded {
 			return false, nil
@@ -422,6 +432,17 @@ func initPlatformPermissions(ctx context.Context, m manipulate.Manipulator, caPa
 	source.Name = "platform"
 	source.Description = "Auth source used to authenticate internal platform services"
 	source.CA = string(caData)
+	certs, err := tglib.ParseCertificates([]byte(source.CA))
+	if err != nil {
+		return false, err
+	}
+	source.Fingerprints = make([]string, len(certs))
+	source.SubjectKeyIDs = make([]string, len(certs))
+	for i, cert := range certs {
+		source.Fingerprints[i] = token.Fingerprint(cert)
+		source.SubjectKeyIDs[i] = fmt.Sprintf("%02X", cert.SubjectKeyId)
+	}
+
 	if err := m.Create(manipulate.NewContext(ctx), source); err != nil {
 		if errors.As(err, &manipulate.ErrConstraintViolation{}) && ifNeeded {
 			return false, nil
