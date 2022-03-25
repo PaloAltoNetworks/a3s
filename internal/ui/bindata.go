@@ -83,7 +83,7 @@ func UiLoginDistIndexHtml() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "../../ui/login/dist/index.html", size: 433618, mode: os.FileMode(420), modTime: time.Unix(1644447294, 0)}
+	info := bindataFileInfo{name: "../../ui/login/dist/index.html", size: 433618, mode: os.FileMode(420), modTime: time.Unix(1648224339, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
