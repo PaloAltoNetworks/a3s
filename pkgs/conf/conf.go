@@ -229,3 +229,10 @@ type NATSConsumerConf struct {
 
 	NATSConf `mapstructure:",squash"`
 }
+
+// MTLSHeaderConf holds the conf for the secure MTLS header.
+type MTLSHeaderConf struct {
+	Enabled    bool   `mapstructure:"mtls-header-enabled"    desc:"Trust the value of the defined header containing a user certificate. This is insecure if there is no proper tls verification happening upstream"`
+	HeaderKey  string `mapstructure:"mtls-header-key"        desc:"The header to check for user certificates" default:"x-tls-certificate"`
+	Passphrase string `mapstructure:"mtls-header-passphrase" desc:"The passphrase to decrypt the AES encrypted header content. It is mandatory if --mtls-header-enabled is set."`
+}
