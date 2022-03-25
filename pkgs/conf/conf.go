@@ -4,6 +4,7 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"time"
 
@@ -235,4 +236,41 @@ type MTLSHeaderConf struct {
 	Enabled    bool   `mapstructure:"mtls-header-enabled"    desc:"Trust the value of the defined header containing a user certificate. This is insecure if there is no proper tls verification happening upstream"`
 	HeaderKey  string `mapstructure:"mtls-header-key"        desc:"The header to check for user certificates" default:"x-tls-certificate"`
 	Passphrase string `mapstructure:"mtls-header-passphrase" desc:"The passphrase to decrypt the AES encrypted header content. It is mandatory if --mtls-header-enabled is set."`
+}
+
+// A3SClientConf holds a3s config.
+type A3SClientConf struct {
+	A3SURL                  string `mapstructure:"a3s-url"               desc:"URL of the a3s server"                                `
+	A3SNamespace            string `mapstructure:"a3s-namespace"         desc:"Namespace"`
+	A3SCertificateAuthority string `mapstructure:"a3s-cacert"            desc:"Path to the CA certificate"                           secret:"true" file:"true"`
+	A3SClientCert           string `mapstructure:"a3s-cert"              desc:"Path to the client certificate"                       secret:"true" file:"true"`
+	A3SClientKey            string `mapstructure:"a3s-key"               desc:"Path to the client key"                               secret:"true" file:"true"`
+	A3SClientKeyPass        string `mapstructure:"a3s-key-pass"          desc:"Password for the client key"                          secret:"true" file:"true"`
+	A3SourceName            string `mapstructure:"a3s-source-name"       desc:"Name of the source to utilize by default"             default:"gateway"`
+
+	systemCAPool *x509.CertPool
+}
+
+// SystemCAPool returns the system signing pool
+func (c *A3SClientConf) SystemCAPool() (*x509.CertPool, error) {
+
+	if c.A3SCertificateAuthority == "" {
+		return nil, fmt.Errorf("no system certificate provided")
+	}
+
+	if c.systemCAPool != nil {
+		return c.systemCAPool, nil
+	}
+
+	data, err := ioutil.ReadFile(c.A3SCertificateAuthority)
+	if err != nil {
+		return nil, err
+	}
+
+	c.systemCAPool = x509.NewCertPool()
+	if !c.systemCAPool.AppendCertsFromPEM(data) {
+		return nil, fmt.Errorf("unable to append system signing ca")
+	}
+
+	return c.systemCAPool, nil
 }

@@ -2,16 +2,20 @@ package bootstrap
 
 import (
 	"context"
+	"crypto/tls"
 	"fmt"
 	"time"
 
 	"go.aporeto.io/a3s/pkgs/api"
+	"go.aporeto.io/a3s/pkgs/authlib"
 	"go.aporeto.io/a3s/pkgs/conf"
 	"go.aporeto.io/a3s/pkgs/sharder"
 	"go.aporeto.io/bahamut"
 	"go.aporeto.io/elemental"
 	"go.aporeto.io/manipulate"
+	"go.aporeto.io/manipulate/maniphttp"
 	"go.aporeto.io/manipulate/manipmongo"
+	"go.aporeto.io/tg/tglib"
 	"go.uber.org/zap"
 )
 
@@ -119,4 +123,65 @@ func MakeMongoManipulator(cfg conf.MongoConf, hasher sharder.Hasher, additionalO
 	zap.L().Info("Connected to mongodb", zap.String("url", cfg.MongoURL), zap.String("db", cfg.MongoDBName))
 
 	return m
+}
+
+// MakeA3SManipulator returns an HTTP manipulator for a3s communication.
+func MakeA3SManipulator(ctx context.Context, a3sConfig conf.A3SClientConf) (manipulate.Manipulator, error) {
+
+	cert, key, err := tglib.ReadCertificatePEM(
+		a3sConfig.A3SClientCert,
+		a3sConfig.A3SClientKey,
+		a3sConfig.A3SClientKeyPass,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("unable to read certificate %w", err)
+	}
+
+	clientCert, err := tglib.ToTLSCertificate(cert, key)
+	if err != nil {
+		return nil, fmt.Errorf("unable to convert client certificate: %w", err)
+	}
+
+	systemCAPool, err := a3sConfig.SystemCAPool()
+	if err != nil {
+		return nil, fmt.Errorf("unable to get systemCAPool: %w", err)
+	}
+
+	tlsConfig := &tls.Config{
+		RootCAs:      systemCAPool,
+		Certificates: []tls.Certificate{clientCert},
+	}
+
+	m, err := maniphttp.New(
+		ctx,
+		a3sConfig.A3SURL,
+		maniphttp.OptionNamespace(a3sConfig.A3SNamespace),
+		maniphttp.OptionTokenManager(
+			authlib.NewX509TokenManager(
+				a3sConfig.A3SNamespace,
+				a3sConfig.A3SourceName,
+			),
+		),
+		maniphttp.OptionTLSConfig(tlsConfig),
+		maniphttp.OptionDefaultRetryFunc(func(i manipulate.RetryInfo) error {
+			info := i.(maniphttp.RetryInfo)
+			zap.L().Debug("a3s manipulator retry",
+				zap.Int("try", info.Try()),
+				zap.String("method", info.Method),
+				zap.String("url", info.URL),
+				zap.Error(info.Err()),
+			)
+			return nil
+		}),
+	)
+	if err != nil {
+		return nil, fmt.Errorf(
+			"unable to create http manipulator: namespace=%s, source=%s :%w",
+			a3sConfig.A3SNamespace,
+			a3sConfig.A3SourceName,
+			err,
+		)
+	}
+
+	return m, nil
 }
