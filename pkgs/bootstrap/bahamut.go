@@ -8,7 +8,6 @@ import (
 
 	"github.com/fatih/structs"
 	"github.com/opentracing/opentracing-go"
-	"go.aporeto.io/a3s/pkgs/api"
 	"go.aporeto.io/a3s/pkgs/conf"
 	"go.aporeto.io/bahamut"
 	"go.aporeto.io/bahamut/authorizer/simple"
@@ -24,13 +23,14 @@ func ConfigureBahamut(
 	ctx context.Context,
 	cfg interface{},
 	pubsub bahamut.PubSubClient,
+	apiManager elemental.ModelManager,
 	healthHandler bahamut.HealthServerFunc,
 	requestAuthenticators []bahamut.RequestAuthenticator,
 	sessionAuthenticators []bahamut.SessionAuthenticator,
 	authorizers []bahamut.Authorizer,
 ) (opts []bahamut.Option) {
 
-	modelManagers := map[int]elemental.ModelManager{0: api.Manager(), 1: api.Manager()}
+	modelManagers := map[int]elemental.ModelManager{0: apiManager, 1: apiManager}
 
 	l, err := zap.NewStdLogAt(zap.L(), zapcore.DebugLevel)
 	if err != nil {
@@ -151,6 +151,7 @@ func ConfigureBahamut(
 func MakeBahamutGatewayNotifier(
 	ctx context.Context,
 	pubsub bahamut.PubSubClient,
+	serviceName string,
 	gatewayTopic string,
 	anouncedAddress string,
 	nopts ...push.NotifierOption,
@@ -165,7 +166,7 @@ func MakeBahamutGatewayNotifier(
 	nw := push.NewNotifier(
 		pubsub,
 		gatewayTopic,
-		"a3s",
+		serviceName,
 		anouncedAddress,
 		nopts...,
 	)
@@ -175,7 +176,11 @@ func MakeBahamutGatewayNotifier(
 		bahamut.OptPreStopHook(nw.MakeStopHook()),
 	)
 
-	zap.L().Info("Gateway topic set", zap.String("topic", gatewayTopic))
+	zap.L().Info(
+		"Gateway topic set",
+		zap.String("topic", gatewayTopic),
+		zap.String("service", serviceName),
+	)
 
 	return opts
 }
@@ -212,13 +217,16 @@ func ErrorTransformer(err error) error {
 }
 
 // MakeIdentifiableRetriever returns a bahamut.IdentifiableRetriever to handle patches as classic update.
-func MakeIdentifiableRetriever(manipulator manipulate.Manipulator) bahamut.IdentifiableRetriever {
+func MakeIdentifiableRetriever(
+	manipulator manipulate.Manipulator,
+	apiManager elemental.ModelManager,
+) bahamut.IdentifiableRetriever {
 
 	return func(req *elemental.Request) (elemental.Identifiable, error) {
 
 		identity := req.Identity
 
-		obj := api.Manager().Identifiable(identity)
+		obj := apiManager.Identifiable(identity)
 		obj.SetIdentifier(req.ObjectID)
 
 		if err := manipulator.Retrieve(nil, obj); err != nil {

@@ -193,6 +193,7 @@ func main() {
 			ctx,
 			cfg,
 			pubsub,
+			api.Manager(),
 			nil,
 			[]bahamut.RequestAuthenticator{
 				pauthn,
@@ -208,7 +209,7 @@ func main() {
 		bahamut.OptPushPublishHandler(bootstrap.MakePublishHandler(pushExcludedResources)),
 		bahamut.OptMTLS(nil, tls.RequestClientCert),
 		bahamut.OptErrorTransformer(errorTransformer),
-		bahamut.OptIdentifiableRetriever(bootstrap.MakeIdentifiableRetriever(m)),
+		bahamut.OptIdentifiableRetriever(bootstrap.MakeIdentifiableRetriever(m, api.Manager())),
 	)
 
 	if cfg.NATSGWTopic != "" {
@@ -223,6 +224,7 @@ func main() {
 			bootstrap.MakeBahamutGatewayNotifier(
 				ctx,
 				pubsub,
+				"a3s",
 				cfg.NATSGWTopic,
 				gwAnnouncedAddress,
 			)...,
