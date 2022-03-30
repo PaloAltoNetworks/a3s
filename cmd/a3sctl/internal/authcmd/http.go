@@ -2,6 +2,7 @@ package authcmd
 
 import (
 	"context"
+	"os"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -9,6 +10,7 @@ import (
 	"go.aporeto.io/a3s/cmd/a3sctl/internal/helpers"
 	"go.aporeto.io/a3s/pkgs/authlib"
 	"go.aporeto.io/a3s/pkgs/permissions"
+	"go.aporeto.io/a3s/pkgs/token"
 	"go.aporeto.io/manipulate/manipcli"
 )
 
@@ -28,6 +30,7 @@ func makeHTTPCmd(mmaker manipcli.ManipulatorMaker, restrictions *permissions.Res
 			fPass := helpers.ReadFlag("password: ", "pass", true)
 			fTOTP := helpers.ReadFlag("totp: ", "totp", false)
 			fCloak := viper.GetStringSlice("cloak")
+			fCheck := viper.GetBool("check")
 			fQRCode := viper.GetBool("qrcode")
 			fValidity := viper.GetDuration("validity")
 			fRefresh := viper.GetBool("refresh")
@@ -53,9 +56,13 @@ func makeHTTPCmd(mmaker manipcli.ManipulatorMaker, restrictions *permissions.Res
 				return err
 			}
 
-			printToken(t, fQRCode)
-
-			return nil
+			return token.Fprint(
+				os.Stdout,
+				t,
+				token.PrintOptionDecoded(fCheck),
+				token.PrintOptionQRCode(fQRCode),
+				token.PrintOptionRaw(true),
+			)
 		},
 	}
 

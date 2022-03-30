@@ -2,12 +2,11 @@ package authcmd
 
 import (
 	"fmt"
-	"time"
+	"os"
 
-	"github.com/golang-jwt/jwt/v4"
-	"github.com/hokaccha/go-prettyjson"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"go.aporeto.io/a3s/pkgs/token"
 	"go.aporeto.io/manipulate/manipcli"
 )
 
@@ -37,10 +36,16 @@ func makeCheckCmd(mmaker manipcli.ManipulatorMaker) *cobra.Command {
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			fToken := viper.GetString("token")
-			fPrint := viper.GetBool("print")
+			fCheck := viper.GetBool("check")
 			fQRCode := viper.GetBool("qrcode")
 
-			return DisplayToken(fToken, fPrint, fQRCode)
+			return token.Fprint(
+				os.Stdout,
+				fToken,
+				token.PrintOptionDecoded(fCheck),
+				token.PrintOptionQRCode(fQRCode),
+				token.PrintOptionRaw(true),
+			)
 		},
 	}
 
@@ -60,43 +65,4 @@ func makeCheckCmd(mmaker manipcli.ManipulatorMaker) *cobra.Command {
 	})
 
 	return cmd
-}
-
-// DisplayToken displays information about the token.
-// It does not verify its signature or validity.
-func DisplayToken(token string, printRaw bool, qrcode bool) error {
-	claims := jwt.MapClaims{}
-	p := jwt.Parser{}
-
-	t, _, err := p.ParseUnverified(token, &claims)
-	if err != nil {
-		return err
-	}
-
-	data, err := prettyjson.Marshal(claims)
-	if err != nil {
-		return err
-	}
-
-	fmt.Println("alg:", t.Method.Alg())
-	fmt.Println("kid:", t.Header["kid"])
-	if exp, ok := claims["exp"].(float64); ok {
-
-		remaining := time.Until(time.Unix(int64(exp), 0))
-		if remaining <= 0 {
-			fmt.Println("exp: the token has expired", -remaining.Truncate(time.Second), "ago")
-		} else {
-			fmt.Println("exp:", remaining.Truncate(time.Second))
-		}
-	}
-	fmt.Println()
-
-	fmt.Println(string(data))
-
-	if printRaw {
-		fmt.Println()
-		printToken(token, qrcode)
-	}
-
-	return nil
 }

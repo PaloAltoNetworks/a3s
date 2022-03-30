@@ -2,6 +2,7 @@ package authcmd
 
 import (
 	"context"
+	"os"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -9,6 +10,7 @@ import (
 	"go.aporeto.io/a3s/cmd/a3sctl/internal/helpers"
 	"go.aporeto.io/a3s/pkgs/authlib"
 	"go.aporeto.io/a3s/pkgs/permissions"
+	"go.aporeto.io/a3s/pkgs/token"
 	"go.aporeto.io/manipulate/manipcli"
 )
 
@@ -28,6 +30,7 @@ func makeLDAPCmd(mmaker manipcli.ManipulatorMaker, restrictions *permissions.Res
 			fPass := helpers.ReadFlag("password: ", "pass", true)
 			fCloak := viper.GetStringSlice("cloak")
 			fQRCode := viper.GetBool("qrcode")
+			fCheck := viper.GetBool("check")
 			fValidity := viper.GetDuration("validity")
 			fRefresh := viper.GetBool("refresh")
 
@@ -51,9 +54,13 @@ func makeLDAPCmd(mmaker manipcli.ManipulatorMaker, restrictions *permissions.Res
 				return err
 			}
 
-			printToken(t, fQRCode)
-
-			return nil
+			return token.Fprint(
+				os.Stdout,
+				t,
+				token.PrintOptionDecoded(fCheck),
+				token.PrintOptionQRCode(fQRCode),
+				token.PrintOptionRaw(true),
+			)
 		},
 	}
 

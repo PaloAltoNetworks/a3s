@@ -42,13 +42,20 @@ func makeAutoCmd(mmaker manipcli.ManipulatorMaker) *cobra.Command {
 			}
 
 			fCheck := viper.GetBool("check")
-			if !fCheck {
+			fQRCode := viper.GetBool("qrcode")
+			if !fCheck && !fQRCode {
 				return nil
 			}
 
 			fToken := viper.GetString("token")
-			fQRCode := viper.GetBool("qrcode")
-			return DisplayToken(fToken, true, fQRCode)
+
+			return token.Fprint(
+				os.Stdout,
+				fToken,
+				token.PrintOptionDecoded(fCheck),
+				token.PrintOptionQRCode(fQRCode),
+				token.PrintOptionRaw(true),
+			)
 		},
 	}
 
