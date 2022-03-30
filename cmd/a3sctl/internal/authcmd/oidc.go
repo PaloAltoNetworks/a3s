@@ -11,6 +11,7 @@ import (
 	"github.com/spf13/viper"
 	"go.aporeto.io/a3s/pkgs/authlib"
 	"go.aporeto.io/a3s/pkgs/permissions"
+	"go.aporeto.io/a3s/pkgs/token"
 	"go.aporeto.io/manipulate/manipcli"
 	"go.uber.org/zap"
 )
@@ -32,6 +33,7 @@ func makeOIDCCmd(mmaker manipcli.ManipulatorMaker, restrictions *permissions.Res
 			fAudience := viper.GetStringSlice("audience")
 			fCloak := viper.GetStringSlice("cloak")
 			fQRCode := viper.GetBool("qrcode")
+			fCheck := viper.GetBool("check")
 			fRefresh := viper.GetBool("refresh")
 
 			if fSourceNamespace == "" {
@@ -82,9 +84,13 @@ func makeOIDCCmd(mmaker manipcli.ManipulatorMaker, restrictions *permissions.Res
 				return err
 			}
 
-			printToken(t, fQRCode)
-
-			return nil
+			return token.Fprint(
+				os.Stdout,
+				t,
+				token.PrintOptionDecoded(fCheck),
+				token.PrintOptionQRCode(fQRCode),
+				token.PrintOptionRaw(true),
+			)
 		},
 	}
 	cmd.Flags().String("source-name", "default", "The name of the auth source.")

@@ -2,11 +2,13 @@ package authcmd
 
 import (
 	"context"
+	"os"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"go.aporeto.io/a3s/pkgs/authlib"
 	"go.aporeto.io/a3s/pkgs/permissions"
+	"go.aporeto.io/a3s/pkgs/token"
 	"go.aporeto.io/manipulate/manipcli"
 )
 
@@ -23,6 +25,7 @@ func makeGCPCmd(mmaker manipcli.ManipulatorMaker, restrictions *permissions.Rest
 			fAudience := viper.GetStringSlice("audience")
 			fCloak := viper.GetStringSlice("cloak")
 			fQRCode := viper.GetBool("qrcode")
+			fCheck := viper.GetBool("check")
 			fValidity := viper.GetDuration("validity")
 			fRefresh := viper.GetBool("refresh")
 
@@ -46,9 +49,13 @@ func makeGCPCmd(mmaker manipcli.ManipulatorMaker, restrictions *permissions.Rest
 				return err
 			}
 
-			printToken(t, fQRCode)
-
-			return nil
+			return token.Fprint(
+				os.Stdout,
+				t,
+				token.PrintOptionDecoded(fCheck),
+				token.PrintOptionQRCode(fQRCode),
+				token.PrintOptionRaw(true),
+			)
 		},
 	}
 

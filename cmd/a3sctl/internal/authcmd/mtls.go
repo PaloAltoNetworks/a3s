@@ -2,6 +2,7 @@ package authcmd
 
 import (
 	"context"
+	"os"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -9,6 +10,7 @@ import (
 	"go.aporeto.io/a3s/cmd/a3sctl/internal/helpers"
 	"go.aporeto.io/a3s/pkgs/authlib"
 	"go.aporeto.io/a3s/pkgs/permissions"
+	"go.aporeto.io/a3s/pkgs/token"
 	"go.aporeto.io/manipulate/manipcli"
 	"go.aporeto.io/manipulate/maniphttp"
 	"go.aporeto.io/tg/tglib"
@@ -30,6 +32,7 @@ func makeMTLSCmd(mmaker manipcli.ManipulatorMaker, restrictions *permissions.Res
 			fAudience := viper.GetStringSlice("audience")
 			fCloak := viper.GetStringSlice("cloak")
 			fQRCode := viper.GetBool("qrcode")
+			fCheck := viper.GetBool("check")
 			fValidity := viper.GetDuration("validity")
 			fRefresh := viper.GetBool("refresh")
 
@@ -54,9 +57,13 @@ func makeMTLSCmd(mmaker manipcli.ManipulatorMaker, restrictions *permissions.Res
 				return err
 			}
 
-			printToken(t, fQRCode)
-
-			return nil
+			return token.Fprint(
+				os.Stdout,
+				t,
+				token.PrintOptionDecoded(fCheck),
+				token.PrintOptionQRCode(fQRCode),
+				token.PrintOptionRaw(true),
+			)
 		},
 	}
 
