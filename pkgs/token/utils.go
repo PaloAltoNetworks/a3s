@@ -1,9 +1,13 @@
 package token
 
 import (
+	"context"
 	"crypto/sha256"
+	"crypto/tls"
 	"crypto/x509"
 	"fmt"
+	"net/http"
+	"strings"
 
 	"github.com/golang-jwt/jwt/v4"
 	"go.aporeto.io/bahamut"
@@ -34,6 +38,33 @@ func FromSession(session bahamut.Session) string {
 func Fingerprint(cert *x509.Certificate) string {
 
 	return fmt.Sprintf("%02X", sha256.Sum256(cert.Raw)) // #nosec
+}
+
+// JWKSFromTokenIssuer will retrieve a remote JWKS from the issuer field
+// in the given idt, using the eventually given tlsConfig to retrieve the JWKS..
+// You usually want to pass a non verified IdentityToken here (from ParseUnverified for instance)
+// so you can then correctly verify it using Parse().
+func JWKSFromTokenIssuer(ctx context.Context, idt *IdentityToken, tlsConfig *tls.Config) (*JWKS, error) {
+
+	wellKnownSuffix := ".well-known/jwks.json"
+
+	endpoint := idt.Issuer
+	if !strings.HasSuffix(endpoint, wellKnownSuffix) {
+		endpoint = fmt.Sprintf("%s/%s", strings.TrimRight(endpoint, "/"), wellKnownSuffix)
+	}
+
+	client := &http.Client{
+		Transport: &http.Transport{
+			TLSClientConfig: tlsConfig,
+		},
+	}
+
+	jwks, err := NewRemoteJWKS(ctx, client, endpoint)
+	if err != nil {
+		return nil, fmt.Errorf("unable to retrieve remote jwks: %w", err)
+	}
+
+	return jwks, nil
 }
 
 func makeKeyFunc(keychain *JWKS) jwt.Keyfunc {

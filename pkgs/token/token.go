@@ -62,40 +62,63 @@ func NewIdentityToken(source Source) *IdentityToken {
 // The claim @source:type is mandatory and the function will return an error if it is missing.
 func Parse(tokenString string, keychain *JWKS, trustedIssuer string, requiredAudience string) (*IdentityToken, error) {
 
-	t := &IdentityToken{}
-	token, err := jwt.ParseWithClaims(tokenString, t, makeKeyFunc(keychain))
-	if err != nil {
+	idt := &IdentityToken{}
+	if _, err := jwt.ParseWithClaims(tokenString, idt, makeKeyFunc(keychain)); err != nil {
 		return nil, fmt.Errorf("unable to parse jwt: %w", err)
 	}
 
-	claims := token.Claims.(*IdentityToken)
-
-	for _, c := range claims.Identity {
-		switch {
-		case strings.HasPrefix(c, "@source:name="):
-			claims.Source.Name = strings.TrimPrefix(c, "@source:name=")
-		case strings.HasPrefix(c, "@source:namespace="):
-			claims.Source.Namespace = strings.TrimPrefix(c, "@source:namespace=")
-		case strings.HasPrefix(c, "@source:type="):
-			claims.Source.Type = strings.TrimPrefix(c, "@source:type=")
-		}
+	if err := finalizeTokenParsing(idt); err != nil {
+		return nil, err
 	}
 
-	if claims.Source.Type == "" {
-		return nil, fmt.Errorf("invalid token: missing @source:type in identity claims")
-	}
-
-	if claims.Issuer != trustedIssuer {
-		return nil, fmt.Errorf("issuer '%s' is not acceptable. want '%s'", claims.Issuer, trustedIssuer)
+	if !idt.VerifyIssuer(trustedIssuer, true) {
+		return nil, fmt.Errorf("issuer '%s' is not acceptable. want '%s'", idt.Issuer, trustedIssuer)
 	}
 
 	if requiredAudience != "" {
-		if !claims.VerifyAudience(requiredAudience, true) {
-			return nil, fmt.Errorf("audience '%s' is not acceptable. want '%s'", claims.Audience, requiredAudience)
+		if !idt.VerifyAudience(requiredAudience, true) {
+			return nil, fmt.Errorf("audience '%s' is not acceptable. want '%s'", idt.Audience, requiredAudience)
 		}
 	}
 
-	return t, nil
+	return idt, nil
+}
+
+// ParseUnverified returns a non validated IdentityToken from the given tokenString,
+// This method does not do any additional check on signature, issuer or audience and should
+// only used to peek some data from the token before actually verifying it.
+func ParseUnverified(tokenString string) (*IdentityToken, error) {
+
+	idt := &IdentityToken{}
+	if _, _, err := jwt.NewParser().ParseUnverified(tokenString, idt); err != nil {
+		return nil, fmt.Errorf("unable to parse unverified jwt: %w", err)
+	}
+
+	if err := finalizeTokenParsing(idt); err != nil {
+		return nil, err
+	}
+
+	return idt, nil
+}
+
+func finalizeTokenParsing(idt *IdentityToken) error {
+
+	for _, c := range idt.Identity {
+		switch {
+		case strings.HasPrefix(c, "@source:name="):
+			idt.Source.Name = strings.TrimPrefix(c, "@source:name=")
+		case strings.HasPrefix(c, "@source:namespace="):
+			idt.Source.Namespace = strings.TrimPrefix(c, "@source:namespace=")
+		case strings.HasPrefix(c, "@source:type="):
+			idt.Source.Type = strings.TrimPrefix(c, "@source:type=")
+		}
+	}
+
+	if idt.Source.Type == "" {
+		return fmt.Errorf("invalid token: missing @source:type in identity claims")
+	}
+
+	return nil
 }
 
 // JWT returns the signed JWT string signed by the given crypto.PrivateKey.

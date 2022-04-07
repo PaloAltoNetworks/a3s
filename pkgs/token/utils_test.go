@@ -1,11 +1,16 @@
 package token
 
 import (
+	"context"
 	"crypto/ecdsa"
 	"crypto/sha256"
+	"crypto/tls"
 	"crypto/x509"
+	"encoding/json"
 	"fmt"
+	"math/big"
 	"net/http"
+	"net/http/httptest"
 	"reflect"
 	"testing"
 
@@ -168,4 +173,61 @@ func TestFingerprint(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestJWKSFromTokenIssuer(t *testing.T) {
+
+	Convey("given a working remote jwks", t, func() {
+
+		ts := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+			j := NewJWKS()
+			j.Keys = []*JWKSKey{
+				{
+					KID: "kid",
+					X:   "vs1LjF38O2OOSmy0Nbo45zfroQ1ME7GLuZ69uuiCOkk",
+					Y:   "vs1LjF38O2OOSmy0Nbo45zfroQ1ME7GLuZ69uuiCOkk",
+				},
+			}
+
+			d, _ := json.Marshal(j)
+			w.Write(d) // nolint
+		}))
+
+		idt := &IdentityToken{
+			RegisteredClaims: jwt.RegisteredClaims{
+				Issuer: ts.URL,
+			},
+		}
+
+		Convey("Calling JWKSFromTokenIssuer with certificates issue should fail", func() {
+
+			jwks, err := JWKSFromTokenIssuer(
+				context.Background(),
+				idt,
+				nil,
+			)
+
+			So(err, ShouldNotBeNil)
+			So(err.Error(), ShouldStartWith, "unable to retrieve remote jwks: remote jwks error: unable to send request:")
+			So(jwks, ShouldBeNil)
+		})
+
+		Convey("Calling JWKSFromTokenIssuer without problem should work", func() {
+
+			jwks, err := JWKSFromTokenIssuer(
+				context.Background(),
+				idt,
+				&tls.Config{
+					InsecureSkipVerify: true, // nolint
+				},
+			)
+
+			So(err, ShouldBeNil)
+			So(len(jwks.Keys), ShouldEqual, 1)
+			So(len(jwks.keyMap), ShouldEqual, 1)
+			So(jwks.keyMap, ShouldContainKey, "kid")
+			So(jwks.Keys[0].x, ShouldHaveSameTypeAs, big.NewInt(42))
+			So(jwks.Keys[0].y, ShouldHaveSameTypeAs, big.NewInt(42))
+		})
+	})
 }

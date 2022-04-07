@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net"
+	"strings"
 
 	mapset "github.com/deckarep/golang-set"
 	"go.aporeto.io/a3s/pkgs/api"
@@ -200,14 +201,19 @@ func makeAPIAuthorizationPolicyRetrieveFilter(claims []string) *elemental.Filter
 
 	itags := []interface{}{}
 	set := mapset.NewSet()
+	var issuer string
 	for _, tag := range claims {
 		if set.Add(tag) {
 			itags = append(itags, tag)
+			if strings.HasPrefix(tag, "@issuer=") {
+				issuer = strings.TrimPrefix(tag, "@issuer=")
+			}
 		}
 	}
 
 	filter := elemental.NewFilterComposer().
 		WithKey("flattenedsubject").In(itags...).
+		WithKey("trustedissuers").Contains(issuer).
 		WithKey("disabled").Equals(false).
 		Done()
 

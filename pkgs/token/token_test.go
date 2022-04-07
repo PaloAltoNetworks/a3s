@@ -185,6 +185,85 @@ func TestParse(t *testing.T) {
 	})
 }
 
+func TestParseUnverified(t *testing.T) {
+
+	Convey("Given I create an IdentityToken", t, func() {
+
+		cert, key := getECCert()
+
+		token1 := NewIdentityToken(Source{
+			Type:      "certificate",
+			Namespace: "/my/ns",
+			Name:      "mysource",
+		})
+
+		token1.Source.Type = "certificate"
+		token1.Source.Namespace = "/my/ns"
+		token1.Source.Name = "mysource"
+		token1.Identity = []string{
+			"org=a3s.com",
+			"orgunit=admin",
+			"commonname=joe",
+		}
+
+		keychain := NewJWKS()
+		_ = keychain.Append(cert)
+
+		kid := Fingerprint(cert)
+
+		token, err := token1.JWT(key, kid, "iss", jwt.ClaimStrings{"aud"}, time.Now().Add(10*time.Second), nil)
+		So(err, ShouldBeNil)
+
+		Convey("When I call ParseUnverified", func() {
+
+			token2, err := ParseUnverified(token)
+
+			So(err, ShouldBeNil)
+			So(token2.Source.Type, ShouldEqual, "certificate")
+			So(token2.Issuer, ShouldEqual, "iss")
+			So(token2.Audience, ShouldResemble, jwt.ClaimStrings{"aud"})
+			So(token2.ExpiresAt, ShouldResemble, token1.ExpiresAt)
+			So(token2.IssuedAt, ShouldResemble, token1.IssuedAt)
+			So(token2.Identity, ShouldResemble, []string{
+				"@issuer=iss",
+				"@source:name=mysource",
+				"@source:namespace=/my/ns",
+				"@source:type=certificate",
+				"commonname=joe",
+				"org=a3s.com",
+				"orgunit=admin",
+			})
+		})
+
+		Convey("When I call ParseUnverified on a token missing the @source:type claim", func() {
+
+			// Overwrite the test token
+			claims := jwt.NewWithClaims(
+				jwt.SigningMethodES256,
+				jwt.MapClaims{
+					"iss": "iss2",
+				},
+			)
+			claims.Header["kid"] = kid
+
+			token, _ := claims.SignedString(key)
+			token2, err := ParseUnverified(token)
+
+			So(token2, ShouldBeNil)
+			So(err, ShouldNotBeNil)
+			So(err.Error(), ShouldEqual, "invalid token: missing @source:type in identity claims")
+		})
+
+		Convey("Passing a badly formatted token should error", func() {
+
+			token, err := ParseUnverified("this is not a token")
+			So(err, ShouldNotBeNil)
+			So(err.Error(), ShouldEqual, "unable to parse unverified jwt: token contains an invalid number of segments")
+			So(token, ShouldBeNil)
+		})
+	})
+}
+
 func TestIdentityToken_Restrict(t *testing.T) {
 	type args struct {
 		restrictions permissions.Restrictions

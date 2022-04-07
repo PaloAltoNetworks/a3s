@@ -40,6 +40,11 @@ func TestGetIndexes(t *testing.T) {
 						Background: true,
 					},
 					{
+						Name:       "index_authorization_namespace_trustedissuers",
+						Key:        []string{"namespace", "trustedissuers"},
+						Background: true,
+					},
+					{
 						Name:       "shard_index_authorization_zone_zhash",
 						Key:        []string{"zone", "zhash"},
 						Background: true,
