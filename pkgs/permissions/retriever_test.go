@@ -60,7 +60,7 @@ func TestIsAuthorizedWithToken(t *testing.T) {
 
 		Convey("When there is no policy matching", func() {
 
-			perms, err := r.Permissions(ctx, []string{"color=blue"}, "/a")
+			perms, err := r.Permissions(ctx, []string{"color=blue", "@issuer=toto"}, "/a")
 
 			So(err, ShouldBeNil)
 			So(perms.Allows("get", "things"), ShouldEqual, false)
@@ -93,18 +93,21 @@ func TestIsAuthorizedWithToken(t *testing.T) {
 
 		Convey("When there is a policy matching *,*", func() {
 
+			var expectedFilter *elemental.Filter
 			m.MockRetrieveMany(t, func(mctx manipulate.Context, dest elemental.Identifiables) error {
 				*dest.(*api.AuthorizationsList) = append(
 					*dest.(*api.AuthorizationsList),
 					makeAPIPol([]string{permSetAllowAll}, nil),
 				)
+				expectedFilter = mctx.Filter()
 				return nil
 			})
 
-			perms, err := r.Permissions(ctx, []string{"color=blue"}, "/a")
+			perms, err := r.Permissions(ctx, []string{"color=blue", "@issuer=toto"}, "/a")
 
 			So(err, ShouldBeNil)
 			So(perms.Allows("get", "things"), ShouldEqual, true)
+			So(expectedFilter.String(), ShouldEqual, `flattenedsubject in ["color=blue", "@issuer=toto"] and trustedissuers contains ["toto"] and disabled == false`)
 		})
 
 		Convey("When there is a policy matching twice using twice the same set", func() {

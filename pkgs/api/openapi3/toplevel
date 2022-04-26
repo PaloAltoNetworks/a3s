@@ -135,6 +135,13 @@
               "type": "string"
             },
             "type": "array"
+          },
+          "trustedIssuers": {
+            "description": "List of issuers to consider before using the policy for a given set of claims.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
           }
         },
         "required": [

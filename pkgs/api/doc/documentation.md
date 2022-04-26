@@ -1320,6 +1320,12 @@ Type: `[]string`
 Defines the namespace or namespaces in which the permission for subject should
 apply. If empty, the object's namespace will be used.
 
+##### `trustedIssuers`
+
+Type: `[]string`
+
+List of issuers to consider before using the policy for a given set of claims.
+
 ## authz/check
 
 ### Authz

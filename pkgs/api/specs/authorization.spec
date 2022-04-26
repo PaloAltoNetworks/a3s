@@ -27,6 +27,8 @@ indexes:
 - - namespace
   - flattenedSubject
   - propagate
+- - namespace
+  - trustedIssuers
 
 # Attributes
 attributes:
@@ -114,3 +116,10 @@ attributes:
     subtype: string
     stored: true
     example_value: /my/namespace
+
+  - name: trustedIssuers
+    description: List of issuers to consider before using the policy for a given set of claims.
+    type: list
+    exposed: true
+    subtype: string
+    stored: true

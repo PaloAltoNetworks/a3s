@@ -83,7 +83,7 @@ func main() {
 
 	if cfg.Init {
 		if cfg.InitRootUserCAPath != "" {
-			initialized, err := initRootPermissions(ctx, m, cfg.InitRootUserCAPath, cfg.InitContinue)
+			initialized, err := initRootPermissions(ctx, m, cfg.InitRootUserCAPath, cfg.JWT.JWTIssuer, cfg.InitContinue)
 			if err != nil {
 				zap.L().Fatal("unable to initialize root permissions", zap.Error(err))
 				return
@@ -95,7 +95,7 @@ func main() {
 		}
 
 		if cfg.InitPlatformCAPath != "" {
-			initialized, err := initPlatformPermissions(ctx, m, cfg.InitPlatformCAPath, cfg.InitContinue)
+			initialized, err := initPlatformPermissions(ctx, m, cfg.InitPlatformCAPath, cfg.JWT.JWTIssuer, cfg.InitContinue)
 			if err != nil {
 				zap.L().Fatal("unable to initialize platform permissions", zap.Error(err))
 				return
@@ -171,6 +171,25 @@ func main() {
 	}
 	zap.L().Info("Cookie domain set", zap.String("domain", cookieDomain))
 
+	trustedIssuers, err := cfg.JWT.TrustedIssuers()
+	if err != nil {
+		zap.L().Fatal("Unable to build trusted issuers list", zap.Error(err))
+	}
+	if len(trustedIssuers) > 0 {
+		zap.L().Info("Trusted issuers set",
+			zap.Strings(
+				"issuers",
+				func() []string {
+					out := make([]string, len(trustedIssuers))
+					for i, o := range trustedIssuers {
+						out[i] = o.URL
+					}
+					return out
+				}(),
+			),
+		)
+	}
+
 	pubsub := bootstrap.MakeNATSClient(cfg.NATSConf)
 	defer pubsub.Disconnect() // nolint: errcheck
 
@@ -179,6 +198,7 @@ func main() {
 		cfg.JWT.JWTIssuer,
 		cfg.JWT.JWTAudience,
 		authenticator.OptionIgnoredResources(publicResources...),
+		authenticator.OptionExternalTrustedIssuers(trustedIssuers...),
 	)
 	retriever := permissions.NewRetriever(m)
 	pauthz := authorizer.New(
@@ -195,15 +215,9 @@ func main() {
 			pubsub,
 			api.Manager(),
 			nil,
-			[]bahamut.RequestAuthenticator{
-				pauthn,
-			},
-			[]bahamut.SessionAuthenticator{
-				pauthn,
-			},
-			[]bahamut.Authorizer{
-				pauthz,
-			},
+			[]bahamut.RequestAuthenticator{pauthn},
+			[]bahamut.SessionAuthenticator{pauthn},
+			[]bahamut.Authorizer{pauthz},
 		),
 		bahamut.OptPushDispatchHandler(push.NewDispatcher(pauthz)),
 		bahamut.OptPushPublishHandler(bootstrap.MakePublishHandler(pushExcludedResources)),
@@ -290,7 +304,7 @@ func main() {
 	bahamut.RegisterProcessorOrDie(server, processors.NewPermissionsProcessor(retriever), api.PermissionsIdentity)
 	bahamut.RegisterProcessorOrDie(server, processors.NewAuthzProcessor(pauthz, jwks, cfg.JWT.JWTIssuer, cfg.JWT.JWTAudience), api.AuthzIdentity)
 	bahamut.RegisterProcessorOrDie(server, processors.NewNamespacesProcessor(m, pubsub), api.NamespaceIdentity)
-	bahamut.RegisterProcessorOrDie(server, processors.NewAuthorizationProcessor(m, pubsub, retriever), api.AuthorizationIdentity)
+	bahamut.RegisterProcessorOrDie(server, processors.NewAuthorizationProcessor(m, pubsub, retriever, cfg.JWT.JWTIssuer), api.AuthorizationIdentity)
 	bahamut.RegisterProcessorOrDie(server, processors.NewImportProcessor(bmanipMaker, pauthz), api.ImportIdentity)
 
 	notification.Subscribe(ctx, pubsub, nscache.NotificationNamespaceChanges, makeNamespaceCleaner(ctx, m))
@@ -349,7 +363,7 @@ func createRootNamespaceIfNeeded(m manipulate.Manipulator) error {
 	return nil
 }
 
-func initRootPermissions(ctx context.Context, m manipulate.Manipulator, caPath string, ifNeeded bool) (bool, error) {
+func initRootPermissions(ctx context.Context, m manipulate.Manipulator, caPath string, issuer string, ifNeeded bool) (bool, error) {
 
 	caData, err := os.ReadFile(caPath)
 	if err != nil {
@@ -392,6 +406,7 @@ func initRootPermissions(ctx context.Context, m manipulate.Manipulator, caPath s
 	auth.Namespace = "/"
 	auth.Name = "root-mtls-authorization"
 	auth.Description = "Authorization to allow root users"
+	auth.TrustedIssuers = []string{issuer}
 	auth.Subject = [][]string{
 		{
 			"@source:type=mtls",
@@ -412,7 +427,7 @@ func initRootPermissions(ctx context.Context, m manipulate.Manipulator, caPath s
 	return true, nil
 }
 
-func initPlatformPermissions(ctx context.Context, m manipulate.Manipulator, caPath string, ifNeeded bool) (bool, error) {
+func initPlatformPermissions(ctx context.Context, m manipulate.Manipulator, caPath string, issuer string, ifNeeded bool) (bool, error) {
 
 	caData, err := os.ReadFile(caPath)
 	if err != nil {
@@ -456,6 +471,7 @@ func initPlatformPermissions(ctx context.Context, m manipulate.Manipulator, caPa
 	auth.Namespace = "/"
 	auth.Name = "platform-mtls-authorization"
 	auth.Description = "Authorization to allow internal services"
+	auth.TrustedIssuers = []string{issuer}
 	auth.Subject = [][]string{
 		{
 			"@source:type=mtls",

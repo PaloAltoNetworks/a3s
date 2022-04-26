@@ -53,6 +53,7 @@ var (
 		"authorization": {
 			{"namespace", "flattenedSubject", "disabled"},
 			{"namespace", "flattenedSubject", "propagate"},
+			{"namespace", "trustedIssuers"},
 			{":shard", ":unique", "zone", "zHash"},
 			{"namespace"},
 			{"namespace", "ID"},

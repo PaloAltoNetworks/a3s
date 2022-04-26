@@ -21,14 +21,16 @@ type AuthorizationsProcessor struct {
 	manipulator manipulate.Manipulator
 	retriever   permissions.Retriever
 	pubsub      bahamut.PubSubClient
+	localIssuer string
 }
 
 // NewAuthorizationProcessor returns a new AuthorizationsProcessor.
-func NewAuthorizationProcessor(manipulator manipulate.Manipulator, pubsub bahamut.PubSubClient, retriever permissions.Retriever) *AuthorizationsProcessor {
+func NewAuthorizationProcessor(manipulator manipulate.Manipulator, pubsub bahamut.PubSubClient, retriever permissions.Retriever, localIssuer string) *AuthorizationsProcessor {
 	return &AuthorizationsProcessor{
 		manipulator: manipulator,
 		pubsub:      pubsub,
 		retriever:   retriever,
+		localIssuer: localIssuer,
 	}
 }
 
@@ -91,6 +93,10 @@ func (p *AuthorizationsProcessor) makePreHook(ctx bahamut.Context) crud.PreWrite
 
 		if len(auth.TargetNamespaces) == 0 {
 			auth.TargetNamespaces = []string{ctx.Request().Namespace}
+		}
+
+		if len(auth.TrustedIssuers) == 0 {
+			auth.TrustedIssuers = []string{p.localIssuer}
 		}
 
 		req := ctx.Request()
