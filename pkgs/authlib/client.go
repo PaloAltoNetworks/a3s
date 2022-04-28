@@ -229,7 +229,7 @@ func (a *Client) AuthFromOIDCStep1(ctx context.Context, sourceNamespace string, 
 
 // AuthFromOIDCStep2 finishes the OIDC ceremony using the code and state you obtained after performing
 // the authentication against the OIDC provider.
-func (a *Client) AuthFromOIDCStep2(ctx context.Context, code string, state string, options ...Option) (string, error) {
+func (a *Client) AuthFromOIDCStep2(ctx context.Context, sourceNamespace string, sourceName string, code string, state string, options ...Option) (string, error) {
 
 	cfg := newConfig()
 	for _, opt := range options {
@@ -238,6 +238,8 @@ func (a *Client) AuthFromOIDCStep2(ctx context.Context, code string, state strin
 
 	req := api.NewIssue()
 	req.SourceType = api.IssueSourceTypeOIDC
+	req.SourceNamespace = sourceNamespace
+	req.SourceName = sourceName
 	req.InputOIDC = &api.IssueOIDC{
 		Code:  code,
 		State: state,

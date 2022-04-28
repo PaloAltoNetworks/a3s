@@ -73,6 +73,8 @@ func makeOIDCCmd(mmaker manipcli.ManipulatorMaker, restrictions *permissions.Res
 
 			t, err := client.AuthFromOIDCStep2(
 				ctx,
+				fSourceNamespace,
+				fSourceName,
 				authD.code,
 				authD.state,
 				authlib.OptAudience(fAudience...),

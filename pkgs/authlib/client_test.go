@@ -317,6 +317,8 @@ func TestAuthFromOIDCStep2(t *testing.T) {
 
 		token, err := cl.AuthFromOIDCStep2(
 			context.Background(),
+			"/ns",
+			"name",
 			"code",
 			"state",
 			OptAudience("aud"),
@@ -324,8 +326,8 @@ func TestAuthFromOIDCStep2(t *testing.T) {
 
 		So(err, ShouldBeNil)
 		So(expectedRequest.SourceType, ShouldEqual, api.IssueSourceTypeOIDC)
-		So(expectedRequest.SourceNamespace, ShouldEqual, "")
-		So(expectedRequest.SourceName, ShouldEqual, "")
+		So(expectedRequest.SourceNamespace, ShouldEqual, "/ns")
+		So(expectedRequest.SourceName, ShouldEqual, "name")
 		So(expectedRequest.Audience, ShouldResemble, []string{"aud"})
 		So(expectedRequest.Validity, ShouldEqual, time.Hour.String())
 		So(expectedRequest.InputOIDC.Code, ShouldEqual, "code")
