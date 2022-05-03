@@ -11,28 +11,19 @@ self_url = 'https://localhost:5000'
 a3s_url = 'https://127.0.0.1:44443'
 
 
+# authenticator:start
 def authenticate(f):
     @wraps(f)
     def wrapper(*args, **kwargs):
-
         password = request.cookies.get("x-a3s-token")
-
         auth = request.authorization
         if auth and auth.username == "Bearer" and auth.password != "":
             password = auth.password
-
-        if not password:
+        if not password and request.args.get("rlogin") is not None:
             return redirect(
                 '%s/login?proxy=%s&redirect=%s/%s&audience=%s' %
-                (
-                    self_url,
-                    self_url,
-                    self_url,
-                    request.path,
-                    "testapp",
-                )
+                (self_url, self_url, self_url, request.path, "testapp")
             )
-
         if requests.post(
             "%s/authz" % a3s_url,
             verify=False,
@@ -45,26 +36,29 @@ def authenticate(f):
                 'audience': "testapp",
             },
         ).status_code != 204:
-            return Response('Forbidden', 403, {})
+            return Response('Forbidden\n', 403, {})
         return f(*args, **kwargs)
     return wrapper
+# authenticator:end
 
 
+# routes:start
 @ app.route("/")
 def public():
-    return "This is public. try to access /secret or /topsecret"
+    return "This is public. try to access <a href=/secret?rlogin>/secret</a> or <a href=/topsecret?rlogin>/topsecret</a>\n"
 
 
 @ app.route("/secret")
 @ authenticate
 def secret():
-    return "This is secret! Noice!"
+    return "This is secret! Noice!\n"
 
 
 @ app.route("/topsecret")
 @ authenticate
 def topsecret():
-    return "This is top secret! Awesome!"
+    return "This is top secret! Awesome!\n"
+# routes:end
 
 
 @ app.route("/issue", methods=['POST'])
