@@ -15,11 +15,11 @@ a3s_url = 'https://127.0.0.1:44443'
 def authenticate(f):
     @wraps(f)
     def wrapper(*args, **kwargs):
-        password = request.cookies.get("x-a3s-token")
+        token = request.cookies.get("x-a3s-token")
         auth = request.authorization
         if auth and auth.username == "Bearer" and auth.password != "":
-            password = auth.password
-        if not password and request.args.get("rlogin") is not None:
+            token = auth.password
+        if not token and request.args.get("rlogin") is not None:
             return redirect(
                 '%s/login?proxy=%s&redirect=%s/%s&audience=%s' %
                 (self_url, self_url, self_url, request.path, "testapp")
@@ -29,7 +29,7 @@ def authenticate(f):
             verify=False,
             headers={'Content-Type': 'application/json'},
             json={
-                'token': password,
+                'token': token,
                 'action': request.method,
                 'resource': request.path,
                 'namespace': "/testapp",
@@ -45,7 +45,9 @@ def authenticate(f):
 # routes:start
 @ app.route("/")
 def public():
-    return "This is public. try to access <a href=/secret?rlogin>/secret</a> or <a href=/topsecret?rlogin>/topsecret</a>\n"
+    return """This is public. try to access
+        <a href=/secret?rlogin>/secret</a> or
+        <a href=/topsecret?rlogin>/topsecret</a>\n"""
 
 
 @ app.route("/secret")
