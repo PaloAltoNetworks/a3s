@@ -63,7 +63,7 @@ func ConfigureBahamut(
 
 		tlscfg, err := c.TLSConfig()
 		if err != nil {
-			zap.L().Fatal("Unable to configure tls: %w", zap.Error(err))
+			zap.L().Fatal("Unable to configure tls", zap.Error(err))
 		}
 
 		if tlscfg != nil {
