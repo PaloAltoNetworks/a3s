@@ -79,21 +79,26 @@ func makeAutoCmd(mmaker manipcli.ManipulatorMaker) *cobra.Command {
 // Support:
 //
 // autoauth.enable: mtls
-//      autoauth.mtls.cert: path to the client certificate
-//      autoauth.mtls.key: path to the client certificate key
-//      autoauth.mtls.pass: optional passphrase to the certificate.
-//      autoauth.mtls.source.name: the name of the MTLS source to use.
-//      autoauth.mtls.source.namespace: the namespace of the MTLS source to use.
+//
+//	autoauth.mtls.cert: path to the client certificate
+//	autoauth.mtls.key: path to the client certificate key
+//	autoauth.mtls.pass: optional passphrase to the certificate.
+//	autoauth.mtls.source.name: the name of the MTLS source to use.
+//	autoauth.mtls.source.namespace: the namespace of the MTLS source to use.
+//
 // autoauth.enable: ldap
-//      autoauth.ldap.user: the username.
-//      autoauth.ldap.pass: the password.
-//      autoauth.ldap.source.name: the name of the LDAP source to use.
-//      autoauth.ldap.source.namespace: the namespace of the LDAP source to use.
+//
+//	autoauth.ldap.user: the username.
+//	autoauth.ldap.pass: the password.
+//	autoauth.ldap.source.name: the name of the LDAP source to use.
+//	autoauth.ldap.source.namespace: the namespace of the LDAP source to use.
+//
 // autoauth.enable: http
-//      autoauth.http.user: the username.
-//      autoauth.http.pass: the password.
-//      autoauth.http.source.name: the name of the HTTP source to use.
-//      autoauth.http.source.namespace: the namespace of the HTTP source to use.
+//
+//	autoauth.http.user: the username.
+//	autoauth.http.pass: the password.
+//	autoauth.http.source.name: the name of the HTTP source to use.
+//	autoauth.http.source.namespace: the namespace of the HTTP source to use.
 func HandleAutoAuth(
 	mmaker manipcli.ManipulatorMaker,
 	method string,

@@ -2,7 +2,7 @@ package providers
 
 import (
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 )
 
@@ -22,7 +22,7 @@ func AWSServiceRoleToken() (roleData string, err error) {
 	}
 
 	defer resp1.Body.Close() // nolint: errcheck
-	role, err := ioutil.ReadAll(resp1.Body)
+	role, err := io.ReadAll(resp1.Body)
 	if err != nil {
 		return "", fmt.Errorf("unable to read role from aws magic ip: %s", err)
 	}
@@ -36,7 +36,7 @@ func AWSServiceRoleToken() (roleData string, err error) {
 	}
 	defer resp2.Body.Close() // nolint errcheck
 
-	token, err := ioutil.ReadAll(resp2.Body)
+	token, err := io.ReadAll(resp2.Body)
 	if err != nil {
 		return "", fmt.Errorf("unable to read service token information: %s", err)
 	}

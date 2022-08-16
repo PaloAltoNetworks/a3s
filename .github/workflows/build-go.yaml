@@ -20,6 +20,8 @@ jobs:
       matrix:
         go:
           - 1.17
+          - 1.18
+          - 1.19
     steps:
       - uses: actions/checkout@v2
 

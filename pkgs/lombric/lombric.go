@@ -14,7 +14,6 @@ package lombric
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
 	"net/url"
 	"os"
 	"reflect"
@@ -113,7 +112,7 @@ func Initialize(conf Configurable) {
 					panic(fmt.Sprintf("invalid url for secret: %s", err))
 				}
 
-				data, err := ioutil.ReadFile(u.Path)
+				data, err := os.ReadFile(u.Path)
 				if err != nil {
 					panic(fmt.Sprintf("unable to read secret file for key '%s': %s", key, err))
 				}

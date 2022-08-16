@@ -4,7 +4,6 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"time"
 
@@ -262,7 +261,7 @@ func (c *A3SClientConf) SystemCAPool() (*x509.CertPool, error) {
 		return c.systemCAPool, nil
 	}
 
-	data, err := ioutil.ReadFile(c.A3SCertificateAuthority)
+	data, err := os.ReadFile(c.A3SCertificateAuthority)
 	if err != nil {
 		return nil, err
 	}
