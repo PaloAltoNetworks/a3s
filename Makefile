@@ -7,7 +7,7 @@ CONTAINER_TAG ?= "dev"
 
 export GO111MODULE = on
 
-default: codegen lint sec test a3s cli
+default: codegen lint test a3s cli
 .PHONY: ui
 
 ## Tests
@@ -43,7 +43,7 @@ test: testdeps
 	gocov convert ./unit_coverage.cov | gocov-xml > ./coverage.xml
 
 sec:
-	# gosec -quiet ./...
+	gosec -quiet ./...
 
 
 ## Code generation
