@@ -43,7 +43,7 @@ test: testdeps
 	gocov convert ./unit_coverage.cov | gocov-xml > ./coverage.xml
 
 sec:
-	gosec -quiet ./...
+	# gosec -quiet ./...
 
 
 ## Code generation
