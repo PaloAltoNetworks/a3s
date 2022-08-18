@@ -259,6 +259,6 @@ func TestNew(t *testing.T) {
 		iss, err := New(context.Background(), source, "rtokString")
 		So(iss, ShouldBeNil)
 		So(err, ShouldNotBeNil)
-		So(err.Error(), ShouldEqual, `remote a3s error: unable to retrieve remote jwks: remote jwks error: unable to send request: Get "toto:///not-a-url/.well-known/jwks.json": unsupported protocol scheme "toto"`)
+		So(err.Error(), ShouldContainSubstring, `remote a3s error: unable to retrieve remote jwks: remote jwks error: unable to send request: Get "toto:`)
 	})
 }

@@ -13,7 +13,6 @@ package lombric
 
 import (
 	"fmt"
-	"io/ioutil"
 	"net"
 	"os"
 	"testing"
@@ -65,7 +64,7 @@ func TestLombric_Initialize(t *testing.T) {
 
 	Convey("Given have a conf", t, func() {
 
-		sfile1, err := ioutil.TempFile(os.TempDir(), "secret")
+		sfile1, err := os.CreateTemp(os.TempDir(), "secret")
 		if err != nil {
 			panic(err)
 		}
@@ -75,7 +74,7 @@ func TestLombric_Initialize(t *testing.T) {
 		}
 		spath1 := fmt.Sprintf("file://%s", sfile1.Name())
 
-		sfile2, err := ioutil.TempFile(os.TempDir(), "secret2")
+		sfile2, err := os.CreateTemp(os.TempDir(), "secret2")
 		if err != nil {
 			panic(err)
 		}

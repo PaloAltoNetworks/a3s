@@ -3,7 +3,7 @@ package providers
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
 )
@@ -56,7 +56,7 @@ func issueRequest(baseuri string) ([]byte, error) {
 	}
 
 	defer resp.Body.Close() // nolint errcheck
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, fmt.Errorf("unable to read data: %s", err)
 	}
