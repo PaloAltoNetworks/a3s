@@ -129,7 +129,7 @@ func (a *Authenticator) commonAuth(ctx context.Context, tokenString string) (bah
 	if idt.Refresh {
 		return bahamut.AuthActionKO, nil, elemental.NewError(
 			"Unauthorized",
-			fmt.Sprintf("Authentication impossible from a refresh token"),
+			"Authentication impossible from a refresh token",
 			"a3s:authn",
 			http.StatusUnauthorized,
 		)

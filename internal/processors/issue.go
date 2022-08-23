@@ -123,13 +123,13 @@ func (p *IssueProcessor) ProcessCreate(bctx bahamut.Context) (err error) {
 		issuer, err = p.handleHTTPIssue(bctx.Context(), req)
 
 	case api.IssueSourceTypeAWS:
-		issuer, err = p.handleAWSIssue(bctx.Context(), req)
+		issuer, err = p.handleAWSIssue(req)
 
 	case api.IssueSourceTypeAzure:
 		issuer, err = p.handleAzureIssue(bctx.Context(), req)
 
 	case api.IssueSourceTypeGCP:
-		issuer, err = p.handleGCPIssue(bctx.Context(), req)
+		issuer, err = p.handleGCPIssue(req)
 
 	case api.IssueSourceTypeRemoteA3S:
 		issuer, err = p.handleRemoteA3SIssue(bctx.Context(), req)
@@ -144,7 +144,7 @@ func (p *IssueProcessor) ProcessCreate(bctx bahamut.Context) (err error) {
 		if req.Validity == "" {
 			validity = 0
 		}
-		issuer, err = p.handleTokenIssue(bctx.Context(), req, validity, audience)
+		issuer, err = p.handleTokenIssue(req, validity, audience)
 		// we reset to 0 to skip setting exp during issuing of the token
 		// as the token issers already caps it.
 		exp = time.Time{}
@@ -305,7 +305,7 @@ func (p *IssueProcessor) handleHTTPIssue(ctx context.Context, req *api.Issue) (t
 	return iss, nil
 }
 
-func (p *IssueProcessor) handleAWSIssue(ctx context.Context, req *api.Issue) (token.Issuer, error) {
+func (p *IssueProcessor) handleAWSIssue(req *api.Issue) (token.Issuer, error) {
 
 	iss, err := awsissuer.New(req.InputAWS.ID, req.InputAWS.Secret, req.InputAWS.Token)
 	if err != nil {
@@ -325,7 +325,7 @@ func (p *IssueProcessor) handleAzureIssue(ctx context.Context, req *api.Issue) (
 	return iss, nil
 }
 
-func (p *IssueProcessor) handleGCPIssue(ctx context.Context, req *api.Issue) (token.Issuer, error) {
+func (p *IssueProcessor) handleGCPIssue(req *api.Issue) (token.Issuer, error) {
 
 	iss, err := gcpissuer.New(req.InputGCP.Token, req.InputGCP.Audience)
 	if err != nil {
@@ -335,7 +335,7 @@ func (p *IssueProcessor) handleGCPIssue(ctx context.Context, req *api.Issue) (to
 	return iss, nil
 }
 
-func (p *IssueProcessor) handleTokenIssue(ctx context.Context, req *api.Issue, validity time.Duration, audience []string) (token.Issuer, error) {
+func (p *IssueProcessor) handleTokenIssue(req *api.Issue, validity time.Duration, audience []string) (token.Issuer, error) {
 
 	iss, err := a3sissuer.New(
 		req.InputA3S.Token,
