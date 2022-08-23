@@ -26,7 +26,7 @@ func makeAzureCmd(mmaker manipcli.ManipulatorMaker, restrictions *permissions.Re
 			fQRCode := viper.GetBool("qrcode")
 			fCheck := viper.GetBool("check")
 			fValidity := viper.GetDuration("validity")
-			fRenew := viper.GetBool("renew")
+			fRefresh := viper.GetBool("refresh")
 
 			m, err := mmaker()
 			if err != nil {
@@ -41,7 +41,7 @@ func makeAzureCmd(mmaker manipcli.ManipulatorMaker, restrictions *permissions.Re
 				authlib.OptCloak(fCloak...),
 				authlib.OptRestrictions(*restrictions),
 				authlib.OptValidity(fValidity),
-				authlib.OptRefresh(fRenew),
+				authlib.OptRefresh(fRefresh),
 			)
 			if err != nil {
 				return err
