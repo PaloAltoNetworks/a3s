@@ -16,7 +16,6 @@ func New(
 	requiredIssuer string,
 	audience jwt.ClaimStrings,
 	validity time.Duration,
-	restrictions permissions.Restrictions,
 ) (token.Issuer, error) {
 
 	c := newA3SIssuer()
@@ -26,7 +25,6 @@ func New(
 		requiredIssuer,
 		audience,
 		validity,
-		restrictions,
 	); err != nil {
 		return nil, err
 	}
@@ -48,7 +46,6 @@ func (c *a3sIssuer) fromToken(
 	issuer string,
 	audience jwt.ClaimStrings,
 	validity time.Duration,
-	restrictions permissions.Restrictions,
 ) error {
 
 	orest, err := permissions.GetRestrictions(tokenString)

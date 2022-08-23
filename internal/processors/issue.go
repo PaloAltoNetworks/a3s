@@ -343,11 +343,6 @@ func (p *IssueProcessor) handleTokenIssue(req *api.Issue, validity time.Duration
 		p.issuer,
 		audience,
 		validity,
-		permissions.Restrictions{
-			Namespace:   req.RestrictedNamespace,
-			Networks:    req.RestrictedNetworks,
-			Permissions: req.RestrictedPermissions,
-		},
 	)
 	if err != nil {
 		return nil, err

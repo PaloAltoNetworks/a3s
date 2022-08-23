@@ -65,7 +65,7 @@ func OptRestrictions(restrictions permissions.Restrictions) Option {
 	}
 }
 
-// OptRefresh asks for a renew token.
+// OptRefresh asks for a refresh token.
 func OptRefresh(refresh bool) Option {
 	return func(opts *config) {
 		opts.refresh = refresh
