@@ -31,7 +31,7 @@ func MakeImportCmd(mmaker manipcli.ManipulatorMaker) *cobra.Command {
 				viper.GetString("auto-auth-method"),
 				viper.GetStringSlice("audience"),
 				viper.GetStringSlice("cloak"),
-				viper.GetBool("renew"),
+				viper.GetBool("refresh"),
 				true,
 			); err != nil {
 				return err
