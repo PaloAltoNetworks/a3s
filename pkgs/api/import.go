@@ -117,8 +117,8 @@ func NewImport() *Import {
 		HTTPSources:    HTTPSourcesList{},
 		LDAPSources:    LDAPSourcesList{},
 		MTLSSources:    MTLSSourcesList{},
-		Authorizations: AuthorizationsList{},
 		OIDCSources:    OIDCSourcesList{},
+		Authorizations: AuthorizationsList{},
 	}
 }
 

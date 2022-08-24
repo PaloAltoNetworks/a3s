@@ -30,21 +30,6 @@ func TestGetIndexes(t *testing.T) {
 			wantMIndexes: map[elemental.Identity][]mgo.Index{
 				api.AuthorizationIdentity: {
 					{
-						Name:       "index_authorization_namespace_flattenedsubject_disabled",
-						Key:        []string{"namespace", "flattenedsubject", "disabled"},
-						Background: true,
-					},
-					{
-						Name:       "index_authorization_namespace_flattenedsubject_propagate",
-						Key:        []string{"namespace", "flattenedsubject", "propagate"},
-						Background: true,
-					},
-					{
-						Name:       "index_authorization_namespace_trustedissuers",
-						Key:        []string{"namespace", "trustedissuers"},
-						Background: true,
-					},
-					{
 						Name:       "shard_index_authorization_zone_zhash",
 						Key:        []string{"zone", "zhash"},
 						Background: true,
@@ -61,8 +46,23 @@ func TestGetIndexes(t *testing.T) {
 						Background: true,
 					},
 					{
+						Name:       "index_authorization_namespace_flattenedsubject_disabled",
+						Key:        []string{"namespace", "flattenedsubject", "disabled"},
+						Background: true,
+					},
+					{
+						Name:       "index_authorization_namespace_flattenedsubject_propagate",
+						Key:        []string{"namespace", "flattenedsubject", "propagate"},
+						Background: true,
+					},
+					{
 						Name:       "index_authorization_namespace_importlabel",
 						Key:        []string{"namespace", "importlabel"},
+						Background: true,
+					},
+					{
+						Name:       "index_authorization_namespace_trustedissuers",
+						Key:        []string{"namespace", "trustedissuers"},
 						Background: true,
 					},
 				},
