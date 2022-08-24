@@ -17,7 +17,7 @@ lint:
 		--timeout=5m \
 		--disable-all \
 		--exclude-use-default=false \
-		--exclude="should have a package comment" \
+		--exclude=package-comments \
 		--enable=errcheck \
 		--enable=goimports \
 		--enable=ineffassign \
