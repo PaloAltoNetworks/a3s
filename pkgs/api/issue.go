@@ -233,10 +233,10 @@ func NewIssue() *Issue {
 	return &Issue{
 		ModelVersion:          1,
 		Audience:              []string{},
+		Cloak:                 []string{},
 		Opaque:                map[string]string{},
 		RestrictedNetworks:    []string{},
 		RestrictedPermissions: []string{},
-		Cloak:                 []string{},
 		TokenType:             IssueTokenTypeIdentity,
 	}
 }

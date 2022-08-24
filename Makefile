@@ -7,30 +7,30 @@ CONTAINER_TAG ?= "dev"
 
 export GO111MODULE = on
 
-default: codegen lint test a3s cli
+default: codegen lint testdeps test a3s cli
 .PHONY: ui
 
 ## Tests
 
 lint:
 	golangci-lint run \
-		--timeout 5m \
+		--timeout=5m \
 		--disable-all \
 		--exclude-use-default=false \
+		--exclude="should have a package comment" \
 		--enable=errcheck \
 		--enable=goimports \
 		--enable=ineffassign \
 		--enable=revive \
 		--enable=unused \
-		--enable=structcheck \
 		--enable=staticcheck \
-		--enable=varcheck \
-		--enable=deadcode \
 		--enable=unconvert \
 		--enable=misspell \
 		--enable=prealloc \
 		--enable=nakedret \
 		--enable=typecheck \
+		--enable=unparam \
+		--enable=gosimple \
 		--enable=nilerr \
 		./...
 
@@ -38,7 +38,7 @@ testdeps:
 	go install github.com/axw/gocov/gocov@latest
 	go install github.com/AlekSi/gocov-xml@latest
 
-test: testdeps
+test:
 	go test ./... -race -cover -covermode=atomic -coverprofile=unit_coverage.cov
 	gocov convert ./unit_coverage.cov | gocov-xml > ./coverage.xml
 

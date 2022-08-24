@@ -19,9 +19,9 @@ import (
 	"go.aporeto.io/tg/tglib"
 )
 
-func getECCert(subject pkix.Name, opts ...tglib.IssueOption) (*x509.Certificate, crypto.PrivateKey) {
+func getECCert(subject pkix.Name) (*x509.Certificate, crypto.PrivateKey) {
 
-	certBlock, keyBlock, err := tglib.Issue(subject, opts...)
+	certBlock, keyBlock, err := tglib.Issue(subject)
 	if err != nil {
 		panic(err)
 	}
