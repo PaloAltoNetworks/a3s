@@ -114,7 +114,7 @@ func TestLombric_Initialize(t *testing.T) {
 			So(conf.AString, ShouldEqual, "hello")
 			So(conf.AStringNoDef, ShouldEqual, "")
 			So(conf.AStringSlice, ShouldResemble, []string{"a", "b", "c"})
-			So(conf.AStringSliceNoDef, ShouldResemble, []string(nil))
+			So(conf.AStringSliceNoDef, ShouldResemble, []string{})
 			So(conf.EmbeddedIgnoredStringB, ShouldEqual, "")
 			So(conf.EmbeddedStringA, ShouldEqual, "outter1")
 			So(conf.EmbeddedStringB, ShouldEqual, "inner2")
