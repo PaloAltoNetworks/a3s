@@ -13,12 +13,14 @@ services:
   a3s:
     image: a3s/a3s:dev
     ports:
-    - 44443:443
+    - 44443:44443
     restart: unless-stopped
     volumes:
     - .data/certificates:/certs
     environment:
       A3S_INIT: "true"
+      A3S_PUBLIC_API_URL: "https://127.0.0.1:44443"
+      A3S_LISTEN: "0.0.0.0:44443"
       A3S_INIT_CONTINUE: "true"
       A3S_INIT_ROOT_CA: "/certs/ca-acme-cert.pem"
       A3S_MONGO_URL: mongodb://mongo:27017
