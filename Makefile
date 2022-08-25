@@ -7,7 +7,7 @@ CONTAINER_TAG ?= "dev"
 
 export GO111MODULE = on
 
-default: codegen lint test a3s cli
+default: codegen lint testdeps test a3s cli
 .PHONY: ui
 
 ## Tests
