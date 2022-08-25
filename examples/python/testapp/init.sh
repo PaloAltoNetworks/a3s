@@ -38,7 +38,7 @@ A3SCTL_TOKEN="$(
 export A3SCTL_TOKEN
 
 echo "* Deleting / recreating /testapp namespace"
-a3sctl api delete namespace "/testapp" -n /
+a3sctl api delete namespace "/testapp" -n / || echo "namespace does not exist. nothing to delete"
 a3sctl api create namespace --with.name "testapp" -n "/" ||
 	die "unable to create /testapp namespace"
 
