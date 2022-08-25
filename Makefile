@@ -8,7 +8,7 @@ CONTAINER_TAG ?= "dev"
 export GO111MODULE = on
 
 default: codegen lint test a3s cli
-.PHONY: ui
+.PHONY: ui docker
 
 ## Tests
 
