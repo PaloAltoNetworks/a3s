@@ -43,10 +43,6 @@ func makeAutoCmd(mmaker manipcli.ManipulatorMaker) *cobra.Command {
 
 			fCheck := viper.GetBool("check")
 			fQRCode := viper.GetBool("qrcode")
-			if !fCheck && !fQRCode {
-				return nil
-			}
-
 			fToken := viper.GetString("token")
 
 			return token.Fprint(
@@ -59,7 +55,8 @@ func makeAutoCmd(mmaker manipcli.ManipulatorMaker) *cobra.Command {
 		},
 	}
 
-	cmd.Flags().Bool("check", false, "Display information about the newly delivered token")
+	cmd.Flags().Bool("check", false, "Display information about the token")
+
 	cmd.Flags().AddFlagSet(flagsets.MakeAutoAuthFlags())
 
 	cmd.SetHelpFunc(func(cmd *cobra.Command, args []string) {

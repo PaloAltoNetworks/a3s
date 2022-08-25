@@ -36,15 +36,15 @@ func makeCheckCmd(mmaker manipcli.ManipulatorMaker) *cobra.Command {
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			fToken := viper.GetString("token")
-			fCheck := viper.GetBool("check")
 			fQRCode := viper.GetBool("qrcode")
+			fPrint := viper.GetBool("print")
 
 			return token.Fprint(
 				os.Stdout,
 				fToken,
-				token.PrintOptionDecoded(fCheck),
+				token.PrintOptionDecoded(true),
 				token.PrintOptionQRCode(fQRCode),
-				token.PrintOptionRaw(true),
+				token.PrintOptionRaw(fPrint),
 			)
 		},
 	}
@@ -55,6 +55,7 @@ func makeCheckCmd(mmaker manipcli.ManipulatorMaker) *cobra.Command {
 		_ = cmd.Flags().MarkHidden("namespace")
 		_ = cmd.Flags().MarkHidden("audience")
 		_ = cmd.Flags().MarkHidden("cloak")
+		_ = cmd.Flags().MarkHidden("check")
 		_ = cmd.Flags().MarkHidden("validity")
 		_ = cmd.Flags().MarkHidden("encoding")
 		_ = cmd.Flags().MarkHidden("restrict-namespace")
