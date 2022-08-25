@@ -14,7 +14,7 @@ default: codegen lint test a3s cli
 
 lint:
 	golangci-lint run \
-		--timeout 5m \
+		--timeout=5m \
 		--disable-all \
 		--exclude-use-default=false \
 		--enable=errcheck \
@@ -31,6 +31,8 @@ lint:
 		--enable=prealloc \
 		--enable=nakedret \
 		--enable=typecheck \
+		--enable=unparam \
+		--enable=gosimple \
 		--enable=nilerr \
 		./...
 
