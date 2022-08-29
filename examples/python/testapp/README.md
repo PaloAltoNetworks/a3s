@@ -29,9 +29,11 @@ The script will:
 
 ## Install requirements
 
-The server depends on `Flask` and `requests` that you must install:
+The server depends on `Flask`, `requests` and `pyopenssl` that you must install:
 
-    pip install flask requests
+    pip install flask requests pyopenssl
+
+Note your system may call pip, `pip3`
 
 ## Launch the script
 
@@ -49,6 +51,8 @@ either John or Michael TLS client certificates. You can store these tokens in
 To start the server, run:
 
     ./server.py
+
+Note you may need to call this script as `python3 ./server.py`
 
 ## Try the authorizations
 
