@@ -52,7 +52,7 @@ echo
 echo "Here is a command to get a token for john:"
 echo
 cat <<EOF
-	export jtok=\$( \\
+	export TOKEN_J=\$( \\
 		a3sctl auth mtls \\
 			--api $A3SCTL_API \\
 			--api-skip-verify \\
@@ -67,7 +67,7 @@ echo
 echo "Here is a command to get a token for michael:"
 echo
 cat <<EOF
-	export mtok=\$( \\
+	export TOKEN_M=\$( \\
 		a3sctl auth mtls \\
 			--api $A3SCTL_API \\
 			--api-skip-verify \\
