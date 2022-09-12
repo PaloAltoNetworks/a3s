@@ -97,14 +97,14 @@ folder.
 
 First, install the tools needed:
 
-  go install go.aporeto.io/tg@master
-  go install go.aporeto.io/elemental/cmd/elegen@master
-  go install go.aporeto.io/regolithe/cmd/rego@master
-  go install github.com/aporeto-inc/go-bindata/go-bindata@master
+    go install go.aporeto.io/tg@master
+    go install go.aporeto.io/elemental/cmd/elegen@master
+    go install go.aporeto.io/regolithe/cmd/rego@master
+    go install github.com/aporeto-inc/go-bindata/go-bindata@master
 
 Then generate the needed certificates:
 
-  dev/certs-init
+    dev/certs-init
 
 This creates the certificates in `dev/.data/certificates` that the A3S container
 will mount (the same certificates will be used by the dev environment, described
@@ -112,12 +112,12 @@ later).
 
 Then build the docker container:
 
-  make docker
+    make docker
 
 And finally start the docker-compose file:
 
-  cd ./dev
-  docker compose up
+    cd ./dev
+    docker compose up
 
 ## Using the system
 
@@ -129,7 +129,7 @@ that makes it more pleasant to use than the raw API.
 
 To install the cli, run:
 
-  make cli
+    make cli
 
 This will install `a3sctl` into you`$GOBIN` folder. You should have this folder
 in your `$PATH` if you want to use the cli without needing to enter its full
@@ -141,12 +141,12 @@ In order to configure the system and create additional namespaces,
 authorizations, etc, you need to obtain a root token to start interacting with
 the server:
 
-   a3sctl auth mtls \
-    --api "https://127.0.0.1:44443" \
-    --api-skip-verify \
-    --cert dev/.data/certificates/user-cert.pem \
-    --key dev/.data/certificates/user-key.pem \
-    --source-name root
+    a3sctl auth mtls \
+      --api https://127.0.0.1:44443 \
+      --api-skip-verify \
+      --cert dev/.data/certificates/user-cert.pem \
+      --key dev/.data/certificates/user-key.pem \
+      --source-name root
 
 > NOTE: In production environment, never use --api-skip-verify. You should
 > instead trust the CA used to issue A3S TLS certificate.
@@ -159,25 +159,25 @@ This will print a token that you can use for subsequent calls. You can set the
 
 If you want to check the content of a token, you can use:
 
-  $ a3sctl auth check --token <token>
-  alg: ES256
-  kid: 1DAA6949AACB82DBEF1CFE7D93586DD0BF1F090A
+    $ a3sctl auth check --token <token>
+    alg: ES256
+    kid: 1DAA6949AACB82DBEF1CFE7D93586DD0BF1F090A
 
-  {
-    "exp": 1636830341,
-    "iat": 1636743941,
-    "identity": [
-    "@source:name=root"
-    "@source:namespace=/",
-    "@source:type=mtls",
-    "commonname=Jean-Michel",
-    "fingerprint=C8BB0E5FA7644DDC97FD54AEF09053E880EDA939",
-    "issuerchain=D98F838F491542CC238275763AA06B7DC949737D",
-    "serialnumber=219959457279438724775594138274989969558",
-    ],
-    "iss": "https://127.0.0.1",
-    "jti": "b2b441a0-5283-4586-baa7-4a45147aaf46"
-  }
+    {
+      "exp": 1636830341,
+      "iat": 1636743941,
+      "identity": [
+      "@source:name=root"
+      "@source:namespace=/",
+      "@source:type=mtls",
+      "commonname=Jean-Michel",
+      "fingerprint=C8BB0E5FA7644DDC97FD54AEF09053E880EDA939",
+      "issuerchain=D98F838F491542CC238275763AA06B7DC949737D",
+      "serialnumber=219959457279438724775594138274989969558",
+      ],
+      "iss": "https://127.0.0.1",
+      "jti": "b2b441a0-5283-4586-baa7-4a45147aaf46"
+    }
 
 You can omit `--token` if you have set `$A3SCTL_TOKEN`. If you need to print the
 raw token, you can use the `--print` flag.
@@ -199,19 +199,19 @@ to retrieve a token from them, apply restrictions or apply cloaking.
 All the following examples will assume to work in the namespace `/tutorial`. To
 create it, you can run:
 
-  export A3SCTL_API="https://127.0.0.1:44443"
-  export A3SCTL_API_SKIP_VERIFY="true"
-  export A3SCTL_NAMESPACE=/tutorial
+    export A3SCTL_API="https://127.0.0.1:44443"
+    export A3SCTL_API_SKIP_VERIFY="true"
+    export A3SCTL_NAMESPACE=/tutorial
 
-  a3sctl api create namespace --with.name tutorial --namespace /
+    a3sctl api create namespace --with.name tutorial --namespace /
 
 > NOTE: the env variable will tell a3sctl which namespace to target without
 > having to pass the `--namespace` flag every time.
-
+>
 > NOTE: Some auth commands will require to pass the namespace of the auth
 > source. You can either set `--source-namespace` or leave it empty to fallback
 > on the value set by `--namespace`.
-
+>
 > NOTE: you can also get more info about a resource by using the `-h` flag.
 > This will list all the possible properies the api supports.
 
@@ -238,12 +238,12 @@ the identity token by using the `--cloak` flag. This can be useful for privacy
 reasons. For instance, if a party requests you to have `color=blue` and this is
 the only claim that matters, you can hide the rest of your claims by passing
 
-  --cloak color=blue
+    --cloak color=blue
 
 Cloaking uses prefix matching. So you can decide to only embed the color and
 size claims (if you have multiple of them) by doing:
 
-  --cloak color= --cloak size=
+    --cloak color= --cloak size=
 
 ### Identity modifiers
 
@@ -308,31 +308,31 @@ provided in the designed MTLS auth source.
 You first need to have a CA that can issue certificates for your users. In this
 example, we use `tg`, but you can use any PKI tool you like.
 
-  tg cert --name myca --is-ca
-  tg cert --name user1 \
-    --signing-cert myca-cert.pem \
-    --signing-cert-key myca-key.pem
+    tg cert --name myca --is-ca
+    tg cert --name user1 \
+      --signing-cert myca-cert.pem \
+      --signing-cert-key myca-key.pem
 
 > NOTE: tg can be installed by running `go install go.aporeto.io/tg@master
-
+>
 > NOTE: Not protecting a private key with a passphrase is bad. Don't do this in
 > production.
 
 Then we need to create the MTLS auth source:
 
-  a3sctl api create mtlssource \
-    --with.name my-mtls-source \
-    --with.ca "$(cat myca-cert.pem)"
+    a3sctl api create mtlssource \
+      --with.name my-mtls-source \
+      --with.ca "$(cat myca-cert.pem)"
 
 ##### Obtain a token from MTLS source
 
 To obtain a token from the newly created source:
 
-  a3sctl auth mtls \
-    --source-name my-mtls-source \
-    --source-namespace /tutorial \
-    --cert user1-cert.pem \
-    --key user1-key.pem
+    a3sctl auth mtls \
+      --source-name my-mtls-source \
+      --source-namespace /tutorial \
+      --cert user1-cert.pem \
+      --key user1-key.pem
 
 If the private key is encrypted, you need to set the flag `--pass <passphrase>`.
 
@@ -351,13 +351,13 @@ encryption (TLS or STARTTLS).
 
 To create an LDAP source, run:
 
-  a3sctl api create ldapsource \
-    --with.name my-ldap-source \
-    --with.address 127.0.0.1:389 \
-    --with.certificate-authority "$(cat ldap-ce-cert.pem)" \
-    --with.base-dn dc=universe,dc=io \
-    --with.bind-dn cn=readonly,dc=universe,dc=io \
-    --with.bind-password password
+    a3sctl api create ldapsource \
+      --with.name my-ldap-source \
+      --with.address 127.0.0.1:389 \
+      --with.certificate-authority "$(cat ldap-ce-cert.pem)" \
+      --with.base-dn dc=universe,dc=io \
+      --with.bind-dn cn=readonly,dc=universe,dc=io \
+      --with.bind-password password
 
 * The `base-dn` is the DN to use to search for users.
 * Yhe `bind-dn` is the account A3S will use to connect to the ldap. It should be
@@ -376,11 +376,11 @@ being ignored.
 
 To obtain a token from the newly created source:
 
-  a3sctl auth ldap \
-    --source-name my-ldap-source \
-    --namespace /tutorial \
-    --user bob \
-    --pass s3cr3t
+    a3sctl auth ldap \
+      --source-name my-ldap-source \
+      --namespace /tutorial \
+      --user bob \
+      --pass s3cr3t
 
 > NOTE: you can set `-` for '--user` and/or `--pass`. In that case, a3sctl will
 > ask for user input from stdin.
@@ -409,23 +409,23 @@ other status code will be returned as an `401` error to the user.
 
 To create an HTTP source, run:
 
-  a3sctl api create httpsource \
-    --with.name my-http-source \
-    --with.url "https://myserver.com/login" \
-    --with.certificate-authority "$(cat ca-cert.pem)" \
-    --with.certificate "$(cat client-cert.pem)" \
-    --with.key "$(cat client-key.pem)" \
+    a3sctl api create httpsource \
+      --with.name my-http-source \
+      --with.url https://myserver.com/login \
+      --with.certificate-authority "$(cat ca-cert.pem)" \
+      --with.certificate "$(cat client-cert.pem)" \
+      --with.key "$(cat client-key.pem)"
 
 ##### Obtain a token from HTTP source
 
 To obtain a token from the newly created source:
 
-  a3sctl auth http \
-    --source-name my-http-source \
-    --namespace /tutorial \
-    --user bob \
-    --pass s3cr3t \
-    --totp 1234
+    a3sctl auth http \
+      --source-name my-http-source \
+      --namespace /tutorial \
+      --user bob \
+      --pass s3cr3t \
+      --totp 1234
 
 > NOTE: you can set `-` for '--user` and/or `--pass`. In that case, a3sctl will
 > ask for user input from stdin.
@@ -448,12 +448,12 @@ your provider confguration if you plan to use a3sctl to authenticate.
 
 Once the provider is configuired, create an OIDC source:
 
-  a3sctl api create oidcsource \
-    --with.name my-oidc-source \
-    --with.client-id <client id> \
-    --with.client-secret <client secret> \
-    --with.endpoint "https://accounts.google.com" \
-    --with.scopes '["email", "given_name"]'
+    a3sctl api create oidcsource \
+      --with.name my-oidc-source \
+      --with.client-id <client id> \
+      --with.client-secret <client secret> \
+      --with.endpoint https://accounts.google.com \
+      --with.scopes '["email", "given_name"]'
 
 The scopes indicate the OIDC provider which claim to return. They will vary
 depending on your provider.
@@ -469,9 +469,9 @@ painful to do manually. a3sctl will do all of this transparently.
 
 To obtain a token from the newly created source:
 
-  a3sctl auth oidc \
-    --source-name my-oidc-source \
-    --source-namespace /tutorial
+    a3sctl auth oidc \
+      --source-name my-oidc-source \
+      --source-namespace /tutorial
 
 This will print a URL to open in your browser to authenticate against the OIDC
 provider. Once completed, the provider will reply and the token will be
@@ -493,9 +493,9 @@ the well-known jwks URL to retrieve the keys and verify the token signature.
 
 To create an A3S source:
 
-  a3sctl api create a3ssource \
-    --with.name my-remote-a3s-source \
-    --with.issuer "https://remote-a3s.com"
+    a3sctl api create a3ssource \
+      --with.name my-remote-a3s-source \
+      --with.issuer https://remote-a3s.com
 
 You can also use `--certificate-auhority` to pass a custom CA if the
 certificates used by the server are not trusted by the host running A3S.
@@ -507,10 +507,10 @@ use the `--with.endpoint` flag to pass the actual URL.
 
 To obtain a token from the newly created source:
 
-  a3sctl auth remote-a3s \
-    --source-name my-remote-a3s-source \
-    --source-namespace /tutorial \
-    --input-token <token>
+    a3sctl auth remote-a3s \
+      --source-name my-remote-a3s-source \
+      --source-namespace /tutorial \
+      --input-token <token>
 
 #### Amazon STS
 
@@ -521,14 +521,14 @@ it will retrieve one for you, if you don't pass any additional information.
 
 If you are not running the command on AWS:
 
-  a3sctl auth aws \
-    --access-key-id <kid> \
-    --access-key-secret <secret> \
-    --access-token <token>
+    a3sctl auth aws \
+      --access-key-id <kid> \
+      --access-key-secret <secret> \
+      --access-token <token>
 
 If you are running it from an AWS EC2 instance, you just need to run:
 
-  a3sctl auth aws
+    a3sctl auth aws
 
 #### Google Cloud Platform token
 
@@ -539,11 +539,11 @@ you don't pass any additional information
 
 If you are not running the command on GCP:
 
-  a3sctl auth gcp --access-token <token>
+    a3sctl auth gcp --access-token <token>
 
 If you are running it from an GCP instance, you just need to run:
 
-  a3sctl auth gcp
+    a3sctl auth gcp
 
 #### Azure token
 
@@ -554,11 +554,11 @@ one for you, if you don't pass any additional information
 
 If you are not running the command on GCP:
 
-  a3sctl auth azure --access-token <token>
+    a3sctl auth azure --access-token <token>
 
 If you are running it from an Azure instance, you just need to run:
 
-  a3sctl auth azure
+    a3sctl auth azure
 
 #### A3S local identity token
 
@@ -571,10 +571,10 @@ This authentication source does not need custom source creation.
 
 To get obtain a token:
 
-  a3sctl auth a3s --token <token> \
-    --restrict-namespace /a/child/ns \
-    --restrict-network 10.0.1.1/32 \
-    --restrict-permissions "dog:eat,sleep"
+    a3sctl auth a3s --token <token> \
+      --restrict-namespace /a/child/ns \
+      --restrict-network 10.0.1.1/32 \
+      --restrict-permissions "dog:eat,sleep"
 
 ## Writing authorizations
 
@@ -588,10 +588,10 @@ A matching expression can be described as a basic boolean sequence like
 `(org=acme && group=finance) || group=admin`. They are represented by a
 2-dimensional array. As such, the expression above is written:
 
-  [
-    [ "org=admin", "group=finance" ],
-    [ "group=admin" ]
-  ]
+    [
+      [ "org=admin", "group=finance" ],
+      [ "group=admin" ]
+    ]
 
 The first dimension represents `or` clauses and the second represents `and`
 clauses.
@@ -611,9 +611,9 @@ authentication source they used.
 This way, you can differentiate `name=bob` based on which Bob we are aiming. A
 safe subject to use in that case:
 
-  [
-    ["@source:type=ldap", "@source:namespace=/my/ns", "name=bob"]
-  ]
+    [
+      ["@source:type=ldap", "@source:namespace=/my/ns", "name=bob"]
+    ]
 
 The authorization will only match Bob who got a token from any LDAP
 authentication source that has been declared in `/my/ns`. Another Bob from
@@ -626,24 +626,24 @@ matching bearers can do. They are generic (ie they don't make assumptions about
 the underlying protocol you are using) and are represented by a string of the
 form:
 
-  "resource:action1,...,actionN[:id2,...idN]"
+    "resource:action1,...,actionN[:id2,...idN]"
 
 For instance, the following allows the bearer to walk and pet the dogs:
 
-  "dogs:pet,walk"
+    "dogs:pet,walk"
 
 The following allows the bearer to GET /admin:
 
-  "/admin:get"
+    "/admin:get"
 
 The following allows to get and put authorizations with ID 1 or 2:
 
-  "authorizations:get,put:1,2"
+    "authorizations:get,put:1,2"
 
 Permissions can use the `*` as resource or actions to match any. As such, the
 following permission gives the bearer admin access:
 
-  "*:*"
+    "*:*"
 
 An authorization contains an array of permissions, granting the bearer the union
 of them. If multiple authorizations match the bearer identity token, then the
@@ -659,25 +659,25 @@ starting from where it applied. It can not affect parents or sibling namespaces.
 
 We can create the authorization described above with the following command:
 
-  a3sctl api create authorization
-    --namespace /my/namespace \
-    --with.name my-auth \
-    --with.target-namespaces '["/my/namespace/app1"]' \
-    --with.subject '[
-      [
-        "@source:type=oidc",
-        "@source:namespace=/my/namespace",
-        "org=admin",
-        "group=finance",
-      ],
-      [
-        "@source:type=mtls",
-        "@source:namespace=/my",
-        "@source:name=admins",
-        "group=admin",
-      ]
-    ]' \
-    --with.permissions '["dogs:pet,walk"]'
+    a3sctl api create authorization
+      --namespace /my/namespace \
+      --with.name my-auth \
+      --with.target-namespaces '["/my/namespace/app1"]' \
+      --with.subject '[
+        [
+          "@source:type=oidc",
+          "@source:namespace=/my/namespace",
+          "org=admin",
+          "group=finance",
+        ],
+        [
+          "@source:type=mtls",
+          "@source:namespace=/my",
+          "@source:name=admins",
+          "group=admin",
+        ]
+      ]' \
+      --with.permissions '["dogs:pet,walk"]'
 
 > NOTE: If you omit `--target-namespace`, then the authorization applies to its
 > own namespace and children.
@@ -691,15 +691,15 @@ token and its permissions. This middleware can call the all-in-one check
 endpoint `/authz`. The following example uses curl, but you should use the HTTP
 communication layer currently used in your application.
 
-  curl -H "Content-Type: application/json" \
-    -d '{
-      "token": <token>,
-      "resource": "/dogs"
-      "action": "walk",
-      "namespace: /application/namespace",
-      "audience": "my-app",
-    }' \
-    "https://127.0.0.1:44443/authz"
+    curl -H "Content-Type: application/json" \
+      -d '{
+        "token": <token>,
+        "resource": "/dogs"
+        "action": "walk",
+        "namespace: /application/namespace",
+        "audience": "my-app",
+      }' \
+      https://127.0.0.1:44443/authz
 
 This would return `204` if the bearer is allowed to walk the dogs in
 `/application/namespace`, or `403` if either the token is invalid or the bearer
@@ -731,16 +731,16 @@ a3sctl supports auto completion:
 
 #### Bash
 
-  . <(a3sctl completion bash)
+    . <(a3sctl completion bash)
 
 #### Zsh
 
-  compdef _a3sctl a3sctl
-  . <(a3sctl completion zsh)
+    compdef _a3sctl a3sctl
+    . <(a3sctl completion zsh)
 
 #### Fish
 
-  . <(a3sctl completion fish)
+    . <(a3sctl completion fish)
 
 ### Configuration file
 
@@ -771,24 +771,24 @@ ldap.
 
 For instance, in `~/.config/a3sctl/default.yaml`:
 
-  api: "https://127.0.0.1:44443"
-  namespace: /
+    api: https://127.0.0.1:44443
+    namespace: /
 
-  autoauth:
-      enable: mtls
-      ldap:
-          user: okenobi
-          pass: '-'
-          source:
-              name: root
-              namespace: /
-      mtls:
-          cert: /path/to/user-cert.pem
-          key: /path/to/user-key.pem
-          pass: '-'
-          source:
-              name: root
-              namespace: /
+    autoauth:
+        enable: mtls
+        ldap:
+            user: okenobi
+            pass: '-'
+            source:
+                name: root
+                namespace: /
+        mtls:
+            cert: /path/to/user-cert.pem
+            key: /path/to/user-key.pem
+            pass: '-'
+            source:
+                name: root
+                namespace: /
 
 You can decide which source to use for auto authentication by setting the
 `enable` key. Leave it empty to disable auto auth.
@@ -828,37 +828,37 @@ file.
 
 For instance:
 
-  label: my-import-label
-  Authorizations:
-    - name: authorization-a
-    subject:
-    - - "@source:type=mtls"
-      - "@source:name=default"
-      - "@source:namespace=/ns"
-      - "commonname=john"
-    permissions:
-    - /resource-a:GET
-    - name: top-secret-access
-    subject:
-    - - "@source:type=mtls"
-      - "@source:name=default"
-      - "@source:namespace=/ns"
-      - "commonname=michael"
-    permissions:
-    - /resource-b:GET
-    - /resource-c:GET
+    label: my-import-label
+    Authorizations:
+      - name: authorization-a
+      subject:
+      - - "@source:type=mtls"
+        - "@source:name=default"
+        - "@source:namespace=/ns"
+        - "commonname=john"
+      permissions:
+      - /resource-a:GET
+      - name: top-secret-access
+      subject:
+      - - "@source:type=mtls"
+        - "@source:name=default"
+        - "@source:namespace=/ns"
+        - "commonname=michael"
+      permissions:
+      - /resource-b:GET
+      - /resource-c:GET
 
 This file declares two `authorizations`, under the label `my-import-label`.
 
 To import this file, run:
 
-  a3sctl import path/to/file.yaml
+    a3sctl import path/to/file.yaml
 
 a3sctl also allows to point to an URL.
 
 For instance:
 
-  apoctl import "https://server.com/import.yaml"
+    apoctl import https://server.com/import.yaml
 
 ### Templating with a3sctl
 
@@ -870,18 +870,18 @@ values management.
 
 For instance, consider the following file:
 
-  label: my-templated-import:
-  MTLSSources:
-  - name: {{ .Values.name }}
-    description: {{ .Values.desc }}
-    CA: |-
-    {{ readFile "path/to/ca.pem" | indent 4 }}
+    label: my-templated-import:
+    MTLSSources:
+    - name: {{ .Values.name }}
+      description: {{ .Values.desc }}
+      CA: |-
+      {{ readFile "path/to/ca.pem" | indent 4 }}
 
 This file can be imported using the following command:
 
-  a3sctl import mytemplate.gotmpl \
-    --set name=hello \
-    --set "desc=the description"
+    a3sctl import mytemplate.gotmpl \
+      --set name=hello \
+      --set "desc=the description"
 
 This will replace `{{ .Values.name }}` and `{{ .Values.desc }}` by `hello` and
 `the description` respectively. You can also notice the call to `readFile` that
@@ -896,12 +896,12 @@ values that can be accessed:
 Finally, you can store the values in their own files, and use it to populate a
 template. For instance:
 
-  name: hello world
-  description: the description
+    name: hello world
+    description: the description
 
 You can use the values in that file by doing:
 
-  a3sctl import mytemplate.gotmpl --values myvalues.yaml
+    a3sctl import mytemplate.gotmpl --values myvalues.yaml
 
 ## Dev environment
 
@@ -921,11 +921,11 @@ various things.
 
 First, initialize the needed certificates:
 
-  dev/certs-init
+    dev/certs-init
 
 Then initialize the database:
 
-  dev/mongo-init
+    dev/mongo-init
 
 All the development data stored stored in `dev/.data`. If you delete this
 folder, you can reinitialize the environment.
@@ -938,7 +938,7 @@ and an authorization.
 
 To do so, run:
 
-  dev/a3s-run --init --init-root-ca dev/.data/certificates/ca-acme-cert.pem
+    dev/a3s-run --init --init-root-ca dev/.data/certificates/ca-acme-cert.pem
 
 > NOTE: even if you are in the `dev` folder the root CA must be passed relative
 > to the root of the repository.
@@ -947,12 +947,12 @@ To do so, run:
 
 Once initialized, start the tmux session by running:
 
-  dev/env-run
+    dev/env-run
 
 This will launch a tmux session starting everything and giving you a working
 terminal. To exit:
 
-  env-kill
+    env-kill
 
 ## Support
 
