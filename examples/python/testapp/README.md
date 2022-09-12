@@ -10,7 +10,7 @@ integrate a3s within your application. The server handles three routes:
 There is a script `init.sh` that will create the needed resources in
 a3s to handle this server.
 
-> NOTE: The script assumes a3s is listening on https://127.0.0.1:44443.
+> NOTE: The script assumes a3s is listening on `https://127.0.0.1:44443`.
 
 The script will:
 

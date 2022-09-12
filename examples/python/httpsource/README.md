@@ -9,7 +9,7 @@ certificate generated from the generated CA.
 
 There is a script called `init.sh` that initializes the needed resources
 
-> NOTE: The script assumes a3s is listening on https://127.0.0.1:44443.
+> NOTE: The script assumes a3s is listening on `https://127.0.0.1:44443`.
 
 The script will:
 
@@ -46,13 +46,13 @@ configured source using the modifier in the /httpsource namespace. You should be
 able to see something like:
 
     a3sctl auth check --token "$(
-            a3sctl auth http \
-            --api https://127.0.0.1:44443 \
-            --api-skip-verify \
-            --source-namespace /httpsource \
-            --user john \
-            --pass pass \
-        )"
+      a3sctl auth http \
+      --api https://127.0.0.1:44443 \
+      --api-skip-verify \
+      --source-namespace /httpsource \
+      --user john \
+      --pass pass \
+    )"
 
     alg: ES256
     kid: B47882D62DE6523090D5F3CA4C7E77B746821523DAC7E5F9A61697ECD292BE61

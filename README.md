@@ -77,11 +77,11 @@ particular namespace.
     * [Zsh](#zsh)
     * [Fish](#fish)
   * [Configuration file](#configuration-file)
-  * [Auto authentication](#auto-authentication)
+  * [Auto-authentication](#auto-authentication)
 * [Import](#import)
-  * [Simple Import files with a3sctl](#simple-import-files-with-a3sctl)
+  * [Simple import files with a3sctl](#simple-import-files-with-a3sctl)
   * [Templating with a3sctl](#templating-with-a3sctl)
-* [Dev environment](#dev-environment)
+* [Development environment](#development-environment)
   * [Prerequesites](#prerequesites)
   * [Initialize the environment](#initialize-the-environment)
   * [Start everything](#start-everything)
@@ -138,7 +138,7 @@ path.
 ### Obtain a root token
 
 In order to configure the system and create additional namespaces,
-authorizations, etc, you need to obtain a root token to start interacting with
+authorizations, etc., you need to obtain a root token to start interacting with
 the server:
 
     a3sctl auth mtls \
@@ -154,7 +154,7 @@ the server:
 This will print a token that you can use for subsequent calls. You can set the
 `$A3SCTL_TOKEN` environment variable to use it automatically.
 
-> NOTE: There are easier ways to deal with retrieving a token when using a3sctl.
+> NOTE: There are easier ways to deal with retrieving a token when using a3sctl
 > as it will be explained later.
 
 If you want to check the content of a token, you can use:
@@ -193,7 +193,7 @@ folder to get started.
 
 ## Obtaining identity tokens
 
-This section describes how to create the various sources of authenticatio, how
+This section describes how to create the various sources of authentication, how
 to retrieve a token from them, apply restrictions or apply cloaking.
 
 All the following examples will assume to work in the namespace `/tutorial`. To
@@ -205,15 +205,15 @@ create it, you can run:
 
     a3sctl api create namespace --with.name tutorial --namespace /
 
-> NOTE: the env variable will tell a3sctl which namespace to target without
+> NOTE: The env variable will tell a3sctl which namespace to target without
 > having to pass the `--namespace` flag every time.
 >
 > NOTE: Some auth commands will require to pass the namespace of the auth
 > source. You can either set `--source-namespace` or leave it empty to fallback
 > on the value set by `--namespace`.
 >
-> NOTE: you can also get more info about a resource by using the `-h` flag.
-> This will list all the possible properies the api supports.
+> NOTE: You can also get more info about a resource by using the `-h` flag.
+> This will list all the possible properties the API supports.
 
 ### Restrictions
 
@@ -260,7 +260,7 @@ modifier would then query an external database to match the blood type on record
 with the bearer SSN.
 
 The server will receive the claims that are about to be delivered, and will
-have a chance to modify the list. The server must impplement MTLS authentication
+have a chance to modify the list. The server must implement MTLS authentication
 and must accept the certificates set in the source modifier.
 
 The server must return `200` if it did modify the claims or `204` if it did not.
@@ -278,10 +278,10 @@ source that was used to derive the identity claims:
 * `x-a3s-source-namespace`
 * `x-a3s-source-name`
 
-The server must return the list of modified claims as a JSON encoded array in
+The server must return the list of modified claims as a JSON-encoded array in
 the body of the response.
 
-A server must not insert any identity claim starting with the symbol `@` or A3S
+A server must not insert any identity claims starting with the symbol `@` or A3S
 will refuse to deliver the token.
 
 > NOTE: You can find a naive implementation of a claim modifier in
@@ -291,17 +291,17 @@ will refuse to deliver the token.
 ### Authentication sources
 
 While A3S allows to verify the identity of a token bearer, it does not provide
-any way to store information about the users. In order to derive identity
+any way to store information about the user. In order to derive identity
 claims, A3S relies on third-party authentication sources, who hold the actual
 data about a bearer.
 
 #### MTLS
 
-The MTLS source uses mutual TLS to authenticate a client. The client mustpresent
+The MTLS source uses mutual TLS to authenticate a client. The client must present
 a client certificate (usage set to auth client) that is signed by the CA
 provided in the designed MTLS auth source.
 
-> NOTE: this authentication source supports identity modifiers.
+> NOTE: This authentication source supports identity modifiers.
 
 ##### Create an MTLS source
 
@@ -313,7 +313,7 @@ example, we use `tg`, but you can use any PKI tool you like.
       --signing-cert myca-cert.pem \
       --signing-cert-key myca-key.pem
 
-> NOTE: tg can be installed by running `go install go.aporeto.io/tg@master
+> NOTE: tg can be installed by running `go install go.aporeto.io/tg@master`
 >
 > NOTE: Not protecting a private key with a passphrase is bad. Don't do this in
 > production.
@@ -336,7 +336,7 @@ To obtain a token from the newly created source:
 
 If the private key is encrypted, you need to set the flag `--pass <passphrase>`.
 
-> NOTE: you can set `-` for `--pass`. In that case, a3sctl will ask for user
+> NOTE: You can set `-` for `--pass`. In that case, a3sctl will ask for user
 > input from stdin.
 
 #### LDAP
@@ -345,7 +345,7 @@ A3S supports using a remote LDAP as authentication source. The LDAP server must
 be accessible from A3S. A3S will refuse to connect to an LDAP with no form of
 encryption (TLS or STARTTLS).
 
-> NOTE: this authentication source supports identity modifiers.
+> NOTE: This authentication source supports identity modifiers.
 
 ##### Create an LDAP source
 
@@ -382,7 +382,7 @@ To obtain a token from the newly created source:
       --user bob \
       --pass s3cr3t
 
-> NOTE: you can set `-` for `--user` and/or `--pass`. In that case, a3sctl will
+> NOTE: You can set `-` for `--user` and/or `--pass`. In that case, a3sctl will
 > ask for user input from stdin.
 
 #### HTTP
@@ -393,17 +393,17 @@ does not support MTLS. This can be used to link to your own internal account
 system.
 
 When an HTTP source is used, A3S will send a POST request to the corresponding
-server containing a json encoded map with the following items:
+server containing a JSON-encoded map with the following items:
 
 * `username`: the user provided user name.
 * `password`: the user provided password.
-* `TOTP`: optional one time password for 2FA.
+* `TOTP`: optional one-time password for 2FA.
 
 The server must respond `200` with a body containing the claims to insert in the
-token as json encoded array (for instance: `["username=bob", "bu=eng"]`). Any
+token as JSON-encoded array (for instance: `["username=bob", "bu=eng"]`). Any
 other status code will be returned as an `401` error to the user.
 
-> NOTE: this authentication source supports identity modifiers.
+> NOTE: This authentication source supports identity modifiers.
 
 ##### Create an HTTP source
 
@@ -427,7 +427,7 @@ To obtain a token from the newly created source:
       --pass s3cr3t \
       --totp 1234
 
-> NOTE: you can set `-` for `--user` and/or `--pass`. In that case, a3sctl will
+> NOTE: You can set `-` for `--user` and/or `--pass`. In that case, a3sctl will
 > ask for user input from stdin.
 
 #### OIDC
@@ -435,7 +435,7 @@ To obtain a token from the newly created source:
 A3S can retrieve an identity token from an existing OIDC provider in order to
 deliver normalized identiy tokens.
 
-> NOTE: this authentication source supports identity modifiers.
+> NOTE: This authentication source supports identity modifiers.
 
 ##### Create an OIDC source
 
@@ -455,7 +455,7 @@ Once the provider is configuired, create an OIDC source:
       --with.endpoint https://accounts.google.com \
       --with.scopes '["email", "given_name"]'
 
-The scopes indicate the OIDC provider which claim to return. They will vary
+The scopes indicate the OIDC provider which claims to return. They will vary
 depending on your provider.
 
 You can also use `--certificate-auhority` to pass a custom CA if the
@@ -464,7 +464,7 @@ certificates used by the OIDC providers are not trusted by the host running A3S.
 ##### Obtain a token from OIDC source
 
 While all the other sources can be used easily with curl for instance, the OIDC
-source needs to run a http server and needs to perform a dance that is quite
+source needs to run an HTTP server and needs to perform a dance that is quite
 painful to do manually. a3sctl will do all of this transparently.
 
 To obtain a token from the newly created source:
@@ -483,13 +483,13 @@ This authentication source allows to issue a token from another one issued by
 another A3S server. It allows to trust other A3S instances and issue local
 tokens from trusted ones, while potentially augmenting the identity claims.
 
-> NOTE: this authentication source supports identity modifiers.
+> NOTE: This authentication source supports identity modifiers.
 
 ##### Create an A3S source
 
 You need to create an A3S source in order to validate the remote tokens. The
 source requires to pass the raw address of the remote A3S server, as it will use
-the well-known jwks URL to retrieve the keys and verify the token signature.
+the well-known JWKS URL to retrieve the keys and verify the token signature.
 
 To create an A3S source:
 
@@ -552,7 +552,7 @@ broadly. How to retrieve a token from Azure is beyond the scope of this
 document. However, if you run a3sctl from an Azure instance, it will retrieve
 one for you, if you don't pass any additional information
 
-If you are not running the command on GCP:
+If you are not running the command on Azure:
 
     a3sctl auth azure --access-token <token>
 
@@ -579,14 +579,14 @@ To get obtain a token:
 ## Writing authorizations
 
 The Authorizations allows to match a set of users (subjects) based on a claim
-expression and assign them permissions. Authorizations work on white list model.
+expression and assign them permissions. Authorizations work on a whitelist model.
 Everything that is not explicitely allowed is forbidden.
 
 ### Subject
 
 A matching expression can be described as a basic boolean sequence like
 `(org=acme && group=finance) || group=admin`. They are represented by a
-2-dimensional array. As such, the expression above is written:
+two-dimensional array. As such, the expression above is written:
 
     [
       [ "org=admin", "group=finance" ],
@@ -596,7 +596,7 @@ A matching expression can be described as a basic boolean sequence like
 The first dimension represents `or` clauses and the second represents `and`
 clauses.
 
-As there are many source of authorizations and delivered claims can overlap,
+As there are many sources of authorization and delivered claims can overlap,
 potentially given way broader permissions than expected, the identity token
 always contains additional claims allowing to discriminate bearers based on the
 authentication source they used.
@@ -636,7 +636,7 @@ The following allows the bearer to GET /admin:
 
     "/admin:get"
 
-The following allows to get and put authorizations with ID 1 or 2:
+The following allows to GET and PUT authorizations with ID 1 or 2:
 
     "authorizations:get,put:1,2"
 
@@ -684,7 +684,7 @@ We can create the authorization described above with the following command:
 
 ## Check for permissions from your app
 
-A3S provides some API to verify if a token bearer is allowed to performed some
+A3S provides an API to verify if a token bearer is allowed to performed some
 actions. The easiest way to implement this is to add an authentication
 middleware in whatever HTTP framework you are using to call A3S to verify a
 token and its permissions. This middleware can call the all-in-one check
@@ -705,7 +705,7 @@ This would return `204` if the bearer is allowed to walk the dogs in
 `/application/namespace`, or `403` if either the token is invalid or the bearer
 is not allowed to perform such action.
 
-This method is the simplest but have a few drawbacks. For instance, you will
+This method is the simplest but has a few drawbacks. For instance, you will
 make A3S validate the token everytime, you need to make a call everytime, and
 you need to transmit the bearer token at every call.
 
@@ -716,18 +716,18 @@ A more optimized method will be described here soon, that allows to:
 * Validate the permissions locally
 * Be notified when cached permissions needs to be invalidated.
 
-> NOTE: This method requires the third party application to be able to connect
+> NOTE: This method requires the third-party application to be able to connect
 > to the push channel, and hence will require to be authenticated.
 
 ## Using a3sctl
 
-a3sctl is the command line that allows to use A3S API in a user friendly manner.
-It abstracts the ReST API and is self documenting. You can always get additional
-help by passing the flags `--help` (or `-h`) in any command or sub command.
+a3sctl is the command line that allows to use A3S APIs in a user-friendly manner.
+It abstracts the ReST APIs and is self-documenting. You can always get additional
+help by passing the flags `--help` (or `-h`) in any command or subcommand.
 
 ### Completion
 
-a3sctl supports auto completion:
+a3sctl supports auto-completion:
 
 #### Bash
 
@@ -744,30 +744,30 @@ a3sctl supports auto completion:
 
 ### Configuration file
 
-a3sctl can read the values of its flags from various places, in that order:
+a3sctl can read the values of its flags from various places, in the following order:
 
 * A flag directly provided, or
 * Env variable (ie `$A3SCTL_SOURCE_NAME` for `--source-name`), or
 * The config file (default: `~/.config/a3sctl/default.yaml`)
 
-You can choose the config file to user by setting the full path of the file
+You can choose the config file to use by setting the full path of the file
 using the flag `--config` (or `$A3SCTL_CONFIG`).
 
 You can also pass the name of the config, without its folder or its extension
 through the flag `--config-name` (or `$A3SCTL_CONFIG_NAME`). a3sctl will scan
-the following folder, in that order, to find a configuration file matching the
+the following folders, in the below order, to find a configuration file matching the
 name:
 
 * `~/.config/a3sctl/`, or
 * `/usr/local/etc/a3sctl/`, or
 * `/etc/a3sctl/`
 
-### Auto authentication
+### Auto-authentication
 
 In addition to one-to-one mapping of a3sctl flags in the config file, you can
 also add the key `autoauth` to automatically retrieve, cache, reuse and renew a
-token using a particular authentication source. This method works for mtls and
-ldap.
+token using a particular authentication source. This method works for MTLS and
+LDAP.
 
 For instance, in `~/.config/a3sctl/default.yaml`:
 
@@ -790,21 +790,21 @@ For instance, in `~/.config/a3sctl/default.yaml`:
                 name: root
                 namespace: /
 
-You can decide which source to use for auto authentication by setting the
-`enable` key. Leave it empty to disable auto auth.
+You can decide which source to use for auto-authentication by setting the
+`enable` key. Leave it empty to disable auto-authentication.
 
 The token is cached in `$XDG_HOME_CACHE/a3sctl/token-<src>-<api-hash>` and will
 automatically renew if it's past its half-life.
 
-> NOTE: using `-` for secrets will automatically prompt the user for input during
-> retrieval or renewing of the token.
+> NOTE: Using `-` for secrets will automatically prompt the user for input during
+> retrieval or renewal of the token.
 
 ## Import
 
 A3S allows to manage the content of a namespace through declarative import. At
-its core, importing is done using the `/import` api.
+its core, importing is done using the `/import` API.
 
-The following resources can be imported.
+The following resources can be imported:
 
 * All kind of sources (`oidcsources`, `mtlssources`, etc...)
 * `authorizations`
@@ -815,13 +815,13 @@ and the current state of the system. You must ensure the provided label is
 unique to an import in a namespace, or you may face unintended side effects. The
 label will be stored into the `importLabel` property of the resources.
 
-Imported resources uses a hash (stored in `importHash`) to determine if the data
+Imported resources use a hash (stored in `importHash`) to determine if the data
 provided in the import request has changed or not. If the data is unmodified,
 the import will leave the object in place. If it has been modified, the import
 system will delete, then recreate a new version of the object (that means its
 `ID` will change).
 
-### Simple Import files with a3sctl
+### Simple import files with a3sctl
 
 a3sctl provides an easy way to deal with import declarations stored in a YAML
 file.
@@ -854,7 +854,7 @@ To import this file, run:
 
     a3sctl import path/to/file.yaml
 
-a3sctl also allows to point to an URL.
+a3sctl also allows to point to a URL.
 
 For instance:
 
@@ -866,7 +866,7 @@ Import files support [go templating](https://pkg.go.dev/text/template) with
 [sprig](https://masterminds.github.io/sprig/) functions, as well as `helm` style
 values management.
 
-> NOTE: you can check the rendering of the template by passing `--render`
+> NOTE: You can check the rendering of the template by passing `--render`
 
 For instance, consider the following file:
 
@@ -893,7 +893,7 @@ values that can be accessed:
 * `{{ .Common.API }}`: the value of the --api flag
 * `{{ .Common.Namespace }}`: The value of --namespace flag
 
-Finally, you can store the values in their own files, and use it to populate a
+Finally, you can store the values in their own files, and use them to populate a
 template. For instance:
 
     name: hello world
@@ -903,7 +903,7 @@ You can use the values in that file by doing:
 
     a3sctl import mytemplate.gotmpl --values myvalues.yaml
 
-## Dev environment
+## Development environment
 
 ### Prerequesites
 
@@ -932,15 +932,15 @@ folder, you can reinitialize the environment.
 
 All of A3S configuration is defined as env variables from `dev/env`
 
-Finally, you must initialize the root permissions. A3S makes no exception or
-have any hardcoded or weak credentials, so we must add an authentication source
+Finally, you must initialize the root permissions. A3S makes no exceptions nor
+has any hardcoded or weak credentials, so you must add an authentication source
 and an authorization.
 
 To do so, run:
 
     dev/a3s-run --init --init-root-ca dev/.data/certificates/ca-acme-cert.pem
 
-> NOTE: even if you are in the `dev` folder the root CA must be passed relative
+> NOTE: Even if you are in the `dev` folder the root CA must be passed relative
 > to the root of the repository.
 
 ### Start everything
@@ -961,7 +961,6 @@ project.
 
 ## Contributing
 
-We value your contributions! Please read
-[CONTRIBUTING.md](CONTRIBUTING.md)
-for details on how to contribute, and the process for submitting pull requests
+We value your contributions! Please read [CONTRIBUTING.md](CONTRIBUTING.md)
+for details on how to contribute and the process for submitting pull requests
 to us.
