@@ -964,3 +964,6 @@ project.
 We value your contributions! Please read [CONTRIBUTING.md](CONTRIBUTING.md)
 for details on how to contribute and the process for submitting pull requests
 to us.
+
+<!-- vim:ts=2:sw=2:sts=2:expandtab
+-->
