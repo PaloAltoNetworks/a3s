@@ -336,7 +336,7 @@ To obtain a token from the newly created source:
 
 If the private key is encrypted, you need to set the flag `--pass <passphrase>`.
 
-> NOTE: you can set `-` for '--pass`. In that case, a3sctl will ask for user
+> NOTE: you can set `-` for `--pass`. In that case, a3sctl will ask for user
 > input from stdin.
 
 #### LDAP
@@ -382,7 +382,7 @@ To obtain a token from the newly created source:
       --user bob \
       --pass s3cr3t
 
-> NOTE: you can set `-` for '--user` and/or `--pass`. In that case, a3sctl will
+> NOTE: you can set `-` for `--user` and/or `--pass`. In that case, a3sctl will
 > ask for user input from stdin.
 
 #### HTTP
@@ -427,7 +427,7 @@ To obtain a token from the newly created source:
       --pass s3cr3t \
       --totp 1234
 
-> NOTE: you can set `-` for '--user` and/or `--pass`. In that case, a3sctl will
+> NOTE: you can set `-` for `--user` and/or `--pass`. In that case, a3sctl will
 > ask for user input from stdin.
 
 #### OIDC
@@ -962,6 +962,6 @@ project.
 ## Contributing
 
 We value your contributions! Please read
-[CONTRIBUTING.md](https://github.com/PaloAltoNetworks/.github/CONTRIBUTING.md)
+[CONTRIBUTING.md](CONTRIBUTING.md)
 for details on how to contribute, and the process for submitting pull requests
 to us.
