@@ -65,5 +65,5 @@ You can try the following curl commands:
     curl -k -u Bearer:$TOKEN_M https://127.0.0.1:5000/secret    # should work
     curl -k -u Bearer:$TOKEN_M https://127.0.0.1:5000/topsecret # should work
 
-<!-- vim:ts=4:sw=4:sts=4:expandtab
+<!-- vim:ts=4:sw=2:sts=4:expandtab
 -->

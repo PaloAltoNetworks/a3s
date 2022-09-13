@@ -73,5 +73,5 @@ able to see something like:
         "jti": "853f18fd-7746-4047-b7a4-f22c4acdfada"
     }
 
-<!-- vim:ts=4:sw=4:sts=4:expandtab
+<!-- vim:ts=4:sw=2:sts=4:expandtab
 -->
