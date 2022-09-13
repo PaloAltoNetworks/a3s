@@ -63,6 +63,7 @@ tg cert \
 	--is-ca \
 	--pass "password" \
 	--common-name "ACME CA"
+
 tg cert \
 	--name "user" \
 	--auth-client \
