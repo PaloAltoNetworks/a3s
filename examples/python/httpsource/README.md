@@ -46,29 +46,32 @@ configured source using the modifier in the /httpsource namespace. You should be
 able to see something like:
 
     a3sctl auth check --token "$(
-      a3sctl auth http \
-      --api https://127.0.0.1:44443 \
-      --api-skip-verify \
-      --source-namespace /httpsource \
-      --user john \
-      --pass pass \
+    a3sctl auth http \
+        --api https://127.0.0.1:44443 \
+        --api-skip-verify \
+        --source-namespace /httpsource \
+        --user john \
+        --pass pass \
     )"
 
     alg: ES256
     kid: B47882D62DE6523090D5F3CA4C7E77B746821523DAC7E5F9A61697ECD292BE61
 
     {
-      "aud": [
-        "https://127.0.0.1:44443"
-      ],
-      "exp": 1638487920,
-      "iat": 1638401520,
-      "identity": [
-        "@source:name=default",
-        "@source:namespace=/httpsource",
-        "@source:type=http",
-        "user=john"
-      ],
-      "iss": "https://127.0.0.1:44443",
-      "jti": "853f18fd-7746-4047-b7a4-f22c4acdfada"
+        "aud": [
+            "https://127.0.0.1:44443"
+        ],
+            "exp": 1638487920,
+            "iat": 1638401520,
+            "identity": [
+            "@source:name=default",
+            "@source:namespace=/httpsource",
+            "@source:type=http",
+            "user=john"
+        ],
+        "iss": "https://127.0.0.1:44443",
+        "jti": "853f18fd-7746-4047-b7a4-f22c4acdfada"
     }
+
+<!-- vim:ts=4:sw=4:sts=4:expandtab
+-->
