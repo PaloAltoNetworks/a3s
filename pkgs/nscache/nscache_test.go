@@ -78,7 +78,7 @@ func TestCacheBehavior(t *testing.T) {
 
 		Convey("When I delete a full key directly from the cache should no longer have a value", func() {
 
-			success := cache.Delete("/hello/world/cool:user2")
+			success := cache.Delete("/hello/world/cool", "user2")
 
 			So(success, ShouldBeTrue)
 
@@ -90,7 +90,7 @@ func TestCacheBehavior(t *testing.T) {
 
 		Convey("When I try to delete a non-existent key directly from the cache, all values should still exist", func() {
 
-			success := cache.Delete("/hello/world/cool:user3")
+			success := cache.Delete("/hello/world/cool", "user3")
 
 			So(success, ShouldBeFalse)
 

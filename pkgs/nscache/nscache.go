@@ -45,6 +45,12 @@ func (c *NamespacedCache) Get(namespace string, key string) *ccache.Item {
 	return c.cache.Get(namespace + ":" + key)
 }
 
+// Delete attempts to delete an item from the cache using the given namespace and key.
+func (c *NamespacedCache) Delete(namespace string, key string) bool {
+
+	return c.cache.Delete(namespace + ":" + key)
+}
+
 // Start starts listening to notifications for automatic invalidation
 func (c *NamespacedCache) Start(ctx context.Context) {
 
@@ -56,12 +62,6 @@ func (c *NamespacedCache) Start(ctx context.Context) {
 			c.cleanupCacheForNamespace(msg.Data.(string))
 		},
 	)
-}
-
-// Delete attempts to delete an item from the cache using the given key.
-func (c *NamespacedCache) Delete(key string) bool {
-
-	return c.cache.Delete(key)
 }
 
 func (c *NamespacedCache) cleanupCacheForNamespace(ns string) {
