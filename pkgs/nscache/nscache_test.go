@@ -75,5 +75,29 @@ func TestCacheBehavior(t *testing.T) {
 			So(cache.Get("/hello/world/cool", "user1"), ShouldBeNil)
 			So(cache.Get("/hello/world/cool", "user2"), ShouldBeNil)
 		})
+
+		Convey("When I delete a full key directly from the cache should no longer have a value", func() {
+
+			success := cache.Delete("/hello/world/cool:user2")
+
+			So(success, ShouldBeTrue)
+
+			So(cache.Get("/hello", "").Value(), ShouldEqual, "hello0")
+			So(cache.Get("/hello/world", "").Value(), ShouldEqual, "hello1")
+			So(cache.Get("/hello/world/cool", "user1").Value(), ShouldEqual, "hello2")
+			So(cache.Get("/hello/world/cool", "user2"), ShouldBeNil)
+		})
+
+		Convey("When I try to delete a non-existant key directly from the cache, all values should still exist", func() {
+
+			success := cache.Delete("/hello/world/cool:user3")
+
+			So(success, ShouldBeFalse)
+
+			So(cache.Get("/hello", "").Value(), ShouldEqual, "hello0")
+			So(cache.Get("/hello/world", "").Value(), ShouldEqual, "hello1")
+			So(cache.Get("/hello/world/cool", "user1").Value(), ShouldEqual, "hello2")
+			So(cache.Get("/hello/world/cool", "user2").Value(), ShouldEqual, "hello3")
+		})
 	})
 }

@@ -58,6 +58,12 @@ func (c *NamespacedCache) Start(ctx context.Context) {
 	)
 }
 
+// Delete attempts to delete an item from the cache using the given key.
+func (c *NamespacedCache) Delete(key string) bool {
+
+	return c.cache.Delete(key)
+}
+
 func (c *NamespacedCache) cleanupCacheForNamespace(ns string) {
 
 	suffix := "/"
