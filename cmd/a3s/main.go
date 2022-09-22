@@ -528,9 +528,23 @@ func initData(ctx context.Context, m manipulate.Manipulator, dataPath string) (b
 	}
 
 	for _, lst := range values {
+		for i, o := range lst.List() {
+			if o.(elemental.Namespaceable).GetNamespace() == "" {
+				return false, fmt.Errorf(
+					"missing namespace property for object '%s' at index %d ",
+					lst.Identity().Name,
+					i,
+				)
+			}
+		}
+	}
+
+	for _, lst := range values {
+
 		if len(lst.List()) == 0 {
 			continue
 		}
+
 		if err := importing.Import(
 			ctx,
 			api.Manager(),
