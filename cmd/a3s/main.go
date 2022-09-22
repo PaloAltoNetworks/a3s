@@ -13,6 +13,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/ghodss/yaml"
 	"github.com/globalsign/mgo"
 	"go.aporeto.io/a3s/internal/hasher"
 	"go.aporeto.io/a3s/internal/processors"
@@ -22,6 +23,7 @@ import (
 	"go.aporeto.io/a3s/pkgs/authorizer"
 	"go.aporeto.io/a3s/pkgs/bearermanip"
 	"go.aporeto.io/a3s/pkgs/bootstrap"
+	"go.aporeto.io/a3s/pkgs/importing"
 	"go.aporeto.io/a3s/pkgs/indexes"
 	"go.aporeto.io/a3s/pkgs/notification"
 	"go.aporeto.io/a3s/pkgs/nscache"
@@ -85,7 +87,7 @@ func main() {
 		if cfg.InitRootUserCAPath != "" {
 			initialized, err := initRootPermissions(ctx, m, cfg.InitRootUserCAPath, cfg.JWT.JWTIssuer, cfg.InitContinue)
 			if err != nil {
-				zap.L().Fatal("unable to initialize root permissions", zap.Error(err))
+				zap.L().Fatal("Unable to initialize root permissions", zap.Error(err))
 				return
 			}
 
@@ -97,12 +99,24 @@ func main() {
 		if cfg.InitPlatformCAPath != "" {
 			initialized, err := initPlatformPermissions(ctx, m, cfg.InitPlatformCAPath, cfg.JWT.JWTIssuer, cfg.InitContinue)
 			if err != nil {
-				zap.L().Fatal("unable to initialize platform permissions", zap.Error(err))
+				zap.L().Fatal("Unable to initialize platform permissions", zap.Error(err))
 				return
 			}
 
 			if initialized {
-				zap.L().Info("platform auth initialized")
+				zap.L().Info("Platform auth initialized")
+			}
+		}
+
+		if cfg.InitData != "" {
+			initialized, err := initData(ctx, m, cfg.InitData)
+			if err != nil {
+				zap.L().Fatal("Unable to init provisionning data", zap.Error(err))
+				return
+			}
+
+			if initialized {
+				zap.L().Info("Initial provisionning initialized")
 			}
 		}
 
@@ -487,6 +501,47 @@ func initPlatformPermissions(ctx context.Context, m manipulate.Manipulator, caPa
 
 	if err := m.Create(manipulate.NewContext(ctx), auth); err != nil {
 		return false, fmt.Errorf("unable to create root auth: %w", err)
+	}
+
+	return true, nil
+}
+
+func initData(ctx context.Context, m manipulate.Manipulator, dataPath string) (bool, error) {
+
+	data, err := os.ReadFile(dataPath)
+	if err != nil {
+		return false, err
+	}
+
+	importFile := api.NewImport()
+	if err := yaml.Unmarshal(data, importFile); err != nil {
+		return false, err
+	}
+
+	values := []elemental.Identifiables{
+		importFile.LDAPSources,
+		importFile.OIDCSources,
+		importFile.A3SSources,
+		importFile.MTLSSources,
+		importFile.HTTPSources,
+		importFile.Authorizations,
+	}
+
+	for _, lst := range values {
+		if len(lst.List()) == 0 {
+			continue
+		}
+		if err := importing.Import(
+			ctx,
+			api.Manager(),
+			m,
+			"/",
+			"a3s:init:data",
+			lst,
+			false,
+		); err != nil {
+			return false, err
+		}
 	}
 
 	return true, nil
