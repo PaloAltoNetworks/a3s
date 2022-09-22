@@ -510,12 +510,12 @@ func initData(ctx context.Context, m manipulate.Manipulator, dataPath string) (b
 
 	data, err := os.ReadFile(dataPath)
 	if err != nil {
-		return false, err
+		return false, fmt.Errorf("unable to read init import file: %w", err)
 	}
 
 	importFile := api.NewImport()
 	if err := yaml.Unmarshal(data, importFile); err != nil {
-		return false, err
+		return false, fmt.Errorf("unable to unmarshal import file: %w", err)
 	}
 
 	values := []elemental.Identifiables{
@@ -554,7 +554,7 @@ func initData(ctx context.Context, m manipulate.Manipulator, dataPath string) (b
 			lst,
 			false,
 		); err != nil {
-			return false, err
+			return false, fmt.Errorf("unable to import '%s': %w", lst.Identity().Name, err)
 		}
 	}
 
