@@ -1,0 +1,31 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.labels.name | default "a3s" }}
+  labels:
+    app: {{ .Values.labels.name | default "a3s" }}
+    type: {{ .Values.labels.type | default "core" }}
+spec:
+  type: {{ .Values.service.type | default "LoadBalancer" }}
+  selector:
+    app: {{ .Values.labels.name | default "a3s" }}
+  ports:
+  - targetPort: {{ .Values.service.targetPort | default "1443" }}
+    port: {{ .Values.service.port | default "443" }}
+    name: https
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: health-a3s
+  labels:
+    app: {{ .Values.labels.name | default "a3s" }}
+    type: {{ .Values.labels.name | default "core" }}
+spec:
+  selector:
+    app: {{ .Values.labels.name | default "a3s" }}
+  clusterIP: {{ required "clusterIP is required" .Values.clusterIP }}
+  ports:
+  - port: {{ .Values.service.healthPort | default 1080 }}
+    name: health
+---

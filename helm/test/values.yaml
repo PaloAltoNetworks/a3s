@@ -1,0 +1,69 @@
+replicas: 1
+clusterIP: None
+
+service:
+  type:
+  port:
+  targetPort:
+  healthPort:
+
+
+labels:
+  name:
+  type:
+
+log:
+    level:
+    format:
+
+init:
+  run:
+  continue:
+  ca: init-root-ca
+
+global:
+  encoding:
+  audience: "a3s.com"
+  issuer: https://issuer.a3s.com
+  imageRegistry: gcr.io/aporetodev
+  imageTag: latest
+  
+  server:
+      cert: server-cert
+      key: server-key
+      pass: server-key-pass
+
+  jwt:
+    cert: jwt-cert
+    key: jwt-key
+    pass: jwt-pass
+
+  mongo:
+    tls:
+      disable: false
+      ca: mongo-ca
+      cert: mongo-cert
+      key: mongo-key
+      pass: mongo-key-pass
+    db: "$external"
+    user: "CN=mongodb-admin,OU=users,O=mongodb"
+    host: mongodb-shard-router-0.mongodb-shard-router,mongodb-shard-router-1.mongodb-shard-router,mongodb-shard-router-2.mongodb-shard-router
+    sharded: true
+    readConsistency: nearest
+    attributeEncryptionKey: "abcdefghijkl"
+
+  nats:
+    tls:
+      disable: false
+      ca: nats-ca
+      cert: nats-cert
+      key: nats-key
+      pass: nats-key-pass
+    user: username
+    pass: password
+    host: "nats://nats:4222"
+
+  profiling:
+    enabled: false
+    listen: ":6060"
+      
