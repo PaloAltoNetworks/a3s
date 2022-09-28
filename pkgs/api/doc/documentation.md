@@ -1536,7 +1536,7 @@ Type: `string`
 
 The description of the object.
 
-##### `name` [`required`,`creation_only`,`format=^[a-zA-Z0-9_/]+$`]
+##### `name` [`required`,`creation_only`,`format=^[a-zA-Z0-9-_/]+$`]
 
 Type: `string`
 
