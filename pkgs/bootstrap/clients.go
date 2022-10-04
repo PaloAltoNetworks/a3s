@@ -97,7 +97,7 @@ func MakeMongoManipulator(cfg conf.MongoConf, hasher sharder.Hasher, additionalO
 
 	tlscfg, err := cfg.TLSConfig()
 	if err != nil {
-		zap.L().Fatal("Unable to prepare TLS config for nats", zap.Error(err))
+		zap.L().Fatal("Unable to prepare TLS config for mongodb", zap.Error(err))
 	}
 
 	if tlscfg != nil {

@@ -13,6 +13,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/ghodss/yaml"
 	"github.com/globalsign/mgo"
 	"go.aporeto.io/a3s/internal/hasher"
 	"go.aporeto.io/a3s/internal/processors"
@@ -22,6 +23,8 @@ import (
 	"go.aporeto.io/a3s/pkgs/authorizer"
 	"go.aporeto.io/a3s/pkgs/bearermanip"
 	"go.aporeto.io/a3s/pkgs/bootstrap"
+	"go.aporeto.io/a3s/pkgs/conf"
+	"go.aporeto.io/a3s/pkgs/importing"
 	"go.aporeto.io/a3s/pkgs/indexes"
 	"go.aporeto.io/a3s/pkgs/notification"
 	"go.aporeto.io/a3s/pkgs/nscache"
@@ -64,6 +67,16 @@ func main() {
 		defer close()
 	}
 
+	if cfg.InitDB {
+		if err := createMongoDBAccount(cfg.MongoConf, cfg.InitDBUsername); err != nil {
+			zap.L().Fatal("Unable to create mongodb account", zap.Error(err))
+		}
+
+		if !cfg.InitContinue {
+			return
+		}
+	}
+
 	m := bootstrap.MakeMongoManipulator(cfg.MongoConf, &hasher.Hasher{})
 	if err := indexes.Ensure(m, api.Manager(), "a3s"); err != nil {
 		zap.L().Fatal("Unable to ensure indexes", zap.Error(err))
@@ -85,7 +98,7 @@ func main() {
 		if cfg.InitRootUserCAPath != "" {
 			initialized, err := initRootPermissions(ctx, m, cfg.InitRootUserCAPath, cfg.JWT.JWTIssuer, cfg.InitContinue)
 			if err != nil {
-				zap.L().Fatal("unable to initialize root permissions", zap.Error(err))
+				zap.L().Fatal("Unable to initialize root permissions", zap.Error(err))
 				return
 			}
 
@@ -97,12 +110,24 @@ func main() {
 		if cfg.InitPlatformCAPath != "" {
 			initialized, err := initPlatformPermissions(ctx, m, cfg.InitPlatformCAPath, cfg.JWT.JWTIssuer, cfg.InitContinue)
 			if err != nil {
-				zap.L().Fatal("unable to initialize platform permissions", zap.Error(err))
+				zap.L().Fatal("Unable to initialize platform permissions", zap.Error(err))
 				return
 			}
 
 			if initialized {
-				zap.L().Info("platform auth initialized")
+				zap.L().Info("Platform auth initialized")
+			}
+		}
+
+		if cfg.InitData != "" {
+			initialized, err := initData(ctx, m, cfg.InitData)
+			if err != nil {
+				zap.L().Fatal("Unable to init provisionning data", zap.Error(err))
+				return
+			}
+
+			if initialized {
+				zap.L().Info("Initial provisionning initialized")
 			}
 		}
 
@@ -312,6 +337,29 @@ func main() {
 	server.Run(ctx)
 }
 
+func createMongoDBAccount(cfg conf.MongoConf, username string) error {
+
+	m := bootstrap.MakeMongoManipulator(cfg, &hasher.Hasher{})
+
+	db, close, _ := manipmongo.GetDatabase(m)
+	defer close()
+
+	user := mgo.User{
+		Username: username,
+		OtherDBRoles: map[string][]mgo.Role{
+			"a3s": {mgo.RoleReadWrite, mgo.RoleDBAdmin},
+		},
+	}
+
+	if err := db.UpsertUser(&user); err != nil {
+		return fmt.Errorf("unable to upsert the user: %w", err)
+	}
+
+	zap.L().Info("Successfully created mongodb account", zap.String("user", username))
+
+	return nil
+}
+
 func errorTransformer(err error) error {
 
 	if errors.As(err, &manipulate.ErrObjectNotFound{}) {
@@ -487,6 +535,61 @@ func initPlatformPermissions(ctx context.Context, m manipulate.Manipulator, caPa
 
 	if err := m.Create(manipulate.NewContext(ctx), auth); err != nil {
 		return false, fmt.Errorf("unable to create root auth: %w", err)
+	}
+
+	return true, nil
+}
+
+func initData(ctx context.Context, m manipulate.Manipulator, dataPath string) (bool, error) {
+
+	data, err := os.ReadFile(dataPath)
+	if err != nil {
+		return false, fmt.Errorf("unable to read init import file: %w", err)
+	}
+
+	importFile := api.NewImport()
+	if err := yaml.Unmarshal(data, importFile); err != nil {
+		return false, fmt.Errorf("unable to unmarshal import file: %w", err)
+	}
+
+	values := []elemental.Identifiables{
+		importFile.LDAPSources,
+		importFile.OIDCSources,
+		importFile.A3SSources,
+		importFile.MTLSSources,
+		importFile.HTTPSources,
+		importFile.Authorizations,
+	}
+
+	for _, lst := range values {
+		for i, o := range lst.List() {
+			if o.(elemental.Namespaceable).GetNamespace() == "" {
+				return false, fmt.Errorf(
+					"missing namespace property for object '%s' at index %d ",
+					lst.Identity().Name,
+					i,
+				)
+			}
+		}
+	}
+
+	for _, lst := range values {
+
+		if len(lst.List()) == 0 {
+			continue
+		}
+
+		if err := importing.Import(
+			ctx,
+			api.Manager(),
+			m,
+			"/",
+			"a3s:init:data",
+			lst,
+			false,
+		); err != nil {
+			return false, fmt.Errorf("unable to import '%s': %w", lst.Identity().Name, err)
+		}
 	}
 
 	return true, nil
