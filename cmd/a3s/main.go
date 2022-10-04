@@ -68,7 +68,7 @@ func main() {
 	}
 
 	if cfg.InitDB {
-		if err := createMongoDBAccount(cfg.MongoConf); err != nil {
+		if err := createMongoDBAccount(cfg.MongoConf, cfg.InitDBUsername); err != nil {
 			zap.L().Fatal("Unable to create mongodb account", zap.Error(err))
 		}
 
@@ -337,14 +337,13 @@ func main() {
 	server.Run(ctx)
 }
 
-func createMongoDBAccount(cfg conf.MongoConf) error {
+func createMongoDBAccount(cfg conf.MongoConf, username string) error {
 
 	m := bootstrap.MakeMongoManipulator(cfg, &hasher.Hasher{})
 
 	db, close, _ := manipmongo.GetDatabase(m)
 	defer close()
 
-	username := "CN=a3s,OU=root,O=system"
 	user := mgo.User{
 		Username: username,
 		OtherDBRoles: map[string][]mgo.Role{

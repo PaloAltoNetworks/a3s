@@ -16,8 +16,9 @@ import (
 // Conf holds the main configuration flags.
 type Conf struct {
 	Init               bool   `mapstructure:"init"              desc:"If set, initialize the root permissions using the CAs passed in --init-root-ca and --init-platform-ca"`
-	InitDB             bool   `mapstructure:"init-db"           desc:"If set, initialize the database using the mongo config passed in"`
 	InitContinue       bool   `mapstructure:"init-continue"     desc:"Continues normal boot after init."`
+	InitDB             bool   `mapstructure:"init-db"           desc:"If set, initialize the database using the mongo config passed in and init-db-name"`
+	InitDBUsername     string `mapstructure:"init-db-username"  desc:"If init-db is set, this will define the common name to use on db initialization"    default:"CN=a3s,OU=root,O=system"`
 	InitPlatformCAPath string `mapstructure:"init-platform-ca"  desc:"Path to the platform CA to use to initialize platform permissions"`
 	InitRootUserCAPath string `mapstructure:"init-root-ca"      desc:"Path to the root CA to use to initialize root permissions"`
 	InitData           string `mapstructure:"init-data"         desc:"Path to an import file containing initial provisionning data"`
