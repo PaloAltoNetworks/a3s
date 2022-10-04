@@ -4,9 +4,12 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"os"
+	"reflect"
 	"testing"
 
 	. "github.com/smartystreets/goconvey/convey"
+	"go.aporeto.io/a3s/pkgs/api"
+	"go.aporeto.io/elemental"
 	"go.aporeto.io/tg/tglib"
 )
 
@@ -239,4 +242,92 @@ func TestNATSConf(t *testing.T) {
 		So(err, ShouldNotBeNil)
 		So(err.Error(), ShouldStartWith, "unable to load ca file:")
 	})
+}
+
+func TestGatewayConf_GWPrivateOverrides(t *testing.T) {
+	tests := []struct {
+		name    string
+		init    func(t *testing.T) *GatewayConf
+		inspect func(r *GatewayConf, t *testing.T) //inspects receiver after test run
+
+		want1 map[elemental.Identity]bool
+	}{
+		{
+			"simple override",
+			func(t *testing.T) *GatewayConf {
+				return &GatewayConf{
+					GWOverridePrivate: []string{"namespace:public", "authorization:private"},
+				}
+			},
+			nil,
+			map[elemental.Identity]bool{
+				api.NamespaceIdentity:     true,
+				api.AuthorizationIdentity: false,
+			},
+		},
+		{
+			"* public override",
+			func(t *testing.T) *GatewayConf {
+				return &GatewayConf{
+					GWOverridePrivate: []string{"*:public"},
+				}
+			},
+			nil,
+			func() map[elemental.Identity]bool {
+				m := map[elemental.Identity]bool{}
+				for _, ident := range api.AllIdentities() {
+					m[ident] = true
+				}
+				return m
+			}(),
+		},
+		{
+			"* private override",
+			func(t *testing.T) *GatewayConf {
+				return &GatewayConf{
+					GWOverridePrivate: []string{"*:private"},
+				}
+			},
+			nil,
+			func() map[elemental.Identity]bool {
+				m := map[elemental.Identity]bool{}
+				for _, ident := range api.AllIdentities() {
+					m[ident] = false
+				}
+				return m
+			}(),
+		},
+		{
+			"mixed private override",
+			func(t *testing.T) *GatewayConf {
+				return &GatewayConf{
+					GWOverridePrivate: []string{"*:private", "namespace:public"},
+				}
+			},
+			nil,
+			func() map[elemental.Identity]bool {
+				m := map[elemental.Identity]bool{}
+				for _, ident := range api.AllIdentities() {
+					m[ident] = false
+				}
+				m[api.NamespaceIdentity] = true
+				return m
+			}(),
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			receiver := tt.init(t)
+			got1 := receiver.GWPrivateOverrides()
+
+			if tt.inspect != nil {
+				tt.inspect(receiver, t)
+			}
+
+			if !reflect.DeepEqual(got1, tt.want1) {
+				t.Errorf("GatewayConf.GWPrivateOverrides got1 = %v, want1: %v", got1, tt.want1)
+			}
+		})
+	}
 }
