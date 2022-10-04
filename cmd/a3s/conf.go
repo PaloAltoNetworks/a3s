@@ -140,6 +140,12 @@ func (c *GatewayConf) PrivateOverrides() map[elemental.Identity]bool {
 	for _, v := range c.OverridePrivate {
 		parts := strings.SplitN(v, ":", 2)
 		identity := api.Manager().IdentityFromAny(parts[0])
+
+		if parts[0] == "*" {
+			for _, i := range api.AllIdentities() {
+				out[i] = parts[1] == "public"
+			}
+		}
 		out[identity] = parts[1] == "public"
 	}
 
