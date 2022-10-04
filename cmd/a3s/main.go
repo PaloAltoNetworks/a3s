@@ -36,6 +36,8 @@ import (
 	"go.aporeto.io/manipulate/manipmongo"
 	"go.aporeto.io/tg/tglib"
 	"go.uber.org/zap"
+
+	gwpush "go.aporeto.io/bahamut/gateway/upstreamer/push"
 )
 
 var (
@@ -255,6 +257,8 @@ func main() {
 				"a3s",
 				cfg.NATSGWTopic,
 				gwAnnouncedAddress,
+				gwpush.OptionNotifierPrefix(cfg.Gateway.AnnouncePrefix),
+				gwpush.OptionNotifierPrivateAPIOverrides(cfg.Gateway.PrivateOverrides()),
 			)...,
 		)
 
@@ -262,6 +266,8 @@ func main() {
 			"Gateway announcement configured",
 			zap.String("address", gwAnnouncedAddress),
 			zap.String("topic", cfg.NATSGWTopic),
+			zap.String("prefix", cfg.Gateway.AnnouncePrefix),
+			zap.Any("overrides", cfg.Gateway.OverridePrivate),
 		)
 	}
 
