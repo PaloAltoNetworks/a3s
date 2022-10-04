@@ -242,9 +242,9 @@ func main() {
 		bahamut.OptIdentifiableRetriever(bootstrap.MakeIdentifiableRetriever(m, api.Manager())),
 	)
 
-	if cfg.NATSGWTopic != "" {
+	if cfg.GWTopic != "" {
 
-		gwAnnouncedAddress := cfg.NATSGWAnnouncedAddress
+		gwAnnouncedAddress := cfg.GWAnnouncedAddress
 		if gwAnnouncedAddress == "" {
 			gwAnnouncedAddress = getNotifierEndpoint(cfg.ListenAddress)
 		}
@@ -255,19 +255,19 @@ func main() {
 				ctx,
 				pubsub,
 				"a3s",
-				cfg.NATSGWTopic,
+				cfg.GWTopic,
 				gwAnnouncedAddress,
-				gwpush.OptionNotifierPrefix(cfg.Gateway.AnnouncePrefix),
-				gwpush.OptionNotifierPrivateAPIOverrides(cfg.Gateway.PrivateOverrides()),
+				gwpush.OptionNotifierPrefix(cfg.GWAnnouncePrefix),
+				gwpush.OptionNotifierPrivateAPIOverrides(cfg.GWPrivateOverrides()),
 			)...,
 		)
 
 		zap.L().Info(
 			"Gateway announcement configured",
 			zap.String("address", gwAnnouncedAddress),
-			zap.String("topic", cfg.NATSGWTopic),
-			zap.String("prefix", cfg.Gateway.AnnouncePrefix),
-			zap.Any("overrides", cfg.Gateway.OverridePrivate),
+			zap.String("topic", cfg.GWTopic),
+			zap.String("prefix", cfg.GWAnnouncePrefix),
+			zap.Any("overrides", cfg.GWOverridePrivate),
 		)
 	}
 

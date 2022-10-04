@@ -7,11 +7,9 @@ import (
 	"strings"
 	"time"
 
-	"go.aporeto.io/a3s/pkgs/api"
 	"go.aporeto.io/a3s/pkgs/authenticator"
 	"go.aporeto.io/a3s/pkgs/conf"
 	"go.aporeto.io/a3s/pkgs/lombric"
-	"go.aporeto.io/elemental"
 	"go.aporeto.io/tg/tglib"
 )
 
@@ -23,18 +21,18 @@ type Conf struct {
 	InitRootUserCAPath string `mapstructure:"init-root-ca"      desc:"Path to the root CA to use to initialize root permissions"`
 	InitData           string `mapstructure:"init-data"         desc:"Path to an import file containing initial provisionning data"`
 
-	Gateway    GatewayConf    `mapstructure:",squash"`
 	JWT        JWTConf        `mapstructure:",squash"`
 	MTLSHeader MTLSHeaderConf `mapstructure:",squash"`
 
 	conf.APIServerConf       `mapstructure:",squash"`
-	conf.HealthConfiguration `mapstructure:",squash"`
+	conf.GatewayConf         `mapstructure:",squash"`
 	conf.HTTPTimeoutsConf    `mapstructure:",squash"`
+	conf.HealthConfiguration `mapstructure:",squash"`
 	conf.LoggingConf         `mapstructure:",squash"`
+	conf.MongoConf           `mapstructure:",squash" override:"mongo-db=a3s"`
 	conf.NATSPublisherConf   `mapstructure:",squash"`
 	conf.ProfilingConf       `mapstructure:",squash"`
 	conf.RateLimitingConf    `mapstructure:",squash"`
-	conf.MongoConf           `mapstructure:",squash" override:"mongo-db=a3s"`
 }
 
 // Prefix returns the configuration prefix.
@@ -124,31 +122,4 @@ type MTLSHeaderConf struct {
 	Enabled    bool   `mapstructure:"mtls-header-enabled"    desc:"Trust the value of the defined header containing a user certificate. This is insecure if there is no proper tls verification happening upstream"`
 	HeaderKey  string `mapstructure:"mtls-header-key"        desc:"The header to check for user certificates" default:"x-tls-certificate"`
 	Passphrase string `mapstructure:"mtls-header-passphrase" desc:"The passphrase to decrypt the AES encrypted header content. It is mandatory if --mtls-header-enabled is set."`
-}
-
-// GatewayConf holds the configuration for the bahamut gateway behaviors.
-type GatewayConf struct {
-	OverridePrivate []string `mapstructure:"gateway-override-private" desc:"Overrides the api public/private. In form <name>:<override>. namespace:private makes namespaces api private on the gateway"`
-	AnnouncePrefix  string   `mapstructure:"gateway-announce-prefix"  desc:"Sets the prefix to use for the bahaamut gateway announcement"`
-}
-
-// PrivateOverrides returns the private overrides in the needed format.
-func (c *GatewayConf) PrivateOverrides() map[elemental.Identity]bool {
-
-	out := map[elemental.Identity]bool{}
-
-	for _, v := range c.OverridePrivate {
-		parts := strings.SplitN(v, ":", 2)
-		identity := api.Manager().IdentityFromAny(parts[0])
-
-		if parts[0] == "*" {
-			for _, i := range api.AllIdentities() {
-				out[i] = parts[1] == "public"
-			}
-			continue
-		}
-		out[identity] = parts[1] == "public"
-	}
-
-	return out
 }
