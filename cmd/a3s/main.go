@@ -23,6 +23,7 @@ import (
 	"go.aporeto.io/a3s/pkgs/authorizer"
 	"go.aporeto.io/a3s/pkgs/bearermanip"
 	"go.aporeto.io/a3s/pkgs/bootstrap"
+	"go.aporeto.io/a3s/pkgs/conf"
 	"go.aporeto.io/a3s/pkgs/importing"
 	"go.aporeto.io/a3s/pkgs/indexes"
 	"go.aporeto.io/a3s/pkgs/notification"
@@ -66,6 +67,16 @@ func main() {
 
 	if close := bootstrap.ConfigureLogger("a3s", cfg.LoggingConf); close != nil {
 		defer close()
+	}
+
+	if cfg.InitDB {
+		if err := createMongoDBAccount(cfg.MongoConf, cfg.InitDBUsername); err != nil {
+			zap.L().Fatal("Unable to create mongodb account", zap.Error(err))
+		}
+
+		if !cfg.InitContinue {
+			return
+		}
 	}
 
 	m := bootstrap.MakeMongoManipulator(cfg.MongoConf, &hasher.Hasher{})
@@ -330,6 +341,29 @@ func main() {
 	notification.Subscribe(ctx, pubsub, nscache.NotificationNamespaceChanges, makeNamespaceCleaner(ctx, m))
 
 	server.Run(ctx)
+}
+
+func createMongoDBAccount(cfg conf.MongoConf, username string) error {
+
+	m := bootstrap.MakeMongoManipulator(cfg, &hasher.Hasher{})
+
+	db, close, _ := manipmongo.GetDatabase(m)
+	defer close()
+
+	user := mgo.User{
+		Username: username,
+		OtherDBRoles: map[string][]mgo.Role{
+			"a3s": {mgo.RoleReadWrite, mgo.RoleDBAdmin},
+		},
+	}
+
+	if err := db.UpsertUser(&user); err != nil {
+		return fmt.Errorf("unable to upsert the user: %w", err)
+	}
+
+	zap.L().Info("Successfully created mongodb account", zap.String("user", username))
+
+	return nil
 }
 
 func errorTransformer(err error) error {
