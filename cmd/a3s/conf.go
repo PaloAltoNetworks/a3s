@@ -27,13 +27,14 @@ type Conf struct {
 	MTLSHeader MTLSHeaderConf `mapstructure:",squash"`
 
 	conf.APIServerConf       `mapstructure:",squash"`
-	conf.HealthConfiguration `mapstructure:",squash"`
+	conf.GatewayConf         `mapstructure:",squash"`
 	conf.HTTPTimeoutsConf    `mapstructure:",squash"`
+	conf.HealthConfiguration `mapstructure:",squash"`
 	conf.LoggingConf         `mapstructure:",squash"`
+	conf.MongoConf           `mapstructure:",squash" override:"mongo-db=a3s"`
 	conf.NATSPublisherConf   `mapstructure:",squash"`
 	conf.ProfilingConf       `mapstructure:",squash"`
 	conf.RateLimitingConf    `mapstructure:",squash"`
-	conf.MongoConf           `mapstructure:",squash" override:"mongo-db=a3s"`
 }
 
 // Prefix returns the configuration prefix.

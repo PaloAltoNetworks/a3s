@@ -643,8 +643,8 @@ github.com/yuin/goldmark v1.2.1/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9dec
 github.com/yuin/goldmark v1.3.5/go.mod h1:mwnBkeHKe2W/ZEtQ+71ViKU8L12m81fl3OWwC1Zlc8k=
 github.com/yusufpapurcu/wmi v1.2.2 h1:KBNDSne4vP5mbSWnJbO+51IMOXJB67QiYCSBrubbPRg=
 github.com/yusufpapurcu/wmi v1.2.2/go.mod h1:SBZ9tNy3G9/m5Oi98Zks0QjeHVDvuK0qfxQmPyzfmi0=
-go.aporeto.io/bahamut v1.112.1-0.20220818202548-2fa6ba50e085 h1:+8U+kZpLyjH3o6VMgGiV7NlrVxCAw4luzVwXPBt0WCk=
-go.aporeto.io/bahamut v1.112.1-0.20220818202548-2fa6ba50e085/go.mod h1:ENEAcTNaztAp3JhLxw+osLSf6qlUPgaBNxAoHI2cF0I=
+go.aporeto.io/bahamut v1.112.1-0.20221004181918-fd26bb88b7b9 h1:Hvl0rBIpT7zFfDf51BJZ9h+AJ2fCQr3uG8C0YD1bNZo=
+go.aporeto.io/bahamut v1.112.1-0.20221004181918-fd26bb88b7b9/go.mod h1:ENEAcTNaztAp3JhLxw+osLSf6qlUPgaBNxAoHI2cF0I=
 go.aporeto.io/elemental v1.100.1-0.20220524204820-ddfa01dc1c96/go.mod h1:YywW0kBkTrupWZ+p/a8PzsSuE0jZz2odnYbLhns0FHs=
 go.aporeto.io/elemental v1.100.1-0.20220823211843-5e7c7a0a25b4 h1:8JDzWJNbMbh9binV2XtPUR0DbJfPB8UAygJh8fHmmIk=
 go.aporeto.io/elemental v1.100.1-0.20220823211843-5e7c7a0a25b4/go.mod h1:YywW0kBkTrupWZ+p/a8PzsSuE0jZz2odnYbLhns0FHs=

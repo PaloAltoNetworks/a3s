@@ -5,8 +5,11 @@ import (
 	"crypto/x509"
 	"fmt"
 	"os"
+	"strings"
 	"time"
 
+	"go.aporeto.io/a3s/pkgs/api"
+	"go.aporeto.io/elemental"
 	"go.aporeto.io/tg/tglib"
 )
 
@@ -156,19 +159,17 @@ func (c *MongoConf) TLSConfig() (*tls.Config, error) {
 
 // NATSConf holds the configuration for pubsub connection.
 type NATSConf struct {
-	NATSClientID           string `mapstructure:"nats-client-id"                 desc:"Nats client ID"`
-	NATSClusterID          string `mapstructure:"nats-cluster-id"                desc:"Nats cluster ID"                                default:"test-cluster"`
-	NATSGWAnnouncedAddress string `mapstructure:"nats-gateway-announce-address"  desc:"If set, announce as the service address to the gateway"`
-	NATSGWTopic            string `mapstructure:"nats-gateway-topic"             desc:"Topic to use for gateway services discovery"`
-	NATSPassword           string `mapstructure:"nats-pass"                      desc:"Password to use to connect to Nats"             secret:"true" file:"true"`
-	NATSTLSCA              string `mapstructure:"nats-tls-ca"                    desc:"Path to the CA used by Nats"`
-	NATSTLSCertificate     string `mapstructure:"nats-tls-cert"                  desc:"Path to the client certificate"`
-	NATSTLSDisable         bool   `mapstructure:"nats-tls-disable"               desc:"Disable TLS completely"`
-	NATSTLSKey             string `mapstructure:"nats-tls-key"                   desc:"Path to the client key"`
-	NATSTLSKeyPass         string `mapstructure:"nats-tls-key-pass"              desc:"Password for the client key"                    secret:"true" file:"true"`
-	NATSTLSSkip            bool   `mapstructure:"nats-tls-skip"                  desc:"Skip CA verification"`
-	NATSURL                string `mapstructure:"nats-url"                       desc:"URL of the nats service"`
-	NATSUser               string `mapstructure:"nats-user"                      desc:"User name to use to connect to Nats"            secret:"true" file:"true"`
+	NATSClientID       string `mapstructure:"nats-client-id"                 desc:"Nats client ID"`
+	NATSClusterID      string `mapstructure:"nats-cluster-id"                desc:"Nats cluster ID"                                default:"test-cluster"`
+	NATSPassword       string `mapstructure:"nats-pass"                      desc:"Password to use to connect to Nats"             secret:"true" file:"true"`
+	NATSTLSCA          string `mapstructure:"nats-tls-ca"                    desc:"Path to the CA used by Nats"`
+	NATSTLSCertificate string `mapstructure:"nats-tls-cert"                  desc:"Path to the client certificate"`
+	NATSTLSDisable     bool   `mapstructure:"nats-tls-disable"               desc:"Disable TLS completely"`
+	NATSTLSKey         string `mapstructure:"nats-tls-key"                   desc:"Path to the client key"`
+	NATSTLSKeyPass     string `mapstructure:"nats-tls-key-pass"              desc:"Password for the client key"                    secret:"true" file:"true"`
+	NATSTLSSkip        bool   `mapstructure:"nats-tls-skip"                  desc:"Skip CA verification"`
+	NATSURL            string `mapstructure:"nats-url"                       desc:"URL of the nats service"`
+	NATSUser           string `mapstructure:"nats-user"                      desc:"User name to use to connect to Nats"            secret:"true" file:"true"`
 }
 
 // TLSConfig returns the configured TLS configuration as *tls.Config.
@@ -272,4 +273,33 @@ func (c *A3SClientConf) SystemCAPool() (*x509.CertPool, error) {
 	}
 
 	return c.systemCAPool, nil
+}
+
+// GatewayConf holds the configuration for the bahamut gateway behaviors.
+type GatewayConf struct {
+	GWAnnouncedAddress string   `mapstructure:"gw-announce-address" desc:"If set, announce as the service address to the gateway"`
+	GWTopic            string   `mapstructure:"gw-topic"            desc:"Topic to use for gateway services discovery"`
+	GWOverridePrivate  []string `mapstructure:"gw-override-private" desc:"Overrides the api public/private. In form <name>:<override>. namespace:private makes namespaces api private on the gateway"`
+	GWAnnouncePrefix   string   `mapstructure:"gw-announce-prefix"  desc:"Sets the prefix to use for the bahaamut gateway announcement"`
+}
+
+// GWPrivateOverrides returns the private overrides in the needed format.
+func (c *GatewayConf) GWPrivateOverrides() map[elemental.Identity]bool {
+
+	out := map[elemental.Identity]bool{}
+
+	for _, v := range c.GWOverridePrivate {
+		parts := strings.SplitN(v, ":", 2)
+		identity := api.Manager().IdentityFromAny(parts[0])
+
+		if parts[0] == "*" {
+			for _, i := range api.AllIdentities() {
+				out[i] = parts[1] == "public"
+			}
+			continue
+		}
+		out[identity] = parts[1] == "public"
+	}
+
+	return out
 }
