@@ -56,6 +56,7 @@ type Authorizer interface {
 
 type authorizer struct {
 	retriever        permissions.Retriever
+	transformer      permissions.Transformer
 	ignoredResources map[string]struct{}
 	cache            *nscache.NamespacedCache
 }
@@ -83,6 +84,7 @@ func New(ctx context.Context, retriever permissions.Retriever, pubsub bahamut.Pu
 
 	return &authorizer{
 		retriever:        retriever,
+		transformer:      cfg.transformer,
 		ignoredResources: ignored,
 		cache:            authCache,
 	}
@@ -163,6 +165,7 @@ func (a *authorizer) CheckAuthorization(ctx context.Context, claims []string, op
 		permissions.OptionRetrieverSourceIP(cfg.sourceIP),
 		permissions.OptionRetrieverID(cfg.id),
 		permissions.OptionRetrieverRestrictions(cfg.restrictions),
+		permissions.OptionRetrieverTransformer(a.transformer),
 	}
 
 	perms, err := a.retriever.Permissions(ctx, claims, ns, ropts...)

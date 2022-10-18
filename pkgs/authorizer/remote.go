@@ -34,7 +34,7 @@ func NewRemote(ctx context.Context, m manipulate.Manipulator, options ...Option)
 	return &remoteAuthorizer{
 		Authorizer: New(
 			ctx,
-			permissions.NewRemoteRetriever(m),
+			permissions.NewRemoteRetrieverWithTransformer(m, nil),
 			&webSocketPubSub{subscriber: subscriber},
 			options...,
 		),

@@ -110,10 +110,22 @@ func (a *retriever) Permissions(ctx context.Context, claims []string, ns string,
 		}
 	}
 
+	// Transform any roles into their identities and verbs
+	if cfg.transformer != nil {
+		out = cfg.transformer.Transform(out)
+	}
+
 	// If we have restrictions on permission from the token,
-	// we reduce the
+	// we reduce them here.
 	if len(cfg.restrictions.Permissions) > 0 {
-		out = out.Intersect(Parse(cfg.restrictions.Permissions, cfg.id))
+		restrictionPermissions := Parse(cfg.restrictions.Permissions, cfg.id)
+
+		// Transform any roles into their identities and verbs
+		if cfg.transformer != nil {
+			restrictionPermissions = cfg.transformer.Transform(restrictionPermissions)
+		}
+
+		out = out.Intersect(restrictionPermissions)
 	}
 
 	// If we have restrictions on the origin networks from the token
