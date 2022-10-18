@@ -20,10 +20,22 @@ func TestRetrieverOptions(t *testing.T) {
 		So(cfg.addr, ShouldEqual, "1.2.3.4")
 	})
 
-	Convey("Option should work", t, func() {
+	Convey("OptionRetrieverRestrictions should work", t, func() {
 		cfg := &config{}
 		r := Restrictions{Namespace: "/a"}
 		OptionRetrieverRestrictions(r)(cfg)
 		So(cfg.restrictions, ShouldResemble, r)
+	})
+
+	Convey("OptionRetrieverTransformer should work", t, func() {
+		cfg := &config{}
+		t := NewTransformer(
+			map[string][]string{
+				"r1": {"something:get,post"},
+				"r2": {"else:put"},
+			},
+		)
+		OptionRetrieverTransformer(t)(cfg)
+		So(cfg.transformer, ShouldResemble, t)
 	})
 }

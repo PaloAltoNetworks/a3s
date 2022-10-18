@@ -552,6 +552,63 @@ func TestIsAuthorizedWithToken(t *testing.T) {
 			So(err, ShouldBeNil)
 			So(perms.Allows("get", "things"), ShouldEqual, true)
 		})
+
+		// Transformer
+
+		Convey("When there is a policy matching and the role is expanded", func() {
+
+			m.MockRetrieveMany(t, func(mctx manipulate.Context, dest elemental.Identifiables) error {
+				*dest.(*api.AuthorizationsList) = append(
+					*dest.(*api.AuthorizationsList),
+					makeAPIPol([]string{"@auth:role=testrole2"}, nil),
+				)
+				return nil
+			})
+
+			perms, err := r.Permissions(ctx, []string{"color=blue"}, "/a",
+				OptionRetrieverTransformer(NewTransformer(map[string][]string{"@auth:role=testrole2": {"things:get,post"}})),
+			)
+
+			So(err, ShouldBeNil)
+			So(perms.Allows("get", "things"), ShouldEqual, true)
+		})
+
+		Convey("When there is a policy matching but the permissions do not match after expansion", func() {
+
+			m.MockRetrieveMany(t, func(mctx manipulate.Context, dest elemental.Identifiables) error {
+				*dest.(*api.AuthorizationsList) = append(
+					*dest.(*api.AuthorizationsList),
+					makeAPIPol([]string{"@auth:role=testrole2"}, nil),
+				)
+				return nil
+			})
+
+			perms, err := r.Permissions(ctx, []string{"color=blue"}, "/a",
+				OptionRetrieverTransformer(NewTransformer(map[string][]string{"@auth:role=testrole2": {"things:put,post"}})),
+			)
+
+			So(err, ShouldBeNil)
+			So(perms.Allows("get", "things"), ShouldEqual, false)
+		})
+
+		Convey("When there is a policy matching but the permissions are restricted after role expansion", func() {
+
+			m.MockRetrieveMany(t, func(mctx manipulate.Context, dest elemental.Identifiables) error {
+				*dest.(*api.AuthorizationsList) = append(
+					*dest.(*api.AuthorizationsList),
+					makeAPIPol([]string{permSetAllowAll}, nil),
+				)
+				return nil
+			})
+
+			perms, err := r.Permissions(ctx, []string{"color=blue"}, "/a",
+				OptionRetrieverRestrictions(Restrictions{Permissions: []string{"dog,get"}}),
+				OptionRetrieverTransformer(NewTransformer(map[string][]string{"@auth:role=testrole2": {"dog:get,post"}})),
+			)
+
+			So(err, ShouldBeNil)
+			So(perms.Allows("get", "dog"), ShouldEqual, false)
+		})
 	})
 }
 

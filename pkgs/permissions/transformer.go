@@ -3,15 +3,15 @@ package permissions
 // A Transformer is an object that can manipulate a
 // permissions map based on a provided mapping.
 type Transformer interface {
-	Transform(permissions PermissionMap) PermissionMap
+	Transform(permissions []string) []string
 }
 
 type transformer struct {
-	roleExpander map[string]map[string][]string
+	roleExpander map[string][]string
 }
 
 // NewTransformer returns a new Transformer.
-func NewTransformer(roleExpander map[string]map[string][]string) Transformer {
+func NewTransformer(roleExpander map[string][]string) Transformer {
 	return &transformer{
 		roleExpander: roleExpander,
 	}
@@ -20,25 +20,33 @@ func NewTransformer(roleExpander map[string]map[string][]string) Transformer {
 // Transform modifies the provided permissions map based
 // on a given mapping. This can be used to expand roles
 // into their lower-level permissions.
-func (t *transformer) Transform(permissions PermissionMap) PermissionMap {
+func (t *transformer) Transform(permissions []string) []string {
 
-	if t.roleExpander == nil {
+	if t.roleExpander == nil || len(permissions) == 0 {
 		return permissions
 	}
 
+	perms := map[string]struct{}{}
+	for _, p := range permissions {
+		perms[p] = struct{}{}
+	}
+
 	for name, auths := range t.roleExpander {
-		if _, ok := permissions[name]; !ok {
+		if _, ok := perms[name]; !ok {
 			continue
 		}
 
-		delete(permissions, name)
+		delete(perms, name)
 
-		for identity, verbs := range auths {
-			for _, verb := range verbs {
-				permissions[identity][verb] = true
-			}
+		for _, auth := range auths {
+			perms[auth] = struct{}{}
 		}
 	}
 
-	return permissions
+	newPermissions := make([]string, 0, len(perms))
+	for perm := range perms {
+		newPermissions = append(newPermissions, perm)
+	}
+
+	return newPermissions
 }
