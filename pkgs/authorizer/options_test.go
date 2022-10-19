@@ -14,20 +14,6 @@ func TestOption(t *testing.T) {
 		OptionIgnoredResources("r1", "r2")(cfg)
 		So(cfg.ignoredResources, ShouldResemble, []string{"r1", "r2"})
 	})
-
-	Convey("OptionTransformer should work", t, func() {
-		cfg := &config{}
-
-		t := permissions.NewTransformer(
-			map[string][]string{
-				"r1": {"something:get,post"},
-				"r2": {"else:put"},
-			},
-		)
-
-		OptionTransformer(t)(cfg)
-		So(cfg.transformer, ShouldResemble, t)
-	})
 }
 
 func TestOptionCheck(t *testing.T) {

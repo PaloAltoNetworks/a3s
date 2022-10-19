@@ -4,7 +4,6 @@ type config struct {
 	id           string
 	addr         string
 	restrictions Restrictions
-	transformer  Transformer
 }
 
 // A RetrieverOption represents an option of the retriver.
@@ -28,12 +27,5 @@ func OptionRetrieverSourceIP(ip string) RetrieverOption {
 func OptionRetrieverRestrictions(r Restrictions) RetrieverOption {
 	return func(c *config) {
 		c.restrictions = r
-	}
-}
-
-// OptionRetrieverTransformer sets the transformer to apply on retrieved permissions.
-func OptionRetrieverTransformer(t Transformer) RetrieverOption {
-	return func(c *config) {
-		c.transformer = t
 	}
 }

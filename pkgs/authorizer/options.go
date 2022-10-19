@@ -4,7 +4,6 @@ import "go.aporeto.io/a3s/pkgs/permissions"
 
 type config struct {
 	ignoredResources []string
-	transformer      permissions.Transformer
 }
 
 // An Option can be used to configure various options in the Authorizer.
@@ -14,13 +13,6 @@ type Option func(*config)
 func OptionIgnoredResources(identities ...string) Option {
 	return func(cfg *config) {
 		cfg.ignoredResources = identities
-	}
-}
-
-// OptionTransformer sets the transformer to apply on retrieved permissions.
-func OptionTransformer(t permissions.Transformer) Option {
-	return func(cfg *config) {
-		cfg.transformer = t
 	}
 }
 
