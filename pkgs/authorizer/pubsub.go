@@ -99,5 +99,5 @@ func (w *webSocketPubSub) Subscribe(pubs chan *bahamut.Publication, errors chan 
 
 	}()
 
-	return nil
+	return func() { w.subscriber.Status() <- manipulate.SubscriberStatusFinalDisconnection }
 }
