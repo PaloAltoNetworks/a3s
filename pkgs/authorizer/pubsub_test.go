@@ -57,7 +57,8 @@ func TestSubscribe(t *testing.T) {
 		Convey("when I receive a push from a namespace", func() {
 			chOutPubs := make(chan *bahamut.Publication, 2)
 			chOutErrs := make(chan error, 2)
-			a.Subscribe(chOutPubs, chOutErrs, "topic")
+			d := a.Subscribe(chOutPubs, chOutErrs, "topic")
+			defer d()
 			chInEvents <- elemental.NewEvent(elemental.EventUpdate, &api.Namespace{Name: "/the/ns"})
 			checkPresent(chOutPubs)
 		})
@@ -65,7 +66,8 @@ func TestSubscribe(t *testing.T) {
 		Convey("when I receive a push from a authorization", func() {
 			chOutPubs := make(chan *bahamut.Publication, 2)
 			chOutErrs := make(chan error, 2)
-			a.Subscribe(chOutPubs, chOutErrs, "topic")
+			d := a.Subscribe(chOutPubs, chOutErrs, "topic")
+			defer d()
 			chInEvents <- elemental.NewEvent(elemental.EventUpdate, &api.Authorization{Namespace: "/the/ns"})
 			checkPresent(chOutPubs)
 		})
@@ -73,7 +75,8 @@ func TestSubscribe(t *testing.T) {
 		Convey("when I receive an error", func() {
 			chOutPubs := make(chan *bahamut.Publication, 2)
 			chOutErrs := make(chan error, 2)
-			a.Subscribe(chOutPubs, chOutErrs, "topic")
+			d := a.Subscribe(chOutPubs, chOutErrs, "topic")
+			defer d()
 			chInErrors <- fmt.Errorf("boom")
 			e := <-chOutErrs
 			So(e.Error(), ShouldEqual, "boom")
@@ -82,7 +85,8 @@ func TestSubscribe(t *testing.T) {
 		Convey("when I receive a final disconnect", func() {
 			chOutPubs := make(chan *bahamut.Publication, 2)
 			chOutErrs := make(chan error, 2)
-			a.Subscribe(chOutPubs, chOutErrs, "topic")
+			d := a.Subscribe(chOutPubs, chOutErrs, "topic")
+			defer d()
 			chInStatus <- manipulate.SubscriberStatusFinalDisconnection
 			time.Sleep(300 * time.Millisecond)
 		})
@@ -90,7 +94,8 @@ func TestSubscribe(t *testing.T) {
 		Convey("when the even it not decodable", func() {
 			chOutPubs := make(chan *bahamut.Publication, 2)
 			chOutErrs := make(chan error, 2)
-			a.Subscribe(chOutPubs, chOutErrs, "topic")
+			d := a.Subscribe(chOutPubs, chOutErrs, "topic")
+			defer d()
 			chInEvents <- &elemental.Event{RawData: []byte("oh no")}
 			e := <-chOutErrs
 			So(e.Error(), ShouldEqual, "unable to decode application/json: EOF")

@@ -17,6 +17,17 @@ func TestNewRemoteRetriever(t *testing.T) {
 		m := maniptest.NewTestManipulator()
 		r := NewRemoteRetriever(m)
 		So(r.(*remoteRetriever).manipulator, ShouldEqual, m)
+		So(r.(*remoteRetriever).transformer, ShouldEqual, nil)
+	})
+}
+
+func TestNewRemoteRetrieverWithTransformer(t *testing.T) {
+	Convey("Calling NewRemoteRetrieverWithTransformer should work", t, func() {
+		m := maniptest.NewTestManipulator()
+		mockTransformer := NewMockTransformer()
+		r := NewRemoteRetrieverWithTransformer(m, mockTransformer)
+		So(r.(*remoteRetriever).manipulator, ShouldEqual, m)
+		So(r.(*remoteRetriever).transformer, ShouldEqual, mockTransformer)
 	})
 }
 
@@ -97,6 +108,83 @@ func TestPermissions(t *testing.T) {
 
 			So(err, ShouldNotBeNil)
 			So(err.Error(), ShouldEqual, "boom")
+		})
+
+		Convey("When retrieving subscriptions with a defined transformer", func() {
+
+			mockTransformer := NewMockTransformer()
+			mockTransformer.MockTransform(t, func(permissions PermissionMap) PermissionMap {
+				return PermissionMap{
+					"cat": Permissions{
+						"pet":  false,
+						"feed": true,
+					},
+					"dog": Permissions{
+						"pet":  true,
+						"feed": true,
+					},
+				}
+			})
+
+			r = NewRemoteRetrieverWithTransformer(m, mockTransformer)
+
+			var expectedClaims []string
+			var expectedNamespace string
+			var expectedRestrictions Restrictions
+			var expectedID string
+			var expectedIP string
+			m.MockCreate(t, func(mctx manipulate.Context, object elemental.Identifiable) error {
+				o := object.(*api.Permissions)
+				o.Permissions = map[string]map[string]bool{
+					"cat": {"pet": false},
+					"dog": {"pet": true},
+				}
+				expectedClaims = o.Claims
+				expectedNamespace = o.Namespace
+				expectedID = o.ID
+				expectedIP = o.IP
+				expectedRestrictions = Restrictions{
+					Namespace:   o.RestrictedNamespace,
+					Permissions: o.RestrictedPermissions,
+					Networks:    o.RestrictedNetworks,
+				}
+
+				return nil
+			})
+
+			perms, err := r.Permissions(
+				context.Background(),
+				[]string{"a=a"},
+				"/the/ns",
+				OptionRetrieverID("id"),
+				OptionRetrieverSourceIP("1.1.1.1"),
+				OptionRetrieverRestrictions(Restrictions{
+					Namespace:   "/the/ns/sub",
+					Networks:    []string{"1.1.1.1/32", "2.2.2.2/32"},
+					Permissions: []string{"cat:pet"},
+				}),
+			)
+
+			So(err, ShouldBeNil)
+			So(perms, ShouldResemble, PermissionMap{
+				"cat": Permissions{
+					"pet":  false,
+					"feed": true,
+				},
+				"dog": Permissions{
+					"pet":  true,
+					"feed": true,
+				},
+			})
+			So(expectedClaims, ShouldResemble, []string{"a=a"})
+			So(expectedNamespace, ShouldResemble, "/the/ns")
+			So(expectedID, ShouldEqual, "id")
+			So(expectedIP, ShouldEqual, "1.1.1.1")
+			So(expectedRestrictions, ShouldResemble, Restrictions{
+				Namespace:   "/the/ns/sub",
+				Networks:    []string{"1.1.1.1/32", "2.2.2.2/32"},
+				Permissions: []string{"cat:pet"},
+			})
 		})
 	})
 }

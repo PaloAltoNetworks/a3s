@@ -9,6 +9,7 @@ import (
 
 type remoteRetriever struct {
 	manipulator manipulate.Manipulator
+	transformer Transformer
 }
 
 // NewRemoteRetriever returns a new Retriever backed by remote API calls to
@@ -18,6 +19,14 @@ type remoteRetriever struct {
 func NewRemoteRetriever(manipulator manipulate.Manipulator) Retriever {
 	return &remoteRetriever{
 		manipulator: manipulator,
+	}
+}
+
+// NewRemoteRetrieverWithTransformer returns a new RemoteRetriever with the provided transformer.
+func NewRemoteRetrieverWithTransformer(manipulator manipulate.Manipulator, transformer Transformer) Retriever {
+	return &remoteRetriever{
+		manipulator: manipulator,
+		transformer: transformer,
 	}
 }
 
@@ -44,6 +53,11 @@ func (a *remoteRetriever) Permissions(ctx context.Context, claims []string, ns s
 	out := make(PermissionMap, len(preq.Permissions))
 	for ident, perms := range preq.Permissions {
 		out[ident] = perms
+	}
+
+	// Transform any roles into their identities and verbs
+	if a.transformer != nil {
+		out = a.transformer.Transform(out)
 	}
 
 	return out, nil
