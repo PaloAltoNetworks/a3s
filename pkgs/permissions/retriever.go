@@ -213,11 +213,13 @@ func makeAPIAuthorizationPolicyRetrieveFilter(claims []string) *elemental.Filter
 
 	filter := elemental.NewFilterComposer().
 		WithKey("flattenedsubject").In(itags...).
-		WithKey("trustedissuers").Contains(issuer).
-		WithKey("disabled").Equals(false).
-		Done()
+		WithKey("disabled").Equals(false)
 
-	return filter
+	if issuer != "" {
+		filter.WithKey("trustedissuers").Contains(issuer)
+	}
+
+	return filter.Done()
 }
 
 // countNamespace tries to find the namespace in a two step process.
