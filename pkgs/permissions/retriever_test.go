@@ -107,7 +107,7 @@ func TestIsAuthorizedWithToken(t *testing.T) {
 
 			So(err, ShouldBeNil)
 			So(perms.Allows("get", "things"), ShouldEqual, true)
-			So(expectedFilter.String(), ShouldEqual, `flattenedsubject in ["color=blue", "@issuer=toto"] and trustedissuers contains ["toto"] and disabled == false`)
+			So(expectedFilter.String(), ShouldEqual, `flattenedsubject in ["color=blue", "@issuer=toto"] and disabled == false and trustedissuers contains ["toto"]`)
 		})
 
 		Convey("When there is a policy matching twice using twice the same set", func() {
