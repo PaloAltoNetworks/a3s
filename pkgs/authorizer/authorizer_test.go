@@ -140,6 +140,40 @@ func TestIsAuthorized(t *testing.T) {
 			So(action, ShouldEqual, bahamut.AuthActionOK)
 		})
 
+		Convey("Calling with a valid token, operation transformer and permissions are granted should work", func() {
+
+			transformer := NewMockOperationTransformer()
+			transformer.MockTransform(t, func(elemental.Operation) string {
+				return "get"
+			})
+
+			a = New(context.Background(), r, p,
+				OptionIgnoredResources("r1", "r2"),
+				OptionOperationTransformer(transformer),
+			).(*authorizer)
+
+			_, key := getECCert()
+			token := makeToken(&token.IdentityToken{
+				Source: token.Source{Type: "mtls"},
+			}, key)
+
+			bctx := bahamut.NewMockContext(context.Background())
+			bctx.MockRequest = &elemental.Request{
+				Identity:  elemental.MakeIdentity("r0", "r0"),
+				Namespace: "/",
+				Password:  token,
+				Operation: elemental.OperationRetrieveMany,
+			}
+
+			r.MockPermissions(t, func(context.Context, []string, string, ...permissions.RetrieverOption) (permissions.PermissionMap, error) {
+
+				return permissions.PermissionMap{"r0": permissions.Permissions{"get": true}}, nil
+			})
+			action, err := a.IsAuthorized(bctx)
+			So(err, ShouldBeNil)
+			So(action, ShouldEqual, bahamut.AuthActionOK)
+		})
+
 		Convey("Calling with a token with valid token and permissions are denied should fail", func() {
 
 			_, key := getECCert()
