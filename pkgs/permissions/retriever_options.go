@@ -1,10 +1,10 @@
 package permissions
 
 type config struct {
-	id                  string
-	addr                string
-	restrictions        Restrictions
-	offloadRestrictions bool
+	id                             string
+	addr                           string
+	restrictions                   Restrictions
+	offloadPermissionsRestrictions bool
 }
 
 // A RetrieverOption represents an option of the retriver.
@@ -31,10 +31,10 @@ func OptionRetrieverRestrictions(r Restrictions) RetrieverOption {
 	}
 }
 
-// OptionOffloadRestrictions tells the retriever to skip restrictions
-// computing and offload to the caller.
-func OptionOffloadRestrictions(offload bool) RetrieverOption {
+// OptionOffloadPermissionsRestrictions tells the retriever to skip
+// permissions restrictions computing and offload to the caller.
+func OptionOffloadPermissionsRestrictions(offload bool) RetrieverOption {
 	return func(c *config) {
-		c.offloadRestrictions = offload
+		c.offloadPermissionsRestrictions = offload
 	}
 }

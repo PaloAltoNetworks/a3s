@@ -1409,7 +1409,7 @@ API to retrieve the permissions from a user identity.
     "size=big"
   ],
   "namespace": "/acme",
-  "offloadRestrictions": false,
+  "offloadPermissionsRestrictions": false,
   "restrictedNamespace": "/namespace",
   "restrictedNetworks": [
     "10.0.0.0/8"
@@ -1458,7 +1458,7 @@ Type: `string`
 
 The namespace where to check permission from.
 
-##### `offloadRestrictions`
+##### `offloadPermissionsRestrictions`
 
 Type: `boolean`
 

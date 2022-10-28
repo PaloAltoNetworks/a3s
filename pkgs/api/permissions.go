@@ -99,7 +99,7 @@ type Permissions struct {
 	Namespace string `json:"namespace" msgpack:"namespace" bson:"-" mapstructure:"namespace,omitempty"`
 
 	// If true, skips computing restriction intersections.
-	OffloadRestrictions bool `json:"offloadRestrictions" msgpack:"offloadRestrictions" bson:"-" mapstructure:"offloadRestrictions,omitempty"`
+	OffloadPermissionsRestrictions bool `json:"offloadPermissionsRestrictions" msgpack:"offloadPermissionsRestrictions" bson:"-" mapstructure:"offloadPermissionsRestrictions,omitempty"`
 
 	// The computed permissions.
 	Permissions map[string]map[string]bool `json:"permissions,omitempty" msgpack:"permissions,omitempty" bson:"-" mapstructure:"permissions,omitempty"`
@@ -210,16 +210,16 @@ func (o *Permissions) ToSparse(fields ...string) elemental.SparseIdentifiable {
 	if len(fields) == 0 {
 		// nolint: goimports
 		return &SparsePermissions{
-			ID:                    &o.ID,
-			IP:                    &o.IP,
-			Claims:                &o.Claims,
-			Error:                 &o.Error,
-			Namespace:             &o.Namespace,
-			OffloadRestrictions:   &o.OffloadRestrictions,
-			Permissions:           &o.Permissions,
-			RestrictedNamespace:   &o.RestrictedNamespace,
-			RestrictedNetworks:    &o.RestrictedNetworks,
-			RestrictedPermissions: &o.RestrictedPermissions,
+			ID:                             &o.ID,
+			IP:                             &o.IP,
+			Claims:                         &o.Claims,
+			Error:                          &o.Error,
+			Namespace:                      &o.Namespace,
+			OffloadPermissionsRestrictions: &o.OffloadPermissionsRestrictions,
+			Permissions:                    &o.Permissions,
+			RestrictedNamespace:            &o.RestrictedNamespace,
+			RestrictedNetworks:             &o.RestrictedNetworks,
+			RestrictedPermissions:          &o.RestrictedPermissions,
 		}
 	}
 
@@ -236,8 +236,8 @@ func (o *Permissions) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.Error = &(o.Error)
 		case "namespace":
 			sp.Namespace = &(o.Namespace)
-		case "offloadRestrictions":
-			sp.OffloadRestrictions = &(o.OffloadRestrictions)
+		case "offloadPermissionsRestrictions":
+			sp.OffloadPermissionsRestrictions = &(o.OffloadPermissionsRestrictions)
 		case "permissions":
 			sp.Permissions = &(o.Permissions)
 		case "restrictedNamespace":
@@ -274,8 +274,8 @@ func (o *Permissions) Patch(sparse elemental.SparseIdentifiable) {
 	if so.Namespace != nil {
 		o.Namespace = *so.Namespace
 	}
-	if so.OffloadRestrictions != nil {
-		o.OffloadRestrictions = *so.OffloadRestrictions
+	if so.OffloadPermissionsRestrictions != nil {
+		o.OffloadPermissionsRestrictions = *so.OffloadPermissionsRestrictions
 	}
 	if so.Permissions != nil {
 		o.Permissions = *so.Permissions
@@ -373,8 +373,8 @@ func (o *Permissions) ValueForAttribute(name string) interface{} {
 		return o.Error
 	case "namespace":
 		return o.Namespace
-	case "offloadRestrictions":
-		return o.OffloadRestrictions
+	case "offloadPermissionsRestrictions":
+		return o.OffloadPermissionsRestrictions
 	case "permissions":
 		return o.Permissions
 	case "restrictedNamespace":
@@ -435,12 +435,12 @@ var PermissionsAttributesMap = map[string]elemental.AttributeSpecification{
 		Required:       true,
 		Type:           "string",
 	},
-	"OffloadRestrictions": {
+	"OffloadPermissionsRestrictions": {
 		AllowedChoices: []string{},
-		ConvertedName:  "OffloadRestrictions",
+		ConvertedName:  "OffloadPermissionsRestrictions",
 		Description:    `If true, skips computing restriction intersections.`,
 		Exposed:        true,
-		Name:           "offloadRestrictions",
+		Name:           "offloadPermissionsRestrictions",
 		Type:           "boolean",
 	},
 	"Permissions": {
@@ -529,12 +529,12 @@ var PermissionsLowerCaseAttributesMap = map[string]elemental.AttributeSpecificat
 		Required:       true,
 		Type:           "string",
 	},
-	"offloadrestrictions": {
+	"offloadpermissionsrestrictions": {
 		AllowedChoices: []string{},
-		ConvertedName:  "OffloadRestrictions",
+		ConvertedName:  "OffloadPermissionsRestrictions",
 		Description:    `If true, skips computing restriction intersections.`,
 		Exposed:        true,
-		Name:           "offloadRestrictions",
+		Name:           "offloadPermissionsRestrictions",
 		Type:           "boolean",
 	},
 	"permissions": {
@@ -655,7 +655,7 @@ type SparsePermissions struct {
 	Namespace *string `json:"namespace,omitempty" msgpack:"namespace,omitempty" bson:"-" mapstructure:"namespace,omitempty"`
 
 	// If true, skips computing restriction intersections.
-	OffloadRestrictions *bool `json:"offloadRestrictions,omitempty" msgpack:"offloadRestrictions,omitempty" bson:"-" mapstructure:"offloadRestrictions,omitempty"`
+	OffloadPermissionsRestrictions *bool `json:"offloadPermissionsRestrictions,omitempty" msgpack:"offloadPermissionsRestrictions,omitempty" bson:"-" mapstructure:"offloadPermissionsRestrictions,omitempty"`
 
 	// The computed permissions.
 	Permissions *map[string]map[string]bool `json:"permissions,omitempty" msgpack:"permissions,omitempty" bson:"-" mapstructure:"permissions,omitempty"`
@@ -748,8 +748,8 @@ func (o *SparsePermissions) ToPlain() elemental.PlainIdentifiable {
 	if o.Namespace != nil {
 		out.Namespace = *o.Namespace
 	}
-	if o.OffloadRestrictions != nil {
-		out.OffloadRestrictions = *o.OffloadRestrictions
+	if o.OffloadPermissionsRestrictions != nil {
+		out.OffloadPermissionsRestrictions = *o.OffloadPermissionsRestrictions
 	}
 	if o.Permissions != nil {
 		out.Permissions = *o.Permissions

@@ -477,7 +477,7 @@ func TestIsAuthorizedWithToken(t *testing.T) {
 
 			perms, err := r.Permissions(ctx, []string{"color=blue"}, "/a",
 				OptionRetrieverRestrictions(Restrictions{Permissions: []string{"dog,get"}}),
-				OptionOffloadRestrictions(true),
+				OptionOffloadPermissionsRestrictions(true),
 			)
 
 			So(err, ShouldBeNil)

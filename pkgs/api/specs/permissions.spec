@@ -48,7 +48,7 @@ attributes:
     required: true
     example_value: /acme
 
-  - name: offloadRestrictions
+  - name: offloadPermissionsRestrictions
     description: If true, skips computing restriction intersections.
     type: boolean
     exposed: true

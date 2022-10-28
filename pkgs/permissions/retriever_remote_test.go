@@ -43,7 +43,7 @@ func TestPermissions(t *testing.T) {
 			var expectedClaims []string
 			var expectedNamespace string
 			var expectedRestrictions Restrictions
-			var expectedOffloadRestrictions bool
+			var expectedOffloadPermissionsRestrictions bool
 			var expectedID string
 			var expectedIP string
 			m.MockCreate(t, func(mctx manipulate.Context, object elemental.Identifiable) error {
@@ -56,7 +56,7 @@ func TestPermissions(t *testing.T) {
 				expectedNamespace = o.Namespace
 				expectedID = o.ID
 				expectedIP = o.IP
-				expectedOffloadRestrictions = o.OffloadRestrictions
+				expectedOffloadPermissionsRestrictions = o.OffloadPermissionsRestrictions
 				expectedRestrictions = Restrictions{
 					Namespace:   o.RestrictedNamespace,
 					Permissions: o.RestrictedPermissions,
@@ -88,7 +88,7 @@ func TestPermissions(t *testing.T) {
 			So(expectedNamespace, ShouldResemble, "/the/ns")
 			So(expectedID, ShouldEqual, "id")
 			So(expectedIP, ShouldEqual, "1.1.1.1")
-			So(expectedOffloadRestrictions, ShouldBeFalse)
+			So(expectedOffloadPermissionsRestrictions, ShouldBeFalse)
 			So(expectedRestrictions, ShouldResemble, Restrictions{
 				Namespace:   "/the/ns/sub",
 				Networks:    []string{"1.1.1.1/32", "2.2.2.2/32"},
@@ -134,7 +134,7 @@ func TestPermissions(t *testing.T) {
 			var expectedClaims []string
 			var expectedNamespace string
 			var expectedRestrictions Restrictions
-			var expectedOffloadRestrictions bool
+			var expectedOffloadPermissionsRestrictions bool
 			var expectedID string
 			var expectedIP string
 			m.MockCreate(t, func(mctx manipulate.Context, object elemental.Identifiable) error {
@@ -147,7 +147,7 @@ func TestPermissions(t *testing.T) {
 				expectedNamespace = o.Namespace
 				expectedID = o.ID
 				expectedIP = o.IP
-				expectedOffloadRestrictions = o.OffloadRestrictions
+				expectedOffloadPermissionsRestrictions = o.OffloadPermissionsRestrictions
 				expectedRestrictions = Restrictions{
 					Namespace:   o.RestrictedNamespace,
 					Permissions: o.RestrictedPermissions,
@@ -185,7 +185,7 @@ func TestPermissions(t *testing.T) {
 			So(expectedNamespace, ShouldResemble, "/the/ns")
 			So(expectedID, ShouldEqual, "id")
 			So(expectedIP, ShouldEqual, "1.1.1.1")
-			So(expectedOffloadRestrictions, ShouldBeTrue)
+			So(expectedOffloadPermissionsRestrictions, ShouldBeTrue)
 			So(expectedRestrictions, ShouldResemble, Restrictions{
 				Namespace:   "/the/ns/sub",
 				Networks:    []string{"1.1.1.1/32", "2.2.2.2/32"},
