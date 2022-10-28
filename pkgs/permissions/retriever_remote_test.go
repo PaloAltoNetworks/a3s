@@ -173,7 +173,6 @@ func TestPermissions(t *testing.T) {
 			So(err, ShouldBeNil)
 			So(perms, ShouldResemble, PermissionMap{
 				"cat": Permissions{
-					"pet":  false,
 					"feed": true,
 				},
 				"dog": Permissions{
