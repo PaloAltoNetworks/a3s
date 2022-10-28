@@ -55,9 +55,10 @@ type Authorizer interface {
 }
 
 type authorizer struct {
-	retriever        permissions.Retriever
-	ignoredResources map[string]struct{}
-	cache            *nscache.NamespacedCache
+	retriever            permissions.Retriever
+	ignoredResources     map[string]struct{}
+	operationTransformer OperationTransformer
+	cache                *nscache.NamespacedCache
 }
 
 // New creates a new Authorizer using the given permissions.Retriever and PubSubClient.
@@ -82,9 +83,10 @@ func New(ctx context.Context, retriever permissions.Retriever, pubsub bahamut.Pu
 	}
 
 	return &authorizer{
-		retriever:        retriever,
-		ignoredResources: ignored,
-		cache:            authCache,
+		retriever:            retriever,
+		ignoredResources:     ignored,
+		operationTransformer: cfg.operationTransformer,
+		cache:                authCache,
 	}
 }
 
@@ -112,10 +114,15 @@ func (a *authorizer) IsAuthorized(ctx bahamut.Context) (bahamut.AuthAction, erro
 		)
 	}
 
+	operation := string(req.Operation)
+	if a.operationTransformer != nil {
+		operation = a.operationTransformer.Transform(req.Operation)
+	}
+
 	ok, err := a.CheckAuthorization(
 		ctx.Context(),
 		ctx.Claims(),
-		string(req.Operation),
+		operation,
 		req.Namespace,
 		req.Identity.Category,
 		OptionCheckRestrictions(restrictions),

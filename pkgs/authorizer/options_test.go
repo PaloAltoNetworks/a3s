@@ -14,6 +14,13 @@ func TestOption(t *testing.T) {
 		OptionIgnoredResources("r1", "r2")(cfg)
 		So(cfg.ignoredResources, ShouldResemble, []string{"r1", "r2"})
 	})
+
+	Convey("OptionOperationTransformer should work", t, func() {
+		cfg := &config{}
+		t := NewMockOperationTransformer()
+		OptionOperationTransformer(t)(cfg)
+		So(cfg.operationTransformer, ShouldResemble, t)
+	})
 }
 
 func TestOptionCheck(t *testing.T) {
