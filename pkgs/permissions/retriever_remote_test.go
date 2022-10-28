@@ -117,16 +117,14 @@ func TestPermissions(t *testing.T) {
 
 			mockTransformer := NewMockTransformer()
 			mockTransformer.MockTransform(t, func(permissions PermissionMap) PermissionMap {
-				return PermissionMap{
-					"cat": Permissions{
-						"pet":  false,
-						"feed": true,
-					},
-					"dog": Permissions{
-						"pet":  true,
-						"feed": true,
-					},
+				for k := range permissions {
+					if k == "petter" {
+						permissions["dog"] = Permissions{"pet": true}
+						permissions["cat"] = Permissions{"pet": true}
+						delete(permissions, k)
+					}
 				}
+				return permissions
 			})
 
 			r = NewRemoteRetrieverWithTransformer(m, mockTransformer)
@@ -140,8 +138,7 @@ func TestPermissions(t *testing.T) {
 			m.MockCreate(t, func(mctx manipulate.Context, object elemental.Identifiable) error {
 				o := object.(*api.Permissions)
 				o.Permissions = map[string]map[string]bool{
-					"cat": {"pet": false},
-					"dog": {"pet": true},
+					"petter": {},
 				}
 				expectedClaims = o.Claims
 				expectedNamespace = o.Namespace
@@ -173,11 +170,7 @@ func TestPermissions(t *testing.T) {
 			So(err, ShouldBeNil)
 			So(perms, ShouldResemble, PermissionMap{
 				"cat": Permissions{
-					"feed": true,
-				},
-				"dog": Permissions{
-					"pet":  true,
-					"feed": true,
+					"pet": true,
 				},
 			})
 			So(expectedClaims, ShouldResemble, []string{"a=a"})
