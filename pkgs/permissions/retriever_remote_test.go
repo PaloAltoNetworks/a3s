@@ -116,7 +116,7 @@ func TestPermissions(t *testing.T) {
 		Convey("When retrieving subscriptions with a defined transformer", func() {
 
 			mockTransformer := NewMockTransformer()
-			mockTransformer.MockTransform(t, func(permissions PermissionMap) PermissionMap {
+			mockTransformer.MockTransform(t, func(permissions PermissionMap, restrictions Restrictions) PermissionMap {
 				return PermissionMap{
 					"cat": Permissions{
 						"pet":  false,

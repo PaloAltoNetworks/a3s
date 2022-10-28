@@ -48,6 +48,11 @@ attributes:
     required: true
     example_value: /acme
 
+  - name: offloadRestrictions
+    description: If true, skips computing restriction intersections.
+    type: boolean
+    exposed: true
+
   - name: permissions
     description: The computed permissions.
     type: external
@@ -78,8 +83,3 @@ attributes:
     subtype: string
     example_value:
     - '@auth:role=enforcer'
-
-  - name: offloadRestrictions
-    description: If true, skips computing restriction intersections.
-    type: boolean
-    exposed: true

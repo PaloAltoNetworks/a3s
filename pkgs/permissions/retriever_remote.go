@@ -58,7 +58,7 @@ func (a *remoteRetriever) Permissions(ctx context.Context, claims []string, ns s
 
 	// Transform any roles into their identities and verbs
 	if a.transformer != nil {
-		out = a.transformer.Transform(out)
+		out = a.transformer.Transform(out, cfg.restrictions)
 	}
 
 	return out, nil

@@ -6,13 +6,13 @@ import (
 )
 
 type mockedTransformerMethods struct {
-	transformMock func(PermissionMap) PermissionMap
+	transformMock func(PermissionMap, Restrictions) PermissionMap
 }
 
 // A MockTransformer allows to mock a transform.Transformer for unit tests.
 type MockTransformer interface {
 	Transformer
-	MockTransform(t *testing.T, impl func(PermissionMap) PermissionMap)
+	MockTransform(t *testing.T, impl func(PermissionMap, Restrictions) PermissionMap)
 }
 
 type mockTransformer struct {
@@ -30,7 +30,7 @@ func NewMockTransformer() MockTransformer {
 }
 
 // MockTransform replaces the Transform implementation with the given function.
-func (r *mockTransformer) MockTransform(t *testing.T, impl func(PermissionMap) PermissionMap) {
+func (r *mockTransformer) MockTransform(t *testing.T, impl func(PermissionMap, Restrictions) PermissionMap) {
 
 	r.Lock()
 	defer r.Unlock()
@@ -38,13 +38,13 @@ func (r *mockTransformer) MockTransform(t *testing.T, impl func(PermissionMap) P
 	r.currentMocks(t).transformMock = impl
 }
 
-func (r *mockTransformer) Transform(permissions PermissionMap) PermissionMap {
+func (r *mockTransformer) Transform(permissions PermissionMap, restrictions Restrictions) PermissionMap {
 
 	r.Lock()
 	defer r.Unlock()
 
 	if mock := r.currentMocks(r.currentTest); mock != nil && mock.transformMock != nil {
-		return mock.transformMock(permissions)
+		return mock.transformMock(permissions, restrictions)
 	}
 
 	return PermissionMap{}
