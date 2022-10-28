@@ -98,6 +98,9 @@ type Permissions struct {
 	// The namespace where to check permission from.
 	Namespace string `json:"namespace" msgpack:"namespace" bson:"-" mapstructure:"namespace,omitempty"`
 
+	// If true, skips computing restriction intersections.
+	OffloadRestrictions bool `json:"offloadRestrictions" msgpack:"offloadRestrictions" bson:"-" mapstructure:"offloadRestrictions,omitempty"`
+
 	// The computed permissions.
 	Permissions map[string]map[string]bool `json:"permissions,omitempty" msgpack:"permissions,omitempty" bson:"-" mapstructure:"permissions,omitempty"`
 
@@ -212,6 +215,7 @@ func (o *Permissions) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			Claims:                &o.Claims,
 			Error:                 &o.Error,
 			Namespace:             &o.Namespace,
+			OffloadRestrictions:   &o.OffloadRestrictions,
 			Permissions:           &o.Permissions,
 			RestrictedNamespace:   &o.RestrictedNamespace,
 			RestrictedNetworks:    &o.RestrictedNetworks,
@@ -232,6 +236,8 @@ func (o *Permissions) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.Error = &(o.Error)
 		case "namespace":
 			sp.Namespace = &(o.Namespace)
+		case "offloadRestrictions":
+			sp.OffloadRestrictions = &(o.OffloadRestrictions)
 		case "permissions":
 			sp.Permissions = &(o.Permissions)
 		case "restrictedNamespace":
@@ -267,6 +273,9 @@ func (o *Permissions) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.Namespace != nil {
 		o.Namespace = *so.Namespace
+	}
+	if so.OffloadRestrictions != nil {
+		o.OffloadRestrictions = *so.OffloadRestrictions
 	}
 	if so.Permissions != nil {
 		o.Permissions = *so.Permissions
@@ -364,6 +373,8 @@ func (o *Permissions) ValueForAttribute(name string) interface{} {
 		return o.Error
 	case "namespace":
 		return o.Namespace
+	case "offloadRestrictions":
+		return o.OffloadRestrictions
 	case "permissions":
 		return o.Permissions
 	case "restrictedNamespace":
@@ -423,6 +434,14 @@ var PermissionsAttributesMap = map[string]elemental.AttributeSpecification{
 		Name:           "namespace",
 		Required:       true,
 		Type:           "string",
+	},
+	"OffloadRestrictions": {
+		AllowedChoices: []string{},
+		ConvertedName:  "OffloadRestrictions",
+		Description:    `If true, skips computing restriction intersections.`,
+		Exposed:        true,
+		Name:           "offloadRestrictions",
+		Type:           "boolean",
 	},
 	"Permissions": {
 		AllowedChoices: []string{},
@@ -509,6 +528,14 @@ var PermissionsLowerCaseAttributesMap = map[string]elemental.AttributeSpecificat
 		Name:           "namespace",
 		Required:       true,
 		Type:           "string",
+	},
+	"offloadrestrictions": {
+		AllowedChoices: []string{},
+		ConvertedName:  "OffloadRestrictions",
+		Description:    `If true, skips computing restriction intersections.`,
+		Exposed:        true,
+		Name:           "offloadRestrictions",
+		Type:           "boolean",
 	},
 	"permissions": {
 		AllowedChoices: []string{},
@@ -627,6 +654,9 @@ type SparsePermissions struct {
 	// The namespace where to check permission from.
 	Namespace *string `json:"namespace,omitempty" msgpack:"namespace,omitempty" bson:"-" mapstructure:"namespace,omitempty"`
 
+	// If true, skips computing restriction intersections.
+	OffloadRestrictions *bool `json:"offloadRestrictions,omitempty" msgpack:"offloadRestrictions,omitempty" bson:"-" mapstructure:"offloadRestrictions,omitempty"`
+
 	// The computed permissions.
 	Permissions *map[string]map[string]bool `json:"permissions,omitempty" msgpack:"permissions,omitempty" bson:"-" mapstructure:"permissions,omitempty"`
 
@@ -717,6 +747,9 @@ func (o *SparsePermissions) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.Namespace != nil {
 		out.Namespace = *o.Namespace
+	}
+	if o.OffloadRestrictions != nil {
+		out.OffloadRestrictions = *o.OffloadRestrictions
 	}
 	if o.Permissions != nil {
 		out.Permissions = *o.Permissions

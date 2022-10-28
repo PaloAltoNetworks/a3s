@@ -45,6 +45,7 @@ func (a *remoteRetriever) Permissions(ctx context.Context, claims []string, ns s
 	preq.RestrictedNamespace = cfg.restrictions.Namespace
 	preq.RestrictedNetworks = cfg.restrictions.Networks
 	preq.RestrictedPermissions = cfg.restrictions.Permissions
+	preq.OffloadRestrictions = a.transformer != nil
 
 	if err := a.manipulator.Create(manipulate.NewContext(ctx), preq); err != nil {
 		return nil, err

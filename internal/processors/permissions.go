@@ -36,6 +36,7 @@ func (p *PermissionsProcessor) ProcessCreate(bctx bahamut.Context) error {
 		permissions.OptionRetrieverID(req.ID),
 		permissions.OptionRetrieverSourceIP(req.IP),
 		permissions.OptionRetrieverRestrictions(restrictions),
+		permissions.OptionOffloadRestrictions(req.OffloadRestrictions),
 	)
 
 	switch err {

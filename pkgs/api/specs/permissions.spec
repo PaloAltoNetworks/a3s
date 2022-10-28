@@ -78,3 +78,8 @@ attributes:
     subtype: string
     example_value:
     - '@auth:role=enforcer'
+
+  - name: offloadRestrictions
+    description: If true, skips computing restriction intersections.
+    type: boolean
+    exposed: true

@@ -952,6 +952,10 @@
             "example": "/acme",
             "type": "string"
           },
+          "offloadRestrictions": {
+            "description": "If true, skips computing restriction intersections.",
+            "type": "boolean"
+          },
           "permissions": {
             "additionalProperties": {
               "additionalProperties": {
