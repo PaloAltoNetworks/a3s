@@ -45,6 +45,7 @@ func (a *remoteRetriever) Permissions(ctx context.Context, claims []string, ns s
 	preq.RestrictedNamespace = cfg.restrictions.Namespace
 	preq.RestrictedNetworks = cfg.restrictions.Networks
 	preq.RestrictedPermissions = cfg.restrictions.Permissions
+	preq.OffloadPermissionsRestrictions = a.transformer != nil
 
 	if err := a.manipulator.Create(manipulate.NewContext(ctx), preq); err != nil {
 		return nil, err
@@ -57,7 +58,19 @@ func (a *remoteRetriever) Permissions(ctx context.Context, claims []string, ns s
 
 	// Transform any roles into their identities and verbs
 	if a.transformer != nil {
+
 		out = a.transformer.Transform(out)
+
+		if len(cfg.restrictions.Permissions) > 0 {
+			out = out.Intersect(
+				a.transformer.Transform(
+					Parse(
+						cfg.restrictions.Permissions,
+						cfg.id,
+					),
+				),
+			)
+		}
 	}
 
 	return out, nil

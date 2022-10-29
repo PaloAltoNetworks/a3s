@@ -465,6 +465,25 @@ func TestIsAuthorizedWithToken(t *testing.T) {
 			So(perms.Allows("get", "things"), ShouldEqual, false)
 		})
 
+		Convey("When there is a policy matching but the permissions are restricted AND offloaded", func() {
+
+			m.MockRetrieveMany(t, func(mctx manipulate.Context, dest elemental.Identifiables) error {
+				*dest.(*api.AuthorizationsList) = append(
+					*dest.(*api.AuthorizationsList),
+					makeAPIPol([]string{permSetAllowAll}, nil),
+				)
+				return nil
+			})
+
+			perms, err := r.Permissions(ctx, []string{"color=blue"}, "/a",
+				OptionRetrieverRestrictions(Restrictions{Permissions: []string{"dog,get"}}),
+				OptionOffloadPermissionsRestrictions(true),
+			)
+
+			So(err, ShouldBeNil)
+			So(perms.Allows("get", "things"), ShouldEqual, true)
+		})
+
 		Convey("When there is a policy matching but the networks are restricted", func() {
 
 			m.MockRetrieveMany(t, func(mctx manipulate.Context, dest elemental.Identifiables) error {

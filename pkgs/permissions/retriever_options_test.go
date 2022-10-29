@@ -26,4 +26,11 @@ func TestRetrieverOptions(t *testing.T) {
 		OptionRetrieverRestrictions(r)(cfg)
 		So(cfg.restrictions, ShouldResemble, r)
 	})
+
+	Convey("OptionOffloadPermissionsRestrictions should work", t, func() {
+		cfg := &config{}
+		OptionOffloadPermissionsRestrictions(true)(cfg)
+		So(cfg.offloadPermissionsRestrictions, ShouldBeTrue)
+	})
+
 }

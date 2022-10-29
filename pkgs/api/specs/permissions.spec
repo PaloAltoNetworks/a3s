@@ -48,6 +48,11 @@ attributes:
     required: true
     example_value: /acme
 
+  - name: offloadPermissionsRestrictions
+    description: If true, skips computing restriction intersections.
+    type: boolean
+    exposed: true
+
   - name: permissions
     description: The computed permissions.
     type: external
