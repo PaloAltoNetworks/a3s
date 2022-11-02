@@ -94,8 +94,8 @@ func newIdentifiable(obj elemental.Identifiable) (elemental.Identifiable, error)
 		objType = objType.Elem()
 	}
 
-	newObjType := reflect.New(objType)
-	identifiable, ok := newObjType.Interface().(elemental.Identifiable)
+	newObjType := reflect.New(objType).Interface()
+	identifiable, ok := newObjType.(elemental.Identifiable)
 	if !ok {
 		return nil, errors.New("object is not elemental.Identifiable")
 	}
