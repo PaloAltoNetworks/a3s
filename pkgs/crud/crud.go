@@ -16,6 +16,12 @@ func Create(bctx bahamut.Context, m manipulate.Manipulator, obj elemental.Identi
 		o(&cfg)
 	}
 
+	if as, ok := obj.(elemental.AttributeSpecifiable); ok {
+		if err := elemental.ValidateAdvancedSpecification(as, nil, elemental.OperationCreate); err != nil {
+			return err
+		}
+	}
+
 	if n, ok := obj.(elemental.Namespaceable); ok {
 		n.SetNamespace(bctx.Request().Namespace)
 	}
@@ -101,6 +107,16 @@ func Update(bctx bahamut.Context, m manipulate.Manipulator, obj elemental.Identi
 			eobj.(elemental.AttributeSpecifiable),
 			a,
 		)
+	}
+
+	if _, ok := obj.(elemental.AttributeSpecifiable); ok {
+		if err = elemental.ValidateAdvancedSpecification(
+			obj.(elemental.AttributeSpecifiable),
+			eobj.(elemental.AttributeSpecifiable),
+			elemental.OperationUpdate,
+		); err != nil {
+			return err
+		}
 	}
 
 	if cfg.preHook != nil {
