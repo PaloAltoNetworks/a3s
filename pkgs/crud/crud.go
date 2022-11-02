@@ -2,6 +2,7 @@ package crud
 
 import (
 	"errors"
+	"fmt"
 	"reflect"
 
 	"go.aporeto.io/a3s/pkgs/importing"
@@ -84,16 +85,7 @@ func Retrieve(bctx bahamut.Context, m manipulate.Manipulator, obj elemental.Iden
 
 func newIdentifiable(obj elemental.Identifiable) (elemental.Identifiable, error) {
 
-	objType := reflect.TypeOf(obj)
-
-	for objType.Kind() == reflect.Ptr ||
-		objType.Kind() == reflect.Interface ||
-		objType.Kind() == reflect.Slice ||
-		objType.Kind() == reflect.Array {
-
-		objType = objType.Elem()
-	}
-
+	objType := reflect.TypeOf(obj).Elem()
 	newObjType := reflect.New(objType).Interface()
 	identifiable, ok := newObjType.(elemental.Identifiable)
 	if !ok {
@@ -115,7 +107,7 @@ func Update(bctx bahamut.Context, m manipulate.Manipulator, obj elemental.Identi
 
 	mctx, err := translateContext(bctx)
 	if err != nil {
-		return err
+		return fmt.Errorf("unable to create new identifiable to retrieve state: %w", err)
 	}
 
 	eobj, err := newIdentifiable(obj)
