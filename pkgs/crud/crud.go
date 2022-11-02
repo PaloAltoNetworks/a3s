@@ -1,7 +1,8 @@
 package crud
 
 import (
-	"go.aporeto.io/a3s/pkgs/api"
+	"reflect"
+
 	"go.aporeto.io/a3s/pkgs/importing"
 	"go.aporeto.io/bahamut"
 	"go.aporeto.io/elemental"
@@ -80,6 +81,14 @@ func Retrieve(bctx bahamut.Context, m manipulate.Manipulator, obj elemental.Iden
 	return nil
 }
 
+func newIdentifiable(obj elemental.Identifiable) elemental.Identifiable {
+
+	objType := reflect.TypeOf(obj).Elem()
+	newObjType := reflect.New(objType).Interface()
+
+	return newObjType.(elemental.Identifiable)
+}
+
 // Update performs the basic update operation.
 func Update(bctx bahamut.Context, m manipulate.Manipulator, obj elemental.Identifiable, opts ...Option) error {
 
@@ -95,7 +104,7 @@ func Update(bctx bahamut.Context, m manipulate.Manipulator, obj elemental.Identi
 		return err
 	}
 
-	eobj := api.Manager().Identifiable(obj.Identity())
+	eobj := newIdentifiable(obj)
 	eobj.SetIdentifier(obj.Identifier())
 
 	if err := m.Retrieve(mctx, eobj); err != nil {
