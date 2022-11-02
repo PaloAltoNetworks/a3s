@@ -39,6 +39,17 @@ func TestCreate(t *testing.T) {
 			So(obj.Namespace, ShouldEqual, "/hello")
 		})
 
+		Convey("When read only object is set", func() {
+
+			obj := api.NewNamespace()
+			obj.Namespace = "/hello"
+
+			err := Create(bctx, m, obj)
+
+			So(err, ShouldNotBeNil)
+			So(errors.As(err, &elemental.Errors{}), ShouldBeTrue)
+		})
+
 		Convey("When manipulate fails", func() {
 
 			obj := api.NewNamespace()
@@ -199,6 +210,21 @@ func TestUpdate(t *testing.T) {
 			So(err, ShouldBeNil)
 			So(expectedNamespace, ShouldEqual, "/hello")
 			So(expectedID, ShouldEqual, "xyz")
+		})
+
+		Convey("When read only object is set", func() {
+
+			obj := api.NewNamespace()
+			bctx.MockRequest = &elemental.Request{
+				Namespace: "/hello",
+				ObjectID:  "xyz",
+			}
+
+			obj.Namespace = "/new"
+			err := Update(bctx, m, obj)
+
+			So(err, ShouldNotBeNil)
+			So(errors.As(err, &elemental.Errors{}), ShouldBeTrue)
 		})
 
 		Convey("When translating context fails", func() {

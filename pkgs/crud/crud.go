@@ -1,11 +1,8 @@
 package crud
 
 import (
-	"time"
-
 	"go.aporeto.io/a3s/pkgs/api"
 	"go.aporeto.io/a3s/pkgs/importing"
-	"go.aporeto.io/a3s/pkgs/timeable"
 	"go.aporeto.io/bahamut"
 	"go.aporeto.io/elemental"
 	"go.aporeto.io/manipulate"
@@ -19,26 +16,14 @@ func Create(bctx bahamut.Context, m manipulate.Manipulator, obj elemental.Identi
 		o(&cfg)
 	}
 
-	if n, ok := obj.(elemental.Namespaceable); ok {
-		n.SetNamespace(bctx.Request().Namespace)
-	}
-
-	if v, ok := obj.(elemental.Validatable); ok {
-		if err := v.Validate(); err != nil {
-			return err
-		}
-	}
-
 	if as, ok := obj.(elemental.AttributeSpecifiable); ok {
 		if err := elemental.ValidateAdvancedSpecification(as, nil, elemental.OperationCreate); err != nil {
 			return err
 		}
 	}
 
-	if t, ok := obj.(timeable.Timeable); ok {
-		now := time.Now().Round(time.Millisecond)
-		t.SetCreateTime(now)
-		t.SetUpdateTime(now)
+	if n, ok := obj.(elemental.Namespaceable); ok {
+		n.SetNamespace(bctx.Request().Namespace)
 	}
 
 	if cfg.preHook != nil {
@@ -124,12 +109,6 @@ func Update(bctx bahamut.Context, m manipulate.Manipulator, obj elemental.Identi
 		)
 	}
 
-	if v, ok := obj.(elemental.Validatable); ok {
-		if err := v.Validate(); err != nil {
-			return err
-		}
-	}
-
 	if _, ok := obj.(elemental.AttributeSpecifiable); ok {
 		if err = elemental.ValidateAdvancedSpecification(
 			obj.(elemental.AttributeSpecifiable),
@@ -138,10 +117,6 @@ func Update(bctx bahamut.Context, m manipulate.Manipulator, obj elemental.Identi
 		); err != nil {
 			return err
 		}
-	}
-
-	if tobj, ok := obj.(timeable.Timeable); ok {
-		tobj.SetUpdateTime(time.Now().Round(time.Millisecond))
 	}
 
 	if cfg.preHook != nil {

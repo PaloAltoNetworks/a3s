@@ -24,7 +24,7 @@ require (
 	github.com/aws/aws-sdk-go v1.42.39
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cespare/xxhash v1.1.0 // indirect
-	github.com/cespare/xxhash/v2 v2.1.1 // indirect
+	github.com/cespare/xxhash/v2 v2.1.2 // indirect
 	github.com/codahale/hdrhistogram v0.0.0-20161010025455-3a0bb77429bd // indirect
 	github.com/coreos/go-oidc/v3 v3.1.0
 	github.com/deckarep/golang-set v1.8.0
@@ -41,7 +41,7 @@ require (
 	github.com/golang-jwt/jwt/v4 v4.2.0
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/google/uuid v1.3.0 // indirect
-	github.com/gopherjs/gopherjs v0.0.0-20200217142428-fce0ec30dd00 // indirect
+	github.com/gopherjs/gopherjs v1.17.2 // indirect
 	github.com/gorilla/websocket v1.4.2 // indirect
 	github.com/gravitational/trace v0.0.0-20190726142706-a535a178675f // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
@@ -81,9 +81,9 @@ require (
 	github.com/rivo/uniseg v0.1.0 // indirect
 	github.com/shirou/gopsutil v3.21.11+incompatible // indirect
 	github.com/sirupsen/logrus v1.8.1 // indirect
-	github.com/smartystreets/assertions v1.0.0 // indirect
-	github.com/smartystreets/goconvey v1.6.4
-	github.com/spaolacci/murmur3 v0.0.0-20180118202830-f09979ecbc72
+	github.com/smartystreets/assertions v1.13.0 // indirect
+	github.com/smartystreets/goconvey v1.7.2
+	github.com/spaolacci/murmur3 v1.1.0
 	github.com/spf13/afero v1.9.2 // indirect
 	github.com/spf13/cast v1.5.0 // indirect
 	github.com/spf13/cobra v1.5.0
@@ -119,6 +119,14 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	k8s.io/helm v2.17.0+incompatible // indirect
 	rsc.io/qr v0.2.0 // indirect
+)
+
+require (
+	github.com/blang/semver v3.5.1+incompatible // indirect
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
+	github.com/yl2chen/cidranger v1.0.2 // indirect
+	go.aporeto.io/gaia v1.94.1-0.20220608215959-187fca4731d5 // indirect
+	go.aporeto.io/underwater v1.249.1
 )
 
 // Mapstructure v1.5.0 breaks current nested import logic

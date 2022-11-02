@@ -6,6 +6,12 @@ import (
 	"go.aporeto.io/elemental"
 )
 
+var interfaceHooks map[interface{}]func(obj elemental.Identifiable)
+
+func RegisterInterfaceHooks(ih map[interface{}]func(obj elemental.Identifiable)) {
+	interfaceHooks = ih
+}
+
 // A ErrPreWriteHook is the kind of error returned when execution
 // of a pre write hook fails.
 type ErrPreWriteHook struct {
