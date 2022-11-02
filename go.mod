@@ -121,13 +121,5 @@ require (
 	rsc.io/qr v0.2.0 // indirect
 )
 
-require (
-	github.com/blang/semver v3.5.1+incompatible // indirect
-	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
-	github.com/yl2chen/cidranger v1.0.2 // indirect
-	go.aporeto.io/gaia v1.94.1-0.20220608215959-187fca4731d5 // indirect
-	go.aporeto.io/underwater v1.249.1
-)
-
 // Mapstructure v1.5.0 breaks current nested import logic
 replace github.com/mitchellh/mapstructure => github.com/mitchellh/mapstructure v1.4.3
