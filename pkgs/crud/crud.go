@@ -1,7 +1,9 @@
 package crud
 
 import (
-	"go.aporeto.io/a3s/pkgs/api"
+	"errors"
+	"reflect"
+
 	"go.aporeto.io/a3s/pkgs/importing"
 	"go.aporeto.io/bahamut"
 	"go.aporeto.io/elemental"
@@ -80,6 +82,27 @@ func Retrieve(bctx bahamut.Context, m manipulate.Manipulator, obj elemental.Iden
 	return nil
 }
 
+func newIdentifiable(obj elemental.Identifiable) (elemental.Identifiable, error) {
+
+	objType := reflect.TypeOf(obj)
+
+	for objType.Kind() == reflect.Ptr ||
+		objType.Kind() == reflect.Interface ||
+		objType.Kind() == reflect.Slice ||
+		objType.Kind() == reflect.Array {
+
+		objType = objType.Elem()
+	}
+
+	newObjType := reflect.New(objType)
+	identifiable, ok := newObjType.Interface().(elemental.Identifiable)
+	if !ok {
+		return nil, errors.New("object is not elemental.Identifiable")
+	}
+
+	return identifiable, nil
+}
+
 // Update performs the basic update operation.
 func Update(bctx bahamut.Context, m manipulate.Manipulator, obj elemental.Identifiable, opts ...Option) error {
 
@@ -95,7 +118,11 @@ func Update(bctx bahamut.Context, m manipulate.Manipulator, obj elemental.Identi
 		return err
 	}
 
-	eobj := api.Manager().Identifiable(obj.Identity())
+	eobj, err := newIdentifiable(obj)
+	if err != nil {
+		return err
+	}
+
 	eobj.SetIdentifier(obj.Identifier())
 
 	if err := m.Retrieve(mctx, eobj); err != nil {
