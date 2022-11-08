@@ -7,6 +7,11 @@ changelog:
     - '^docs:'
     - '^test:'
     - '^examples:'
+before:
+  hooks:
+  - make codegen
+  - go mod tidy
+
 builds:
   - id: a3s
     main: ./cmd/a3s
