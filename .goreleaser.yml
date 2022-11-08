@@ -53,17 +53,21 @@ builds:
 
 archives:
   - id: a3s
+    format: binary
     builds:
     - a3s
 
   - id: a3sctl
+    format: binary
     builds:
     - a3sctl
 
   - id: a3s-fips
+    format: binary
     builds:
     - a3s-fips
 
   - id: a3sctl-fips
+    format: binary
     builds:
     - a3sctl-fips
