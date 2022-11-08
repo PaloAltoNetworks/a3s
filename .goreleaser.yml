@@ -1,5 +1,3 @@
-build:
-  skip: true
 snapshot:
   name_template: "{{ .Tag }}-next"
 changelog:
@@ -9,3 +7,41 @@ changelog:
     - '^docs:'
     - '^test:'
     - '^examples:'
+builds:
+  - id: a3s
+    main: ./cmd/a3s
+    binary: a3s
+    goos:
+    - linux
+    goarch:
+    - amd64
+
+  - id: a3sctl
+    main: ./cmd/a3sctl
+    binary: a3sctl
+    goos:
+    - linux
+    goarch:
+    - amd64
+
+  - id: a3s-fips
+    main: ./cmd/a3s
+    binary: a3s-fips
+    goos:
+    - linux
+    goarch:
+    - amd64
+    env:
+    - CGO_ENABLED=1
+    - GOEXPERIMENT=boringcrypto
+
+  - id: a3sctl-fips
+    main: ./cmd/a3sctl
+    binary: a3sctl-fips
+    goos:
+    - linux
+    goarch:
+    - amd64
+    env:
+    - CGO_ENABLED=1
+    - GOEXPERIMENT=boringcrypto
