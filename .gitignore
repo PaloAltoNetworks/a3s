@@ -5,5 +5,5 @@ unit_coverage.cov
 remod.dev
 .remod
 .data
-.dist
+dist
 docker/in
