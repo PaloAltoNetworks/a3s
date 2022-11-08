@@ -64,6 +64,6 @@ archives:
     builds:
     - a3s-fips
 
-  - id: a3sctl
+  - id: a3sctl-fips
     builds:
     - a3sctl-fips
