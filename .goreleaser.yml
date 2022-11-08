@@ -50,3 +50,20 @@ builds:
     env:
     - CGO_ENABLED=1
     - GOEXPERIMENT=boringcrypto
+
+archives:
+  - id: a3s
+    builds:
+    - a3s
+
+  - id: a3sctl
+    builds:
+    - a3sctl
+
+  - id: a3s-fips
+    builds:
+    - a3s-fips
+
+  - id: a3sctl
+    builds:
+    - a3sctl-fips
