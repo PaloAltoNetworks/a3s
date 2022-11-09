@@ -13,6 +13,12 @@ import (
 	"go.aporeto.io/tg/tglib"
 )
 
+var (
+	version = "v0.0.0"
+	commit  = "dev"
+	date    = ""
+)
+
 // Conf holds the main configuration flags.
 type Conf struct {
 	Init               bool   `mapstructure:"init"              desc:"If set, initialize the root permissions using the CAs passed in --init-root-ca and --init-platform-ca"`
@@ -42,7 +48,7 @@ func (c *Conf) Prefix() string { return "a3s" }
 
 // PrintVersion prints the current version.
 func (c *Conf) PrintVersion() {
-	fmt.Printf("a3s 0.0.1")
+	fmt.Printf("a3s %s (%s)", version, commit)
 }
 
 func newConf() Conf {

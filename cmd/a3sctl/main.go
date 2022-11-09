@@ -28,6 +28,11 @@ var (
 	logLevel string
 )
 
+var (
+	version = "v0.0.0"
+	commit  = "dev"
+)
+
 func main() {
 
 	cobra.OnInitialize(initCobra)
@@ -43,13 +48,21 @@ func main() {
 			if err := viper.BindPFlags(cmd.PersistentFlags()); err != nil {
 				return err
 			}
+
 			return viper.BindPFlags(cmd.Flags())
+		},
+		Run: func(cmd *cobra.Command, args []string) {
+			if viper.GetBool("version") {
+				fmt.Printf("a3sctl %s (%s)", version, commit)
+				os.Exit(0)
+			}
 		},
 	}
 	mflags := manipcli.ManipulatorFlagSet()
 	_ = mflags.MarkHidden("tracking-id")
 	mmaker := manipcli.ManipulatorMakerFromFlags()
 
+	rootCmd.PersistentFlags().Bool("version", false, "show version")
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default: $HOME/.config/a3sctl/default.yaml)")
 	rootCmd.PersistentFlags().StringVar(&cfgName, "config-name", "", "default config name (default: default)")
 	rootCmd.PersistentFlags().StringVar(&logLevel, "log-level", "warn", "Log level. Can be debug, info, warn or error")
