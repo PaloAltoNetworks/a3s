@@ -13,38 +13,24 @@ builds:
     binary: a3s
     goos:
     - linux
+    - freebsd
+    - darwin
     goarch:
     - amd64
+    env:
+    - CGO_ENABLED=0
 
   - id: a3sctl
     main: ./cmd/a3sctl
     binary: a3sctl
     goos:
     - linux
-    goarch:
-    - amd64
-
-  - id: a3s-fips
-    main: ./cmd/a3s
-    binary: a3s-fips
-    goos:
-    - linux
+    - freebsd
+    - darwin
     goarch:
     - amd64
     env:
-    - CGO_ENABLED=1
-    - GOEXPERIMENT=boringcrypto
-
-  - id: a3sctl-fips
-    main: ./cmd/a3sctl
-    binary: a3sctl-fips
-    goos:
-    - linux
-    goarch:
-    - amd64
-    env:
-    - CGO_ENABLED=1
-    - GOEXPERIMENT=boringcrypto
+    - CGO_ENABLED=0
 
 archives:
   - id: a3s
@@ -56,16 +42,6 @@ archives:
     format: binary
     builds:
     - a3sctl
-
-  - id: a3s-fips
-    format: binary
-    builds:
-    - a3s-fips
-
-  - id: a3sctl-fips
-    format: binary
-    builds:
-    - a3sctl-fips
 
 signs:
   - artifacts: checksum
