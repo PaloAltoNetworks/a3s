@@ -4,12 +4,15 @@ import (
 	"context"
 	"crypto/tls"
 	"crypto/x509"
+	"crypto/x509/pkix"
+	"encoding/pem"
 	"errors"
 	"fmt"
 	"net"
 	"net/http"
 	"net/url"
 	"os"
+	"path"
 	"strings"
 	"time"
 
@@ -67,6 +70,16 @@ func main() {
 
 	if close := bootstrap.ConfigureLogger("a3s", cfg.LoggingConf); close != nil {
 		defer close()
+	}
+
+	if cfg.InitCertTLS {
+		if err := generateTLSCert(cfg.InitSigningCert, cfg.InitSigningKey, cfg.InitSigningKeyPass, cfg.InitCertFolderPath); err != nil {
+			zap.L().Fatal("Unable to generate server cert/key pair", zap.Error(err))
+		}
+
+		if !cfg.InitContinue {
+			return
+		}
 	}
 
 	if cfg.InitDB {
@@ -341,6 +354,58 @@ func main() {
 	notification.Subscribe(ctx, pubsub, nscache.NotificationNamespaceChanges, makeNamespaceCleaner(ctx, m))
 
 	server.Run(ctx)
+}
+
+func generateTLSCert(signingCertPath string, signingCertKeyPath string, signingCertKeyPass string, out string) error {
+
+	hostname, err := os.Hostname()
+	if err != nil {
+		return fmt.Errorf("unable to retrieve hostname: %w", err)
+	}
+
+	addrs, err := net.LookupHost(hostname)
+	if err != nil {
+		return fmt.Errorf("unable to resolve hostname: %w", err)
+	}
+
+	netIPs := make([]net.IP, 0, len(addrs))
+	for _, ipString := range addrs {
+		if net.ParseIP(ipString).To4() != nil {
+			netIPs = append(netIPs, net.ParseIP(ipString))
+		}
+	}
+
+	signingCert, signingKey, err := tglib.ReadCertificatePEM(signingCertPath, signingCertKeyPath, signingCertKeyPass)
+	if err != nil {
+		return fmt.Errorf("unable to read signing certiticate information: %w", err)
+	}
+
+	cert, key, err := tglib.Issue(
+		pkix.Name{
+			Organization:       []string{"auth"},
+			OrganizationalUnit: []string{"service"},
+			CommonName:         "a3s",
+		},
+		tglib.OptIssueTypeServerAuth(),
+		tglib.OptIssueDNSSANs(hostname),
+		tglib.OptIssueIPSANs(netIPs...),
+		tglib.OptIssueValidity(time.Now(), time.Now().Add(8640*time.Hour)),
+		tglib.OptIssueSigner(signingCert, signingKey),
+	)
+
+	if err != nil {
+		return fmt.Errorf("unable to generate certificate: %w", err)
+	}
+
+	if err = os.WriteFile(path.Join(out, "a3s-server-cert.pem"), pem.EncodeToMemory(cert), 0600); err != nil {
+		return fmt.Errorf("unable to write cert to a file: %w", err)
+	}
+
+	if err = os.WriteFile(path.Join(out, "a3s-server-key.pem"), pem.EncodeToMemory(key), 0600); err != nil {
+		return fmt.Errorf("unable to write key to a file: %w", err)
+	}
+
+	return nil
 }
 
 func createMongoDBAccount(cfg conf.MongoConf, username string) error {

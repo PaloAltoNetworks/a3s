@@ -16,18 +16,22 @@ import (
 var (
 	version = "v0.0.0"
 	commit  = "dev"
-	date    = ""
 )
 
 // Conf holds the main configuration flags.
 type Conf struct {
-	Init               bool   `mapstructure:"init"              desc:"If set, initialize the root permissions using the CAs passed in --init-root-ca and --init-platform-ca"`
-	InitContinue       bool   `mapstructure:"init-continue"     desc:"Continues normal boot after init."`
-	InitDB             bool   `mapstructure:"init-db"           desc:"If set, initialize the database using the mongo config passed in and init-db-username"`
-	InitDBUsername     string `mapstructure:"init-db-username"  desc:"If init-db is set, this will define the username to use on db initialization"           default:"CN=a3s,OU=root,O=system"`
-	InitPlatformCAPath string `mapstructure:"init-platform-ca"  desc:"Path to the platform CA to use to initialize platform permissions"`
-	InitRootUserCAPath string `mapstructure:"init-root-ca"      desc:"Path to the root CA to use to initialize root permissions"`
-	InitData           string `mapstructure:"init-data"         desc:"Path to an import file containing initial provisionning data"`
+	Init               bool   `mapstructure:"init"                  desc:"If set, initialize the root permissions using the CAs passed in --init-root-ca and --init-platform-ca"`
+	InitCertFolderPath string `mapstructure:"init-cert-folder"      desc:"Path to use to write the certificate and key file to"`
+	InitCertTLS        bool   `mapstructure:"init-cert-tls"         desc:"If set, generate the TLS certificate and key based on signing cert/key/pass"`
+	InitContinue       bool   `mapstructure:"init-continue"         desc:"Continues normal boot after init."`
+	InitDB             bool   `mapstructure:"init-db"               desc:"If set, initialize the database using the mongo config passed in and init-db-username"`
+	InitDBUsername     string `mapstructure:"init-db-username"      desc:"If init-db is set, this will define the username to use on db initialization"           default:"CN=a3s,OU=root,O=system"`
+	InitPlatformCAPath string `mapstructure:"init-platform-ca"      desc:"Path to the platform CA to use to initialize platform permissions"`
+	InitRootUserCAPath string `mapstructure:"init-root-ca"          desc:"Path to the root CA to use to initialize root permissions"`
+	InitData           string `mapstructure:"init-data"             desc:"Path to an import file containing initial provisionning data"`
+	InitSigningCert    string `mapstructure:"init-signing-cert"     desc:"Path to the signing certificate"`
+	InitSigningKey     string `mapstructure:"init-signing-key"      desc:"Path to the signing certificate key"`
+	InitSigningKeyPass string `mapstructure:"init-signing-key-pass" desc:"Password for the signing certificate key"           secret:"true" file:"true"`
 
 	JWT        JWTConf        `mapstructure:",squash"`
 	MTLSHeader MTLSHeaderConf `mapstructure:",squash"`
@@ -54,6 +58,17 @@ func (c *Conf) PrintVersion() {
 func newConf() Conf {
 	c := Conf{}
 	lombric.Initialize(&c)
+
+	if c.InitCertTLS {
+		if c.InitSigningCert == "" {
+			panic("--init-signing-cert must be set to generate the TLS certificate")
+		}
+
+		if c.InitSigningKey == "" {
+			panic("--init-signing-key must be set to generate the TLS certificate")
+		}
+	}
+
 	return c
 }
 
