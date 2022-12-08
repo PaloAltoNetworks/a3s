@@ -141,6 +141,5 @@ func TestDeleteOrphanedJobs(t *testing.T) {
 			So(err, ShouldNotBeNil)
 			So(err.Error(), ShouldEqual, "unable to deletemany 'lists': bim")
 		})
-
 	})
 }
