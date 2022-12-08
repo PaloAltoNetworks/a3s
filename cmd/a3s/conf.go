@@ -16,7 +16,6 @@ import (
 var (
 	version = "v0.0.0"
 	commit  = "dev"
-	date    = ""
 )
 
 // Conf holds the main configuration flags.

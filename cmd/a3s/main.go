@@ -26,6 +26,7 @@ import (
 	"go.aporeto.io/a3s/pkgs/conf"
 	"go.aporeto.io/a3s/pkgs/importing"
 	"go.aporeto.io/a3s/pkgs/indexes"
+	"go.aporeto.io/a3s/pkgs/jobs"
 	"go.aporeto.io/a3s/pkgs/notification"
 	"go.aporeto.io/a3s/pkgs/nscache"
 	"go.aporeto.io/a3s/pkgs/permissions"
@@ -338,7 +339,19 @@ func main() {
 	bahamut.RegisterProcessorOrDie(server, processors.NewAuthorizationProcessor(m, pubsub, retriever, cfg.JWT.JWTIssuer), api.AuthorizationIdentity)
 	bahamut.RegisterProcessorOrDie(server, processors.NewImportProcessor(bmanipMaker, pauthz), api.ImportIdentity)
 
-	notification.Subscribe(ctx, pubsub, nscache.NotificationNamespaceChanges, makeNamespaceCleaner(ctx, m))
+	// Object clean up
+	notification.Subscribe(
+		ctx,
+		pubsub,
+		nscache.NotificationNamespaceChanges,
+		makeNamespaceCleaner(ctx, m),
+	)
+	go jobs.ScheduleOrphanedObjectsDeleteJob(
+		ctx,
+		m, m,
+		api.AllIdentities(),
+		1*time.Minute,
+	)
 
 	server.Run(ctx)
 }
