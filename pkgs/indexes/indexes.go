@@ -1,6 +1,7 @@
 package indexes
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/globalsign/mgo"
@@ -90,4 +91,8 @@ func GetIndexes(packageName string, model elemental.ModelManager) (mIndexes map[
 	}
 
 	return mIndexes
+}
+
+func coucou() {
+	fmt.Println("not tested")
 }
