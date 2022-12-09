@@ -43,4 +43,4 @@ jobs:
       - name: cov
         run: |
           go install github.com/PaloAltoNetworks/cov@master
-          cov -t 70 -b "${{ github.ref_name }}" -i '**/pkgs/api/*' unit_coverage.out
+          cov -t 70 -b master -i '**/pkgs/api/*' unit_coverage.out
