@@ -40,7 +40,7 @@ jobs:
 
       - name: build
         run: |
-          git checkout ${{ github.ref_name }}
+          git checkout ${{ github.head_ref }}
           make
 
       - name: cov
