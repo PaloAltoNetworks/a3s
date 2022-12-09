@@ -24,8 +24,8 @@ jobs:
       - uses: actions/checkout@v2
 
       - uses: actions/setup-go@v3
+        if: false
         with:
-          if: false
           go-version: ${{ matrix.go }}
 
       - name: setup
@@ -38,9 +38,8 @@ jobs:
           go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
 
       - name: build
+        if: false
         run: |
-          cd ./a3s
-          git checkout ${{ github.head_ref }}
           make
 
       - uses: actions/upload-artifact@v3
