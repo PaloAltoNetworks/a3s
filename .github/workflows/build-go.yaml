@@ -40,7 +40,7 @@ jobs:
         run: |
           make
 
-      - uses: PaloAltoNetworks/cov@master
+      - uses: PaloAltoNetworks/cov@checks
         with:
           cov_file: unit_coverage.out
           cov_threshold: "70"
