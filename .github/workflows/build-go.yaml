@@ -42,9 +42,4 @@ jobs:
         run: |
           make
 
-      - uses: actions/upload-artifact@v3
-        with:
-          name: coverage
-          path: coverage.out
-
       - uses: PaloAltoNetworks/cov@master
