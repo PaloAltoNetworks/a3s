@@ -21,10 +21,10 @@ jobs:
         go:
           - 1.19
     steps:
-      - uses: sudosubin/git-clone-action@v1.0.1
+      - uses: GuillaumeFalourd/clone-github-repo-action@v2
         with:
-          repository: '${{ github.repository }}'
-          platform: 'github'
+          owner: 'PaloAltoNetworks'
+          repository: 'a3s'
 
       - uses: actions/setup-go@v3
         with:
@@ -40,10 +40,13 @@ jobs:
 
       - name: build
         run: |
+          cd ./a3s
           git checkout ${{ github.head_ref }}
           make
 
       - name: cov
         run: |
+          cd ./a3s
           go install github.com/PaloAltoNetworks/cov@master
+          git checkout master
           cov -t 70 -b master -i '**/pkgs/api/*' unit_coverage.out
