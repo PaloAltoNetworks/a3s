@@ -7,7 +7,7 @@ CONTAINER_TAG ?= "dev"
 
 export GO111MODULE = on
 
-default: codegen lint testdeps test a3s cli
+default: codegen lint test a3s cli
 .PHONY: ui docker
 
 ## Tests
@@ -34,13 +34,8 @@ lint:
 		--enable=nilerr \
 		./...
 
-testdeps:
-	go install github.com/axw/gocov/gocov@latest
-	go install github.com/AlekSi/gocov-xml@latest
-
 test:
-	go test ./... -race -cover -covermode=atomic -coverprofile=unit_coverage.cov
-	gocov convert ./unit_coverage.cov | gocov-xml > ./coverage.xml
+	go test ./... -race -cover -covermode=atomic -coverprofile=unit_coverage.out
 
 sec:
 	gosec -quiet ./...
