@@ -47,4 +47,4 @@ jobs:
           name: coverage
           path: coverage.out
 
-      - uses: PaloAltoNetworks/cov
+      - uses: PaloAltoNetworks/cov@master
