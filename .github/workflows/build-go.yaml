@@ -21,13 +21,17 @@ jobs:
         go:
           - 1.19
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
+        with:
+          ref: master
+      - uses: actions/checkout@v3
 
       - uses: actions/setup-go@v2
         with:
           go-version: ${{ matrix.go }}
 
       - name: setup
+        if: false
         run: |
           go version
           go install github.com/aporeto-inc/go-bindata/go-bindata@master
@@ -37,6 +41,7 @@ jobs:
           go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
 
       - name: build
+        if: false
         run: |
           make
 

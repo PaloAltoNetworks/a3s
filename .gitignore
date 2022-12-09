@@ -1,7 +1,7 @@
 cmd/a3s/a3s
 cmd/a3sctl/a3sctl
 coverage.xml
-unit_coverage.out
+# unit_coverage.out
 remod.dev
 .remod
 .data
