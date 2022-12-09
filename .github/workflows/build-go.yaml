@@ -46,7 +46,9 @@ jobs:
 
       - name: cov
         run: |
-          cd ./a3s
           go install github.com/PaloAltoNetworks/cov@master
+          cd ./a3s
+          git stash
           git checkout master
+          git apply
           cov -t 70 -b master -i '**/pkgs/api/*' unit_coverage.out
