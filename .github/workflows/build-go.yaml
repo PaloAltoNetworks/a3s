@@ -41,7 +41,7 @@ jobs:
           make
 
       - uses: PaloAltoNetworks/cov@checks
-        if: ${{matrix.go == 1.19 }}
+        if: ${{matrix.go == 1.19}}
         with:
           cov_version: master
           cov_file: unit_coverage.out
