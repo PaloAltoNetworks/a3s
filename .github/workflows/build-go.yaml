@@ -53,8 +53,7 @@ jobs:
         run: |
           make
 
-      - name: coverage
-        uses: codacy/codacy-coverage-reporter-action@v1
-        with:
-          project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
-          coverage-reports: "./coverage.xml"
+      - name: cov
+        run: |
+          go install github.com/PaloAltoNetworks/cov@latest
+          cov -t 70 -b ${{ github.ref_name }} -i '**/pkgs/api/*' *.out
