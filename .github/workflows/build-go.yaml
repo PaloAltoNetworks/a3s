@@ -55,5 +55,5 @@ jobs:
 
       - name: cov
         run: |
-          go install github.com/PaloAltoNetworks/cov@latest
+          go install github.com/PaloAltoNetworks/cov@master
           cov -t 70 -b ${{ github.ref_name }} -i '**/pkgs/api/*' *.out
