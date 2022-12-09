@@ -21,19 +21,17 @@ jobs:
         go:
           - 1.19
     steps:
-      - uses: actions/checkout@v3
+      - uses: sudosubin/git-clone-action@v1
         with:
-          ref: master
-      - uses: actions/checkout@v3
+          repository: '${{ github.repository }}'
+          platform: 'github'
 
-      - uses: actions/setup-go@v2
+      - uses: actions/setup-go@v3
         with:
           go-version: ${{ matrix.go }}
 
       - name: setup
-        if: false
         run: |
-          go version
           go install github.com/aporeto-inc/go-bindata/go-bindata@master
           go install go.aporeto.io/elemental/cmd/elegen@master
           go install go.aporeto.io/regolithe/cmd/rego@master
@@ -41,8 +39,8 @@ jobs:
           go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
 
       - name: build
-        if: false
         run: |
+          git checkout ${{ github.ref_name }}
           make
 
       - name: cov
