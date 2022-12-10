@@ -43,6 +43,6 @@ jobs:
       - uses: PaloAltoNetworks/cov@checks
         if: ${{matrix.go == 1.19}}
         with:
-          cov_version: master
+          cov_version: checks
           cov_file: unit_coverage.out
           cov_threshold: "70"
