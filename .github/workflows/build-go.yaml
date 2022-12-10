@@ -37,10 +37,9 @@ jobs:
         run: |
           make
 
-      - uses: PaloAltoNetworks/cov@checks
+      - uses: PaloAltoNetworks/cov@master
         if: ${{matrix.go == 1.19}}
         with:
           main_branch: master
           cov_file: unit_coverage.out
-          cov_threshold: "70"
-          cov_version: checks
+          cov_threshold: "75"
