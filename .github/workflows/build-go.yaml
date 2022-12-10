@@ -27,6 +27,7 @@ jobs:
       - uses: actions/setup-go@v3
         with:
           go-version: ${{ matrix.go }}
+          cache: true
 
       - name: setup
         run: |
@@ -36,7 +37,7 @@ jobs:
         run: |
           make
 
-      - uses: PaloAltoNetworks/cov@master
+      - uses: PaloAltoNetworks/cov@25816fff7634919ed144c492f69dea0e2a05f12c
         if: ${{matrix.go == 1.19}}
         with:
           main_branch: master
