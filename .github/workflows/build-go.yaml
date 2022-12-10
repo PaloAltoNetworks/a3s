@@ -37,7 +37,7 @@ jobs:
         run: |
           make
 
-      - uses: PaloAltoNetworks/cov@0.2.0
+      - uses: PaloAltoNetworks/cov@master
         if: ${{matrix.go == 1.19}}
         with:
           main_branch: master
