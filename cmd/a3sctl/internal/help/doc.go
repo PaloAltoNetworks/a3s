@@ -1,13 +1,17 @@
-//go:generate go-bindata -pkg help -o bindata.go ../../docs
-
 package help
 
-import "fmt"
+import (
+	"embed"
+	"fmt"
+)
+
+//go:embed docs/*.md
+var f embed.FS
 
 // Load loads the documentation asset
 func Load(name string) string {
 
-	doc, err := Asset(fmt.Sprintf("../../docs/%s.md", name))
+	doc, err := f.ReadFile(fmt.Sprintf("docs/%s.md", name))
 	if err != nil {
 		panic(err)
 	}
