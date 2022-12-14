@@ -1,8 +1,9 @@
-//go:generate go-bindata -pkg ui -o bindata.go ../../ui/login/dist/index.html
-
 package ui
 
-import "bytes"
+import (
+	"bytes"
+	"embed"
+)
 
 var (
 	apiURLPlaceholder      = []byte("__API_URL__")
@@ -10,10 +11,13 @@ var (
 	audiencePlaceholder    = []byte("__AUDIENCE__")
 )
 
+//go:embed js/login
+var f embed.FS
+
 // GetLogin returns the login page.
 func GetLogin(api string, redirect string, audience string) ([]byte, error) {
 
-	doc, err := Asset("../../ui/login/dist/index.html")
+	doc, err := f.ReadFile("js/login/dist/index.html")
 	if err != nil {
 		return nil, err
 	}
