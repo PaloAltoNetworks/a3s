@@ -3,11 +3,11 @@ module go.aporeto.io/a3s
 go 1.17
 
 require (
-	go.aporeto.io/bahamut v1.112.1-0.20221004181918-fd26bb88b7b9
-	go.aporeto.io/elemental v1.100.1-0.20220823211843-5e7c7a0a25b4
-	go.aporeto.io/manipulate v1.121.1-0.20220818183431-0fbde75e6806
-	go.aporeto.io/tg v1.34.1-0.20220818183816-cb2499f8b312
-	go.aporeto.io/wsc v1.36.1-0.20210528201141-2af38def4959 // indirect
+	go.aporeto.io/bahamut v1.112.1-0.20230119183312-64836ea148e1
+	go.aporeto.io/elemental v1.100.1-0.20221212182505-e7f3de53e544
+	go.aporeto.io/manipulate v1.121.1-0.20221212182650-820278a0714c
+	go.aporeto.io/tg v1.34.1-0.20221212183639-7b334b94e1ae
+	go.aporeto.io/wsc v1.36.1-0.20221212182835-206c1bc3fdb1 // indirect
 )
 
 require (
@@ -53,6 +53,7 @@ require (
 	github.com/jonboulle/clockwork v0.2.0 // indirect
 	github.com/jtolds/gls v4.20.0+incompatible // indirect
 	github.com/karlseguin/ccache/v2 v2.0.6
+	github.com/lufia/plan9stats v0.0.0-20211012122336-39d0f177ccd0 // indirect
 	github.com/magiconair/properties v1.8.6 // indirect
 	github.com/mailgun/multibuf v0.0.0-20150714184110-565402cd71fb // indirect
 	github.com/mailgun/timetools v0.0.0-20141028012446-7e6055773c51 // indirect
@@ -74,12 +75,13 @@ require (
 	github.com/pelletier/go-toml v1.9.5 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.2 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
+	github.com/power-devops/perfstat v0.0.0-20210106213030-5aafc221ea8c // indirect
 	github.com/prometheus/client_golang v1.11.1 // indirect
 	github.com/prometheus/client_model v0.2.0 // indirect
 	github.com/prometheus/common v0.26.0 // indirect
 	github.com/prometheus/procfs v0.6.0 // indirect
 	github.com/rivo/uniseg v0.1.0 // indirect
-	github.com/shirou/gopsutil v3.21.11+incompatible // indirect
+	github.com/shirou/gopsutil/v3 v3.22.12 // indirect
 	github.com/sirupsen/logrus v1.8.1 // indirect
 	github.com/smartystreets/assertions v1.0.0 // indirect
 	github.com/smartystreets/goconvey v1.6.4
@@ -91,8 +93,8 @@ require (
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.12.0
 	github.com/subosito/gotenv v1.4.0 // indirect
-	github.com/tklauser/go-sysconf v0.3.10 // indirect
-	github.com/tklauser/numcpus v0.4.0 // indirect
+	github.com/tklauser/go-sysconf v0.3.11 // indirect
+	github.com/tklauser/numcpus v0.6.0 // indirect
 	github.com/uber/jaeger-client-go v2.30.0+incompatible
 	github.com/uber/jaeger-lib v2.4.1+incompatible // indirect
 	github.com/ugorji/go/codec v1.2.7
@@ -107,7 +109,7 @@ require (
 	golang.org/x/crypto v0.0.0-20220411220226-7b82a4e95df4 // indirect
 	golang.org/x/net v0.0.0-20220520000938-2e3eb7b945c2 // indirect
 	golang.org/x/oauth2 v0.0.0-20220411215720-9780585627b5
-	golang.org/x/sys v0.0.0-20220728004956-3c1f35247d10 // indirect
+	golang.org/x/sys v0.4.0 // indirect
 	golang.org/x/term v0.0.0-20220722155259-a9ba230a4035
 	golang.org/x/text v0.3.7 // indirect
 	golang.org/x/time v0.0.0-20211116232009-f0f3c7e86c11 // indirect
