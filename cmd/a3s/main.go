@@ -218,6 +218,15 @@ func main() {
 		)
 	}
 
+	if cfg.NATSURL == "" {
+		nserver, err := bootstrap.MakeNATSServer(&cfg.NATSPublisherConf.NATSConf)
+		if err != nil {
+			zap.L().Fatal("Unable to make nats server", zap.Error(err))
+		}
+		nserver.Start()
+		zap.L().Info("NATS server started", zap.String("url", cfg.NATSURL))
+	}
+
 	pubsub := bootstrap.MakeNATSClient(cfg.NATSConf)
 	defer pubsub.Disconnect() // nolint: errcheck
 

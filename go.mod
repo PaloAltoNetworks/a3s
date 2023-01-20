@@ -67,7 +67,7 @@ require (
 	github.com/mitchellh/hashstructure v1.1.0
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/mitchellh/reflectwalk v1.0.2 // indirect
-	github.com/nats-io/nats.go v1.16.0 // indirect
+	github.com/nats-io/nats.go v1.19.0 // indirect
 	github.com/nats-io/nkeys v0.3.0 // indirect
 	github.com/nats-io/nuid v1.0.1 // indirect
 	github.com/olekukonko/tablewriter v0.0.5 // indirect
@@ -103,16 +103,16 @@ require (
 	github.com/vulcand/predicate v1.1.0 // indirect
 	github.com/yusufpapurcu/wmi v1.2.2 // indirect
 	go.uber.org/atomic v1.7.0 // indirect
-	go.uber.org/automaxprocs v1.4.0
+	go.uber.org/automaxprocs v1.5.1
 	go.uber.org/multierr v1.6.0 // indirect
 	go.uber.org/zap v1.19.0
-	golang.org/x/crypto v0.0.0-20220411220226-7b82a4e95df4 // indirect
-	golang.org/x/net v0.0.0-20220520000938-2e3eb7b945c2 // indirect
+	golang.org/x/crypto v0.5.0 // indirect
+	golang.org/x/net v0.5.0 // indirect
 	golang.org/x/oauth2 v0.0.0-20220411215720-9780585627b5
 	golang.org/x/sys v0.4.0 // indirect
-	golang.org/x/term v0.0.0-20220722155259-a9ba230a4035
-	golang.org/x/text v0.3.7 // indirect
-	golang.org/x/time v0.0.0-20211116232009-f0f3c7e86c11 // indirect
+	golang.org/x/term v0.4.0
+	golang.org/x/text v0.6.0 // indirect
+	golang.org/x/time v0.0.0-20220922220347-f3bd1da661af // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/protobuf v1.28.0 // indirect
 	gopkg.in/ini.v1 v1.66.6 // indirect
@@ -121,6 +121,13 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	k8s.io/helm v2.17.0+incompatible // indirect
 	rsc.io/qr v0.2.0 // indirect
+)
+
+require (
+	github.com/klauspost/compress v1.15.11 // indirect
+	github.com/minio/highwayhash v1.0.2 // indirect
+	github.com/nats-io/jwt/v2 v2.3.0 // indirect
+	github.com/nats-io/nats-server/v2 v2.9.11 // indirect
 )
 
 // Mapstructure v1.5.0 breaks current nested import logic
