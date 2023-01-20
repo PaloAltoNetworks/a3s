@@ -26,6 +26,9 @@ func MakeNATSServer(cfg *conf.NATSConf) (*natsserver.Server, error) {
 		pkix.Name{CommonName: "nats-ca"},
 		tglib.OptIssueTypeCA(),
 	)
+	if err != nil {
+		return nil, fmt.Errorf("unable to issue ca cert: %w", err)
+	}
 
 	// Issue a server cert signed by the CA
 	serverCert, serverKey, err := tglib.Issue(
@@ -75,7 +78,7 @@ func MakeNATSServer(cfg *conf.NATSConf) (*natsserver.Server, error) {
 		return nil, fmt.Errorf("unable to convert client cert to tls cert: %w", err)
 	}
 
-	// Instanciate a new nats server with MTLS required.
+	// Instantiate a new nats server with MTLS required.
 	nserver, err := natsserver.NewServer(
 		&natsserver.Options{
 			NoLog:       true,
