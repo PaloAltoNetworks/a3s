@@ -8,14 +8,4 @@ export default defineConfig({
   server: {
     port: 8080,
   },
-  // See https://github.com/richardtallent/vite-plugin-singlefile#how-do-i-use-it
-  build: {
-    assetsInlineLimit: 100000000,
-    chunkSizeWarningLimit: 100000000,
-    rollupOptions: {
-      output: {
-        manualChunks: () => "everything.js",
-      },
-    },
-  },
 })

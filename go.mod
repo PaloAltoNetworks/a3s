@@ -3,9 +3,9 @@ module go.aporeto.io/a3s
 go 1.17
 
 require (
-	go.aporeto.io/bahamut v1.112.1-0.20230119183312-64836ea148e1
-	go.aporeto.io/elemental v1.100.1-0.20221212182505-e7f3de53e544
-	go.aporeto.io/manipulate v1.121.1-0.20230120225323-f8b725ccdcd9
+	go.aporeto.io/bahamut v1.112.1-0.20230120233607-2926f6f70ad6
+	go.aporeto.io/elemental v1.100.1-0.20230120233255-d53c7252f28d
+	go.aporeto.io/manipulate v1.121.1-0.20230120233501-6e4641c1b14b
 	go.aporeto.io/tg v1.34.1-0.20221212183639-7b334b94e1ae
 	go.aporeto.io/wsc v1.36.1-0.20221212182835-206c1bc3fdb1 // indirect
 )
@@ -24,7 +24,7 @@ require (
 	github.com/aws/aws-sdk-go v1.42.39
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cespare/xxhash v1.1.0 // indirect
-	github.com/cespare/xxhash/v2 v2.1.1 // indirect
+	github.com/cespare/xxhash/v2 v2.1.2 // indirect
 	github.com/codahale/hdrhistogram v0.0.0-20161010025455-3a0bb77429bd // indirect
 	github.com/coreos/go-oidc/v3 v3.1.0
 	github.com/deckarep/golang-set v1.8.0
@@ -80,10 +80,10 @@ require (
 	github.com/pelletier/go-toml/v2 v2.0.2 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/power-devops/perfstat v0.0.0-20210106213030-5aafc221ea8c // indirect
-	github.com/prometheus/client_golang v1.11.1 // indirect
-	github.com/prometheus/client_model v0.2.0 // indirect
-	github.com/prometheus/common v0.26.0 // indirect
-	github.com/prometheus/procfs v0.6.0 // indirect
+	github.com/prometheus/client_golang v1.14.0 // indirect
+	github.com/prometheus/client_model v0.3.0 // indirect
+	github.com/prometheus/common v0.37.0 // indirect
+	github.com/prometheus/procfs v0.8.0 // indirect
 	github.com/rivo/uniseg v0.1.0 // indirect
 	github.com/shirou/gopsutil/v3 v3.22.12 // indirect
 	github.com/shopspring/decimal v1.2.0 // indirect
@@ -119,7 +119,7 @@ require (
 	golang.org/x/text v0.6.0 // indirect
 	golang.org/x/time v0.0.0-20220922220347-f3bd1da661af // indirect
 	google.golang.org/appengine v1.6.7 // indirect
-	google.golang.org/protobuf v1.28.0 // indirect
+	google.golang.org/protobuf v1.28.1 // indirect
 	gopkg.in/ini.v1 v1.66.6 // indirect
 	gopkg.in/square/go-jose.v2 v2.5.1 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
