@@ -7,9 +7,6 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: root
     volumes:
     - .data/mongo-compose:/data/db
-  nats:
-    image: nats
-    command: --user nats-user --pass nats-password
   a3s:
     image: a3s/a3s:dev
     ports:
@@ -29,7 +26,6 @@ services:
       A3S_MONGO_PASS: root
       A3S_MONGO_TLS_DISABLE: "true"
       A3S_ENCRYPTION_KEY: "1234567890ABCDEF"
-      A3S_NATS_URL: nats://nats:4222
       A3S_NATS_USER: nats-user
       A3S_NATS_PASS: nats-password
       A3S_NATS_TLS_DISABLE: "true"
