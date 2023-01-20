@@ -5,7 +5,7 @@ go 1.17
 require (
 	go.aporeto.io/bahamut v1.112.1-0.20230119183312-64836ea148e1
 	go.aporeto.io/elemental v1.100.1-0.20221212182505-e7f3de53e544
-	go.aporeto.io/manipulate v1.121.1-0.20221212182650-820278a0714c
+	go.aporeto.io/manipulate v1.121.1-0.20230120225323-f8b725ccdcd9
 	go.aporeto.io/tg v1.34.1-0.20221212183639-7b334b94e1ae
 	go.aporeto.io/wsc v1.36.1-0.20221212182835-206c1bc3fdb1 // indirect
 )
@@ -14,9 +14,9 @@ require (
 	cloud.google.com/go/compute v1.6.1
 	github.com/Azure/go-ntlmssp v0.0.0-20200615164410-66371956d46c // indirect
 	github.com/HdrHistogram/hdrhistogram-go v1.1.2 // indirect
-	github.com/Masterminds/goutils v1.1.0 // indirect
-	github.com/Masterminds/semver v1.5.0 // indirect
-	github.com/Masterminds/sprig v2.22.0+incompatible // indirect
+	github.com/Masterminds/goutils v1.1.1 // indirect
+	github.com/Masterminds/semver/v3 v3.2.0 // indirect
+	github.com/Masterminds/sprig/v3 v3.2.3 // indirect
 	github.com/NYTimes/gziphandler v1.1.1 // indirect
 	github.com/apparentlymart/go-cidr v1.1.0
 	github.com/araddon/dateparse v0.0.0-20210429162001-6b43995a97de // indirect
@@ -46,13 +46,14 @@ require (
 	github.com/gravitational/trace v0.0.0-20190726142706-a535a178675f // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/hokaccha/go-prettyjson v0.0.0-20210113012101-fb4e108d2519
-	github.com/huandu/xstrings v1.3.0 // indirect
-	github.com/imdario/mergo v0.3.8 // indirect
+	github.com/huandu/xstrings v1.3.3 // indirect
+	github.com/imdario/mergo v0.3.11 // indirect
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/jonboulle/clockwork v0.2.0 // indirect
 	github.com/jtolds/gls v4.20.0+incompatible // indirect
 	github.com/karlseguin/ccache/v2 v2.0.6
+	github.com/klauspost/compress v1.15.11 // indirect
 	github.com/lufia/plan9stats v0.0.0-20211012122336-39d0f177ccd0 // indirect
 	github.com/magiconair/properties v1.8.6 // indirect
 	github.com/mailgun/multibuf v0.0.0-20150714184110-565402cd71fb // indirect
@@ -62,11 +63,14 @@ require (
 	github.com/mattn/go-runewidth v0.0.10 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.1 // indirect
 	github.com/mdp/qrterminal v1.0.1
+	github.com/minio/highwayhash v1.0.2 // indirect
 	github.com/mitchellh/copystructure v1.2.0
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/mitchellh/hashstructure v1.1.0
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/mitchellh/reflectwalk v1.0.2 // indirect
+	github.com/nats-io/jwt/v2 v2.3.0 // indirect
+	github.com/nats-io/nats-server/v2 v2.9.11
 	github.com/nats-io/nats.go v1.19.0 // indirect
 	github.com/nats-io/nkeys v0.3.0 // indirect
 	github.com/nats-io/nuid v1.0.1 // indirect
@@ -82,6 +86,7 @@ require (
 	github.com/prometheus/procfs v0.6.0 // indirect
 	github.com/rivo/uniseg v0.1.0 // indirect
 	github.com/shirou/gopsutil/v3 v3.22.12 // indirect
+	github.com/shopspring/decimal v1.2.0 // indirect
 	github.com/sirupsen/logrus v1.8.1 // indirect
 	github.com/smartystreets/assertions v1.0.0 // indirect
 	github.com/smartystreets/goconvey v1.6.4
@@ -121,13 +126,6 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	k8s.io/helm v2.17.0+incompatible // indirect
 	rsc.io/qr v0.2.0 // indirect
-)
-
-require (
-	github.com/klauspost/compress v1.15.11 // indirect
-	github.com/minio/highwayhash v1.0.2 // indirect
-	github.com/nats-io/jwt/v2 v2.3.0 // indirect
-	github.com/nats-io/nats-server/v2 v2.9.11 // indirect
 )
 
 // Mapstructure v1.5.0 breaks current nested import logic
