@@ -3,10 +3,10 @@ module go.aporeto.io/a3s
 go 1.17
 
 require (
-	go.aporeto.io/bahamut v1.112.1-0.20230121002211-4fafd6e86af2
-	go.aporeto.io/elemental v1.100.1-0.20230121000747-5a4669c1ae56
-	go.aporeto.io/manipulate v1.121.1-0.20230121002632-02e62b6d303a
-	go.aporeto.io/tg v1.34.1-0.20230121002838-09a3e14aec4b
+	go.aporeto.io/bahamut v1.141.0
+	go.aporeto.io/elemental v1.121.0
+	go.aporeto.io/manipulate v1.131.0
+	go.aporeto.io/tg v1.50.0
 
 )
 
@@ -106,7 +106,7 @@ require (
 	github.com/vulcand/oxy v1.4.2 // indirect
 	github.com/vulcand/predicate v1.2.0 // indirect
 	github.com/yusufpapurcu/wmi v1.2.2 // indirect
-	go.aporeto.io/wsc v1.36.1-0.20230120235706-940550d26c7c // indirect
+	go.aporeto.io/wsc v1.50.0 // indirect
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/automaxprocs v1.5.1
 	go.uber.org/multierr v1.8.0 // indirect
