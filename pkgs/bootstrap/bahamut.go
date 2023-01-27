@@ -21,7 +21,7 @@ import (
 // ConfigureBahamut returns a list of bahamut.Option based on provided configuration.
 func ConfigureBahamut(
 	ctx context.Context,
-	cfg interface{},
+	cfg any,
 	pubsub bahamut.PubSubClient,
 	apiManager elemental.ModelManager,
 	healthHandler bahamut.HealthServerFunc,

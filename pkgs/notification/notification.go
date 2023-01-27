@@ -10,8 +10,8 @@ import (
 
 // A Message represents the content of a notification.
 type Message struct {
-	Type string      `json:"t"`
-	Data interface{} `json:"d"`
+	Type string `json:"t"`
+	Data any    `json:"d"`
 }
 
 // Handler is the type of function that can be Registered

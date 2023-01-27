@@ -517,7 +517,7 @@ func (p *IssueProcessor) handleOIDCIssue(bctx bahamut.Context, req *api.Issue) (
 		)
 	}
 
-	claims := map[string]interface{}{}
+	claims := map[string]any{}
 	if err := idToken.Claims(&claims); err != nil {
 		return nil, elemental.NewError(
 			"Claims Decoding Error",

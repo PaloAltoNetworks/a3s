@@ -210,7 +210,7 @@ func makeErr(attribute string, message string) elemental.Error {
 	)
 
 	if attribute != "" {
-		err.Data = map[string]interface{}{"attribute": attribute}
+		err.Data = map[string]any{"attribute": attribute}
 	}
 
 	return err

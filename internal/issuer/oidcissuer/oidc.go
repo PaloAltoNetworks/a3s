@@ -12,7 +12,7 @@ import (
 )
 
 // New returns a new Azure issuer.
-func New(ctx context.Context, source *api.OIDCSource, claims map[string]interface{}) (token.Issuer, error) {
+func New(ctx context.Context, source *api.OIDCSource, claims map[string]any) (token.Issuer, error) {
 
 	c := newOIDCIssuer(source)
 	if err := c.fromClaims(ctx, claims); err != nil {
@@ -43,7 +43,7 @@ func (c *oidcIssuer) Issue() *token.IdentityToken {
 	return c.token
 }
 
-func (c *oidcIssuer) fromClaims(ctx context.Context, claims map[string]interface{}) (err error) {
+func (c *oidcIssuer) fromClaims(ctx context.Context, claims map[string]any) (err error) {
 
 	c.token.Identity = computeOIDClaims(claims)
 
@@ -62,7 +62,7 @@ func (c *oidcIssuer) fromClaims(ctx context.Context, claims map[string]interface
 	return nil
 }
 
-func computeOIDClaims(claims map[string]interface{}) []string {
+func computeOIDClaims(claims map[string]any) []string {
 
 	out := []string{}
 
@@ -89,7 +89,7 @@ func computeOIDClaims(claims map[string]interface{}) []string {
 			}
 		case bool:
 			out = append(out, fmt.Sprintf("%s=%t", k, claim))
-		case []interface{}:
+		case []any:
 			for _, item := range claim {
 				if claimValue, ok := item.(string); ok {
 					out = append(out, fmt.Sprintf("%s=%s", strings.TrimLeft(k, "@"), claimValue))
