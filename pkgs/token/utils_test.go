@@ -89,7 +89,7 @@ func TestMakeKeyFunc(t *testing.T) {
 		Convey("Calling on token with invalid alg should fail", func() {
 			t := &jwt.Token{
 				Method: jwt.SigningMethodHS512,
-				Header: map[string]interface{}{"alg": "nope"},
+				Header: map[string]any{"alg": "nope"},
 			}
 			_, err := f(t)
 			So(err, ShouldNotBeNil)
@@ -99,7 +99,7 @@ func TestMakeKeyFunc(t *testing.T) {
 		Convey("Calling on token with missing kid header should fail", func() {
 			t := &jwt.Token{
 				Method: jwt.SigningMethodES256,
-				Header: map[string]interface{}{},
+				Header: map[string]any{},
 			}
 			_, err := f(t)
 			So(err, ShouldNotBeNil)
@@ -109,7 +109,7 @@ func TestMakeKeyFunc(t *testing.T) {
 		Convey("Calling on token with empty kid header should fail", func() {
 			t := &jwt.Token{
 				Method: jwt.SigningMethodES256,
-				Header: map[string]interface{}{"kid": ""},
+				Header: map[string]any{"kid": ""},
 			}
 			_, err := f(t)
 			So(err, ShouldNotBeNil)
@@ -119,7 +119,7 @@ func TestMakeKeyFunc(t *testing.T) {
 		Convey("Calling on token with kid not found", func() {
 			t := &jwt.Token{
 				Method: jwt.SigningMethodES256,
-				Header: map[string]interface{}{"kid": "kidding"},
+				Header: map[string]any{"kid": "kidding"},
 			}
 			_, err := f(t)
 			So(err, ShouldNotBeNil)
@@ -129,7 +129,7 @@ func TestMakeKeyFunc(t *testing.T) {
 		Convey("Calling on token with valid kid", func() {
 			t := &jwt.Token{
 				Method: jwt.SigningMethodES256,
-				Header: map[string]interface{}{"kid": Fingerprint(cert1)},
+				Header: map[string]any{"kid": Fingerprint(cert1)},
 			}
 			k, err := f(t)
 			So(err, ShouldBeNil)

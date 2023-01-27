@@ -66,7 +66,7 @@ func (c *gcpIssuer) fromToken(tokenString string, audience string) (err error) {
 		if err != nil {
 			return err
 		}
-		if _, err := jwt.ParseWithClaims(tokenString, &gcpToken, func(t *jwt.Token) (interface{}, error) {
+		if _, err := jwt.ParseWithClaims(tokenString, &gcpToken, func(t *jwt.Token) (any, error) {
 			if _, ok := t.Method.(*jwt.SigningMethodRSA); ok {
 				return cert.PublicKey.(*rsa.PublicKey), nil
 			}

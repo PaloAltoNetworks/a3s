@@ -12,7 +12,7 @@ import (
 func ConfigureMaxProc(overrideMax int) {
 
 	if overrideMax == 0 {
-		if _, err := maxprocs.Set(maxprocs.Logger(func(msg string, args ...interface{}) {})); err != nil {
+		if _, err := maxprocs.Set(maxprocs.Logger(func(msg string, args ...any) {})); err != nil {
 			zap.L().Fatal("Unable to set automaxprocs", zap.Error(err))
 		}
 	} else {

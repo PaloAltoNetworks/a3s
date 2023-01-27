@@ -49,7 +49,7 @@ func Initialize(conf Configurable) {
 
 	pflag.VisitAll(func(f *pflag.Flag) {
 
-		var v interface{}
+		var v any
 		var err error
 
 		switch f.Value.Type() {

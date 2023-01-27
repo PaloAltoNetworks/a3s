@@ -77,7 +77,7 @@ func DeleteOrphanedObjects(
 	}
 
 	namespaces := os.List()
-	names := make([]interface{}, len(namespaces)+1)
+	names := make([]any, len(namespaces)+1)
 	names[0] = "/"
 	for i, ns := range namespaces {
 		names[i+1] = *(ns.(*api.SparseNamespace).Name)

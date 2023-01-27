@@ -123,7 +123,7 @@ func Test_sanitize(t *testing.T) {
 		name string
 		args func(t *testing.T) args
 
-		want1      map[string]interface{}
+		want1      map[string]any
 		wantErr    bool
 		inspectErr func(err error, t *testing.T) // use for more precise error evaluation after test
 	}{
@@ -141,7 +141,7 @@ func Test_sanitize(t *testing.T) {
 					api.Manager(),
 				}
 			},
-			map[string]interface{}{
+			map[string]any{
 				"name": "name",
 				"CA":   "ca",
 			},
@@ -163,7 +163,7 @@ func Test_sanitize(t *testing.T) {
 					api.Manager(),
 				}
 			},
-			map[string]interface{}{
+			map[string]any{
 				"name": "name",
 				"CA":   "ca",
 			},
@@ -186,10 +186,10 @@ func Test_sanitize(t *testing.T) {
 					api.Manager(),
 				}
 			},
-			map[string]interface{}{
+			map[string]any{
 				"name": "name",
 				"CA":   "ca",
-				"modifier": map[string]interface{}{
+				"modifier": map[string]any{
 					"certificate": "cert",
 				},
 			},
@@ -211,7 +211,7 @@ func Test_sanitize(t *testing.T) {
 					api.Manager(),
 				}
 			},
-			map[string]interface{}{
+			map[string]any{
 				"name": "name",
 				"CA":   "ca",
 			},
@@ -233,7 +233,7 @@ func Test_sanitize(t *testing.T) {
 					api.Manager(),
 				}
 			},
-			map[string]interface{}{
+			map[string]any{
 				"name":             "name",
 				"CA":               "ca",
 				"securityProtocol": api.LDAPSourceSecurityProtocolInbandTLS,
@@ -266,30 +266,30 @@ func Test_sanitize(t *testing.T) {
 
 func Test_cleanIrrelevantValues(t *testing.T) {
 	type args struct {
-		data     map[string]interface{}
-		template map[string]interface{}
+		data     map[string]any
+		template map[string]any
 	}
 	tests := []struct {
 		name string
 		args func(t *testing.T) args
 
-		want1 map[string]interface{}
+		want1 map[string]any
 	}{
 		{
 			"empty",
 			func(*testing.T) args {
 				return args{
-					map[string]interface{}{},
-					map[string]interface{}{},
+					map[string]any{},
+					map[string]any{},
 				}
 			},
-			map[string]interface{}{},
+			map[string]any{},
 		},
 		{
 			"basic",
 			func(*testing.T) args {
 				return args{
-					map[string]interface{}{
+					map[string]any{
 						"zero-string":          "",
 						"default-string":       "default",
 						"string":               "string",
@@ -299,7 +299,7 @@ func Test_cleanIrrelevantValues(t *testing.T) {
 						"string-array":         []string{"string"},
 						"other-string-array":   []string{"other-string"},
 						"not-matching-type":    "a",
-						"sub": map[string]interface{}{
+						"sub": map[string]any{
 							"zero-string":          "",
 							"default-string":       "default",
 							"string":               "string",
@@ -310,16 +310,16 @@ func Test_cleanIrrelevantValues(t *testing.T) {
 							"other-string-array":   []string{"other-string"},
 							"not-matching-type":    "a",
 						},
-						"not-matching-sub": map[string]interface{}{"a": "a"},
-						"equal-sub":        map[string]interface{}{"a": "a"},
+						"not-matching-sub": map[string]any{"a": "a"},
+						"equal-sub":        map[string]any{"a": "a"},
 					},
-					map[string]interface{}{
+					map[string]any{
 						"default-string":       "default",
 						"string":               "not-string",
 						"default-string-array": []string{"default"},
 						"string-array":         []string{"not-string"},
 						"not-matching-type":    1,
-						"sub": map[string]interface{}{
+						"sub": map[string]any{
 							"default-string":       "default",
 							"string":               "not-string",
 							"default-string-array": []string{"default"},
@@ -327,24 +327,24 @@ func Test_cleanIrrelevantValues(t *testing.T) {
 							"not-matching-type":    1,
 						},
 						"not-matching-sub": "a",
-						"equal-sub":        map[string]interface{}{"a": "a"},
+						"equal-sub":        map[string]any{"a": "a"},
 					},
 				}
 			},
-			map[string]interface{}{
+			map[string]any{
 				"string":             "string",
 				"other-string":       "other-string",
 				"string-array":       []string{"string"},
 				"other-string-array": []string{"other-string"},
 				"not-matching-type":  "a",
-				"sub": map[string]interface{}{
+				"sub": map[string]any{
 					"not-matching-type":  "a",
 					"string":             "string",
 					"other-string":       "other-string",
 					"string-array":       []string{"string"},
 					"other-string-array": []string{"other-string"},
 				},
-				"not-matching-sub": map[string]interface{}{"a": "a"},
+				"not-matching-sub": map[string]any{"a": "a"},
 			},
 		},
 	}
@@ -366,7 +366,7 @@ func Test_cleanIrrelevantValues(t *testing.T) {
 
 func Test_hash(t *testing.T) {
 	type args struct {
-		data map[string]interface{}
+		data map[string]any
 	}
 	tests := []struct {
 		name string
@@ -391,13 +391,13 @@ func Test_hash(t *testing.T) {
 			"basic map",
 			func(*testing.T) args {
 				return args{
-					map[string]interface{}{
+					map[string]any{
 						"a": true,
 						"b": 1,
 						"c": "c",
 						"d": []string{"a", "b"},
-						"e": []interface{}{"a", "b"},
-						"f": map[string]interface{}{"a": "b"},
+						"e": []any{"a", "b"},
+						"f": map[string]any{"a": "b"},
 					},
 				}
 			},

@@ -69,7 +69,7 @@ func JWKSFromTokenIssuer(ctx context.Context, idt *IdentityToken, tlsConfig *tls
 
 func makeKeyFunc(keychain *JWKS) jwt.Keyfunc {
 
-	return func(token *jwt.Token) (interface{}, error) {
+	return func(token *jwt.Token) (any, error) {
 
 		if _, ok := token.Method.(*jwt.SigningMethodECDSA); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %s", token.Header["alg"])

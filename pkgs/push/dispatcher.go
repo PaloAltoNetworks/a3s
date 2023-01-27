@@ -72,7 +72,7 @@ func (g *dispatcher) OnPushSessionStop(session bahamut.PushSession) {
 }
 
 // SummarizeEvent is part of the bahamut.PushDispatchHandler interface
-func (g *dispatcher) SummarizeEvent(event *elemental.Event) (interface{}, error) {
+func (g *dispatcher) SummarizeEvent(event *elemental.Event) (any, error) {
 
 	entity := pushedEntity{}
 	if err := event.Decode(&entity); err != nil {
@@ -88,7 +88,7 @@ func (g *dispatcher) RelatedEventIdentities(identity string) []string {
 }
 
 // ShouldDispatch is part of the bahamut.PushDispatchHandler interface
-func (g *dispatcher) ShouldDispatch(session bahamut.PushSession, event *elemental.Event, summary interface{}) (bool, error) {
+func (g *dispatcher) ShouldDispatch(session bahamut.PushSession, event *elemental.Event, summary any) (bool, error) {
 
 	entity := summary.(pushedEntity)
 	sessionNS := session.Parameter("namespace")

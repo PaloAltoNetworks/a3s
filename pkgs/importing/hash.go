@@ -31,7 +31,7 @@ func Hash(obj Importable, manager elemental.ModelManager) (string, error) {
 	return hash(data)
 }
 
-func sanitize(obj elemental.AttributeSpecifiable, manager elemental.ModelManager) (map[string]interface{}, error) {
+func sanitize(obj elemental.AttributeSpecifiable, manager elemental.ModelManager) (map[string]any, error) {
 
 	// First, we check that the given object is an identifiable.
 	ident, ok := obj.(elemental.Identifiable)
@@ -85,6 +85,7 @@ func sanitize(obj elemental.AttributeSpecifiable, manager elemental.ModelManager
 		// If the type is a ref, we recursively sanitize the nested object.
 		if spec.Type == "ref" {
 
+			fmt.Printf("%#v\n\n", v)
 			m, err := sanitize(v.(elemental.AttributeSpecifiable), manager)
 			if err != nil {
 				return nil, err
@@ -104,7 +105,7 @@ func sanitize(obj elemental.AttributeSpecifiable, manager elemental.ModelManager
 	return data, nil
 }
 
-func cleanIrrelevantValues(data, template map[string]interface{}) map[string]interface{} {
+func cleanIrrelevantValues(data, template map[string]any) map[string]any {
 
 	for k, v := range data {
 
@@ -122,12 +123,12 @@ func cleanIrrelevantValues(data, template map[string]interface{}) map[string]int
 
 		switch vv := v.(type) {
 
-		case map[string]interface{}:
+		case map[string]any:
 			if reflect.ValueOf(vv).Type().Name() != reflect.ValueOf(tv).Type().Name() {
 				continue
 			}
 
-			vv = cleanIrrelevantValues(vv, tv.(map[string]interface{}))
+			vv = cleanIrrelevantValues(vv, tv.(map[string]any))
 
 			if len(vv) == 0 {
 				shouldDelete = true
@@ -145,15 +146,15 @@ func cleanIrrelevantValues(data, template map[string]interface{}) map[string]int
 	return data
 }
 
-func toMap(obj interface{}) (map[string]interface{}, error) {
-	m := map[string]interface{}{}
+func toMap(obj any) (map[string]any, error) {
+	m := map[string]any{}
 	if err := mapstructure.Decode(obj, &m); err != nil {
 		return nil, err
 	}
 	return m, nil
 }
 
-func hash(data map[string]interface{}) (string, error) {
+func hash(data map[string]any) (string, error) {
 
 	h, err := hashstructure.Hash(data, nil)
 	if err != nil {
