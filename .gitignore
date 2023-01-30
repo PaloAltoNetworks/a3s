@@ -4,6 +4,8 @@ coverage.xml
 unit_coverage.out
 remod.dev
 .remod
+go.work
+go.work.sum
 .data
 dist
 docker/in
