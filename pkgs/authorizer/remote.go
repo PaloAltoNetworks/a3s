@@ -23,6 +23,7 @@ func NewRemote(ctx context.Context, m manipulate.Manipulator, r permissions.Retr
 		m,
 		maniphttp.SubscriberOptionRecursive(true),
 		maniphttp.SubscriberOptionNamespace(maniphttp.ExtractNamespace(m)),
+		maniphttp.SubscriberSendCredentialsAsCookie("x-a3s-token"),
 	)
 
 	pcfg := elemental.NewPushConfig()
