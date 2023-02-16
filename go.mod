@@ -5,7 +5,7 @@ go 1.18
 require (
 	go.aporeto.io/bahamut v1.142.0
 	go.aporeto.io/elemental v1.122.0
-	go.aporeto.io/manipulate v1.132.0
+	go.aporeto.io/manipulate v1.132.1-0.20230216014234-dd7cd3923850
 	go.aporeto.io/tg v1.50.0
 )
 
