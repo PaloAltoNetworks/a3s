@@ -3,9 +3,9 @@ module go.aporeto.io/a3s
 go 1.18
 
 require (
-	go.aporeto.io/bahamut v1.142.0
+	go.aporeto.io/bahamut v1.143.0
 	go.aporeto.io/elemental v1.122.0
-	go.aporeto.io/manipulate v1.132.1-0.20230216014234-dd7cd3923850
+	go.aporeto.io/manipulate v1.133.0
 	go.aporeto.io/tg v1.50.0
 )
 
@@ -36,11 +36,11 @@ require (
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.15.0
 	github.com/uber/jaeger-client-go v2.30.0+incompatible
-	github.com/ugorji/go/codec v1.2.8
+	github.com/ugorji/go/codec v1.2.9
 	go.uber.org/automaxprocs v1.5.1
 	go.uber.org/zap v1.24.0
 	golang.org/x/oauth2 v0.4.0
-	golang.org/x/term v0.4.0
+	golang.org/x/term v0.5.0
 )
 
 require (
@@ -115,10 +115,10 @@ require (
 	go.aporeto.io/wsc v1.51.0 // indirect
 	go.uber.org/atomic v1.10.0 // indirect
 	go.uber.org/multierr v1.9.0 // indirect
-	golang.org/x/crypto v0.5.0 // indirect
-	golang.org/x/net v0.5.0 // indirect
-	golang.org/x/sys v0.4.0 // indirect
-	golang.org/x/text v0.6.0 // indirect
+	golang.org/x/crypto v0.6.0 // indirect
+	golang.org/x/net v0.6.0 // indirect
+	golang.org/x/sys v0.5.0 // indirect
+	golang.org/x/text v0.7.0 // indirect
 	golang.org/x/time v0.3.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/protobuf v1.28.1 // indirect
