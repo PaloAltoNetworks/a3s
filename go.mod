@@ -109,7 +109,7 @@ require (
 	github.com/tklauser/numcpus v0.6.0 // indirect
 	github.com/uber/jaeger-lib v2.4.1+incompatible // indirect
 	github.com/valyala/tcplisten v1.0.0 // indirect
-	github.com/vulcand/oxy v1.4.2 // indirect
+	github.com/vulcand/oxy/v2 v2.0.0-20221121151423-d5cb734e4467 // indirect
 	github.com/vulcand/predicate v1.2.0 // indirect
 	github.com/yusufpapurcu/wmi v1.2.2 // indirect
 	go.aporeto.io/wsc v1.51.0 // indirect
