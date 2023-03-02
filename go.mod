@@ -4,7 +4,7 @@ go 1.20
 
 require (
 	go.aporeto.io/bahamut v1.145.0
-	go.aporeto.io/elemental v1.122.1-0.20230127211758-51fb47178716
+	go.aporeto.io/elemental v1.122.0
 	go.aporeto.io/manipulate v1.134.0
 	go.aporeto.io/tg v1.50.0
 )
