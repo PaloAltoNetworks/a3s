@@ -71,15 +71,15 @@ func Parse(authStrings []string, targetID string) PermissionMap {
 // Copy returns a copy of the receiver.
 func (p PermissionMap) Copy() PermissionMap {
 
-	var copy = make(PermissionMap, len(p))
+	var out = make(PermissionMap, len(p))
 
 	for i, m := range p {
-		copy[i] = make(Permissions, len(m))
+		out[i] = make(Permissions, len(m))
 		for k, v := range m {
-			copy[i][k] = v
+			out[i][k] = v
 		}
 	}
-	return copy
+	return out
 }
 
 // Contains returns true if the receiver inclusively contains the given

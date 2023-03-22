@@ -66,8 +66,8 @@ func main() {
 
 	cfg := newConf()
 
-	if close := bootstrap.ConfigureLogger("a3s", cfg.LoggingConf); close != nil {
-		defer close()
+	if closeFunc := bootstrap.ConfigureLogger("a3s", cfg.LoggingConf); closeFunc != nil {
+		defer closeFunc()
 	}
 
 	if cfg.InitDB {
@@ -369,8 +369,8 @@ func createMongoDBAccount(cfg conf.MongoConf, username string) error {
 
 	m := bootstrap.MakeMongoManipulator(cfg, &hasher.Hasher{})
 
-	db, close, _ := manipmongo.GetDatabase(m)
-	defer close()
+	db, closeFunc, _ := manipmongo.GetDatabase(m)
+	defer closeFunc()
 
 	user := mgo.User{
 		Username: username,

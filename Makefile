@@ -18,6 +18,7 @@ lint:
 		--disable-all \
 		--exclude-use-default=false \
 		--exclude=package-comments \
+		--exclude=unused-parameter \
 		--enable=errcheck \
 		--enable=goimports \
 		--enable=ineffassign \
