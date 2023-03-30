@@ -916,8 +916,8 @@ github.com/yuin/goldmark v1.3.5/go.mod h1:mwnBkeHKe2W/ZEtQ+71ViKU8L12m81fl3OWwC1
 github.com/yuin/goldmark v1.4.13/go.mod h1:6yULJ656Px+3vBD8DxQVa3kxgyrAnzto9xy5taEt/CY=
 github.com/yusufpapurcu/wmi v1.2.2 h1:KBNDSne4vP5mbSWnJbO+51IMOXJB67QiYCSBrubbPRg=
 github.com/yusufpapurcu/wmi v1.2.2/go.mod h1:SBZ9tNy3G9/m5Oi98Zks0QjeHVDvuK0qfxQmPyzfmi0=
-go.aporeto.io/bahamut v1.146.0 h1:WYmqw+qjVvZaXdMD0kP75lrouOKHagX6qkzzrvrfF0c=
-go.aporeto.io/bahamut v1.146.0/go.mod h1:dIKYiseNQ/4gQSROMlMsN4pZUt6nQqEzZX5d6TH6bug=
+go.aporeto.io/bahamut v1.147.0 h1:LWeAEvrGIvi2CYNzluKmmY4pTZVoqFVbFEt3a5X5DdM=
+go.aporeto.io/bahamut v1.147.0/go.mod h1:dIKYiseNQ/4gQSROMlMsN4pZUt6nQqEzZX5d6TH6bug=
 go.aporeto.io/elemental v1.123.0 h1:yKsB9YNTHrPq/39EMUoxBdbXDsuT55MrPzLMVVSR7G8=
 go.aporeto.io/elemental v1.123.0/go.mod h1:TeftndRimmpTcaBhcdGWVoaRbBgNfGIcl791KRrR3Xw=
 go.aporeto.io/manipulate v1.135.0 h1:boO2AjCwjjil04t420EA4BXA0PQAFj+oDtcXGGcWa34=
