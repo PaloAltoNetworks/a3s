@@ -6,9 +6,11 @@ import (
 	"math/rand"
 	"time"
 
+	"github.com/globalsign/mgo/bson"
 	"go.aporeto.io/a3s/pkgs/api"
 	"go.aporeto.io/elemental"
 	"go.aporeto.io/manipulate"
+	"go.aporeto.io/manipulate/manipmongo"
 	"go.uber.org/zap"
 )
 
@@ -77,24 +79,55 @@ func DeleteOrphanedObjects(
 	}
 
 	namespaces := os.List()
-	names := make([]any, len(namespaces)+1)
+	names := make([]string, len(namespaces)+1)
 	names[0] = "/"
 	for i, ns := range namespaces {
 		names[i+1] = *(ns.(*api.SparseNamespace).Name)
 	}
 
-	mctx := manipulate.NewContext(
-		ctx,
-		manipulate.ContextOptionFilter(
-			elemental.NewFilterComposer().
-				WithKey("namespace").NotIn(names...).
-				Done(),
-		),
-	)
+	mgodb, closer, err := manipmongo.GetDatabase(m)
+	if err != nil {
+		return err
+	}
+	defer closer()
+
+	var orphans []struct {
+		ID interface{} `bson:"_id"`
+	}
 
 	for _, i := range identities {
-		if err := m.DeleteMany(mctx.Derive(), i); err != nil {
-			return fmt.Errorf("unable to deletemany '%s': %w", i.Category, err)
+		if err = mgodb.C(i.Name).Pipe([]bson.M{
+			{
+				"$match": bson.M{
+					"namespace": bson.M{
+						"$nin": names,
+					},
+				},
+			},
+			{
+				"$group": bson.M{
+					"_id": "$_id",
+				},
+			},
+		}).AllowDiskUse().All(&orphans); err != nil {
+			return fmt.Errorf("unable to retrieve orphans for '%s': %w", i.Category, err)
+		}
+
+		if len(orphans) == 0 {
+			continue
+		}
+
+		ids := make([]any, 0, len(orphans))
+		for _, orphan := range orphans {
+			ids = append(ids, orphan.ID)
+		}
+
+		if _, err = mgodb.C(i.Name).RemoveAll(bson.M{
+			"_id": bson.M{
+				"$in": ids,
+			},
+		}); err != nil {
+			return fmt.Errorf("unable to remove orphans for '%s': %w", i.Category, err)
 		}
 	}
 

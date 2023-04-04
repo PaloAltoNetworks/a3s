@@ -50,37 +50,21 @@ func TestDeleteOrphanedJobs(t *testing.T) {
 				return nil
 			})
 
-			var m2ExpectedFiler *elemental.Filter
-			var m2ExpectedCalls int
-			m2.MockDeleteMany(t, func(mctx manipulate.Context, identity elemental.Identity) error {
-				m2ExpectedCalls++
-				m2ExpectedFiler = mctx.Filter()
-				return nil
-			})
+			So(func() {
+				_ = DeleteOrphanedObjects(
+					context.Background(),
+					m1,
+					m2,
+					[]elemental.Identity{
+						testmodel.ListIdentity,
+						testmodel.TaskIdentity,
+					},
+				)
+			}, ShouldPanicWith, "you can only pass a mongo manipulator to GetDatabase")
 
-			err := DeleteOrphanedObjects(
-				context.Background(),
-				m1,
-				m2,
-				[]elemental.Identity{
-					testmodel.ListIdentity,
-					testmodel.TaskIdentity,
-				},
-			)
-
-			So(err, ShouldBeNil)
 			So(m1ExpectedRecursive, ShouldBeTrue)
 			So(m1ExpectedFields, ShouldResemble, []string{"name"})
 			So(m1ExpectedOrder, ShouldResemble, []string{"ID"})
-
-			So(m2ExpectedCalls, ShouldEqual, 2)
-			So(
-				m2ExpectedFiler,
-				ShouldResemble,
-				elemental.NewFilterComposer().
-					WithKey("namespace").NotIn("/", "/a", "/a/1", "/b").
-					Done(),
-			)
 		})
 
 		Convey("When m1 returns an error", func() {
@@ -101,45 +85,6 @@ func TestDeleteOrphanedJobs(t *testing.T) {
 
 			So(err, ShouldNotBeNil)
 			So(err.Error(), ShouldEqual, "unable to retrieve list of namespaces: unable to retrieve objects for iteration 1: bim")
-		})
-
-		Convey("When m2 returns an error", func() {
-
-			m1.MockRetrieveMany(t, func(mctx manipulate.Context, dest elemental.Identifiables) error {
-				*dest.(*api.SparseNamespacesList) = append(
-					*dest.(*api.SparseNamespacesList),
-					&api.SparseNamespace{
-						ID:   makeStrPr("1"),
-						Name: makeStrPr("/a"),
-					},
-					&api.SparseNamespace{
-						ID:   makeStrPr("2"),
-						Name: makeStrPr("/a/1"),
-					},
-					&api.SparseNamespace{
-						ID:   makeStrPr("3"),
-						Name: makeStrPr("/b"),
-					},
-				)
-				return nil
-			})
-
-			m2.MockDeleteMany(t, func(mctx manipulate.Context, identity elemental.Identity) error {
-				return fmt.Errorf("bim")
-			})
-
-			err := DeleteOrphanedObjects(
-				context.Background(),
-				m1,
-				m2,
-				[]elemental.Identity{
-					testmodel.ListIdentity,
-					testmodel.TaskIdentity,
-				},
-			)
-
-			So(err, ShouldNotBeNil)
-			So(err.Error(), ShouldEqual, "unable to deletemany 'lists': bim")
 		})
 	})
 }
