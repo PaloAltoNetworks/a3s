@@ -96,6 +96,12 @@ func DeleteOrphanedObjects(
 	}
 
 	for _, i := range identities {
+
+		// Never run against namespaces as it is our source of truth
+		if i.Name == api.NamespaceIdentity.Name {
+			continue
+		}
+
 		if err = mgodb.C(i.Name).Pipe([]bson.M{
 			{
 				"$match": bson.M{
@@ -116,6 +122,12 @@ func DeleteOrphanedObjects(
 		if len(orphans) == 0 {
 			continue
 		}
+
+		zap.L().Debug("Deleting orphans",
+			zap.String("identity", i.Name),
+			zap.Int("count", len(orphans)),
+			zap.Reflect("orphans", orphans),
+		)
 
 		ids := make([]any, 0, len(orphans))
 		for _, orphan := range orphans {
