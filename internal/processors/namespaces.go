@@ -3,6 +3,7 @@ package processors
 import (
 	"net/http"
 	"strings"
+	"time"
 
 	"go.aporeto.io/a3s/pkgs/api"
 	"go.aporeto.io/a3s/pkgs/crud"
@@ -11,6 +12,7 @@ import (
 	"go.aporeto.io/bahamut"
 	"go.aporeto.io/elemental"
 	"go.aporeto.io/manipulate"
+	"go.uber.org/zap"
 )
 
 // A NamespacesProcessor is a bahamut processor for Namespaces.
@@ -71,7 +73,28 @@ func (p *NamespacesProcessor) ProcessUpdate(bctx bahamut.Context) error {
 // ProcessDelete handles the delete requests for Namespaces.
 func (p *NamespacesProcessor) ProcessDelete(bctx bahamut.Context) error {
 	return crud.Delete(bctx, p.manipulator, api.NewNamespace(),
-		crud.OptionPostWriteHook(p.makeNotify(bctx.Request().Operation)),
+		crud.OptionPostWriteHook(func(obj elemental.Identifiable) {
+
+			ndr := api.NewNamespaceDeletionRecord()
+			ndr.Namespace = obj.(*api.Namespace).Name
+			ndr.DeleteTime = time.Now()
+
+			if err := p.manipulator.Create(manipulate.NewContext(bctx.Context()), ndr); err != nil {
+				zap.L().Error("Unable to create namespace deletion record",
+					zap.String("namespace", ndr.Namespace),
+					zap.Error(err),
+				)
+			}
+
+			_ = notification.Publish(
+				p.pubsub,
+				nscache.NotificationNamespaceChanges,
+				&notification.Message{
+					Type: string(bctx.Request().Operation),
+					Data: obj.(*api.Namespace).Name,
+				},
+			)
+		}),
 	)
 }
 

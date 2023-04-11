@@ -29,7 +29,7 @@ func NewIssueRemoteA3S() *IssueRemoteA3S {
 
 // GetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *IssueRemoteA3S) GetBSON() (interface{}, error) {
+func (o *IssueRemoteA3S) GetBSON() (any, error) {
 
 	if o == nil {
 		return nil, nil
@@ -127,7 +127,7 @@ func (*IssueRemoteA3S) AttributeSpecifications() map[string]elemental.AttributeS
 // ValueForAttribute returns the value for the given attribute.
 // This is a very advanced function that you should not need but in some
 // very specific use cases.
-func (o *IssueRemoteA3S) ValueForAttribute(name string) interface{} {
+func (o *IssueRemoteA3S) ValueForAttribute(name string) any {
 
 	switch name {
 	case "token":

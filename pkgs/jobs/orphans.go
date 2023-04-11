@@ -67,34 +67,47 @@ func DeleteOrphanedObjects(
 			ctx,
 			manipulate.ContextOptionRecursive(true),
 			manipulate.ContextOptionOrder("ID"),
-			manipulate.ContextOptionFields([]string{"name"}),
+			manipulate.ContextOptionFields([]string{"namespace", "deleteTime"}),
 		),
-		api.SparseNamespacesList{},
+		api.SparseNamespaceDeletionRecordsList{},
 		0,
 	)
 	if err != nil {
 		return fmt.Errorf("unable to retrieve list of namespaces: %w", err)
 	}
 
-	namespaces := os.List()
-	names := make([]any, len(namespaces)+1)
-	names[0] = "/"
-	for i, ns := range namespaces {
-		names[i+1] = *(ns.(*api.SparseNamespace).Name)
+	deletionRecords := os.List()
+	if len(deletionRecords) == 0 {
+		return nil
 	}
 
-	mctx := manipulate.NewContext(
-		ctx,
-		manipulate.ContextOptionFilter(
-			elemental.NewFilterComposer().
-				WithKey("namespace").NotIn(names...).
-				Done(),
-		),
-	)
+	for _, deletionRecord := range deletionRecords {
 
-	for _, i := range identities {
-		if err := m.DeleteMany(mctx.Derive(), i); err != nil {
-			return fmt.Errorf("unable to deletemany '%s': %w", i.Category, err)
+		namespace := *(deletionRecord.(*api.SparseNamespaceDeletionRecord).Namespace)
+		deletionDate := *(deletionRecord.(*api.SparseNamespaceDeletionRecord).DeleteTime)
+
+		mctx := manipulate.NewContext(
+			ctx,
+			manipulate.ContextOptionFilter(
+				elemental.NewFilterComposer().And(
+					manipulate.NewNamespaceFilter(namespace, true),
+					elemental.NewFilterComposer().Or(
+						elemental.NewFilterComposer().WithKey("createTime").NotExists().Done(),
+						elemental.NewFilterComposer().WithKey("createTime").LesserThan(deletionDate).Done(),
+					).Done(),
+				).Done(),
+			),
+		)
+
+		for _, i := range identities {
+
+			if i.IsEqual(api.NamespaceDeletionRecordIdentity) {
+				continue
+			}
+
+			if err := m.DeleteMany(mctx.Derive(), i); err != nil {
+				return fmt.Errorf("unable to deletemany '%s' in namespace '%s': %w", i.Category, namespace, err)
+			}
 		}
 	}
 

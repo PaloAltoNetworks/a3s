@@ -31,8 +31,8 @@ func (o OIDCSourcesList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the OIDCSourcesList.
 func (o OIDCSourcesList) Copy() elemental.Identifiables {
 
-	copy := append(OIDCSourcesList{}, o...)
-	return &copy
+	out := append(OIDCSourcesList{}, o...)
+	return &out
 }
 
 // Append appends the objects to the a new copy of the OIDCSourcesList.
@@ -162,7 +162,7 @@ func (o *OIDCSource) SetIdentifier(id string) {
 
 // GetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *OIDCSource) GetBSON() (interface{}, error) {
+func (o *OIDCSource) GetBSON() (any, error) {
 
 	if o == nil {
 		return nil, nil
@@ -542,7 +542,7 @@ func (*OIDCSource) AttributeSpecifications() map[string]elemental.AttributeSpeci
 // ValueForAttribute returns the value for the given attribute.
 // This is a very advanced function that you should not need but in some
 // very specific use cases.
-func (o *OIDCSource) ValueForAttribute(name string) interface{} {
+func (o *OIDCSource) ValueForAttribute(name string) any {
 
 	switch name {
 	case "CA":
@@ -1085,7 +1085,7 @@ func (o *SparseOIDCSource) SetIdentifier(id string) {
 
 // GetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *SparseOIDCSource) GetBSON() (interface{}, error) {
+func (o *SparseOIDCSource) GetBSON() (any, error) {
 
 	if o == nil {
 		return nil, nil

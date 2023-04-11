@@ -1,5 +1,4 @@
 {
-  "openapi": "3.0.3",
   "components": {
     "schemas": {
       "a3ssource": {
@@ -844,6 +843,26 @@
         ],
         "type": "object"
       },
+      "namespacedeletionrecord": {
+        "description": "A namespace deletion record holds the namespace that was deleted and the date it\nwas deleted.",
+        "properties": {
+          "ID": {
+            "description": "ID is the identifier of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "deleteTime": {
+            "description": "Deletion date of the object.",
+            "format": "date-time",
+            "type": "string"
+          },
+          "namespace": {
+            "description": "Namespace that got deleted.",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "oidcsource": {
         "description": "An OIDC Auth source can be used to issue tokens based on existing OIDC accounts.",
         "properties": {
@@ -1012,6 +1031,7 @@
     "title": "toplevel",
     "version": "1.0"
   },
+  "openapi": "3.0.3",
   "paths": {
     "/a3ssources": {
       "get": {
@@ -1853,6 +1873,42 @@
         },
         "tags": [
           "authn/source",
+          "a3s"
+        ]
+      }
+    },
+    "/namespacedeletionrecords": {
+      "get": {
+        "description": "Retrieves the list of namespace deletion records.",
+        "operationId": "get-all-namespacedeletionrecords",
+        "parameters": [
+          {
+            "description": "This is an example.",
+            "example": "hello == world",
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/namespacedeletionrecord"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core",
           "a3s"
         ]
       }

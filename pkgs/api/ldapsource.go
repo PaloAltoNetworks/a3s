@@ -45,8 +45,8 @@ func (o LDAPSourcesList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the LDAPSourcesList.
 func (o LDAPSourcesList) Copy() elemental.Identifiables {
 
-	copy := append(LDAPSourcesList{}, o...)
-	return &copy
+	out := append(LDAPSourcesList{}, o...)
+	return &out
 }
 
 // Append appends the objects to the a new copy of the LDAPSourcesList.
@@ -194,7 +194,7 @@ func (o *LDAPSource) SetIdentifier(id string) {
 
 // GetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *LDAPSource) GetBSON() (interface{}, error) {
+func (o *LDAPSource) GetBSON() (any, error) {
 
 	if o == nil {
 		return nil, nil
@@ -606,7 +606,7 @@ func (*LDAPSource) AttributeSpecifications() map[string]elemental.AttributeSpeci
 // ValueForAttribute returns the value for the given attribute.
 // This is a very advanced function that you should not need but in some
 // very specific use cases.
-func (o *LDAPSource) ValueForAttribute(name string) interface{} {
+func (o *LDAPSource) ValueForAttribute(name string) any {
 
 	switch name {
 	case "CA":
@@ -1272,7 +1272,7 @@ func (o *SparseLDAPSource) SetIdentifier(id string) {
 
 // GetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *SparseLDAPSource) GetBSON() (interface{}, error) {
+func (o *SparseLDAPSource) GetBSON() (any, error) {
 
 	if o == nil {
 		return nil, nil
