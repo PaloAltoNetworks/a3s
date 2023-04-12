@@ -1,5 +1,4 @@
 {
-  "openapi": "3.0.3",
   "components": {
     "schemas": {
       "a3ssource": {
@@ -1012,6 +1011,7 @@
     "title": "toplevel",
     "version": "1.0"
   },
+  "openapi": "3.0.3",
   "paths": {
     "/a3ssources": {
       "get": {

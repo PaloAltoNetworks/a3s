@@ -48,8 +48,8 @@ func (o IdentityModifiersList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the IdentityModifiersList.
 func (o IdentityModifiersList) Copy() elemental.Identifiables {
 
-	copy := append(IdentityModifiersList{}, o...)
-	return &copy
+	out := append(IdentityModifiersList{}, o...)
+	return &out
 }
 
 // Append appends the objects to the a new copy of the IdentityModifiersList.
@@ -152,7 +152,7 @@ func (o *IdentityModifier) SetIdentifier(id string) {
 
 // GetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *IdentityModifier) GetBSON() (interface{}, error) {
+func (o *IdentityModifier) GetBSON() (any, error) {
 
 	if o == nil {
 		return nil, nil
@@ -376,7 +376,7 @@ func (*IdentityModifier) AttributeSpecifications() map[string]elemental.Attribut
 // ValueForAttribute returns the value for the given attribute.
 // This is a very advanced function that you should not need but in some
 // very specific use cases.
-func (o *IdentityModifier) ValueForAttribute(name string) interface{} {
+func (o *IdentityModifier) ValueForAttribute(name string) any {
 
 	switch name {
 	case "CA":
@@ -635,7 +635,7 @@ func (o *SparseIdentityModifier) SetIdentifier(id string) {
 
 // GetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *SparseIdentityModifier) GetBSON() (interface{}, error) {
+func (o *SparseIdentityModifier) GetBSON() (any, error) {
 
 	if o == nil {
 		return nil, nil

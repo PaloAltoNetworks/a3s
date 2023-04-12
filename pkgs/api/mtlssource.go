@@ -31,8 +31,8 @@ func (o MTLSSourcesList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the MTLSSourcesList.
 func (o MTLSSourcesList) Copy() elemental.Identifiables {
 
-	copy := append(MTLSSourcesList{}, o...)
-	return &copy
+	out := append(MTLSSourcesList{}, o...)
+	return &out
 }
 
 // Append appends the objects to the a new copy of the MTLSSourcesList.
@@ -154,7 +154,7 @@ func (o *MTLSSource) SetIdentifier(id string) {
 
 // GetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *MTLSSource) GetBSON() (interface{}, error) {
+func (o *MTLSSource) GetBSON() (any, error) {
 
 	if o == nil {
 		return nil, nil
@@ -490,7 +490,7 @@ func (*MTLSSource) AttributeSpecifications() map[string]elemental.AttributeSpeci
 // ValueForAttribute returns the value for the given attribute.
 // This is a very advanced function that you should not need but in some
 // very specific use cases.
-func (o *MTLSSource) ValueForAttribute(name string) interface{} {
+func (o *MTLSSource) ValueForAttribute(name string) any {
 
 	switch name {
 	case "CA":
@@ -978,7 +978,7 @@ func (o *SparseMTLSSource) SetIdentifier(id string) {
 
 // GetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *SparseMTLSSource) GetBSON() (interface{}, error) {
+func (o *SparseMTLSSource) GetBSON() (any, error) {
 
 	if o == nil {
 		return nil, nil

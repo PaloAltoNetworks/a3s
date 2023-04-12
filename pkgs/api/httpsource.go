@@ -31,8 +31,8 @@ func (o HTTPSourcesList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the HTTPSourcesList.
 func (o HTTPSourcesList) Copy() elemental.Identifiables {
 
-	copy := append(HTTPSourcesList{}, o...)
-	return &copy
+	out := append(HTTPSourcesList{}, o...)
+	return &out
 }
 
 // Append appends the objects to the a new copy of the HTTPSourcesList.
@@ -159,7 +159,7 @@ func (o *HTTPSource) SetIdentifier(id string) {
 
 // GetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *HTTPSource) GetBSON() (interface{}, error) {
+func (o *HTTPSource) GetBSON() (any, error) {
 
 	if o == nil {
 		return nil, nil
@@ -527,7 +527,7 @@ func (*HTTPSource) AttributeSpecifications() map[string]elemental.AttributeSpeci
 // ValueForAttribute returns the value for the given attribute.
 // This is a very advanced function that you should not need but in some
 // very specific use cases.
-func (o *HTTPSource) ValueForAttribute(name string) interface{} {
+func (o *HTTPSource) ValueForAttribute(name string) any {
 
 	switch name {
 	case "CA":
@@ -1046,7 +1046,7 @@ func (o *SparseHTTPSource) SetIdentifier(id string) {
 
 // GetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *SparseHTTPSource) GetBSON() (interface{}, error) {
+func (o *SparseHTTPSource) GetBSON() (any, error) {
 
 	if o == nil {
 		return nil, nil

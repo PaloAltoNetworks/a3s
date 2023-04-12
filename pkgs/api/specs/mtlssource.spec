@@ -28,7 +28,8 @@ indexes:
 attributes:
   v1:
   - name: CA
-    description: The Certificate authority to use to validate user certificates in PEM format.
+    description: The Certificate authority to use to validate user certificates in
+      PEM format.
     type: string
     exposed: true
     stored: true
