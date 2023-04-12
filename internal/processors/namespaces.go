@@ -86,14 +86,7 @@ func (p *NamespacesProcessor) ProcessDelete(bctx bahamut.Context) error {
 				)
 			}
 
-			_ = notification.Publish(
-				p.pubsub,
-				nscache.NotificationNamespaceChanges,
-				&notification.Message{
-					Type: string(bctx.Request().Operation),
-					Data: obj.(*api.Namespace).Name,
-				},
-			)
+			p.makeNotify(bctx.Request().Operation)(obj)
 		}),
 	)
 }
