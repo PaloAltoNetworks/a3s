@@ -31,8 +31,8 @@ func (o A3SSourcesList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the A3SSourcesList.
 func (o A3SSourcesList) Copy() elemental.Identifiables {
 
-	copy := append(A3SSourcesList{}, o...)
-	return &copy
+	out := append(A3SSourcesList{}, o...)
+	return &out
 }
 
 // Append appends the objects to the a new copy of the A3SSourcesList.
@@ -157,7 +157,7 @@ func (o *A3SSource) SetIdentifier(id string) {
 
 // GetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *A3SSource) GetBSON() (interface{}, error) {
+func (o *A3SSource) GetBSON() (any, error) {
 
 	if o == nil {
 		return nil, nil
@@ -501,7 +501,7 @@ func (*A3SSource) AttributeSpecifications() map[string]elemental.AttributeSpecif
 // ValueForAttribute returns the value for the given attribute.
 // This is a very advanced function that you should not need but in some
 // very specific use cases.
-func (o *A3SSource) ValueForAttribute(name string) interface{} {
+func (o *A3SSource) ValueForAttribute(name string) any {
 
 	switch name {
 	case "CA":
@@ -1008,7 +1008,7 @@ func (o *SparseA3SSource) SetIdentifier(id string) {
 
 // GetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *SparseA3SSource) GetBSON() (interface{}, error) {
+func (o *SparseA3SSource) GetBSON() (any, error) {
 
 	if o == nil {
 		return nil, nil

@@ -31,8 +31,8 @@ func (o AuthorizationsList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the AuthorizationsList.
 func (o AuthorizationsList) Copy() elemental.Identifiables {
 
-	copy := append(AuthorizationsList{}, o...)
-	return &copy
+	out := append(AuthorizationsList{}, o...)
+	return &out
 }
 
 // Append appends the objects to the a new copy of the AuthorizationsList.
@@ -175,7 +175,7 @@ func (o *Authorization) SetIdentifier(id string) {
 
 // GetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *Authorization) GetBSON() (interface{}, error) {
+func (o *Authorization) GetBSON() (any, error) {
 
 	if o == nil {
 		return nil, nil
@@ -563,7 +563,7 @@ func (*Authorization) AttributeSpecifications() map[string]elemental.AttributeSp
 // ValueForAttribute returns the value for the given attribute.
 // This is a very advanced function that you should not need but in some
 // very specific use cases.
-func (o *Authorization) ValueForAttribute(name string) interface{} {
+func (o *Authorization) ValueForAttribute(name string) any {
 
 	switch name {
 	case "ID":
@@ -1181,7 +1181,7 @@ func (o *SparseAuthorization) SetIdentifier(id string) {
 
 // GetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *SparseAuthorization) GetBSON() (interface{}, error) {
+func (o *SparseAuthorization) GetBSON() (any, error) {
 
 	if o == nil {
 		return nil, nil
