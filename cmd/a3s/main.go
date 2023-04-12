@@ -93,6 +93,14 @@ func main() {
 		zap.L().Fatal("Unable to create exp expiration index for oidccache", zap.Error(err))
 	}
 
+	if err := manipmongo.EnsureIndex(m, api.NamespaceDeletionRecordIdentity, mgo.Index{
+		Key:         []string{"deletetime"},
+		ExpireAfter: 24 * time.Hour,
+		Name:        "index_expiration_deletetime",
+	}); err != nil {
+		zap.L().Fatal("Unable to create expiration index for namesapce deletion records", zap.Error(err))
+	}
+
 	if err := createRootNamespaceIfNeeded(m); err != nil {
 		zap.L().Fatal("Unable to handle root namespace", zap.Error(err))
 	}
@@ -345,6 +353,7 @@ func main() {
 	bahamut.RegisterProcessorOrDie(server, processors.NewPermissionsProcessor(retriever), api.PermissionsIdentity)
 	bahamut.RegisterProcessorOrDie(server, processors.NewAuthzProcessor(pauthz, jwks, cfg.JWT.JWTIssuer, cfg.JWT.JWTAudience), api.AuthzIdentity)
 	bahamut.RegisterProcessorOrDie(server, processors.NewNamespacesProcessor(m, pubsub), api.NamespaceIdentity)
+	bahamut.RegisterProcessorOrDie(server, processors.NewNamespaceDeletionRecordsProcessor(m), api.NamespaceDeletionRecordIdentity)
 	bahamut.RegisterProcessorOrDie(server, processors.NewAuthorizationProcessor(m, pubsub, retriever, cfg.JWT.JWTIssuer), api.AuthorizationIdentity)
 	bahamut.RegisterProcessorOrDie(server, processors.NewImportProcessor(bmanipMaker, pauthz), api.ImportIdentity)
 
@@ -676,11 +685,17 @@ func makeNamespaceCleaner(ctx context.Context, m manipulate.Manipulator) notific
 		ns := msg.Data.(string)
 
 		for _, i := range api.Manager().AllIdentities() {
+
+			if i.IsEqual(api.NamespaceDeletionRecordIdentity) {
+				continue
+			}
+
 			mctx := manipulate.NewContext(
 				ctx,
 				manipulate.ContextOptionNamespace(ns),
 				manipulate.ContextOptionRecursive(true),
 			)
+
 			if err := m.DeleteMany(mctx, i); err != nil {
 				zap.L().Error("Unable to clean namespace", zap.String("ns", ns), zap.Error(err))
 			}

@@ -75,6 +75,12 @@ relations:
   create:
     description: Creates a new namespace.
 
+- rest_name: namespacedeletionrecord
+  get:
+    description: Retrieves the list of namespace deletion records.
+    global_parameters:
+    - $queryable
+
 - rest_name: oidcsource
   get:
     description: Retrieves the list of oidcsources.
