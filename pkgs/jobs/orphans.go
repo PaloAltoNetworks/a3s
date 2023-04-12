@@ -12,6 +12,10 @@ import (
 	"go.uber.org/zap"
 )
 
+const (
+	maxBatchedFilters = 50
+)
+
 var (
 	orphanCleaningAdjustment = time.Duration(rand.Intn(60)) * time.Second
 )
@@ -81,21 +85,31 @@ func DeleteOrphanedObjects(
 		return nil
 	}
 
-	for _, deletionRecord := range deletionRecords {
+	filters := make([]*elemental.Filter, 0, maxBatchedFilters)
+
+	for i, deletionRecord := range deletionRecords {
 
 		namespace := *(deletionRecord.(*api.SparseNamespaceDeletionRecord).Namespace)
 		deletionDate := *(deletionRecord.(*api.SparseNamespaceDeletionRecord).DeleteTime)
 
+		filters = append(filters, elemental.NewFilterComposer().And(
+			manipulate.NewNamespaceFilter(namespace, true),
+			elemental.NewFilterComposer().Or(
+				elemental.NewFilterComposer().WithKey("createTime").NotExists().Done(),
+				elemental.NewFilterComposer().WithKey("createTime").LesserThan(deletionDate).Done(),
+			).Done(),
+		).Done())
+
+		if i+1 < len(deletionRecords) && len(filters) < maxBatchedFilters {
+			continue
+		}
+
 		mctx := manipulate.NewContext(
 			ctx,
 			manipulate.ContextOptionFilter(
-				elemental.NewFilterComposer().And(
-					manipulate.NewNamespaceFilter(namespace, true),
-					elemental.NewFilterComposer().Or(
-						elemental.NewFilterComposer().WithKey("createTime").NotExists().Done(),
-						elemental.NewFilterComposer().WithKey("createTime").LesserThan(deletionDate).Done(),
-					).Done(),
-				).Done(),
+				elemental.NewFilterComposer().
+					Or(filters...).
+					Done(),
 			),
 		)
 
@@ -106,9 +120,11 @@ func DeleteOrphanedObjects(
 			}
 
 			if err := m.DeleteMany(mctx.Derive(), i); err != nil {
-				return fmt.Errorf("unable to deletemany '%s' in namespace '%s': %w", i.Category, namespace, err)
+				return fmt.Errorf("unable to deletemany '%s': %w", i.Category, err)
 			}
 		}
+
+		filters = filters[:0]
 	}
 
 	return nil

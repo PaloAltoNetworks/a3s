@@ -81,15 +81,31 @@ func TestDeleteOrphanedJobs(t *testing.T) {
 			So(m1ExpectedFields, ShouldResemble, []string{"namespace", "deleteTime"})
 			So(m1ExpectedOrder, ShouldResemble, []string{"ID"})
 
-			So(m2ExpectedCalls, ShouldEqual, 6)
+			So(m2ExpectedCalls, ShouldEqual, 2)
 			So(
 				m2ExpectedFiler,
 				ShouldResemble,
-				elemental.NewFilterComposer().And(
-					manipulate.NewNamespaceFilter("/b", true),
-					elemental.NewFilterComposer().Or(
-						elemental.NewFilterComposer().WithKey("createTime").NotExists().Done(),
-						elemental.NewFilterComposer().WithKey("createTime").LesserThan(now).Done(),
+				elemental.NewFilterComposer().Or(
+					elemental.NewFilterComposer().And(
+						manipulate.NewNamespaceFilter("/a", true),
+						elemental.NewFilterComposer().Or(
+							elemental.NewFilterComposer().WithKey("createTime").NotExists().Done(),
+							elemental.NewFilterComposer().WithKey("createTime").LesserThan(now).Done(),
+						).Done(),
+					).Done(),
+					elemental.NewFilterComposer().And(
+						manipulate.NewNamespaceFilter("/a/1", true),
+						elemental.NewFilterComposer().Or(
+							elemental.NewFilterComposer().WithKey("createTime").NotExists().Done(),
+							elemental.NewFilterComposer().WithKey("createTime").LesserThan(now).Done(),
+						).Done(),
+					).Done(),
+					elemental.NewFilterComposer().And(
+						manipulate.NewNamespaceFilter("/b", true),
+						elemental.NewFilterComposer().Or(
+							elemental.NewFilterComposer().WithKey("createTime").NotExists().Done(),
+							elemental.NewFilterComposer().WithKey("createTime").LesserThan(now).Done(),
+						).Done(),
 					).Done(),
 				).Done(),
 			)
@@ -184,7 +200,7 @@ func TestDeleteOrphanedJobs(t *testing.T) {
 			)
 
 			So(err, ShouldNotBeNil)
-			So(err.Error(), ShouldEqual, "unable to deletemany 'lists' in namespace '/a': bim")
+			So(err.Error(), ShouldEqual, "unable to deletemany 'lists': bim")
 		})
 	})
 }
