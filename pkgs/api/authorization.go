@@ -5,6 +5,7 @@ package api
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/globalsign/mgo/bson"
 	"github.com/mitchellh/copystructure"
@@ -86,6 +87,9 @@ type Authorization struct {
 	// ID is the identifier of the object.
 	ID string `json:"ID" msgpack:"ID" bson:"-" mapstructure:"ID,omitempty"`
 
+	// Creation date of the object.
+	CreateTime time.Time `json:"createTime" msgpack:"createTime" bson:"createtime" mapstructure:"createTime,omitempty"`
+
 	// Description of the Authorization.
 	Description string `json:"description" msgpack:"description" bson:"description" mapstructure:"description,omitempty"`
 
@@ -130,6 +134,9 @@ type Authorization struct {
 
 	// List of issuers to consider before using the policy for a given set of claims.
 	TrustedIssuers []string `json:"trustedIssuers" msgpack:"trustedIssuers" bson:"trustedissuers" mapstructure:"trustedIssuers,omitempty"`
+
+	// Last update date of the object.
+	UpdateTime time.Time `json:"updateTime" msgpack:"updateTime" bson:"updatetime" mapstructure:"updateTime,omitempty"`
 
 	// Hash of the object used to shard the data.
 	ZHash int `json:"-" msgpack:"-" bson:"zhash" mapstructure:"-,omitempty"`
@@ -186,6 +193,7 @@ func (o *Authorization) GetBSON() (any, error) {
 	if o.ID != "" {
 		s.ID = bson.ObjectIdHex(o.ID)
 	}
+	s.CreateTime = o.CreateTime
 	s.Description = o.Description
 	s.Disabled = o.Disabled
 	s.FlattenedSubject = o.FlattenedSubject
@@ -200,6 +208,7 @@ func (o *Authorization) GetBSON() (any, error) {
 	s.Subnets = o.Subnets
 	s.TargetNamespaces = o.TargetNamespaces
 	s.TrustedIssuers = o.TrustedIssuers
+	s.UpdateTime = o.UpdateTime
 	s.ZHash = o.ZHash
 	s.Zone = o.Zone
 
@@ -220,6 +229,7 @@ func (o *Authorization) SetBSON(raw bson.Raw) error {
 	}
 
 	o.ID = s.ID.Hex()
+	o.CreateTime = s.CreateTime
 	o.Description = s.Description
 	o.Disabled = s.Disabled
 	o.FlattenedSubject = s.FlattenedSubject
@@ -234,6 +244,7 @@ func (o *Authorization) SetBSON(raw bson.Raw) error {
 	o.Subnets = s.Subnets
 	o.TargetNamespaces = s.TargetNamespaces
 	o.TrustedIssuers = s.TrustedIssuers
+	o.UpdateTime = s.UpdateTime
 	o.ZHash = s.ZHash
 	o.Zone = s.Zone
 
@@ -279,6 +290,18 @@ func (o *Authorization) GetID() string {
 func (o *Authorization) SetID(ID string) {
 
 	o.ID = ID
+}
+
+// GetCreateTime returns the CreateTime of the receiver.
+func (o *Authorization) GetCreateTime() time.Time {
+
+	return o.CreateTime
+}
+
+// SetCreateTime sets the property CreateTime of the receiver using the given value.
+func (o *Authorization) SetCreateTime(createTime time.Time) {
+
+	o.CreateTime = createTime
 }
 
 // GetImportHash returns the ImportHash of the receiver.
@@ -329,6 +352,18 @@ func (o *Authorization) SetPropagate(propagate bool) {
 	o.Propagate = propagate
 }
 
+// GetUpdateTime returns the UpdateTime of the receiver.
+func (o *Authorization) GetUpdateTime() time.Time {
+
+	return o.UpdateTime
+}
+
+// SetUpdateTime sets the property UpdateTime of the receiver using the given value.
+func (o *Authorization) SetUpdateTime(updateTime time.Time) {
+
+	o.UpdateTime = updateTime
+}
+
 // GetZHash returns the ZHash of the receiver.
 func (o *Authorization) GetZHash() int {
 
@@ -361,6 +396,7 @@ func (o *Authorization) ToSparse(fields ...string) elemental.SparseIdentifiable 
 		// nolint: goimports
 		return &SparseAuthorization{
 			ID:               &o.ID,
+			CreateTime:       &o.CreateTime,
 			Description:      &o.Description,
 			Disabled:         &o.Disabled,
 			FlattenedSubject: &o.FlattenedSubject,
@@ -375,6 +411,7 @@ func (o *Authorization) ToSparse(fields ...string) elemental.SparseIdentifiable 
 			Subnets:          &o.Subnets,
 			TargetNamespaces: &o.TargetNamespaces,
 			TrustedIssuers:   &o.TrustedIssuers,
+			UpdateTime:       &o.UpdateTime,
 			ZHash:            &o.ZHash,
 			Zone:             &o.Zone,
 		}
@@ -385,6 +422,8 @@ func (o *Authorization) ToSparse(fields ...string) elemental.SparseIdentifiable 
 		switch f {
 		case "ID":
 			sp.ID = &(o.ID)
+		case "createTime":
+			sp.CreateTime = &(o.CreateTime)
 		case "description":
 			sp.Description = &(o.Description)
 		case "disabled":
@@ -413,6 +452,8 @@ func (o *Authorization) ToSparse(fields ...string) elemental.SparseIdentifiable 
 			sp.TargetNamespaces = &(o.TargetNamespaces)
 		case "trustedIssuers":
 			sp.TrustedIssuers = &(o.TrustedIssuers)
+		case "updateTime":
+			sp.UpdateTime = &(o.UpdateTime)
 		case "zHash":
 			sp.ZHash = &(o.ZHash)
 		case "zone":
@@ -432,6 +473,9 @@ func (o *Authorization) Patch(sparse elemental.SparseIdentifiable) {
 	so := sparse.(*SparseAuthorization)
 	if so.ID != nil {
 		o.ID = *so.ID
+	}
+	if so.CreateTime != nil {
+		o.CreateTime = *so.CreateTime
 	}
 	if so.Description != nil {
 		o.Description = *so.Description
@@ -474,6 +518,9 @@ func (o *Authorization) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.TrustedIssuers != nil {
 		o.TrustedIssuers = *so.TrustedIssuers
+	}
+	if so.UpdateTime != nil {
+		o.UpdateTime = *so.UpdateTime
 	}
 	if so.ZHash != nil {
 		o.ZHash = *so.ZHash
@@ -568,6 +615,8 @@ func (o *Authorization) ValueForAttribute(name string) any {
 	switch name {
 	case "ID":
 		return o.ID
+	case "createTime":
+		return o.CreateTime
 	case "description":
 		return o.Description
 	case "disabled":
@@ -596,6 +645,8 @@ func (o *Authorization) ValueForAttribute(name string) any {
 		return o.TargetNamespaces
 	case "trustedIssuers":
 		return o.TrustedIssuers
+	case "updateTime":
+		return o.UpdateTime
 	case "zHash":
 		return o.ZHash
 	case "zone":
@@ -622,6 +673,21 @@ var AuthorizationAttributesMap = map[string]elemental.AttributeSpecification{
 		Setter:         true,
 		Stored:         true,
 		Type:           "string",
+	},
+	"CreateTime": {
+		AllowedChoices: []string{},
+		Autogenerated:  true,
+		BSONFieldName:  "createtime",
+		ConvertedName:  "CreateTime",
+		Description:    `Creation date of the object.`,
+		Exposed:        true,
+		Getter:         true,
+		Name:           "createTime",
+		Orderable:      true,
+		ReadOnly:       true,
+		Setter:         true,
+		Stored:         true,
+		Type:           "time",
 	},
 	"Description": {
 		AllowedChoices: []string{},
@@ -788,6 +854,21 @@ apply. If empty, the object's namespace will be used.`,
 		SubType:        "string",
 		Type:           "list",
 	},
+	"UpdateTime": {
+		AllowedChoices: []string{},
+		Autogenerated:  true,
+		BSONFieldName:  "updatetime",
+		ConvertedName:  "UpdateTime",
+		Description:    `Last update date of the object.`,
+		Exposed:        true,
+		Getter:         true,
+		Name:           "updateTime",
+		Orderable:      true,
+		ReadOnly:       true,
+		Setter:         true,
+		Stored:         true,
+		Type:           "time",
+	},
 	"ZHash": {
 		AllowedChoices: []string{},
 		Autogenerated:  true,
@@ -834,6 +915,21 @@ var AuthorizationLowerCaseAttributesMap = map[string]elemental.AttributeSpecific
 		Setter:         true,
 		Stored:         true,
 		Type:           "string",
+	},
+	"createtime": {
+		AllowedChoices: []string{},
+		Autogenerated:  true,
+		BSONFieldName:  "createtime",
+		ConvertedName:  "CreateTime",
+		Description:    `Creation date of the object.`,
+		Exposed:        true,
+		Getter:         true,
+		Name:           "createTime",
+		Orderable:      true,
+		ReadOnly:       true,
+		Setter:         true,
+		Stored:         true,
+		Type:           "time",
 	},
 	"description": {
 		AllowedChoices: []string{},
@@ -1000,6 +1096,21 @@ apply. If empty, the object's namespace will be used.`,
 		SubType:        "string",
 		Type:           "list",
 	},
+	"updatetime": {
+		AllowedChoices: []string{},
+		Autogenerated:  true,
+		BSONFieldName:  "updatetime",
+		ConvertedName:  "UpdateTime",
+		Description:    `Last update date of the object.`,
+		Exposed:        true,
+		Getter:         true,
+		Name:           "updateTime",
+		Orderable:      true,
+		ReadOnly:       true,
+		Setter:         true,
+		Stored:         true,
+		Type:           "time",
+	},
 	"zhash": {
 		AllowedChoices: []string{},
 		Autogenerated:  true,
@@ -1095,6 +1206,9 @@ type SparseAuthorization struct {
 	// ID is the identifier of the object.
 	ID *string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
 
+	// Creation date of the object.
+	CreateTime *time.Time `json:"createTime,omitempty" msgpack:"createTime,omitempty" bson:"createtime,omitempty" mapstructure:"createTime,omitempty"`
+
 	// Description of the Authorization.
 	Description *string `json:"description,omitempty" msgpack:"description,omitempty" bson:"description,omitempty" mapstructure:"description,omitempty"`
 
@@ -1139,6 +1253,9 @@ type SparseAuthorization struct {
 
 	// List of issuers to consider before using the policy for a given set of claims.
 	TrustedIssuers *[]string `json:"trustedIssuers,omitempty" msgpack:"trustedIssuers,omitempty" bson:"trustedissuers,omitempty" mapstructure:"trustedIssuers,omitempty"`
+
+	// Last update date of the object.
+	UpdateTime *time.Time `json:"updateTime,omitempty" msgpack:"updateTime,omitempty" bson:"updatetime,omitempty" mapstructure:"updateTime,omitempty"`
 
 	// Hash of the object used to shard the data.
 	ZHash *int `json:"-" msgpack:"-" bson:"zhash,omitempty" mapstructure:"-,omitempty"`
@@ -1192,6 +1309,9 @@ func (o *SparseAuthorization) GetBSON() (any, error) {
 	if o.ID != nil {
 		s.ID = bson.ObjectIdHex(*o.ID)
 	}
+	if o.CreateTime != nil {
+		s.CreateTime = o.CreateTime
+	}
 	if o.Description != nil {
 		s.Description = o.Description
 	}
@@ -1234,6 +1354,9 @@ func (o *SparseAuthorization) GetBSON() (any, error) {
 	if o.TrustedIssuers != nil {
 		s.TrustedIssuers = o.TrustedIssuers
 	}
+	if o.UpdateTime != nil {
+		s.UpdateTime = o.UpdateTime
+	}
 	if o.ZHash != nil {
 		s.ZHash = o.ZHash
 	}
@@ -1259,6 +1382,9 @@ func (o *SparseAuthorization) SetBSON(raw bson.Raw) error {
 
 	id := s.ID.Hex()
 	o.ID = &id
+	if s.CreateTime != nil {
+		o.CreateTime = s.CreateTime
+	}
 	if s.Description != nil {
 		o.Description = s.Description
 	}
@@ -1301,6 +1427,9 @@ func (o *SparseAuthorization) SetBSON(raw bson.Raw) error {
 	if s.TrustedIssuers != nil {
 		o.TrustedIssuers = s.TrustedIssuers
 	}
+	if s.UpdateTime != nil {
+		o.UpdateTime = s.UpdateTime
+	}
 	if s.ZHash != nil {
 		o.ZHash = s.ZHash
 	}
@@ -1323,6 +1452,9 @@ func (o *SparseAuthorization) ToPlain() elemental.PlainIdentifiable {
 	out := NewAuthorization()
 	if o.ID != nil {
 		out.ID = *o.ID
+	}
+	if o.CreateTime != nil {
+		out.CreateTime = *o.CreateTime
 	}
 	if o.Description != nil {
 		out.Description = *o.Description
@@ -1366,6 +1498,9 @@ func (o *SparseAuthorization) ToPlain() elemental.PlainIdentifiable {
 	if o.TrustedIssuers != nil {
 		out.TrustedIssuers = *o.TrustedIssuers
 	}
+	if o.UpdateTime != nil {
+		out.UpdateTime = *o.UpdateTime
+	}
 	if o.ZHash != nil {
 		out.ZHash = *o.ZHash
 	}
@@ -1390,6 +1525,22 @@ func (o *SparseAuthorization) GetID() (out string) {
 func (o *SparseAuthorization) SetID(ID string) {
 
 	o.ID = &ID
+}
+
+// GetCreateTime returns the CreateTime of the receiver.
+func (o *SparseAuthorization) GetCreateTime() (out time.Time) {
+
+	if o.CreateTime == nil {
+		return
+	}
+
+	return *o.CreateTime
+}
+
+// SetCreateTime sets the property CreateTime of the receiver using the address of the given value.
+func (o *SparseAuthorization) SetCreateTime(createTime time.Time) {
+
+	o.CreateTime = &createTime
 }
 
 // GetImportHash returns the ImportHash of the receiver.
@@ -1456,6 +1607,22 @@ func (o *SparseAuthorization) SetPropagate(propagate bool) {
 	o.Propagate = &propagate
 }
 
+// GetUpdateTime returns the UpdateTime of the receiver.
+func (o *SparseAuthorization) GetUpdateTime() (out time.Time) {
+
+	if o.UpdateTime == nil {
+		return
+	}
+
+	return *o.UpdateTime
+}
+
+// SetUpdateTime sets the property UpdateTime of the receiver using the address of the given value.
+func (o *SparseAuthorization) SetUpdateTime(updateTime time.Time) {
+
+	o.UpdateTime = &updateTime
+}
+
 // GetZHash returns the ZHash of the receiver.
 func (o *SparseAuthorization) GetZHash() (out int) {
 
@@ -1514,6 +1681,7 @@ func (o *SparseAuthorization) DeepCopyInto(out *SparseAuthorization) {
 
 type mongoAttributesAuthorization struct {
 	ID               bson.ObjectId `bson:"_id,omitempty"`
+	CreateTime       time.Time     `bson:"createtime"`
 	Description      string        `bson:"description"`
 	Disabled         bool          `bson:"disabled"`
 	FlattenedSubject []string      `bson:"flattenedsubject"`
@@ -1528,11 +1696,13 @@ type mongoAttributesAuthorization struct {
 	Subnets          []string      `bson:"subnets"`
 	TargetNamespaces []string      `bson:"targetnamespaces"`
 	TrustedIssuers   []string      `bson:"trustedissuers"`
+	UpdateTime       time.Time     `bson:"updatetime"`
 	ZHash            int           `bson:"zhash"`
 	Zone             int           `bson:"zone"`
 }
 type mongoAttributesSparseAuthorization struct {
 	ID               bson.ObjectId `bson:"_id,omitempty"`
+	CreateTime       *time.Time    `bson:"createtime,omitempty"`
 	Description      *string       `bson:"description,omitempty"`
 	Disabled         *bool         `bson:"disabled,omitempty"`
 	FlattenedSubject *[]string     `bson:"flattenedsubject,omitempty"`
@@ -1547,6 +1717,7 @@ type mongoAttributesSparseAuthorization struct {
 	Subnets          *[]string     `bson:"subnets,omitempty"`
 	TargetNamespaces *[]string     `bson:"targetnamespaces,omitempty"`
 	TrustedIssuers   *[]string     `bson:"trustedissuers,omitempty"`
+	UpdateTime       *time.Time    `bson:"updatetime,omitempty"`
 	ZHash            *int          `bson:"zhash,omitempty"`
 	Zone             *int          `bson:"zone,omitempty"`
 }

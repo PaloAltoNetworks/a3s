@@ -470,6 +470,8 @@ func initRootPermissions(ctx context.Context, m manipulate.Manipulator, caPath s
 	source.Name = "root"
 	source.Description = "Auth source to authenticate root users"
 	source.CA = string(caData)
+	source.CreateTime = time.Now()
+	source.UpdateTime = source.CreateTime
 	certs, err := tglib.ParseCertificates([]byte(source.CA))
 	if err != nil {
 		return false, err
@@ -504,6 +506,8 @@ func initRootPermissions(ctx context.Context, m manipulate.Manipulator, caPath s
 	auth.Permissions = []string{"*:*"}
 	auth.TargetNamespaces = []string{"/"}
 	auth.Hidden = true
+	auth.CreateTime = time.Now()
+	auth.UpdateTime = auth.CreateTime
 
 	if err := m.Create(manipulate.NewContext(ctx), auth); err != nil {
 		return false, fmt.Errorf("unable to create root auth: %w", err)
@@ -534,6 +538,8 @@ func initPlatformPermissions(ctx context.Context, m manipulate.Manipulator, caPa
 	source.Name = "platform"
 	source.Description = "Auth source used to authenticate internal platform services"
 	source.CA = string(caData)
+	source.CreateTime = time.Now()
+	source.UpdateTime = source.CreateTime
 	certs, err := tglib.ParseCertificates([]byte(source.CA))
 	if err != nil {
 		return false, err
@@ -569,6 +575,8 @@ func initPlatformPermissions(ctx context.Context, m manipulate.Manipulator, caPa
 	auth.Permissions = []string{"*:*"}
 	auth.TargetNamespaces = []string{"/"}
 	auth.Hidden = true
+	auth.CreateTime = time.Now()
+	auth.UpdateTime = auth.CreateTime
 
 	if err := m.Create(manipulate.NewContext(ctx), auth); err != nil {
 		return false, fmt.Errorf("unable to create root auth: %w", err)

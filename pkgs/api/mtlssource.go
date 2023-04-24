@@ -5,6 +5,7 @@ package api
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/globalsign/mgo/bson"
 	"github.com/mitchellh/copystructure"
@@ -89,6 +90,9 @@ type MTLSSource struct {
 	// ID is the identifier of the object.
 	ID string `json:"ID" msgpack:"ID" bson:"-" mapstructure:"ID,omitempty"`
 
+	// Creation date of the object.
+	CreateTime time.Time `json:"createTime" msgpack:"createTime" bson:"createtime" mapstructure:"createTime,omitempty"`
+
 	// The description of the object.
 	Description string `json:"description" msgpack:"description" bson:"description" mapstructure:"description,omitempty"`
 
@@ -114,6 +118,9 @@ type MTLSSource struct {
 
 	// Value of the CAs X.509 SubjectKeyIDs in the chain.
 	SubjectKeyIDs []string `json:"subjectKeyIDs" msgpack:"subjectKeyIDs" bson:"subjectkeyids" mapstructure:"subjectKeyIDs,omitempty"`
+
+	// Last update date of the object.
+	UpdateTime time.Time `json:"updateTime" msgpack:"updateTime" bson:"updatetime" mapstructure:"updateTime,omitempty"`
 
 	// Hash of the object used to shard the data.
 	ZHash int `json:"-" msgpack:"-" bson:"zhash" mapstructure:"-,omitempty"`
@@ -166,6 +173,7 @@ func (o *MTLSSource) GetBSON() (any, error) {
 	if o.ID != "" {
 		s.ID = bson.ObjectIdHex(o.ID)
 	}
+	s.CreateTime = o.CreateTime
 	s.Description = o.Description
 	s.Fingerprints = o.Fingerprints
 	s.ImportHash = o.ImportHash
@@ -174,6 +182,7 @@ func (o *MTLSSource) GetBSON() (any, error) {
 	s.Name = o.Name
 	s.Namespace = o.Namespace
 	s.SubjectKeyIDs = o.SubjectKeyIDs
+	s.UpdateTime = o.UpdateTime
 	s.ZHash = o.ZHash
 	s.Zone = o.Zone
 
@@ -195,6 +204,7 @@ func (o *MTLSSource) SetBSON(raw bson.Raw) error {
 
 	o.CA = s.CA
 	o.ID = s.ID.Hex()
+	o.CreateTime = s.CreateTime
 	o.Description = s.Description
 	o.Fingerprints = s.Fingerprints
 	o.ImportHash = s.ImportHash
@@ -203,6 +213,7 @@ func (o *MTLSSource) SetBSON(raw bson.Raw) error {
 	o.Name = s.Name
 	o.Namespace = s.Namespace
 	o.SubjectKeyIDs = s.SubjectKeyIDs
+	o.UpdateTime = s.UpdateTime
 	o.ZHash = s.ZHash
 	o.Zone = s.Zone
 
@@ -250,6 +261,18 @@ func (o *MTLSSource) SetID(ID string) {
 	o.ID = ID
 }
 
+// GetCreateTime returns the CreateTime of the receiver.
+func (o *MTLSSource) GetCreateTime() time.Time {
+
+	return o.CreateTime
+}
+
+// SetCreateTime sets the property CreateTime of the receiver using the given value.
+func (o *MTLSSource) SetCreateTime(createTime time.Time) {
+
+	o.CreateTime = createTime
+}
+
 // GetImportHash returns the ImportHash of the receiver.
 func (o *MTLSSource) GetImportHash() string {
 
@@ -286,6 +309,18 @@ func (o *MTLSSource) SetNamespace(namespace string) {
 	o.Namespace = namespace
 }
 
+// GetUpdateTime returns the UpdateTime of the receiver.
+func (o *MTLSSource) GetUpdateTime() time.Time {
+
+	return o.UpdateTime
+}
+
+// SetUpdateTime sets the property UpdateTime of the receiver using the given value.
+func (o *MTLSSource) SetUpdateTime(updateTime time.Time) {
+
+	o.UpdateTime = updateTime
+}
+
 // GetZHash returns the ZHash of the receiver.
 func (o *MTLSSource) GetZHash() int {
 
@@ -319,6 +354,7 @@ func (o *MTLSSource) ToSparse(fields ...string) elemental.SparseIdentifiable {
 		return &SparseMTLSSource{
 			CA:            &o.CA,
 			ID:            &o.ID,
+			CreateTime:    &o.CreateTime,
 			Description:   &o.Description,
 			Fingerprints:  &o.Fingerprints,
 			ImportHash:    &o.ImportHash,
@@ -327,6 +363,7 @@ func (o *MTLSSource) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			Name:          &o.Name,
 			Namespace:     &o.Namespace,
 			SubjectKeyIDs: &o.SubjectKeyIDs,
+			UpdateTime:    &o.UpdateTime,
 			ZHash:         &o.ZHash,
 			Zone:          &o.Zone,
 		}
@@ -339,6 +376,8 @@ func (o *MTLSSource) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.CA = &(o.CA)
 		case "ID":
 			sp.ID = &(o.ID)
+		case "createTime":
+			sp.CreateTime = &(o.CreateTime)
 		case "description":
 			sp.Description = &(o.Description)
 		case "fingerprints":
@@ -355,6 +394,8 @@ func (o *MTLSSource) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.Namespace = &(o.Namespace)
 		case "subjectKeyIDs":
 			sp.SubjectKeyIDs = &(o.SubjectKeyIDs)
+		case "updateTime":
+			sp.UpdateTime = &(o.UpdateTime)
 		case "zHash":
 			sp.ZHash = &(o.ZHash)
 		case "zone":
@@ -377,6 +418,9 @@ func (o *MTLSSource) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.ID != nil {
 		o.ID = *so.ID
+	}
+	if so.CreateTime != nil {
+		o.CreateTime = *so.CreateTime
 	}
 	if so.Description != nil {
 		o.Description = *so.Description
@@ -401,6 +445,9 @@ func (o *MTLSSource) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.SubjectKeyIDs != nil {
 		o.SubjectKeyIDs = *so.SubjectKeyIDs
+	}
+	if so.UpdateTime != nil {
+		o.UpdateTime = *so.UpdateTime
 	}
 	if so.ZHash != nil {
 		o.ZHash = *so.ZHash
@@ -497,6 +544,8 @@ func (o *MTLSSource) ValueForAttribute(name string) any {
 		return o.CA
 	case "ID":
 		return o.ID
+	case "createTime":
+		return o.CreateTime
 	case "description":
 		return o.Description
 	case "fingerprints":
@@ -513,6 +562,8 @@ func (o *MTLSSource) ValueForAttribute(name string) any {
 		return o.Namespace
 	case "subjectKeyIDs":
 		return o.SubjectKeyIDs
+	case "updateTime":
+		return o.UpdateTime
 	case "zHash":
 		return o.ZHash
 	case "zone":
@@ -550,6 +601,21 @@ var MTLSSourceAttributesMap = map[string]elemental.AttributeSpecification{
 		Setter:         true,
 		Stored:         true,
 		Type:           "string",
+	},
+	"CreateTime": {
+		AllowedChoices: []string{},
+		Autogenerated:  true,
+		BSONFieldName:  "createtime",
+		ConvertedName:  "CreateTime",
+		Description:    `Creation date of the object.`,
+		Exposed:        true,
+		Getter:         true,
+		Name:           "createTime",
+		Orderable:      true,
+		ReadOnly:       true,
+		Setter:         true,
+		Stored:         true,
+		Type:           "time",
 	},
 	"Description": {
 		AllowedChoices: []string{},
@@ -653,6 +719,21 @@ the claims that are about to be delivered using this authentication source.`,
 		SubType:        "string",
 		Type:           "list",
 	},
+	"UpdateTime": {
+		AllowedChoices: []string{},
+		Autogenerated:  true,
+		BSONFieldName:  "updatetime",
+		ConvertedName:  "UpdateTime",
+		Description:    `Last update date of the object.`,
+		Exposed:        true,
+		Getter:         true,
+		Name:           "updateTime",
+		Orderable:      true,
+		ReadOnly:       true,
+		Setter:         true,
+		Stored:         true,
+		Type:           "time",
+	},
 	"ZHash": {
 		AllowedChoices: []string{},
 		Autogenerated:  true,
@@ -710,6 +791,21 @@ var MTLSSourceLowerCaseAttributesMap = map[string]elemental.AttributeSpecificati
 		Setter:         true,
 		Stored:         true,
 		Type:           "string",
+	},
+	"createtime": {
+		AllowedChoices: []string{},
+		Autogenerated:  true,
+		BSONFieldName:  "createtime",
+		ConvertedName:  "CreateTime",
+		Description:    `Creation date of the object.`,
+		Exposed:        true,
+		Getter:         true,
+		Name:           "createTime",
+		Orderable:      true,
+		ReadOnly:       true,
+		Setter:         true,
+		Stored:         true,
+		Type:           "time",
 	},
 	"description": {
 		AllowedChoices: []string{},
@@ -813,6 +909,21 @@ the claims that are about to be delivered using this authentication source.`,
 		SubType:        "string",
 		Type:           "list",
 	},
+	"updatetime": {
+		AllowedChoices: []string{},
+		Autogenerated:  true,
+		BSONFieldName:  "updatetime",
+		ConvertedName:  "UpdateTime",
+		Description:    `Last update date of the object.`,
+		Exposed:        true,
+		Getter:         true,
+		Name:           "updateTime",
+		Orderable:      true,
+		ReadOnly:       true,
+		Setter:         true,
+		Stored:         true,
+		Type:           "time",
+	},
 	"zhash": {
 		AllowedChoices: []string{},
 		Autogenerated:  true,
@@ -911,6 +1022,9 @@ type SparseMTLSSource struct {
 	// ID is the identifier of the object.
 	ID *string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
 
+	// Creation date of the object.
+	CreateTime *time.Time `json:"createTime,omitempty" msgpack:"createTime,omitempty" bson:"createtime,omitempty" mapstructure:"createTime,omitempty"`
+
 	// The description of the object.
 	Description *string `json:"description,omitempty" msgpack:"description,omitempty" bson:"description,omitempty" mapstructure:"description,omitempty"`
 
@@ -936,6 +1050,9 @@ type SparseMTLSSource struct {
 
 	// Value of the CAs X.509 SubjectKeyIDs in the chain.
 	SubjectKeyIDs *[]string `json:"subjectKeyIDs,omitempty" msgpack:"subjectKeyIDs,omitempty" bson:"subjectkeyids,omitempty" mapstructure:"subjectKeyIDs,omitempty"`
+
+	// Last update date of the object.
+	UpdateTime *time.Time `json:"updateTime,omitempty" msgpack:"updateTime,omitempty" bson:"updatetime,omitempty" mapstructure:"updateTime,omitempty"`
 
 	// Hash of the object used to shard the data.
 	ZHash *int `json:"-" msgpack:"-" bson:"zhash,omitempty" mapstructure:"-,omitempty"`
@@ -992,6 +1109,9 @@ func (o *SparseMTLSSource) GetBSON() (any, error) {
 	if o.ID != nil {
 		s.ID = bson.ObjectIdHex(*o.ID)
 	}
+	if o.CreateTime != nil {
+		s.CreateTime = o.CreateTime
+	}
 	if o.Description != nil {
 		s.Description = o.Description
 	}
@@ -1015,6 +1135,9 @@ func (o *SparseMTLSSource) GetBSON() (any, error) {
 	}
 	if o.SubjectKeyIDs != nil {
 		s.SubjectKeyIDs = o.SubjectKeyIDs
+	}
+	if o.UpdateTime != nil {
+		s.UpdateTime = o.UpdateTime
 	}
 	if o.ZHash != nil {
 		s.ZHash = o.ZHash
@@ -1044,6 +1167,9 @@ func (o *SparseMTLSSource) SetBSON(raw bson.Raw) error {
 	}
 	id := s.ID.Hex()
 	o.ID = &id
+	if s.CreateTime != nil {
+		o.CreateTime = s.CreateTime
+	}
 	if s.Description != nil {
 		o.Description = s.Description
 	}
@@ -1067,6 +1193,9 @@ func (o *SparseMTLSSource) SetBSON(raw bson.Raw) error {
 	}
 	if s.SubjectKeyIDs != nil {
 		o.SubjectKeyIDs = s.SubjectKeyIDs
+	}
+	if s.UpdateTime != nil {
+		o.UpdateTime = s.UpdateTime
 	}
 	if s.ZHash != nil {
 		o.ZHash = s.ZHash
@@ -1094,6 +1223,9 @@ func (o *SparseMTLSSource) ToPlain() elemental.PlainIdentifiable {
 	if o.ID != nil {
 		out.ID = *o.ID
 	}
+	if o.CreateTime != nil {
+		out.CreateTime = *o.CreateTime
+	}
 	if o.Description != nil {
 		out.Description = *o.Description
 	}
@@ -1117,6 +1249,9 @@ func (o *SparseMTLSSource) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.SubjectKeyIDs != nil {
 		out.SubjectKeyIDs = *o.SubjectKeyIDs
+	}
+	if o.UpdateTime != nil {
+		out.UpdateTime = *o.UpdateTime
 	}
 	if o.ZHash != nil {
 		out.ZHash = *o.ZHash
@@ -1142,6 +1277,22 @@ func (o *SparseMTLSSource) GetID() (out string) {
 func (o *SparseMTLSSource) SetID(ID string) {
 
 	o.ID = &ID
+}
+
+// GetCreateTime returns the CreateTime of the receiver.
+func (o *SparseMTLSSource) GetCreateTime() (out time.Time) {
+
+	if o.CreateTime == nil {
+		return
+	}
+
+	return *o.CreateTime
+}
+
+// SetCreateTime sets the property CreateTime of the receiver using the address of the given value.
+func (o *SparseMTLSSource) SetCreateTime(createTime time.Time) {
+
+	o.CreateTime = &createTime
 }
 
 // GetImportHash returns the ImportHash of the receiver.
@@ -1190,6 +1341,22 @@ func (o *SparseMTLSSource) GetNamespace() (out string) {
 func (o *SparseMTLSSource) SetNamespace(namespace string) {
 
 	o.Namespace = &namespace
+}
+
+// GetUpdateTime returns the UpdateTime of the receiver.
+func (o *SparseMTLSSource) GetUpdateTime() (out time.Time) {
+
+	if o.UpdateTime == nil {
+		return
+	}
+
+	return *o.UpdateTime
+}
+
+// SetUpdateTime sets the property UpdateTime of the receiver using the address of the given value.
+func (o *SparseMTLSSource) SetUpdateTime(updateTime time.Time) {
+
+	o.UpdateTime = &updateTime
 }
 
 // GetZHash returns the ZHash of the receiver.
@@ -1251,6 +1418,7 @@ func (o *SparseMTLSSource) DeepCopyInto(out *SparseMTLSSource) {
 type mongoAttributesMTLSSource struct {
 	CA            string            `bson:"ca"`
 	ID            bson.ObjectId     `bson:"_id,omitempty"`
+	CreateTime    time.Time         `bson:"createtime"`
 	Description   string            `bson:"description"`
 	Fingerprints  []string          `bson:"fingerprints"`
 	ImportHash    string            `bson:"importhash,omitempty"`
@@ -1259,12 +1427,14 @@ type mongoAttributesMTLSSource struct {
 	Name          string            `bson:"name"`
 	Namespace     string            `bson:"namespace"`
 	SubjectKeyIDs []string          `bson:"subjectkeyids"`
+	UpdateTime    time.Time         `bson:"updatetime"`
 	ZHash         int               `bson:"zhash"`
 	Zone          int               `bson:"zone"`
 }
 type mongoAttributesSparseMTLSSource struct {
 	CA            *string           `bson:"ca,omitempty"`
 	ID            bson.ObjectId     `bson:"_id,omitempty"`
+	CreateTime    *time.Time        `bson:"createtime,omitempty"`
 	Description   *string           `bson:"description,omitempty"`
 	Fingerprints  *[]string         `bson:"fingerprints,omitempty"`
 	ImportHash    *string           `bson:"importhash,omitempty"`
@@ -1273,6 +1443,7 @@ type mongoAttributesSparseMTLSSource struct {
 	Name          *string           `bson:"name,omitempty"`
 	Namespace     *string           `bson:"namespace,omitempty"`
 	SubjectKeyIDs *[]string         `bson:"subjectkeyids,omitempty"`
+	UpdateTime    *time.Time        `bson:"updatetime,omitempty"`
 	ZHash         *int              `bson:"zhash,omitempty"`
 	Zone          *int              `bson:"zone,omitempty"`
 }

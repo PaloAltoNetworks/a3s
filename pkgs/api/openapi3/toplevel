@@ -17,6 +17,12 @@
             "description": "The audience that must be present in the remote a3s token.",
             "type": "string"
           },
+          "createTime": {
+            "description": "Creation date of the object.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          },
           "description": {
             "description": "The description of the object.",
             "type": "string"
@@ -51,6 +57,12 @@
             "description": "The namespace of the object.",
             "readOnly": true,
             "type": "string"
+          },
+          "updateTime": {
+            "description": "Last update date of the object.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
           }
         },
         "required": [
@@ -64,6 +76,12 @@
         "properties": {
           "ID": {
             "description": "ID is the identifier of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "createTime": {
+            "description": "Creation date of the object.",
+            "format": "date-time",
             "readOnly": true,
             "type": "string"
           },
@@ -141,6 +159,12 @@
               "type": "string"
             },
             "type": "array"
+          },
+          "updateTime": {
+            "description": "Last update date of the object.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
           }
         },
         "required": [
@@ -216,6 +240,12 @@
             "example": "-----BEGIN CERTIFICATE-----\nMIIBPzCB5qADAgECAhEAwbx3c+QW24ePXyD94geytzAKBggqhkjOPQQDAjAPMQ0w\nCwYDVQQDEwR0b3RvMB4XDTE5MDIyMjIzNDA1MFoXDTI4MTIzMTIzNDA1MFowDzEN\nMAsGA1UEAxMEdG90bzBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABJi6CwRDeKks\nXb3pDEslmFGR7k9Aeh5RK+XmdqKKPGb3NQWEFPGolnqOR34iVuf7KSxTuzaaVWfu\nXEa94faUQEqjIzAhMA4GA1UdDwEB/wQEAwIBBjAPBgNVHRMBAf8EBTADAQH/MAoG\nCCqGSM49BAMCA0gAMEUCIQD+nL9RF9EvQXHyYuJ31Lz9yWd9hsK91stnpAs890gS\n/AIgQIKjBBpiyQNZZWso5H04qke9QYMVPegiQQufFFBj32c=\n-----END CERTIFICATE-----",
             "type": "string"
           },
+          "createTime": {
+            "description": "Creation date of the object.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          },
           "description": {
             "description": "The description of the object.",
             "type": "string"
@@ -244,6 +274,12 @@
           },
           "namespace": {
             "description": "The namespace of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "updateTime": {
+            "description": "Last update date of the object.",
+            "format": "date-time",
             "readOnly": true,
             "type": "string"
           }
@@ -694,6 +730,12 @@
             "description": "The filter to use to locate the relevant user accounts. For Windows-based\nsystems, the value may be `sAMAccountName={USERNAME}`. For Linux and other\nsystems, the value may be `uid={USERNAME}`.",
             "type": "string"
           },
+          "createTime": {
+            "description": "Creation date of the object.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          },
           "description": {
             "description": "The description of the object.",
             "type": "string"
@@ -742,6 +784,12 @@
               "InbandTLS",
               "None"
             ]
+          },
+          "updateTime": {
+            "description": "Last update date of the object.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
           }
         },
         "required": [
@@ -763,6 +811,12 @@
           },
           "ID": {
             "description": "ID is the identifier of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "createTime": {
+            "description": "Creation date of the object.",
+            "format": "date-time",
             "readOnly": true,
             "type": "string"
           },
@@ -807,6 +861,12 @@
             },
             "readOnly": true,
             "type": "array"
+          },
+          "updateTime": {
+            "description": "Last update date of the object.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
           }
         },
         "required": [
@@ -823,6 +883,12 @@
             "readOnly": true,
             "type": "string"
           },
+          "createTime": {
+            "description": "Creation date of the object.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          },
           "description": {
             "description": "The description of the object.",
             "type": "string"
@@ -834,6 +900,12 @@
           },
           "namespace": {
             "description": "The namespace of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "updateTime": {
+            "description": "Last update date of the object.",
+            "format": "date-time",
             "readOnly": true,
             "type": "string"
           }
@@ -885,6 +957,12 @@
             "example": "Ytgbfjtj4652jHDFGls99jF",
             "type": "string"
           },
+          "createTime": {
+            "description": "Creation date of the object.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          },
           "description": {
             "description": "The description of the object.",
             "type": "string"
@@ -926,6 +1004,12 @@
               "type": "string"
             },
             "type": "array"
+          },
+          "updateTime": {
+            "description": "Last update date of the object.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
           }
         },
         "required": [

@@ -18,6 +18,7 @@ model:
   - '@sharded'
   - '@identifiable'
   - '@importable'
+  - '@timed'
 
 # Indexes
 indexes:
