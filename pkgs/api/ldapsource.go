@@ -5,6 +5,7 @@ package api
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/globalsign/mgo/bson"
 	"github.com/mitchellh/copystructure"
@@ -122,6 +123,9 @@ type LDAPSource struct {
 	// systems, the value may be `uid={USERNAME}`.
 	BindSearchFilter string `json:"bindSearchFilter" msgpack:"bindSearchFilter" bson:"bindsearchfilter" mapstructure:"bindSearchFilter,omitempty"`
 
+	// Creation date of the object.
+	CreateTime time.Time `json:"createTime" msgpack:"createTime" bson:"createtime" mapstructure:"createTime,omitempty"`
+
 	// The description of the object.
 	Description string `json:"description" msgpack:"description" bson:"description" mapstructure:"description,omitempty"`
 
@@ -152,6 +156,9 @@ type LDAPSource struct {
 
 	// Specifies the connection type for the LDAP provider.
 	SecurityProtocol LDAPSourceSecurityProtocolValue `json:"securityProtocol" msgpack:"securityProtocol" bson:"securityprotocol" mapstructure:"securityProtocol,omitempty"`
+
+	// Last update date of the object.
+	UpdateTime time.Time `json:"updateTime" msgpack:"updateTime" bson:"updatetime" mapstructure:"updateTime,omitempty"`
 
 	// Hash of the object used to shard the data.
 	ZHash int `json:"-" msgpack:"-" bson:"zhash" mapstructure:"-,omitempty"`
@@ -211,6 +218,7 @@ func (o *LDAPSource) GetBSON() (any, error) {
 	s.BindDN = o.BindDN
 	s.BindPassword = o.BindPassword
 	s.BindSearchFilter = o.BindSearchFilter
+	s.CreateTime = o.CreateTime
 	s.Description = o.Description
 	s.IgnoredKeys = o.IgnoredKeys
 	s.ImportHash = o.ImportHash
@@ -220,6 +228,7 @@ func (o *LDAPSource) GetBSON() (any, error) {
 	s.Name = o.Name
 	s.Namespace = o.Namespace
 	s.SecurityProtocol = o.SecurityProtocol
+	s.UpdateTime = o.UpdateTime
 	s.ZHash = o.ZHash
 	s.Zone = o.Zone
 
@@ -246,6 +255,7 @@ func (o *LDAPSource) SetBSON(raw bson.Raw) error {
 	o.BindDN = s.BindDN
 	o.BindPassword = s.BindPassword
 	o.BindSearchFilter = s.BindSearchFilter
+	o.CreateTime = s.CreateTime
 	o.Description = s.Description
 	o.IgnoredKeys = s.IgnoredKeys
 	o.ImportHash = s.ImportHash
@@ -255,6 +265,7 @@ func (o *LDAPSource) SetBSON(raw bson.Raw) error {
 	o.Name = s.Name
 	o.Namespace = s.Namespace
 	o.SecurityProtocol = s.SecurityProtocol
+	o.UpdateTime = s.UpdateTime
 	o.ZHash = s.ZHash
 	o.Zone = s.Zone
 
@@ -302,6 +313,18 @@ func (o *LDAPSource) SetID(ID string) {
 	o.ID = ID
 }
 
+// GetCreateTime returns the CreateTime of the receiver.
+func (o *LDAPSource) GetCreateTime() time.Time {
+
+	return o.CreateTime
+}
+
+// SetCreateTime sets the property CreateTime of the receiver using the given value.
+func (o *LDAPSource) SetCreateTime(createTime time.Time) {
+
+	o.CreateTime = createTime
+}
+
 // GetImportHash returns the ImportHash of the receiver.
 func (o *LDAPSource) GetImportHash() string {
 
@@ -336,6 +359,18 @@ func (o *LDAPSource) GetNamespace() string {
 func (o *LDAPSource) SetNamespace(namespace string) {
 
 	o.Namespace = namespace
+}
+
+// GetUpdateTime returns the UpdateTime of the receiver.
+func (o *LDAPSource) GetUpdateTime() time.Time {
+
+	return o.UpdateTime
+}
+
+// SetUpdateTime sets the property UpdateTime of the receiver using the given value.
+func (o *LDAPSource) SetUpdateTime(updateTime time.Time) {
+
+	o.UpdateTime = updateTime
 }
 
 // GetZHash returns the ZHash of the receiver.
@@ -376,6 +411,7 @@ func (o *LDAPSource) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			BindDN:           &o.BindDN,
 			BindPassword:     &o.BindPassword,
 			BindSearchFilter: &o.BindSearchFilter,
+			CreateTime:       &o.CreateTime,
 			Description:      &o.Description,
 			IgnoredKeys:      &o.IgnoredKeys,
 			ImportHash:       &o.ImportHash,
@@ -385,6 +421,7 @@ func (o *LDAPSource) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			Name:             &o.Name,
 			Namespace:        &o.Namespace,
 			SecurityProtocol: &o.SecurityProtocol,
+			UpdateTime:       &o.UpdateTime,
 			ZHash:            &o.ZHash,
 			Zone:             &o.Zone,
 		}
@@ -407,6 +444,8 @@ func (o *LDAPSource) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.BindPassword = &(o.BindPassword)
 		case "bindSearchFilter":
 			sp.BindSearchFilter = &(o.BindSearchFilter)
+		case "createTime":
+			sp.CreateTime = &(o.CreateTime)
 		case "description":
 			sp.Description = &(o.Description)
 		case "ignoredKeys":
@@ -425,6 +464,8 @@ func (o *LDAPSource) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.Namespace = &(o.Namespace)
 		case "securityProtocol":
 			sp.SecurityProtocol = &(o.SecurityProtocol)
+		case "updateTime":
+			sp.UpdateTime = &(o.UpdateTime)
 		case "zHash":
 			sp.ZHash = &(o.ZHash)
 		case "zone":
@@ -483,6 +524,9 @@ func (o *LDAPSource) Patch(sparse elemental.SparseIdentifiable) {
 	if so.BindSearchFilter != nil {
 		o.BindSearchFilter = *so.BindSearchFilter
 	}
+	if so.CreateTime != nil {
+		o.CreateTime = *so.CreateTime
+	}
 	if so.Description != nil {
 		o.Description = *so.Description
 	}
@@ -509,6 +553,9 @@ func (o *LDAPSource) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.SecurityProtocol != nil {
 		o.SecurityProtocol = *so.SecurityProtocol
+	}
+	if so.UpdateTime != nil {
+		o.UpdateTime = *so.UpdateTime
 	}
 	if so.ZHash != nil {
 		o.ZHash = *so.ZHash
@@ -623,6 +670,8 @@ func (o *LDAPSource) ValueForAttribute(name string) any {
 		return o.BindPassword
 	case "bindSearchFilter":
 		return o.BindSearchFilter
+	case "createTime":
+		return o.CreateTime
 	case "description":
 		return o.Description
 	case "ignoredKeys":
@@ -641,6 +690,8 @@ func (o *LDAPSource) ValueForAttribute(name string) any {
 		return o.Namespace
 	case "securityProtocol":
 		return o.SecurityProtocol
+	case "updateTime":
+		return o.UpdateTime
 	case "zHash":
 		return o.ZHash
 	case "zone":
@@ -740,6 +791,21 @@ systems, the value may be ` + "`" + `uid={USERNAME}` + "`" + `.`,
 		Orderable: true,
 		Stored:    true,
 		Type:      "string",
+	},
+	"CreateTime": {
+		AllowedChoices: []string{},
+		Autogenerated:  true,
+		BSONFieldName:  "createtime",
+		ConvertedName:  "CreateTime",
+		Description:    `Creation date of the object.`,
+		Exposed:        true,
+		Getter:         true,
+		Name:           "createTime",
+		Orderable:      true,
+		ReadOnly:       true,
+		Setter:         true,
+		Stored:         true,
+		Type:           "time",
 	},
 	"Description": {
 		AllowedChoices: []string{},
@@ -851,6 +917,21 @@ the claims that are about to be delivered using this authentication source.`,
 		Name:           "securityProtocol",
 		Stored:         true,
 		Type:           "enum",
+	},
+	"UpdateTime": {
+		AllowedChoices: []string{},
+		Autogenerated:  true,
+		BSONFieldName:  "updatetime",
+		ConvertedName:  "UpdateTime",
+		Description:    `Last update date of the object.`,
+		Exposed:        true,
+		Getter:         true,
+		Name:           "updateTime",
+		Orderable:      true,
+		ReadOnly:       true,
+		Setter:         true,
+		Stored:         true,
+		Type:           "time",
 	},
 	"ZHash": {
 		AllowedChoices: []string{},
@@ -972,6 +1053,21 @@ systems, the value may be ` + "`" + `uid={USERNAME}` + "`" + `.`,
 		Stored:    true,
 		Type:      "string",
 	},
+	"createtime": {
+		AllowedChoices: []string{},
+		Autogenerated:  true,
+		BSONFieldName:  "createtime",
+		ConvertedName:  "CreateTime",
+		Description:    `Creation date of the object.`,
+		Exposed:        true,
+		Getter:         true,
+		Name:           "createTime",
+		Orderable:      true,
+		ReadOnly:       true,
+		Setter:         true,
+		Stored:         true,
+		Type:           "time",
+	},
 	"description": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "description",
@@ -1082,6 +1178,21 @@ the claims that are about to be delivered using this authentication source.`,
 		Name:           "securityProtocol",
 		Stored:         true,
 		Type:           "enum",
+	},
+	"updatetime": {
+		AllowedChoices: []string{},
+		Autogenerated:  true,
+		BSONFieldName:  "updatetime",
+		ConvertedName:  "UpdateTime",
+		Description:    `Last update date of the object.`,
+		Exposed:        true,
+		Getter:         true,
+		Name:           "updateTime",
+		Orderable:      true,
+		ReadOnly:       true,
+		Setter:         true,
+		Stored:         true,
+		Type:           "time",
 	},
 	"zhash": {
 		AllowedChoices: []string{},
@@ -1200,6 +1311,9 @@ type SparseLDAPSource struct {
 	// systems, the value may be `uid={USERNAME}`.
 	BindSearchFilter *string `json:"bindSearchFilter,omitempty" msgpack:"bindSearchFilter,omitempty" bson:"bindsearchfilter,omitempty" mapstructure:"bindSearchFilter,omitempty"`
 
+	// Creation date of the object.
+	CreateTime *time.Time `json:"createTime,omitempty" msgpack:"createTime,omitempty" bson:"createtime,omitempty" mapstructure:"createTime,omitempty"`
+
 	// The description of the object.
 	Description *string `json:"description,omitempty" msgpack:"description,omitempty" bson:"description,omitempty" mapstructure:"description,omitempty"`
 
@@ -1230,6 +1344,9 @@ type SparseLDAPSource struct {
 
 	// Specifies the connection type for the LDAP provider.
 	SecurityProtocol *LDAPSourceSecurityProtocolValue `json:"securityProtocol,omitempty" msgpack:"securityProtocol,omitempty" bson:"securityprotocol,omitempty" mapstructure:"securityProtocol,omitempty"`
+
+	// Last update date of the object.
+	UpdateTime *time.Time `json:"updateTime,omitempty" msgpack:"updateTime,omitempty" bson:"updatetime,omitempty" mapstructure:"updateTime,omitempty"`
 
 	// Hash of the object used to shard the data.
 	ZHash *int `json:"-" msgpack:"-" bson:"zhash,omitempty" mapstructure:"-,omitempty"`
@@ -1301,6 +1418,9 @@ func (o *SparseLDAPSource) GetBSON() (any, error) {
 	if o.BindSearchFilter != nil {
 		s.BindSearchFilter = o.BindSearchFilter
 	}
+	if o.CreateTime != nil {
+		s.CreateTime = o.CreateTime
+	}
 	if o.Description != nil {
 		s.Description = o.Description
 	}
@@ -1327,6 +1447,9 @@ func (o *SparseLDAPSource) GetBSON() (any, error) {
 	}
 	if o.SecurityProtocol != nil {
 		s.SecurityProtocol = o.SecurityProtocol
+	}
+	if o.UpdateTime != nil {
+		s.UpdateTime = o.UpdateTime
 	}
 	if o.ZHash != nil {
 		s.ZHash = o.ZHash
@@ -1371,6 +1494,9 @@ func (o *SparseLDAPSource) SetBSON(raw bson.Raw) error {
 	if s.BindSearchFilter != nil {
 		o.BindSearchFilter = s.BindSearchFilter
 	}
+	if s.CreateTime != nil {
+		o.CreateTime = s.CreateTime
+	}
 	if s.Description != nil {
 		o.Description = s.Description
 	}
@@ -1397,6 +1523,9 @@ func (o *SparseLDAPSource) SetBSON(raw bson.Raw) error {
 	}
 	if s.SecurityProtocol != nil {
 		o.SecurityProtocol = s.SecurityProtocol
+	}
+	if s.UpdateTime != nil {
+		o.UpdateTime = s.UpdateTime
 	}
 	if s.ZHash != nil {
 		o.ZHash = s.ZHash
@@ -1439,6 +1568,9 @@ func (o *SparseLDAPSource) ToPlain() elemental.PlainIdentifiable {
 	if o.BindSearchFilter != nil {
 		out.BindSearchFilter = *o.BindSearchFilter
 	}
+	if o.CreateTime != nil {
+		out.CreateTime = *o.CreateTime
+	}
 	if o.Description != nil {
 		out.Description = *o.Description
 	}
@@ -1465,6 +1597,9 @@ func (o *SparseLDAPSource) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.SecurityProtocol != nil {
 		out.SecurityProtocol = *o.SecurityProtocol
+	}
+	if o.UpdateTime != nil {
+		out.UpdateTime = *o.UpdateTime
 	}
 	if o.ZHash != nil {
 		out.ZHash = *o.ZHash
@@ -1510,6 +1645,22 @@ func (o *SparseLDAPSource) GetID() (out string) {
 func (o *SparseLDAPSource) SetID(ID string) {
 
 	o.ID = &ID
+}
+
+// GetCreateTime returns the CreateTime of the receiver.
+func (o *SparseLDAPSource) GetCreateTime() (out time.Time) {
+
+	if o.CreateTime == nil {
+		return
+	}
+
+	return *o.CreateTime
+}
+
+// SetCreateTime sets the property CreateTime of the receiver using the address of the given value.
+func (o *SparseLDAPSource) SetCreateTime(createTime time.Time) {
+
+	o.CreateTime = &createTime
 }
 
 // GetImportHash returns the ImportHash of the receiver.
@@ -1558,6 +1709,22 @@ func (o *SparseLDAPSource) GetNamespace() (out string) {
 func (o *SparseLDAPSource) SetNamespace(namespace string) {
 
 	o.Namespace = &namespace
+}
+
+// GetUpdateTime returns the UpdateTime of the receiver.
+func (o *SparseLDAPSource) GetUpdateTime() (out time.Time) {
+
+	if o.UpdateTime == nil {
+		return
+	}
+
+	return *o.UpdateTime
+}
+
+// SetUpdateTime sets the property UpdateTime of the receiver using the address of the given value.
+func (o *SparseLDAPSource) SetUpdateTime(updateTime time.Time) {
+
+	o.UpdateTime = &updateTime
 }
 
 // GetZHash returns the ZHash of the receiver.
@@ -1624,6 +1791,7 @@ type mongoAttributesLDAPSource struct {
 	BindDN           string                          `bson:"binddn"`
 	BindPassword     string                          `bson:"bindpassword"`
 	BindSearchFilter string                          `bson:"bindsearchfilter"`
+	CreateTime       time.Time                       `bson:"createtime"`
 	Description      string                          `bson:"description"`
 	IgnoredKeys      []string                        `bson:"ignoredkeys,omitempty"`
 	ImportHash       string                          `bson:"importhash,omitempty"`
@@ -1633,6 +1801,7 @@ type mongoAttributesLDAPSource struct {
 	Name             string                          `bson:"name"`
 	Namespace        string                          `bson:"namespace"`
 	SecurityProtocol LDAPSourceSecurityProtocolValue `bson:"securityprotocol"`
+	UpdateTime       time.Time                       `bson:"updatetime"`
 	ZHash            int                             `bson:"zhash"`
 	Zone             int                             `bson:"zone"`
 }
@@ -1644,6 +1813,7 @@ type mongoAttributesSparseLDAPSource struct {
 	BindDN           *string                          `bson:"binddn,omitempty"`
 	BindPassword     *string                          `bson:"bindpassword,omitempty"`
 	BindSearchFilter *string                          `bson:"bindsearchfilter,omitempty"`
+	CreateTime       *time.Time                       `bson:"createtime,omitempty"`
 	Description      *string                          `bson:"description,omitempty"`
 	IgnoredKeys      *[]string                        `bson:"ignoredkeys,omitempty"`
 	ImportHash       *string                          `bson:"importhash,omitempty"`
@@ -1653,6 +1823,7 @@ type mongoAttributesSparseLDAPSource struct {
 	Name             *string                          `bson:"name,omitempty"`
 	Namespace        *string                          `bson:"namespace,omitempty"`
 	SecurityProtocol *LDAPSourceSecurityProtocolValue `bson:"securityprotocol,omitempty"`
+	UpdateTime       *time.Time                       `bson:"updatetime,omitempty"`
 	ZHash            *int                             `bson:"zhash,omitempty"`
 	Zone             *int                             `bson:"zone,omitempty"`
 }

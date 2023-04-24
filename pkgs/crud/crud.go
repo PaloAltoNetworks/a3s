@@ -2,12 +2,22 @@ package crud
 
 import (
 	"reflect"
+	"time"
 
 	"go.aporeto.io/a3s/pkgs/importing"
 	"go.aporeto.io/bahamut"
 	"go.aporeto.io/elemental"
 	"go.aporeto.io/manipulate"
 )
+
+// A Timeable is an object that can keep track of
+// its creation and last update time.
+type Timeable interface {
+	SetCreateTime(time.Time)
+	GetCreateTime() time.Time
+	SetUpdateTime(time.Time)
+	GetUpdateTime() time.Time
+}
 
 // Create performs the basic create operation.
 func Create(bctx bahamut.Context, m manipulate.Manipulator, obj elemental.Identifiable, opts ...Option) error {
@@ -25,6 +35,12 @@ func Create(bctx bahamut.Context, m manipulate.Manipulator, obj elemental.Identi
 
 	if n, ok := obj.(elemental.Namespaceable); ok {
 		n.SetNamespace(bctx.Request().Namespace)
+	}
+
+	if tobj, ok := obj.(Timeable); ok {
+		now := time.Now().Round(time.Millisecond)
+		tobj.SetCreateTime(now)
+		tobj.SetUpdateTime(now)
 	}
 
 	if cfg.preHook != nil {
@@ -126,6 +142,10 @@ func Update(bctx bahamut.Context, m manipulate.Manipulator, obj elemental.Identi
 		); err != nil {
 			return err
 		}
+	}
+
+	if tobj, ok := obj.(Timeable); ok {
+		tobj.SetUpdateTime(time.Now().Round(time.Millisecond))
 	}
 
 	if cfg.preHook != nil {

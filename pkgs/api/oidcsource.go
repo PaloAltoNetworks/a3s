@@ -5,6 +5,7 @@ package api
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/globalsign/mgo/bson"
 	"github.com/mitchellh/copystructure"
@@ -97,6 +98,9 @@ type OIDCSource struct {
 	// Client secret associated with the client ID.
 	ClientSecret string `json:"clientSecret" msgpack:"clientSecret" bson:"clientsecret" mapstructure:"clientSecret,omitempty"`
 
+	// Creation date of the object.
+	CreateTime time.Time `json:"createTime" msgpack:"createTime" bson:"createtime" mapstructure:"createTime,omitempty"`
+
 	// The description of the object.
 	Description string `json:"description" msgpack:"description" bson:"description" mapstructure:"description,omitempty"`
 
@@ -123,6 +127,9 @@ type OIDCSource struct {
 
 	// List of scopes to allow.
 	Scopes []string `json:"scopes" msgpack:"scopes" bson:"scopes" mapstructure:"scopes,omitempty"`
+
+	// Last update date of the object.
+	UpdateTime time.Time `json:"updateTime" msgpack:"updateTime" bson:"updatetime" mapstructure:"updateTime,omitempty"`
 
 	// Hash of the object used to shard the data.
 	ZHash int `json:"-" msgpack:"-" bson:"zhash" mapstructure:"-,omitempty"`
@@ -176,6 +183,7 @@ func (o *OIDCSource) GetBSON() (any, error) {
 	}
 	s.ClientID = o.ClientID
 	s.ClientSecret = o.ClientSecret
+	s.CreateTime = o.CreateTime
 	s.Description = o.Description
 	s.Endpoint = o.Endpoint
 	s.ImportHash = o.ImportHash
@@ -184,6 +192,7 @@ func (o *OIDCSource) GetBSON() (any, error) {
 	s.Name = o.Name
 	s.Namespace = o.Namespace
 	s.Scopes = o.Scopes
+	s.UpdateTime = o.UpdateTime
 	s.ZHash = o.ZHash
 	s.Zone = o.Zone
 
@@ -207,6 +216,7 @@ func (o *OIDCSource) SetBSON(raw bson.Raw) error {
 	o.ID = s.ID.Hex()
 	o.ClientID = s.ClientID
 	o.ClientSecret = s.ClientSecret
+	o.CreateTime = s.CreateTime
 	o.Description = s.Description
 	o.Endpoint = s.Endpoint
 	o.ImportHash = s.ImportHash
@@ -215,6 +225,7 @@ func (o *OIDCSource) SetBSON(raw bson.Raw) error {
 	o.Name = s.Name
 	o.Namespace = s.Namespace
 	o.Scopes = s.Scopes
+	o.UpdateTime = s.UpdateTime
 	o.ZHash = s.ZHash
 	o.Zone = s.Zone
 
@@ -262,6 +273,18 @@ func (o *OIDCSource) SetID(ID string) {
 	o.ID = ID
 }
 
+// GetCreateTime returns the CreateTime of the receiver.
+func (o *OIDCSource) GetCreateTime() time.Time {
+
+	return o.CreateTime
+}
+
+// SetCreateTime sets the property CreateTime of the receiver using the given value.
+func (o *OIDCSource) SetCreateTime(createTime time.Time) {
+
+	o.CreateTime = createTime
+}
+
 // GetImportHash returns the ImportHash of the receiver.
 func (o *OIDCSource) GetImportHash() string {
 
@@ -296,6 +319,18 @@ func (o *OIDCSource) GetNamespace() string {
 func (o *OIDCSource) SetNamespace(namespace string) {
 
 	o.Namespace = namespace
+}
+
+// GetUpdateTime returns the UpdateTime of the receiver.
+func (o *OIDCSource) GetUpdateTime() time.Time {
+
+	return o.UpdateTime
+}
+
+// SetUpdateTime sets the property UpdateTime of the receiver using the given value.
+func (o *OIDCSource) SetUpdateTime(updateTime time.Time) {
+
+	o.UpdateTime = updateTime
 }
 
 // GetZHash returns the ZHash of the receiver.
@@ -333,6 +368,7 @@ func (o *OIDCSource) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			ID:           &o.ID,
 			ClientID:     &o.ClientID,
 			ClientSecret: &o.ClientSecret,
+			CreateTime:   &o.CreateTime,
 			Description:  &o.Description,
 			Endpoint:     &o.Endpoint,
 			ImportHash:   &o.ImportHash,
@@ -341,6 +377,7 @@ func (o *OIDCSource) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			Name:         &o.Name,
 			Namespace:    &o.Namespace,
 			Scopes:       &o.Scopes,
+			UpdateTime:   &o.UpdateTime,
 			ZHash:        &o.ZHash,
 			Zone:         &o.Zone,
 		}
@@ -357,6 +394,8 @@ func (o *OIDCSource) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.ClientID = &(o.ClientID)
 		case "clientSecret":
 			sp.ClientSecret = &(o.ClientSecret)
+		case "createTime":
+			sp.CreateTime = &(o.CreateTime)
 		case "description":
 			sp.Description = &(o.Description)
 		case "endpoint":
@@ -373,6 +412,8 @@ func (o *OIDCSource) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.Namespace = &(o.Namespace)
 		case "scopes":
 			sp.Scopes = &(o.Scopes)
+		case "updateTime":
+			sp.UpdateTime = &(o.UpdateTime)
 		case "zHash":
 			sp.ZHash = &(o.ZHash)
 		case "zone":
@@ -422,6 +463,9 @@ func (o *OIDCSource) Patch(sparse elemental.SparseIdentifiable) {
 	if so.ClientSecret != nil {
 		o.ClientSecret = *so.ClientSecret
 	}
+	if so.CreateTime != nil {
+		o.CreateTime = *so.CreateTime
+	}
 	if so.Description != nil {
 		o.Description = *so.Description
 	}
@@ -445,6 +489,9 @@ func (o *OIDCSource) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.Scopes != nil {
 		o.Scopes = *so.Scopes
+	}
+	if so.UpdateTime != nil {
+		o.UpdateTime = *so.UpdateTime
 	}
 	if so.ZHash != nil {
 		o.ZHash = *so.ZHash
@@ -553,6 +600,8 @@ func (o *OIDCSource) ValueForAttribute(name string) any {
 		return o.ClientID
 	case "clientSecret":
 		return o.ClientSecret
+	case "createTime":
+		return o.CreateTime
 	case "description":
 		return o.Description
 	case "endpoint":
@@ -569,6 +618,8 @@ func (o *OIDCSource) ValueForAttribute(name string) any {
 		return o.Namespace
 	case "scopes":
 		return o.Scopes
+	case "updateTime":
+		return o.UpdateTime
 	case "zHash":
 		return o.ZHash
 	case "zone":
@@ -630,6 +681,21 @@ cases, you don't need to set this.`,
 		Required:       true,
 		Stored:         true,
 		Type:           "string",
+	},
+	"CreateTime": {
+		AllowedChoices: []string{},
+		Autogenerated:  true,
+		BSONFieldName:  "createtime",
+		ConvertedName:  "CreateTime",
+		Description:    `Creation date of the object.`,
+		Exposed:        true,
+		Getter:         true,
+		Name:           "createTime",
+		Orderable:      true,
+		ReadOnly:       true,
+		Setter:         true,
+		Stored:         true,
+		Type:           "time",
 	},
 	"Description": {
 		AllowedChoices: []string{},
@@ -730,6 +796,21 @@ the claims that are about to be delivered using this authentication source.`,
 		SubType:        "string",
 		Type:           "list",
 	},
+	"UpdateTime": {
+		AllowedChoices: []string{},
+		Autogenerated:  true,
+		BSONFieldName:  "updatetime",
+		ConvertedName:  "UpdateTime",
+		Description:    `Last update date of the object.`,
+		Exposed:        true,
+		Getter:         true,
+		Name:           "updateTime",
+		Orderable:      true,
+		ReadOnly:       true,
+		Setter:         true,
+		Stored:         true,
+		Type:           "time",
+	},
 	"ZHash": {
 		AllowedChoices: []string{},
 		Autogenerated:  true,
@@ -811,6 +892,21 @@ cases, you don't need to set this.`,
 		Required:       true,
 		Stored:         true,
 		Type:           "string",
+	},
+	"createtime": {
+		AllowedChoices: []string{},
+		Autogenerated:  true,
+		BSONFieldName:  "createtime",
+		ConvertedName:  "CreateTime",
+		Description:    `Creation date of the object.`,
+		Exposed:        true,
+		Getter:         true,
+		Name:           "createTime",
+		Orderable:      true,
+		ReadOnly:       true,
+		Setter:         true,
+		Stored:         true,
+		Type:           "time",
 	},
 	"description": {
 		AllowedChoices: []string{},
@@ -910,6 +1006,21 @@ the claims that are about to be delivered using this authentication source.`,
 		Stored:         true,
 		SubType:        "string",
 		Type:           "list",
+	},
+	"updatetime": {
+		AllowedChoices: []string{},
+		Autogenerated:  true,
+		BSONFieldName:  "updatetime",
+		ConvertedName:  "UpdateTime",
+		Description:    `Last update date of the object.`,
+		Exposed:        true,
+		Getter:         true,
+		Name:           "updateTime",
+		Orderable:      true,
+		ReadOnly:       true,
+		Setter:         true,
+		Stored:         true,
+		Type:           "time",
 	},
 	"zhash": {
 		AllowedChoices: []string{},
@@ -1017,6 +1128,9 @@ type SparseOIDCSource struct {
 	// Client secret associated with the client ID.
 	ClientSecret *string `json:"clientSecret,omitempty" msgpack:"clientSecret,omitempty" bson:"clientsecret,omitempty" mapstructure:"clientSecret,omitempty"`
 
+	// Creation date of the object.
+	CreateTime *time.Time `json:"createTime,omitempty" msgpack:"createTime,omitempty" bson:"createtime,omitempty" mapstructure:"createTime,omitempty"`
+
 	// The description of the object.
 	Description *string `json:"description,omitempty" msgpack:"description,omitempty" bson:"description,omitempty" mapstructure:"description,omitempty"`
 
@@ -1043,6 +1157,9 @@ type SparseOIDCSource struct {
 
 	// List of scopes to allow.
 	Scopes *[]string `json:"scopes,omitempty" msgpack:"scopes,omitempty" bson:"scopes,omitempty" mapstructure:"scopes,omitempty"`
+
+	// Last update date of the object.
+	UpdateTime *time.Time `json:"updateTime,omitempty" msgpack:"updateTime,omitempty" bson:"updatetime,omitempty" mapstructure:"updateTime,omitempty"`
 
 	// Hash of the object used to shard the data.
 	ZHash *int `json:"-" msgpack:"-" bson:"zhash,omitempty" mapstructure:"-,omitempty"`
@@ -1105,6 +1222,9 @@ func (o *SparseOIDCSource) GetBSON() (any, error) {
 	if o.ClientSecret != nil {
 		s.ClientSecret = o.ClientSecret
 	}
+	if o.CreateTime != nil {
+		s.CreateTime = o.CreateTime
+	}
 	if o.Description != nil {
 		s.Description = o.Description
 	}
@@ -1128,6 +1248,9 @@ func (o *SparseOIDCSource) GetBSON() (any, error) {
 	}
 	if o.Scopes != nil {
 		s.Scopes = o.Scopes
+	}
+	if o.UpdateTime != nil {
+		s.UpdateTime = o.UpdateTime
 	}
 	if o.ZHash != nil {
 		s.ZHash = o.ZHash
@@ -1163,6 +1286,9 @@ func (o *SparseOIDCSource) SetBSON(raw bson.Raw) error {
 	if s.ClientSecret != nil {
 		o.ClientSecret = s.ClientSecret
 	}
+	if s.CreateTime != nil {
+		o.CreateTime = s.CreateTime
+	}
 	if s.Description != nil {
 		o.Description = s.Description
 	}
@@ -1186,6 +1312,9 @@ func (o *SparseOIDCSource) SetBSON(raw bson.Raw) error {
 	}
 	if s.Scopes != nil {
 		o.Scopes = s.Scopes
+	}
+	if s.UpdateTime != nil {
+		o.UpdateTime = s.UpdateTime
 	}
 	if s.ZHash != nil {
 		o.ZHash = s.ZHash
@@ -1219,6 +1348,9 @@ func (o *SparseOIDCSource) ToPlain() elemental.PlainIdentifiable {
 	if o.ClientSecret != nil {
 		out.ClientSecret = *o.ClientSecret
 	}
+	if o.CreateTime != nil {
+		out.CreateTime = *o.CreateTime
+	}
 	if o.Description != nil {
 		out.Description = *o.Description
 	}
@@ -1242,6 +1374,9 @@ func (o *SparseOIDCSource) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.Scopes != nil {
 		out.Scopes = *o.Scopes
+	}
+	if o.UpdateTime != nil {
+		out.UpdateTime = *o.UpdateTime
 	}
 	if o.ZHash != nil {
 		out.ZHash = *o.ZHash
@@ -1287,6 +1422,22 @@ func (o *SparseOIDCSource) GetID() (out string) {
 func (o *SparseOIDCSource) SetID(ID string) {
 
 	o.ID = &ID
+}
+
+// GetCreateTime returns the CreateTime of the receiver.
+func (o *SparseOIDCSource) GetCreateTime() (out time.Time) {
+
+	if o.CreateTime == nil {
+		return
+	}
+
+	return *o.CreateTime
+}
+
+// SetCreateTime sets the property CreateTime of the receiver using the address of the given value.
+func (o *SparseOIDCSource) SetCreateTime(createTime time.Time) {
+
+	o.CreateTime = &createTime
 }
 
 // GetImportHash returns the ImportHash of the receiver.
@@ -1335,6 +1486,22 @@ func (o *SparseOIDCSource) GetNamespace() (out string) {
 func (o *SparseOIDCSource) SetNamespace(namespace string) {
 
 	o.Namespace = &namespace
+}
+
+// GetUpdateTime returns the UpdateTime of the receiver.
+func (o *SparseOIDCSource) GetUpdateTime() (out time.Time) {
+
+	if o.UpdateTime == nil {
+		return
+	}
+
+	return *o.UpdateTime
+}
+
+// SetUpdateTime sets the property UpdateTime of the receiver using the address of the given value.
+func (o *SparseOIDCSource) SetUpdateTime(updateTime time.Time) {
+
+	o.UpdateTime = &updateTime
 }
 
 // GetZHash returns the ZHash of the receiver.
@@ -1398,6 +1565,7 @@ type mongoAttributesOIDCSource struct {
 	ID           bson.ObjectId     `bson:"_id,omitempty"`
 	ClientID     string            `bson:"clientid"`
 	ClientSecret string            `bson:"clientsecret"`
+	CreateTime   time.Time         `bson:"createtime"`
 	Description  string            `bson:"description"`
 	Endpoint     string            `bson:"endpoint"`
 	ImportHash   string            `bson:"importhash,omitempty"`
@@ -1406,6 +1574,7 @@ type mongoAttributesOIDCSource struct {
 	Name         string            `bson:"name"`
 	Namespace    string            `bson:"namespace"`
 	Scopes       []string          `bson:"scopes"`
+	UpdateTime   time.Time         `bson:"updatetime"`
 	ZHash        int               `bson:"zhash"`
 	Zone         int               `bson:"zone"`
 }
@@ -1414,6 +1583,7 @@ type mongoAttributesSparseOIDCSource struct {
 	ID           bson.ObjectId     `bson:"_id,omitempty"`
 	ClientID     *string           `bson:"clientid,omitempty"`
 	ClientSecret *string           `bson:"clientsecret,omitempty"`
+	CreateTime   *time.Time        `bson:"createtime,omitempty"`
 	Description  *string           `bson:"description,omitempty"`
 	Endpoint     *string           `bson:"endpoint,omitempty"`
 	ImportHash   *string           `bson:"importhash,omitempty"`
@@ -1422,6 +1592,7 @@ type mongoAttributesSparseOIDCSource struct {
 	Name         *string           `bson:"name,omitempty"`
 	Namespace    *string           `bson:"namespace,omitempty"`
 	Scopes       *[]string         `bson:"scopes,omitempty"`
+	UpdateTime   *time.Time        `bson:"updatetime,omitempty"`
 	ZHash        *int              `bson:"zhash,omitempty"`
 	Zone         *int              `bson:"zone,omitempty"`
 }
