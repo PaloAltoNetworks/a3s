@@ -80,7 +80,7 @@ func main() {
 		}
 	}
 
-	m := bootstrap.MakeMongoManipulator(cfg.MongoConf, &hasher.Hasher{})
+	m := bootstrap.MakeMongoManipulator(cfg.MongoConf, &hasher.Hasher{}, api.Manager())
 	if err := indexes.Ensure(m, api.Manager(), "a3s"); err != nil {
 		zap.L().Fatal("Unable to ensure indexes", zap.Error(err))
 	}
@@ -376,7 +376,7 @@ func main() {
 
 func createMongoDBAccount(cfg conf.MongoConf, username string) error {
 
-	m := bootstrap.MakeMongoManipulator(cfg, &hasher.Hasher{})
+	m := bootstrap.MakeMongoManipulator(cfg, &hasher.Hasher{}, api.Manager())
 
 	db, closeFunc, _ := manipmongo.GetDatabase(m)
 	defer closeFunc()
