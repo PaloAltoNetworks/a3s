@@ -16,7 +16,7 @@ func MakeCNExcluderFunc(cn string) mtls.VerifierFunc {
 	return func(cert *x509.Certificate) bool { return cert.Subject.CommonName != cn }
 }
 
-// MakeMTLSREquestAuthenticator returns a bahamut.RequestAuthenticator that
+// MakeMTLSRequestAuthenticator returns a bahamut.RequestAuthenticator that
 // will allow requests presenting a client certificate signed by a CA present
 // in the given caPool unless the given mtls.VerifierFunc disagrees.
 func MakeMTLSRequestAuthenticator(caPool *x509.CertPool, verifier mtls.VerifierFunc) bahamut.RequestAuthenticator {
