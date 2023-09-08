@@ -47,8 +47,8 @@ func makeOIDCCmd(mmaker manipcli.ManipulatorMaker, restrictions *permissions.Res
 
 			go startOIDCCallbackServer(srvCtx, authDataCh)
 
-			ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-			defer cancel()
+			ctx1, cancel1 := context.WithTimeout(context.Background(), 30*time.Second)
+			defer cancel1()
 
 			m, err := mmaker()
 			if err != nil {
@@ -57,7 +57,7 @@ func makeOIDCCmd(mmaker manipcli.ManipulatorMaker, restrictions *permissions.Res
 
 			client := authlib.NewClient(m)
 			url, err := client.AuthFromOIDCStep1(
-				ctx,
+				ctx1,
 				fSourceNamespace,
 				fSourceName,
 				"http://localhost:65333",
@@ -71,8 +71,11 @@ func makeOIDCCmd(mmaker manipcli.ManipulatorMaker, restrictions *permissions.Res
 			authD := <-authDataCh
 			srvCancel()
 
+			ctx2, cancel2 := context.WithTimeout(context.Background(), 30*time.Second)
+			defer cancel2()
+
 			t, err := client.AuthFromOIDCStep2(
-				ctx,
+				ctx2,
 				fSourceNamespace,
 				fSourceName,
 				authD.code,
