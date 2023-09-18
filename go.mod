@@ -128,5 +128,3 @@ require (
 	k8s.io/helm v2.17.0+incompatible // indirect
 	rsc.io/qr v0.2.0 // indirect
 )
-
-replace github.com/mitchellh/mapstructure => github.com/mitchellh/mapstructure v1.4.3

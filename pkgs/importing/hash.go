@@ -85,8 +85,12 @@ func sanitize(obj elemental.AttributeSpecifiable, manager elemental.ModelManager
 		// If the type is a ref, we recursively sanitize the nested object.
 		if spec.Type == "ref" {
 
-			fmt.Printf("%#v\n\n", v)
-			m, err := sanitize(v.(elemental.AttributeSpecifiable), manager)
+			vv := manager.IdentifiableFromString(spec.SubType)
+			if err := mapstructure.Decode(v, vv); err != nil {
+				return nil, err
+			}
+
+			m, err := sanitize(vv.(elemental.AttributeSpecifiable), manager)
 			if err != nil {
 				return nil, err
 			}
