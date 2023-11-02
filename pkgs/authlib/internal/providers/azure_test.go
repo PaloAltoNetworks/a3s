@@ -7,7 +7,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	. "github.com/smartystreets/goconvey/convey" //revive:disable-line:dot-imports
+	// nolint: revive
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 func newValidAzureToken() string {
