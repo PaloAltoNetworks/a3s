@@ -7,7 +7,6 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	// nolint: revive
 	. "github.com/smartystreets/goconvey/convey"
 )
 

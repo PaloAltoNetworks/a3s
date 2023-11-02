@@ -18,7 +18,6 @@ import (
 	"testing"
 	"time"
 
-	// nolint: revive
 	. "github.com/smartystreets/goconvey/convey"
 	"github.com/spf13/viper"
 )

@@ -17,6 +17,7 @@ lint:
 		--timeout=5m \
 		--disable-all \
 		--exclude-use-default=false \
+		--exclude=dot-imports \
 		--exclude=package-comments \
 		--exclude=unused-parameter \
 		--exclude=dot-imports \
@@ -35,6 +36,7 @@ lint:
 		--enable=gosimple \
 		--enable=nilerr \
 		./...
+
 
 test:
 	go test ./... -race -cover -covermode=atomic -coverprofile=unit_coverage.out
