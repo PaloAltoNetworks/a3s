@@ -18,7 +18,7 @@ import (
 	"testing"
 	"time"
 
-	. "github.com/smartystreets/goconvey/convey"
+	. "github.com/smartystreets/goconvey/convey" //revive:disable-line:dot-imports
 	"github.com/spf13/viper"
 )
 
