@@ -4,45 +4,53 @@ changelog:
   sort: asc
   filters:
     exclude:
-    - '^docs:'
-    - '^test:'
-    - '^examples:'
+      - "^docs:"
+      - "^test:"
+      - "^examples:"
 builds:
   - id: a3s
     main: ./cmd/a3s
     binary: a3s
     goos:
-    - linux
-    - freebsd
-    - darwin
+      - linux
+      - freebsd
+      - darwin
     goarch:
-    - amd64
+      - amd64
     env:
-    - CGO_ENABLED=0
+      - CGO_ENABLED=0
 
   - id: a3sctl
     main: ./cmd/a3sctl
     binary: a3sctl
     goos:
-    - linux
-    - freebsd
-    - darwin
+      - linux
+      - freebsd
+      - darwin
     goarch:
-    - amd64
+      - amd64
     env:
-    - CGO_ENABLED=0
+      - CGO_ENABLED=0
 
 archives:
   - id: a3s
     format: binary
     builds:
-    - a3s
+      - a3s
 
   - id: a3sctl
     format: binary
     builds:
-    - a3sctl
+      - a3sctl
 
 signs:
   - artifacts: checksum
-    args: ["-u", "0C3214A61024881F5CA1F5F056EDB08A11DCE325", "--output", "${signature}", "--detach-sign", "${artifact}"]
+    args:
+      [
+        "-u",
+        "047425996F52AAC835C75B3F2CE3F8894D4DA57A",
+        "--output",
+        "${signature}",
+        "--detach-sign",
+        "${artifact}",
+      ]
