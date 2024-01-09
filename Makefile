@@ -97,3 +97,7 @@ package_ca_certs:
 	mkdir -p docker/in
 	extract-nss-root-certs > docker/in/ca-certificates.pem
 	rm -f certdata.txt
+
+# tag the commit, set GITHUB_TOKEN, then run...
+release:
+	unset GITLAB_TOKEN && goreleaser check && goreleaser release --clean
