@@ -11,14 +11,18 @@ import (
 func TestOptions(t *testing.T) {
 
 	Convey("OptionPreWriteHook should work ", t, func() {
-		cfg := cfg{}
+		cfg := cfg{
+			preHook: func(elemental.Identifiable, elemental.Identifiable) error { return nil },
+		}
 		f := func(elemental.Identifiable, elemental.Identifiable) error { return nil }
 		OptionPreWriteHook(f)(&cfg)
 		So(cfg.preHook, ShouldEqual, f)
 	})
 
 	Convey("OptionPostWriteHook should work ", t, func() {
-		cfg := cfg{}
+		cfg := cfg{
+			postHook: func(elemental.Identifiable) {},
+		}
 		f := func(elemental.Identifiable) {}
 		OptionPostWriteHook(f)(&cfg)
 		So(cfg.postHook, ShouldEqual, f)
