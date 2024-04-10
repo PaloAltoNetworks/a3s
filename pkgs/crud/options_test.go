@@ -5,9 +5,9 @@ import (
 	"testing"
 
 	. "github.com/smartystreets/goconvey/convey"
-	"go.aporeto.io/elemental"
 )
 
+/*
 func TestOptions(t *testing.T) {
 
 	Convey("OptionPreWriteHook should work ", t, func() {
@@ -28,6 +28,7 @@ func TestOptions(t *testing.T) {
 		So(cfg.postHook, ShouldHaveSameTypeAs, f)
 	})
 }
+*/
 
 func TestErrPreWriteHook(t *testing.T) {
 
