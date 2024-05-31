@@ -8,7 +8,7 @@ require (
 	go.aporeto.io/bahamut v1.148.1-0.20230918174422-3c4160cac883
 	go.aporeto.io/elemental v1.123.1-0.20231116202419-3d09d6d39dcc
 	go.aporeto.io/manipulate v1.135.1-0.20230918174435-3581994d0a01
-	go.aporeto.io/tg v1.50.2-0.20240426181330-18cc4022a599
+	go.aporeto.io/tg v1.50.2-0.20240531210333-e3617107ee69
 )
 
 require (
@@ -30,7 +30,7 @@ require (
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/mitchellh/hashstructure v1.1.0
 	github.com/mitchellh/mapstructure v1.5.0
-	github.com/nats-io/nats-server/v2 v2.10.12
+	github.com/nats-io/nats-server/v2 v2.10.16
 	github.com/opentracing/opentracing-go v1.2.0
 	github.com/smartystreets/goconvey v1.8.1
 	github.com/spaolacci/murmur3 v1.1.0
@@ -42,7 +42,7 @@ require (
 	go.uber.org/automaxprocs v1.5.3
 	go.uber.org/zap v1.27.0
 	golang.org/x/oauth2 v0.19.0
-	golang.org/x/term v0.19.0
+	golang.org/x/term v0.20.0
 )
 
 require (
@@ -84,18 +84,18 @@ require (
 	github.com/mattn/go-runewidth v0.0.14 // indirect
 	github.com/minio/highwayhash v1.0.2 // indirect
 	github.com/mitchellh/reflectwalk v1.0.2 // indirect
-	github.com/nats-io/jwt/v2 v2.5.5 // indirect
-	github.com/nats-io/nats.go v1.34.1 // indirect
+	github.com/nats-io/jwt/v2 v2.5.7 // indirect
+	github.com/nats-io/nats.go v1.35.0 // indirect
 	github.com/nats-io/nkeys v0.4.7 // indirect
 	github.com/nats-io/nuid v1.0.1 // indirect
 	github.com/olekukonko/tablewriter v0.0.5 // indirect
-	github.com/pelletier/go-toml/v2 v2.2.1 // indirect
+	github.com/pelletier/go-toml/v2 v2.2.2 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/power-devops/perfstat v0.0.0-20221212215047-62379fc7944b // indirect
-	github.com/prometheus/client_golang v1.19.0 // indirect
+	github.com/prometheus/client_golang v1.19.1 // indirect
 	github.com/prometheus/client_model v0.6.1 // indirect
 	github.com/prometheus/common v0.53.0 // indirect
-	github.com/prometheus/procfs v0.14.0 // indirect
+	github.com/prometheus/procfs v0.15.1 // indirect
 	github.com/rivo/uniseg v0.4.3 // indirect
 	github.com/sagikazarmark/locafero v0.4.0 // indirect
 	github.com/sagikazarmark/slog-shim v0.1.0 // indirect
@@ -117,13 +117,13 @@ require (
 	go.aporeto.io/wsc v1.52.0 // indirect
 	go.uber.org/atomic v1.11.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
-	golang.org/x/crypto v0.22.0 // indirect
-	golang.org/x/exp v0.0.0-20240416160154-fe59bbe5cc7f // indirect
-	golang.org/x/net v0.24.0 // indirect
-	golang.org/x/sys v0.19.0 // indirect
-	golang.org/x/text v0.14.0 // indirect
+	golang.org/x/crypto v0.23.0 // indirect
+	golang.org/x/exp v0.0.0-20240531132922-fd00a4e0eefc // indirect
+	golang.org/x/net v0.25.0 // indirect
+	golang.org/x/sys v0.20.0 // indirect
+	golang.org/x/text v0.15.0 // indirect
 	golang.org/x/time v0.5.0 // indirect
-	google.golang.org/protobuf v1.33.0 // indirect
+	google.golang.org/protobuf v1.34.1 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
