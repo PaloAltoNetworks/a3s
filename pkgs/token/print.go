@@ -63,7 +63,10 @@ func Fprint(w io.Writer, token string, opts ...PrintOption) error {
 
 	if cfg.qrcode {
 		if addLine {
-			fmt.Fprintln(w)
+			_, err := fmt.Fprintln(w)
+			if err != nil {
+				return err
+			}
 		}
 		printQRCode(w, token)
 		addLine = true
@@ -71,7 +74,10 @@ func Fprint(w io.Writer, token string, opts ...PrintOption) error {
 
 	if cfg.raw {
 		if addLine {
-			fmt.Fprintln(w)
+			_, err := fmt.Fprintln(w)
+			if err != nil {
+				return err
+			}
 		}
 		printRaw(w, token)
 	}
@@ -94,17 +100,32 @@ func printDecoded(w io.Writer, token string) error {
 		return err
 	}
 
-	fmt.Fprintln(w, "alg:", t.Method.Alg())
-	fmt.Fprintln(w, "kid:", t.Header["kid"])
+	_, err = fmt.Fprintln(w, "alg:", t.Method.Alg())
+	if err != nil {
+		return err
+	}
+	_, err = fmt.Fprintln(w, "kid:", t.Header["kid"])
+	if err != nil {
+		return err
+	}
 	if exp, ok := claims["exp"].(float64); ok {
 		remaining := time.Until(time.Unix(int64(exp), 0))
 		if remaining <= 0 {
-			fmt.Fprintln(w, "exp: the token has expired", -remaining.Truncate(time.Second), "ago")
+			_, err = fmt.Fprintln(w, "exp: the token has expired", -remaining.Truncate(time.Second), "ago")
+			if err != nil {
+				return err
+			}
 		} else {
-			fmt.Fprintln(w, "exp:", remaining.Truncate(time.Second))
+			_, err = fmt.Fprintln(w, "exp:", remaining.Truncate(time.Second))
+			if err != nil {
+				return err
+			}
 		}
 	}
-	fmt.Fprintln(w, string(data))
+	_, err = fmt.Fprintln(w, string(data))
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -127,5 +148,6 @@ func printQRCode(w io.Writer, token string) {
 }
 
 func printRaw(w io.Writer, token string) {
-	fmt.Fprintln(w, token)
+	// nolint: errcheck
+	_, _ = fmt.Fprintln(w, token)
 }
