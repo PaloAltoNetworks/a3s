@@ -63,7 +63,10 @@ func Fprint(w io.Writer, token string, opts ...PrintOption) error {
 
 	if cfg.qrcode {
 		if addLine {
-			fmt.Fprintln(w)
+			_, err := fmt.Fprintln(w)
+			if err != nil {
+				return err
+			}
 		}
 		printQRCode(w, token)
 		addLine = true
@@ -71,7 +74,10 @@ func Fprint(w io.Writer, token string, opts ...PrintOption) error {
 
 	if cfg.raw {
 		if addLine {
-			fmt.Fprintln(w)
+			_, err := fmt.Fprintln(w)
+			if err != nil {
+				return err
+			}
 		}
 		printRaw(w, token)
 	}
