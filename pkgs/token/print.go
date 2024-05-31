@@ -148,8 +148,6 @@ func printQRCode(w io.Writer, token string) {
 }
 
 func printRaw(w io.Writer, token string) {
-	_, err := fmt.Fprintln(w, token)
-	if err != nil {
-		return err
-	}
+	// nolint: errcheck
+	_, _ = fmt.Fprintln(w, token)
 }
