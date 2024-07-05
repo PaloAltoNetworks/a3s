@@ -1,6 +1,7 @@
 package oidcceremony
 
 import (
+	"context"
 	"time"
 
 	"github.com/globalsign/mgo/bson"
@@ -32,7 +33,13 @@ func Set(m manipulate.Manipulator, item *CacheItem) error {
 	}
 	defer disco()
 
-	return db.C(oidcCacheCollection).Insert(item)
+	collection := db.Collection("oidcCacheCollection")
+	// Insert the item
+	_, err = collection.InsertOne(context.TODO(), item)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 // Get gets the items with the given state.
@@ -46,7 +53,10 @@ func Get(m manipulate.Manipulator, state string) (*CacheItem, error) {
 	defer disco()
 
 	item := &CacheItem{}
-	if err := db.C(oidcCacheCollection).Find(bson.M{"state": state}).One(item); err != nil {
+	collection := db.Collection("oidcCacheCollection")
+	filter := bson.M{"state": state}
+	err = collection.FindOne(context.TODO(), filter).Decode(item)
+	if err != nil {
 		return nil, err
 	}
 	return item, nil
@@ -61,5 +71,11 @@ func Delete(m manipulate.Manipulator, state string) error {
 	}
 	defer disco()
 
-	return db.C(oidcCacheCollection).Remove(bson.M{"state": state})
+	collection := db.Collection("oidcCacheCollection")
+	filter := bson.M{"state": state}
+	_, err = collection.DeleteOne(context.TODO(), filter)
+	if err != nil {
+		return err
+	}
+	return nil
 }

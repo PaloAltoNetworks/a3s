@@ -39,6 +39,9 @@ import (
 	"go.aporeto.io/tg/tglib"
 	"go.uber.org/zap"
 
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
+
 	gwpush "go.aporeto.io/bahamut/gateway/upstreamer/push"
 )
 
@@ -372,15 +375,36 @@ func createMongoDBAccount(cfg conf.MongoConf, username string) error {
 	db, close, _ := manipmongo.GetDatabase(m)
 	defer close()
 
-	user := mgo.User{
-		Username: username,
-		OtherDBRoles: map[string][]mgo.Role{
-			"a3s": {mgo.RoleReadWrite, mgo.RoleDBAdmin},
-		},
+	role := map[string][]mgo.Role{
+		"a3s": {"readWrite", "dbAdmin"},
+	}
+	createCommand := bson.D{
+		{Key: "createUser", Value: username},
+		{Key: "roles", Value: bson.A{
+			bson.D{
+				{Key: "role", Value: role},
+				{Key: "db", Value: db.Name},
+			},
+		}},
 	}
 
-	if err := db.UpsertUser(&user); err != nil {
-		return fmt.Errorf("unable to upsert the user: %w", err)
+	err := db.RunCommand(context.TODO(), createCommand).Err()
+	if err != nil && !mongo.IsDuplicateKeyError(err) {
+		return fmt.Errorf("unable to create the user: %w", err)
+	} else if err != nil && mongo.IsDuplicateKeyError(err) {
+		// User already exists, update user instead
+		updateCommand := bson.D{
+			{Key: "updateUser", Value: username},
+			{Key: "roles", Value: bson.A{
+				bson.D{
+					{Key: "role", Value: role},
+					{Key: "db", Value: db.Name},
+				},
+			}},
+		}
+		if err := db.RunCommand(context.TODO(), updateCommand).Err(); err != nil {
+			return fmt.Errorf("unable to upsert the user: %w", err)
+		}
 	}
 
 	zap.L().Info("Successfully created mongodb account", zap.String("user", username))
