@@ -19,27 +19,27 @@ jobs:
       fail-fast: false
       matrix:
         go:
-          - 1.18
-          - 1.19
+          - "1.22"
     steps:
       - uses: actions/checkout@v3
 
-      - uses: actions/setup-go@v3
+      - uses: actions/setup-go@v4
         with:
           go-version: ${{ matrix.go }}
-          cache: true
+          check-latest: true
 
       - name: setup
         run: |
           go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+          go install golang.org/x/vuln/cmd/govulncheck@latest
 
       - name: build
         run: |
           make
 
-      - uses: PaloAltoNetworks/cov@1.0.0
-        if: ${{matrix.go == 1.19}}
+      - uses: PaloAltoNetworks/cov@3.0.0
         with:
           main_branch: master
           cov_file: unit_coverage.out
           cov_threshold: "75"
+          cov_mode: coverage

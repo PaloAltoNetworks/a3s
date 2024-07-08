@@ -44,7 +44,7 @@ func TestNew(t *testing.T) {
 		src := api.NewOIDCSource()
 		src.Name = "name"
 		src.Namespace = "/ns"
-		iss, _ := New(context.Background(), src, map[string]interface{}{"hello": "world"})
+		iss, _ := New(context.Background(), src, map[string]any{"hello": "world"})
 		So(iss.(*oidcIssuer).source, ShouldEqual, src)
 		So(iss.Issue().Source.Type, ShouldEqual, "oidc")
 		So(iss.Issue().Source.Name, ShouldEqual, "name")
@@ -71,7 +71,7 @@ func TestNew(t *testing.T) {
 		src.Modifier.Certificate = string(pem.EncodeToMemory(certb))
 		src.Modifier.Key = string(pem.EncodeToMemory(keyb))
 
-		iss, _ := New(context.Background(), src, map[string]interface{}{"hello": "world"})
+		iss, _ := New(context.Background(), src, map[string]any{"hello": "world"})
 		So(iss.(*oidcIssuer).source, ShouldEqual, src)
 		So(iss.Issue().Identity, ShouldResemble, []string{"aa=aa", "bb=bb"})
 	})
@@ -91,7 +91,7 @@ func TestNew(t *testing.T) {
 		src.Modifier.CA = string(pem.EncodeToMemory(cab))
 		src.Modifier.URL = ts.URL
 
-		_, err := New(context.Background(), src, map[string]interface{}{"hello": "world"})
+		_, err := New(context.Background(), src, map[string]any{"hello": "world"})
 		So(err, ShouldNotBeNil)
 		So(err.Error(), ShouldEqual, `unable to prepare source modifier: unable to create certificate: could not read key data from bytes: ''`)
 	})
@@ -114,7 +114,7 @@ func TestNew(t *testing.T) {
 		src.Modifier.Certificate = string(pem.EncodeToMemory(certb))
 		src.Modifier.Key = string(pem.EncodeToMemory(keyb))
 
-		_, err := New(context.Background(), src, map[string]interface{}{"hello": "world"})
+		_, err := New(context.Background(), src, map[string]any{"hello": "world"})
 		So(err, ShouldNotBeNil)
 		So(err.Error(), ShouldEqual, `unable to call modifier: service returned an error: 403 Forbidden`)
 	})
@@ -122,7 +122,7 @@ func TestNew(t *testing.T) {
 
 func Test_computeOIDClaims(t *testing.T) {
 	type args struct {
-		claims map[string]interface{}
+		claims map[string]any
 	}
 	tests := []struct {
 		name string
@@ -134,14 +134,14 @@ func Test_computeOIDClaims(t *testing.T) {
 			"standard",
 			func(*testing.T) args {
 				return args{
-					map[string]interface{}{
+					map[string]any{
 						"@@string": "value",
 						"strings":  []string{"v1", "v2"},
 						"int":      42,
 						"ints":     []int{1, 2},
 						"bool":     true,
-						"ifaces":   []interface{}{"a", "b"},
-						"map":      map[string]interface{}{},
+						"ifaces":   []any{"a", "b"},
+						"map":      map[string]any{},
 						"float":    42.42,
 						"floats":   []float64{1.2, 3.4},
 						"error":    fmt.Errorf("yo"),

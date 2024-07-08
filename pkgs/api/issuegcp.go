@@ -32,7 +32,7 @@ func NewIssueGCP() *IssueGCP {
 
 // GetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *IssueGCP) GetBSON() (interface{}, error) {
+func (o *IssueGCP) GetBSON() (any, error) {
 
 	if o == nil {
 		return nil, nil
@@ -130,7 +130,7 @@ func (*IssueGCP) AttributeSpecifications() map[string]elemental.AttributeSpecifi
 // ValueForAttribute returns the value for the given attribute.
 // This is a very advanced function that you should not need but in some
 // very specific use cases.
-func (o *IssueGCP) ValueForAttribute(name string) interface{} {
+func (o *IssueGCP) ValueForAttribute(name string) any {
 
 	switch name {
 	case "audience":

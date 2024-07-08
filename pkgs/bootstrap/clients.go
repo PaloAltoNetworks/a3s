@@ -6,10 +6,13 @@ import (
 	"fmt"
 	"time"
 
-	"go.aporeto.io/a3s/pkgs/api"
+	"go.aporeto.io/a3s/pkgs/authenticator"
 	"go.aporeto.io/a3s/pkgs/authlib"
+	"go.aporeto.io/a3s/pkgs/authorizer"
 	"go.aporeto.io/a3s/pkgs/conf"
+	"go.aporeto.io/a3s/pkgs/permissions"
 	"go.aporeto.io/a3s/pkgs/sharder"
+	"go.aporeto.io/a3s/pkgs/token"
 	"go.aporeto.io/bahamut"
 	"go.aporeto.io/elemental"
 	"go.aporeto.io/manipulate"
@@ -56,7 +59,7 @@ func MakeNATSClient(cfg conf.NATSConf) bahamut.PubSubClient {
 // MakeMongoManipulator returns a configured mongo manipulator.
 // This function is not meant to be used outside of the platform. It will fatal
 // anytime it feels like it.
-func MakeMongoManipulator(cfg conf.MongoConf, hasher sharder.Hasher, additionalOptions ...manipmongo.Option) manipulate.TransactionalManipulator {
+func MakeMongoManipulator(cfg conf.MongoConf, hasher sharder.Hasher, model elemental.ModelManager, additionalOptions ...manipmongo.Option) manipulate.TransactionalManipulator {
 
 	var consistency manipulate.ReadConsistency
 	switch cfg.MongoConsistency {
@@ -79,8 +82,7 @@ func MakeMongoManipulator(cfg conf.MongoConf, hasher sharder.Hasher, additionalO
 			manipmongo.OptionCredentials(cfg.MongoUser, cfg.MongoPassword, cfg.MongoAuthDB),
 			manipmongo.OptionConnectionPoolLimit(cfg.MongoPoolSize),
 			manipmongo.OptionDefaultReadConsistencyMode(consistency),
-			manipmongo.OptionTranslateKeysFromModelManager(api.Manager()),
-			manipmongo.OptionSharder(sharder.New(hasher)),
+			manipmongo.OptionTranslateKeysFromModelManager(model),
 			manipmongo.OptionDefaultRetryFunc(func(i manipulate.RetryInfo) error {
 				info := i.(manipmongo.RetryInfo)
 				zap.L().Debug("mongo manipulator retry",
@@ -94,6 +96,13 @@ func MakeMongoManipulator(cfg conf.MongoConf, hasher sharder.Hasher, additionalO
 		},
 		additionalOptions...,
 	)
+
+	if hasher != nil {
+		opts = append(
+			opts,
+			manipmongo.OptionSharder(sharder.New(hasher)),
+		)
+	}
 
 	tlscfg, err := cfg.TLSConfig()
 	if err != nil {
@@ -184,4 +193,36 @@ func MakeA3SManipulator(ctx context.Context, a3sConfig conf.A3SClientConf) (mani
 	}
 
 	return m, nil
+}
+
+// MakeA3SRemoteAuth is a convenience function that will return
+// ready to user Authenticator and Authorizers for a bahamut server.
+// It uses the given manipulator to talk to the instance of a3s.
+func MakeA3SRemoteAuth(
+	ctx context.Context,
+	m manipulate.Manipulator,
+	requiredIssuer string,
+	requiredAudience string,
+) (*authenticator.Authenticator, authorizer.Authorizer, error) {
+
+	jwks, err := token.NewRemoteJWKS(
+		ctx,
+		maniphttp.ExtractClient(m),
+		fmt.Sprintf("%s/.well-known/jwks.json", maniphttp.ExtractEndpoint(m)),
+	)
+	if err != nil {
+		return nil, nil, fmt.Errorf("unable to retrieve a3s JWT: %w", err)
+	}
+
+	return authenticator.New(
+			jwks,
+			requiredIssuer,
+			requiredAudience,
+		),
+		authorizer.NewRemote(
+			ctx,
+			m,
+			permissions.NewRemoteRetriever(m),
+		),
+		nil
 }

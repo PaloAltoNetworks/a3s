@@ -12,6 +12,10 @@ import (
 	"go.uber.org/zap"
 )
 
+const (
+	maxBatchedFilters = 50
+)
+
 var (
 	orphanCleaningAdjustment = time.Duration(rand.Intn(60)) * time.Second
 )
@@ -67,35 +71,60 @@ func DeleteOrphanedObjects(
 			ctx,
 			manipulate.ContextOptionRecursive(true),
 			manipulate.ContextOptionOrder("ID"),
-			manipulate.ContextOptionFields([]string{"name"}),
+			manipulate.ContextOptionFields([]string{"namespace", "deleteTime"}),
 		),
-		api.SparseNamespacesList{},
+		api.SparseNamespaceDeletionRecordsList{},
 		0,
 	)
 	if err != nil {
 		return fmt.Errorf("unable to retrieve list of namespaces: %w", err)
 	}
 
-	namespaces := os.List()
-	names := make([]interface{}, len(namespaces)+1)
-	names[0] = "/"
-	for i, ns := range namespaces {
-		names[i+1] = *(ns.(*api.SparseNamespace).Name)
+	deletionRecords := os.List()
+	if len(deletionRecords) == 0 {
+		return nil
 	}
 
-	mctx := manipulate.NewContext(
-		ctx,
-		manipulate.ContextOptionFilter(
-			elemental.NewFilterComposer().
-				WithKey("namespace").NotIn(names...).
-				Done(),
-		),
-	)
+	filters := make([]*elemental.Filter, 0, maxBatchedFilters)
 
-	for _, i := range identities {
-		if err := m.DeleteMany(mctx.Derive(), i); err != nil {
-			return fmt.Errorf("unable to deletemany '%s': %w", i.Category, err)
+	for i, deletionRecord := range deletionRecords {
+
+		namespace := *(deletionRecord.(*api.SparseNamespaceDeletionRecord).Namespace)
+		deletionDate := *(deletionRecord.(*api.SparseNamespaceDeletionRecord).DeleteTime)
+
+		filters = append(filters, elemental.NewFilterComposer().And(
+			manipulate.NewNamespaceFilter(namespace, true),
+			elemental.NewFilterComposer().Or(
+				elemental.NewFilterComposer().WithKey("createTime").NotExists().Done(),
+				elemental.NewFilterComposer().WithKey("createTime").LesserThan(deletionDate).Done(),
+			).Done(),
+		).Done())
+
+		if i+1 < len(deletionRecords) && len(filters) < maxBatchedFilters {
+			continue
 		}
+
+		mctx := manipulate.NewContext(
+			ctx,
+			manipulate.ContextOptionFilter(
+				elemental.NewFilterComposer().
+					Or(filters...).
+					Done(),
+			),
+		)
+
+		for _, i := range identities {
+
+			if i.IsEqual(api.NamespaceDeletionRecordIdentity) {
+				continue
+			}
+
+			if err := m.DeleteMany(mctx.Derive(), i); err != nil {
+				return fmt.Errorf("unable to deletemany '%s': %w", i.Category, err)
+			}
+		}
+
+		filters = filters[:0]
 	}
 
 	return nil

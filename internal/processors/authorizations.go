@@ -124,7 +124,7 @@ func (p *AuthorizationsProcessor) makePreHook(ctx bahamut.Context) crud.PreWrite
 				"You cannot create an APIAuthorization with more privileges than your current ones.",
 				"a3s:policy",
 				http.StatusUnprocessableEntity,
-				map[string]interface{}{"attribute": "authorizedIdentities"},
+				map[string]any{"attribute": "authorizedIdentities"},
 			)
 		}
 
@@ -145,7 +145,7 @@ func validatePolicyTargetNamespace(targetNamespaces []string, requestNamespace s
 				"You cannot set a target namespace to a parent namespace",
 				"gaia",
 				http.StatusUnprocessableEntity,
-				map[string]interface{}{"attribute": "targetNamespaces"},
+				map[string]any{"attribute": "targetNamespaces"},
 			)
 		}
 
@@ -155,7 +155,7 @@ func validatePolicyTargetNamespace(targetNamespaces []string, requestNamespace s
 				"You cannot set a target namespace to a sibling namespace",
 				"gaia",
 				http.StatusUnprocessableEntity,
-				map[string]interface{}{"attribute": "targetNamespaces"},
+				map[string]any{"attribute": "targetNamespaces"},
 			)
 		}
 	}

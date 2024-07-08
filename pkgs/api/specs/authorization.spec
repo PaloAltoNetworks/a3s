@@ -18,6 +18,7 @@ model:
   - '@sharded'
   - '@identifiable'
   - '@importable'
+  - '@timed'
 
 # Indexes
 indexes:
@@ -78,7 +79,8 @@ attributes:
     - authorization,get:1234567890
 
   - name: propagate
-    description: Propagates the api authorization to all of its children. This is always true.
+    description: Propagates the api authorization to all of its children. This is
+      always true.
     type: boolean
     stored: true
     default_value: true
@@ -118,7 +120,8 @@ attributes:
     example_value: /my/namespace
 
   - name: trustedIssuers
-    description: List of issuers to consider before using the policy for a given set of claims.
+    description: List of issuers to consider before using the policy for a given set
+      of claims.
     type: list
     exposed: true
     subtype: string

@@ -5,6 +5,7 @@ package api
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/globalsign/mgo/bson"
 	"github.com/mitchellh/copystructure"
@@ -31,8 +32,8 @@ func (o HTTPSourcesList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the HTTPSourcesList.
 func (o HTTPSourcesList) Copy() elemental.Identifiables {
 
-	copy := append(HTTPSourcesList{}, o...)
-	return &copy
+	out := append(HTTPSourcesList{}, o...)
+	return &out
 }
 
 // Append appends the objects to the a new copy of the HTTPSourcesList.
@@ -99,6 +100,9 @@ type HTTPSource struct {
 	// endpoint does not support client certificate authentication.
 	Certificate string `json:"certificate" msgpack:"certificate" bson:"certificate" mapstructure:"certificate,omitempty"`
 
+	// Creation date of the object.
+	CreateTime time.Time `json:"createTime" msgpack:"createTime" bson:"createtime" mapstructure:"createTime,omitempty"`
+
 	// The description of the object.
 	Description string `json:"description" msgpack:"description" bson:"description" mapstructure:"description,omitempty"`
 
@@ -121,6 +125,9 @@ type HTTPSource struct {
 
 	// The namespace of the object.
 	Namespace string `json:"namespace" msgpack:"namespace" bson:"namespace" mapstructure:"namespace,omitempty"`
+
+	// Last update date of the object.
+	UpdateTime time.Time `json:"updateTime" msgpack:"updateTime" bson:"updatetime" mapstructure:"updateTime,omitempty"`
 
 	// Hash of the object used to shard the data.
 	ZHash int `json:"-" msgpack:"-" bson:"zhash" mapstructure:"-,omitempty"`
@@ -159,7 +166,7 @@ func (o *HTTPSource) SetIdentifier(id string) {
 
 // GetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *HTTPSource) GetBSON() (interface{}, error) {
+func (o *HTTPSource) GetBSON() (any, error) {
 
 	if o == nil {
 		return nil, nil
@@ -173,6 +180,7 @@ func (o *HTTPSource) GetBSON() (interface{}, error) {
 	}
 	s.URL = o.URL
 	s.Certificate = o.Certificate
+	s.CreateTime = o.CreateTime
 	s.Description = o.Description
 	s.ImportHash = o.ImportHash
 	s.ImportLabel = o.ImportLabel
@@ -180,6 +188,7 @@ func (o *HTTPSource) GetBSON() (interface{}, error) {
 	s.Modifier = o.Modifier
 	s.Name = o.Name
 	s.Namespace = o.Namespace
+	s.UpdateTime = o.UpdateTime
 	s.ZHash = o.ZHash
 	s.Zone = o.Zone
 
@@ -203,6 +212,7 @@ func (o *HTTPSource) SetBSON(raw bson.Raw) error {
 	o.ID = s.ID.Hex()
 	o.URL = s.URL
 	o.Certificate = s.Certificate
+	o.CreateTime = s.CreateTime
 	o.Description = s.Description
 	o.ImportHash = s.ImportHash
 	o.ImportLabel = s.ImportLabel
@@ -210,6 +220,7 @@ func (o *HTTPSource) SetBSON(raw bson.Raw) error {
 	o.Modifier = s.Modifier
 	o.Name = s.Name
 	o.Namespace = s.Namespace
+	o.UpdateTime = s.UpdateTime
 	o.ZHash = s.ZHash
 	o.Zone = s.Zone
 
@@ -257,6 +268,18 @@ func (o *HTTPSource) SetID(ID string) {
 	o.ID = ID
 }
 
+// GetCreateTime returns the CreateTime of the receiver.
+func (o *HTTPSource) GetCreateTime() time.Time {
+
+	return o.CreateTime
+}
+
+// SetCreateTime sets the property CreateTime of the receiver using the given value.
+func (o *HTTPSource) SetCreateTime(createTime time.Time) {
+
+	o.CreateTime = createTime
+}
+
 // GetImportHash returns the ImportHash of the receiver.
 func (o *HTTPSource) GetImportHash() string {
 
@@ -291,6 +314,18 @@ func (o *HTTPSource) GetNamespace() string {
 func (o *HTTPSource) SetNamespace(namespace string) {
 
 	o.Namespace = namespace
+}
+
+// GetUpdateTime returns the UpdateTime of the receiver.
+func (o *HTTPSource) GetUpdateTime() time.Time {
+
+	return o.UpdateTime
+}
+
+// SetUpdateTime sets the property UpdateTime of the receiver using the given value.
+func (o *HTTPSource) SetUpdateTime(updateTime time.Time) {
+
+	o.UpdateTime = updateTime
 }
 
 // GetZHash returns the ZHash of the receiver.
@@ -328,6 +363,7 @@ func (o *HTTPSource) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			ID:          &o.ID,
 			URL:         &o.URL,
 			Certificate: &o.Certificate,
+			CreateTime:  &o.CreateTime,
 			Description: &o.Description,
 			ImportHash:  &o.ImportHash,
 			ImportLabel: &o.ImportLabel,
@@ -335,6 +371,7 @@ func (o *HTTPSource) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			Modifier:    o.Modifier,
 			Name:        &o.Name,
 			Namespace:   &o.Namespace,
+			UpdateTime:  &o.UpdateTime,
 			ZHash:       &o.ZHash,
 			Zone:        &o.Zone,
 		}
@@ -351,6 +388,8 @@ func (o *HTTPSource) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.URL = &(o.URL)
 		case "certificate":
 			sp.Certificate = &(o.Certificate)
+		case "createTime":
+			sp.CreateTime = &(o.CreateTime)
 		case "description":
 			sp.Description = &(o.Description)
 		case "importHash":
@@ -365,6 +404,8 @@ func (o *HTTPSource) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.Name = &(o.Name)
 		case "namespace":
 			sp.Namespace = &(o.Namespace)
+		case "updateTime":
+			sp.UpdateTime = &(o.UpdateTime)
 		case "zHash":
 			sp.ZHash = &(o.ZHash)
 		case "zone":
@@ -394,6 +435,9 @@ func (o *HTTPSource) Patch(sparse elemental.SparseIdentifiable) {
 	if so.Certificate != nil {
 		o.Certificate = *so.Certificate
 	}
+	if so.CreateTime != nil {
+		o.CreateTime = *so.CreateTime
+	}
 	if so.Description != nil {
 		o.Description = *so.Description
 	}
@@ -414,6 +458,9 @@ func (o *HTTPSource) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.Namespace != nil {
 		o.Namespace = *so.Namespace
+	}
+	if so.UpdateTime != nil {
+		o.UpdateTime = *so.UpdateTime
 	}
 	if so.ZHash != nil {
 		o.ZHash = *so.ZHash
@@ -527,7 +574,7 @@ func (*HTTPSource) AttributeSpecifications() map[string]elemental.AttributeSpeci
 // ValueForAttribute returns the value for the given attribute.
 // This is a very advanced function that you should not need but in some
 // very specific use cases.
-func (o *HTTPSource) ValueForAttribute(name string) interface{} {
+func (o *HTTPSource) ValueForAttribute(name string) any {
 
 	switch name {
 	case "CA":
@@ -538,6 +585,8 @@ func (o *HTTPSource) ValueForAttribute(name string) interface{} {
 		return o.URL
 	case "certificate":
 		return o.Certificate
+	case "createTime":
+		return o.CreateTime
 	case "description":
 		return o.Description
 	case "importHash":
@@ -552,6 +601,8 @@ func (o *HTTPSource) ValueForAttribute(name string) interface{} {
 		return o.Name
 	case "namespace":
 		return o.Namespace
+	case "updateTime":
+		return o.UpdateTime
 	case "zHash":
 		return o.ZHash
 	case "zone":
@@ -615,6 +666,21 @@ endpoint does not support client certificate authentication.`,
 		Required: true,
 		Stored:   true,
 		Type:     "string",
+	},
+	"CreateTime": {
+		AllowedChoices: []string{},
+		Autogenerated:  true,
+		BSONFieldName:  "createtime",
+		ConvertedName:  "CreateTime",
+		Description:    `Creation date of the object.`,
+		Exposed:        true,
+		Getter:         true,
+		Name:           "createTime",
+		Orderable:      true,
+		ReadOnly:       true,
+		Setter:         true,
+		Stored:         true,
+		Type:           "time",
 	},
 	"Description": {
 		AllowedChoices: []string{},
@@ -703,6 +769,21 @@ the claims that are about to be delivered using this authentication source.`,
 		Stored:         true,
 		Type:           "string",
 	},
+	"UpdateTime": {
+		AllowedChoices: []string{},
+		Autogenerated:  true,
+		BSONFieldName:  "updatetime",
+		ConvertedName:  "UpdateTime",
+		Description:    `Last update date of the object.`,
+		Exposed:        true,
+		Getter:         true,
+		Name:           "updateTime",
+		Orderable:      true,
+		ReadOnly:       true,
+		Setter:         true,
+		Stored:         true,
+		Type:           "time",
+	},
 	"ZHash": {
 		AllowedChoices: []string{},
 		Autogenerated:  true,
@@ -786,6 +867,21 @@ endpoint does not support client certificate authentication.`,
 		Required: true,
 		Stored:   true,
 		Type:     "string",
+	},
+	"createtime": {
+		AllowedChoices: []string{},
+		Autogenerated:  true,
+		BSONFieldName:  "createtime",
+		ConvertedName:  "CreateTime",
+		Description:    `Creation date of the object.`,
+		Exposed:        true,
+		Getter:         true,
+		Name:           "createTime",
+		Orderable:      true,
+		ReadOnly:       true,
+		Setter:         true,
+		Stored:         true,
+		Type:           "time",
 	},
 	"description": {
 		AllowedChoices: []string{},
@@ -873,6 +969,21 @@ the claims that are about to be delivered using this authentication source.`,
 		Setter:         true,
 		Stored:         true,
 		Type:           "string",
+	},
+	"updatetime": {
+		AllowedChoices: []string{},
+		Autogenerated:  true,
+		BSONFieldName:  "updatetime",
+		ConvertedName:  "UpdateTime",
+		Description:    `Last update date of the object.`,
+		Exposed:        true,
+		Getter:         true,
+		Name:           "updateTime",
+		Orderable:      true,
+		ReadOnly:       true,
+		Setter:         true,
+		Stored:         true,
+		Type:           "time",
 	},
 	"zhash": {
 		AllowedChoices: []string{},
@@ -982,6 +1093,9 @@ type SparseHTTPSource struct {
 	// endpoint does not support client certificate authentication.
 	Certificate *string `json:"certificate,omitempty" msgpack:"certificate,omitempty" bson:"certificate,omitempty" mapstructure:"certificate,omitempty"`
 
+	// Creation date of the object.
+	CreateTime *time.Time `json:"createTime,omitempty" msgpack:"createTime,omitempty" bson:"createtime,omitempty" mapstructure:"createTime,omitempty"`
+
 	// The description of the object.
 	Description *string `json:"description,omitempty" msgpack:"description,omitempty" bson:"description,omitempty" mapstructure:"description,omitempty"`
 
@@ -1004,6 +1118,9 @@ type SparseHTTPSource struct {
 
 	// The namespace of the object.
 	Namespace *string `json:"namespace,omitempty" msgpack:"namespace,omitempty" bson:"namespace,omitempty" mapstructure:"namespace,omitempty"`
+
+	// Last update date of the object.
+	UpdateTime *time.Time `json:"updateTime,omitempty" msgpack:"updateTime,omitempty" bson:"updatetime,omitempty" mapstructure:"updateTime,omitempty"`
 
 	// Hash of the object used to shard the data.
 	ZHash *int `json:"-" msgpack:"-" bson:"zhash,omitempty" mapstructure:"-,omitempty"`
@@ -1046,7 +1163,7 @@ func (o *SparseHTTPSource) SetIdentifier(id string) {
 
 // GetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *SparseHTTPSource) GetBSON() (interface{}, error) {
+func (o *SparseHTTPSource) GetBSON() (any, error) {
 
 	if o == nil {
 		return nil, nil
@@ -1065,6 +1182,9 @@ func (o *SparseHTTPSource) GetBSON() (interface{}, error) {
 	}
 	if o.Certificate != nil {
 		s.Certificate = o.Certificate
+	}
+	if o.CreateTime != nil {
+		s.CreateTime = o.CreateTime
 	}
 	if o.Description != nil {
 		s.Description = o.Description
@@ -1086,6 +1206,9 @@ func (o *SparseHTTPSource) GetBSON() (interface{}, error) {
 	}
 	if o.Namespace != nil {
 		s.Namespace = o.Namespace
+	}
+	if o.UpdateTime != nil {
+		s.UpdateTime = o.UpdateTime
 	}
 	if o.ZHash != nil {
 		s.ZHash = o.ZHash
@@ -1121,6 +1244,9 @@ func (o *SparseHTTPSource) SetBSON(raw bson.Raw) error {
 	if s.Certificate != nil {
 		o.Certificate = s.Certificate
 	}
+	if s.CreateTime != nil {
+		o.CreateTime = s.CreateTime
+	}
 	if s.Description != nil {
 		o.Description = s.Description
 	}
@@ -1141,6 +1267,9 @@ func (o *SparseHTTPSource) SetBSON(raw bson.Raw) error {
 	}
 	if s.Namespace != nil {
 		o.Namespace = s.Namespace
+	}
+	if s.UpdateTime != nil {
+		o.UpdateTime = s.UpdateTime
 	}
 	if s.ZHash != nil {
 		o.ZHash = s.ZHash
@@ -1174,6 +1303,9 @@ func (o *SparseHTTPSource) ToPlain() elemental.PlainIdentifiable {
 	if o.Certificate != nil {
 		out.Certificate = *o.Certificate
 	}
+	if o.CreateTime != nil {
+		out.CreateTime = *o.CreateTime
+	}
 	if o.Description != nil {
 		out.Description = *o.Description
 	}
@@ -1194,6 +1326,9 @@ func (o *SparseHTTPSource) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.Namespace != nil {
 		out.Namespace = *o.Namespace
+	}
+	if o.UpdateTime != nil {
+		out.UpdateTime = *o.UpdateTime
 	}
 	if o.ZHash != nil {
 		out.ZHash = *o.ZHash
@@ -1219,6 +1354,22 @@ func (o *SparseHTTPSource) GetID() (out string) {
 func (o *SparseHTTPSource) SetID(ID string) {
 
 	o.ID = &ID
+}
+
+// GetCreateTime returns the CreateTime of the receiver.
+func (o *SparseHTTPSource) GetCreateTime() (out time.Time) {
+
+	if o.CreateTime == nil {
+		return
+	}
+
+	return *o.CreateTime
+}
+
+// SetCreateTime sets the property CreateTime of the receiver using the address of the given value.
+func (o *SparseHTTPSource) SetCreateTime(createTime time.Time) {
+
+	o.CreateTime = &createTime
 }
 
 // GetImportHash returns the ImportHash of the receiver.
@@ -1267,6 +1418,22 @@ func (o *SparseHTTPSource) GetNamespace() (out string) {
 func (o *SparseHTTPSource) SetNamespace(namespace string) {
 
 	o.Namespace = &namespace
+}
+
+// GetUpdateTime returns the UpdateTime of the receiver.
+func (o *SparseHTTPSource) GetUpdateTime() (out time.Time) {
+
+	if o.UpdateTime == nil {
+		return
+	}
+
+	return *o.UpdateTime
+}
+
+// SetUpdateTime sets the property UpdateTime of the receiver using the address of the given value.
+func (o *SparseHTTPSource) SetUpdateTime(updateTime time.Time) {
+
+	o.UpdateTime = &updateTime
 }
 
 // GetZHash returns the ZHash of the receiver.
@@ -1330,6 +1497,7 @@ type mongoAttributesHTTPSource struct {
 	ID          bson.ObjectId     `bson:"_id,omitempty"`
 	URL         string            `bson:"url"`
 	Certificate string            `bson:"certificate"`
+	CreateTime  time.Time         `bson:"createtime"`
 	Description string            `bson:"description"`
 	ImportHash  string            `bson:"importhash,omitempty"`
 	ImportLabel string            `bson:"importlabel,omitempty"`
@@ -1337,6 +1505,7 @@ type mongoAttributesHTTPSource struct {
 	Modifier    *IdentityModifier `bson:"modifier,omitempty"`
 	Name        string            `bson:"name"`
 	Namespace   string            `bson:"namespace"`
+	UpdateTime  time.Time         `bson:"updatetime"`
 	ZHash       int               `bson:"zhash"`
 	Zone        int               `bson:"zone"`
 }
@@ -1345,6 +1514,7 @@ type mongoAttributesSparseHTTPSource struct {
 	ID          bson.ObjectId     `bson:"_id,omitempty"`
 	URL         *string           `bson:"url,omitempty"`
 	Certificate *string           `bson:"certificate,omitempty"`
+	CreateTime  *time.Time        `bson:"createtime,omitempty"`
 	Description *string           `bson:"description,omitempty"`
 	ImportHash  *string           `bson:"importhash,omitempty"`
 	ImportLabel *string           `bson:"importlabel,omitempty"`
@@ -1352,6 +1522,7 @@ type mongoAttributesSparseHTTPSource struct {
 	Modifier    *IdentityModifier `bson:"modifier,omitempty"`
 	Name        *string           `bson:"name,omitempty"`
 	Namespace   *string           `bson:"namespace,omitempty"`
+	UpdateTime  *time.Time        `bson:"updatetime,omitempty"`
 	ZHash       *int              `bson:"zhash,omitempty"`
 	Zone        *int              `bson:"zone,omitempty"`
 }

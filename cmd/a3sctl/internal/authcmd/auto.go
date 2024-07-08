@@ -158,8 +158,8 @@ func HandleAutoAuth(
 			zap.L().Debug("autoauth: retrieving token using autoauth.mtls")
 			t, err := GetMTLSToken(
 				mmaker,
-				viper.GetString("autoauth.mtls.cert"),
-				viper.GetString("autoauth.mtls.key"),
+				os.ExpandEnv(viper.GetString("autoauth.mtls.cert")),
+				os.ExpandEnv(viper.GetString("autoauth.mtls.key")),
 				helpers.ReadFlag("passphrase: ", "autoauth.mtls.pass", true),
 				viper.GetString("autoauth.mtls.source.namespace"),
 				viper.GetString("autoauth.mtls.source.name"),

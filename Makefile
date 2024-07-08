@@ -7,7 +7,7 @@ CONTAINER_TAG ?= "dev"
 
 export GO111MODULE = on
 
-default: lint test a3s cli
+default: lint vuln test a3s cli
 .PHONY: ui docker
 
 ## Tests
@@ -17,7 +17,10 @@ lint:
 		--timeout=5m \
 		--disable-all \
 		--exclude-use-default=false \
+		--exclude=dot-imports \
 		--exclude=package-comments \
+		--exclude=unused-parameter \
+		--exclude=dot-imports \
 		--enable=errcheck \
 		--enable=goimports \
 		--enable=ineffassign \
@@ -34,11 +37,15 @@ lint:
 		--enable=nilerr \
 		./...
 
+
 test:
 	go test ./... -race -cover -covermode=atomic -coverprofile=unit_coverage.out
 
 sec:
 	gosec -quiet ./...
+
+vuln:
+	govulncheck ./...
 
 
 ## Code generation
@@ -90,3 +97,7 @@ package_ca_certs:
 	mkdir -p docker/in
 	extract-nss-root-certs > docker/in/ca-certificates.pem
 	rm -f certdata.txt
+
+# tag the commit, set GITHUB_TOKEN, then run...
+release:
+	unset GITLAB_TOKEN && goreleaser check && goreleaser release --clean

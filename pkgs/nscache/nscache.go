@@ -41,7 +41,7 @@ func New(pubsub bahamut.PubSubClient, maxSize int64, options ...Option) *Namespa
 // Set sets a new namespaced key with the given value, with given expiration.
 // namespace must be set. key is optional. It can be empty if you wish to only associate
 // one value to one namespace.
-func (c *NamespacedCache) Set(namespace string, key string, value interface{}, duration time.Duration) {
+func (c *NamespacedCache) Set(namespace string, key string, value any, duration time.Duration) {
 
 	c.cache.Set(namespace+":"+key, value, duration)
 }

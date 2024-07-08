@@ -15,12 +15,13 @@ var (
 		"import":           ImportIdentity,
 		"issue":            IssueIdentity,
 
-		"ldapsource":  LDAPSourceIdentity,
-		"mtlssource":  MTLSSourceIdentity,
-		"namespace":   NamespaceIdentity,
-		"oidcsource":  OIDCSourceIdentity,
-		"permissions": PermissionsIdentity,
-		"root":        RootIdentity,
+		"ldapsource":              LDAPSourceIdentity,
+		"mtlssource":              MTLSSourceIdentity,
+		"namespace":               NamespaceIdentity,
+		"namespacedeletionrecord": NamespaceDeletionRecordIdentity,
+		"oidcsource":              OIDCSourceIdentity,
+		"permissions":             PermissionsIdentity,
+		"root":                    RootIdentity,
 	}
 
 	identitycategoriesMap = map[string]elemental.Identity{
@@ -32,12 +33,13 @@ var (
 		"import":           ImportIdentity,
 		"issue":            IssueIdentity,
 
-		"ldapsources": LDAPSourceIdentity,
-		"mtlssources": MTLSSourceIdentity,
-		"namespaces":  NamespaceIdentity,
-		"oidcsources": OIDCSourceIdentity,
-		"permissions": PermissionsIdentity,
-		"root":        RootIdentity,
+		"ldapsources":              LDAPSourceIdentity,
+		"mtlssources":              MTLSSourceIdentity,
+		"namespaces":               NamespaceIdentity,
+		"namespacedeletionrecords": NamespaceDeletionRecordIdentity,
+		"oidcsources":              OIDCSourceIdentity,
+		"permissions":              PermissionsIdentity,
+		"root":                     RootIdentity,
 	}
 
 	aliasesMap = map[string]elemental.Identity{}
@@ -92,6 +94,11 @@ var (
 			{"namespace"},
 			{"namespace", "ID"},
 			{"namespace", "name"},
+		},
+		"namespacedeletionrecord": {
+			{":shard", ":unique", "zone", "zHash"},
+			{"namespace"},
+			{"namespace", "ID"},
 		},
 		"oidcsource": {
 			{":shard", ":unique", "zone", "zHash"},
@@ -162,6 +169,8 @@ func (f modelManager) Identifiable(identity elemental.Identity) elemental.Identi
 		return NewMTLSSource()
 	case NamespaceIdentity:
 		return NewNamespace()
+	case NamespaceDeletionRecordIdentity:
+		return NewNamespaceDeletionRecord()
 	case OIDCSourceIdentity:
 		return NewOIDCSource()
 	case PermissionsIdentity:
@@ -197,6 +206,8 @@ func (f modelManager) SparseIdentifiable(identity elemental.Identity) elemental.
 		return NewSparseMTLSSource()
 	case NamespaceIdentity:
 		return NewSparseNamespace()
+	case NamespaceDeletionRecordIdentity:
+		return NewSparseNamespaceDeletionRecord()
 	case OIDCSourceIdentity:
 		return NewSparseOIDCSource()
 	case PermissionsIdentity:
@@ -240,6 +251,8 @@ func (f modelManager) Identifiables(identity elemental.Identity) elemental.Ident
 		return &MTLSSourcesList{}
 	case NamespaceIdentity:
 		return &NamespacesList{}
+	case NamespaceDeletionRecordIdentity:
+		return &NamespaceDeletionRecordsList{}
 	case OIDCSourceIdentity:
 		return &OIDCSourcesList{}
 	case PermissionsIdentity:
@@ -273,6 +286,8 @@ func (f modelManager) SparseIdentifiables(identity elemental.Identity) elemental
 		return &SparseMTLSSourcesList{}
 	case NamespaceIdentity:
 		return &SparseNamespacesList{}
+	case NamespaceDeletionRecordIdentity:
+		return &SparseNamespaceDeletionRecordsList{}
 	case OIDCSourceIdentity:
 		return &SparseOIDCSourcesList{}
 	case PermissionsIdentity:
@@ -315,6 +330,7 @@ func AllIdentities() []elemental.Identity {
 		LDAPSourceIdentity,
 		MTLSSourceIdentity,
 		NamespaceIdentity,
+		NamespaceDeletionRecordIdentity,
 		OIDCSourceIdentity,
 		PermissionsIdentity,
 		RootIdentity,
@@ -344,6 +360,8 @@ func AliasesForIdentity(identity elemental.Identity) []string {
 	case MTLSSourceIdentity:
 		return []string{}
 	case NamespaceIdentity:
+		return []string{}
+	case NamespaceDeletionRecordIdentity:
 		return []string{}
 	case OIDCSourceIdentity:
 		return []string{}

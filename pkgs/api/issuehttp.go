@@ -35,7 +35,7 @@ func NewIssueHTTP() *IssueHTTP {
 
 // GetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *IssueHTTP) GetBSON() (interface{}, error) {
+func (o *IssueHTTP) GetBSON() (any, error) {
 
 	if o == nil {
 		return nil, nil
@@ -137,7 +137,7 @@ func (*IssueHTTP) AttributeSpecifications() map[string]elemental.AttributeSpecif
 // ValueForAttribute returns the value for the given attribute.
 // This is a very advanced function that you should not need but in some
 // very specific use cases.
-func (o *IssueHTTP) ValueForAttribute(name string) interface{} {
+func (o *IssueHTTP) ValueForAttribute(name string) any {
 
 	switch name {
 	case "TOTP":

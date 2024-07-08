@@ -5,6 +5,7 @@ package api
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/globalsign/mgo/bson"
 	"github.com/mitchellh/copystructure"
@@ -31,8 +32,8 @@ func (o NamespacesList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the NamespacesList.
 func (o NamespacesList) Copy() elemental.Identifiables {
 
-	copy := append(NamespacesList{}, o...)
-	return &copy
+	out := append(NamespacesList{}, o...)
+	return &out
 }
 
 // Append appends the objects to the a new copy of the NamespacesList.
@@ -86,6 +87,9 @@ type Namespace struct {
 	// ID is the identifier of the object.
 	ID string `json:"ID" msgpack:"ID" bson:"-" mapstructure:"ID,omitempty"`
 
+	// Creation date of the object.
+	CreateTime time.Time `json:"createTime" msgpack:"createTime" bson:"createtime" mapstructure:"createTime,omitempty"`
+
 	// The description of the object.
 	Description string `json:"description" msgpack:"description" bson:"description" mapstructure:"description,omitempty"`
 
@@ -95,6 +99,9 @@ type Namespace struct {
 
 	// The namespace of the object.
 	Namespace string `json:"namespace" msgpack:"namespace" bson:"namespace" mapstructure:"namespace,omitempty"`
+
+	// Last update date of the object.
+	UpdateTime time.Time `json:"updateTime" msgpack:"updateTime" bson:"updatetime" mapstructure:"updateTime,omitempty"`
 
 	// Hash of the object used to shard the data.
 	ZHash int `json:"-" msgpack:"-" bson:"zhash" mapstructure:"-,omitempty"`
@@ -133,7 +140,7 @@ func (o *Namespace) SetIdentifier(id string) {
 
 // GetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *Namespace) GetBSON() (interface{}, error) {
+func (o *Namespace) GetBSON() (any, error) {
 
 	if o == nil {
 		return nil, nil
@@ -144,9 +151,11 @@ func (o *Namespace) GetBSON() (interface{}, error) {
 	if o.ID != "" {
 		s.ID = bson.ObjectIdHex(o.ID)
 	}
+	s.CreateTime = o.CreateTime
 	s.Description = o.Description
 	s.Name = o.Name
 	s.Namespace = o.Namespace
+	s.UpdateTime = o.UpdateTime
 	s.ZHash = o.ZHash
 	s.Zone = o.Zone
 
@@ -167,9 +176,11 @@ func (o *Namespace) SetBSON(raw bson.Raw) error {
 	}
 
 	o.ID = s.ID.Hex()
+	o.CreateTime = s.CreateTime
 	o.Description = s.Description
 	o.Name = s.Name
 	o.Namespace = s.Namespace
+	o.UpdateTime = s.UpdateTime
 	o.ZHash = s.ZHash
 	o.Zone = s.Zone
 
@@ -218,6 +229,18 @@ func (o *Namespace) SetID(ID string) {
 	o.ID = ID
 }
 
+// GetCreateTime returns the CreateTime of the receiver.
+func (o *Namespace) GetCreateTime() time.Time {
+
+	return o.CreateTime
+}
+
+// SetCreateTime sets the property CreateTime of the receiver using the given value.
+func (o *Namespace) SetCreateTime(createTime time.Time) {
+
+	o.CreateTime = createTime
+}
+
 // GetName returns the Name of the receiver.
 func (o *Namespace) GetName() string {
 
@@ -240,6 +263,18 @@ func (o *Namespace) GetNamespace() string {
 func (o *Namespace) SetNamespace(namespace string) {
 
 	o.Namespace = namespace
+}
+
+// GetUpdateTime returns the UpdateTime of the receiver.
+func (o *Namespace) GetUpdateTime() time.Time {
+
+	return o.UpdateTime
+}
+
+// SetUpdateTime sets the property UpdateTime of the receiver using the given value.
+func (o *Namespace) SetUpdateTime(updateTime time.Time) {
+
+	o.UpdateTime = updateTime
 }
 
 // GetZHash returns the ZHash of the receiver.
@@ -274,9 +309,11 @@ func (o *Namespace) ToSparse(fields ...string) elemental.SparseIdentifiable {
 		// nolint: goimports
 		return &SparseNamespace{
 			ID:          &o.ID,
+			CreateTime:  &o.CreateTime,
 			Description: &o.Description,
 			Name:        &o.Name,
 			Namespace:   &o.Namespace,
+			UpdateTime:  &o.UpdateTime,
 			ZHash:       &o.ZHash,
 			Zone:        &o.Zone,
 		}
@@ -287,12 +324,16 @@ func (o *Namespace) ToSparse(fields ...string) elemental.SparseIdentifiable {
 		switch f {
 		case "ID":
 			sp.ID = &(o.ID)
+		case "createTime":
+			sp.CreateTime = &(o.CreateTime)
 		case "description":
 			sp.Description = &(o.Description)
 		case "name":
 			sp.Name = &(o.Name)
 		case "namespace":
 			sp.Namespace = &(o.Namespace)
+		case "updateTime":
+			sp.UpdateTime = &(o.UpdateTime)
 		case "zHash":
 			sp.ZHash = &(o.ZHash)
 		case "zone":
@@ -313,6 +354,9 @@ func (o *Namespace) Patch(sparse elemental.SparseIdentifiable) {
 	if so.ID != nil {
 		o.ID = *so.ID
 	}
+	if so.CreateTime != nil {
+		o.CreateTime = *so.CreateTime
+	}
 	if so.Description != nil {
 		o.Description = *so.Description
 	}
@@ -321,6 +365,9 @@ func (o *Namespace) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.Namespace != nil {
 		o.Namespace = *so.Namespace
+	}
+	if so.UpdateTime != nil {
+		o.UpdateTime = *so.UpdateTime
 	}
 	if so.ZHash != nil {
 		o.ZHash = *so.ZHash
@@ -399,17 +446,21 @@ func (*Namespace) AttributeSpecifications() map[string]elemental.AttributeSpecif
 // ValueForAttribute returns the value for the given attribute.
 // This is a very advanced function that you should not need but in some
 // very specific use cases.
-func (o *Namespace) ValueForAttribute(name string) interface{} {
+func (o *Namespace) ValueForAttribute(name string) any {
 
 	switch name {
 	case "ID":
 		return o.ID
+	case "createTime":
+		return o.CreateTime
 	case "description":
 		return o.Description
 	case "name":
 		return o.Name
 	case "namespace":
 		return o.Namespace
+	case "updateTime":
+		return o.UpdateTime
 	case "zHash":
 		return o.ZHash
 	case "zone":
@@ -436,6 +487,21 @@ var NamespaceAttributesMap = map[string]elemental.AttributeSpecification{
 		Setter:         true,
 		Stored:         true,
 		Type:           "string",
+	},
+	"CreateTime": {
+		AllowedChoices: []string{},
+		Autogenerated:  true,
+		BSONFieldName:  "createtime",
+		ConvertedName:  "CreateTime",
+		Description:    `Creation date of the object.`,
+		Exposed:        true,
+		Getter:         true,
+		Name:           "createTime",
+		Orderable:      true,
+		ReadOnly:       true,
+		Setter:         true,
+		Stored:         true,
+		Type:           "time",
 	},
 	"Description": {
 		AllowedChoices: []string{},
@@ -477,6 +543,21 @@ not its full path.`,
 		Setter:         true,
 		Stored:         true,
 		Type:           "string",
+	},
+	"UpdateTime": {
+		AllowedChoices: []string{},
+		Autogenerated:  true,
+		BSONFieldName:  "updatetime",
+		ConvertedName:  "UpdateTime",
+		Description:    `Last update date of the object.`,
+		Exposed:        true,
+		Getter:         true,
+		Name:           "updateTime",
+		Orderable:      true,
+		ReadOnly:       true,
+		Setter:         true,
+		Stored:         true,
+		Type:           "time",
 	},
 	"ZHash": {
 		AllowedChoices: []string{},
@@ -525,6 +606,21 @@ var NamespaceLowerCaseAttributesMap = map[string]elemental.AttributeSpecificatio
 		Stored:         true,
 		Type:           "string",
 	},
+	"createtime": {
+		AllowedChoices: []string{},
+		Autogenerated:  true,
+		BSONFieldName:  "createtime",
+		ConvertedName:  "CreateTime",
+		Description:    `Creation date of the object.`,
+		Exposed:        true,
+		Getter:         true,
+		Name:           "createTime",
+		Orderable:      true,
+		ReadOnly:       true,
+		Setter:         true,
+		Stored:         true,
+		Type:           "time",
+	},
 	"description": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "description",
@@ -565,6 +661,21 @@ not its full path.`,
 		Setter:         true,
 		Stored:         true,
 		Type:           "string",
+	},
+	"updatetime": {
+		AllowedChoices: []string{},
+		Autogenerated:  true,
+		BSONFieldName:  "updatetime",
+		ConvertedName:  "UpdateTime",
+		Description:    `Last update date of the object.`,
+		Exposed:        true,
+		Getter:         true,
+		Name:           "updateTime",
+		Orderable:      true,
+		ReadOnly:       true,
+		Setter:         true,
+		Stored:         true,
+		Type:           "time",
 	},
 	"zhash": {
 		AllowedChoices: []string{},
@@ -661,6 +772,9 @@ type SparseNamespace struct {
 	// ID is the identifier of the object.
 	ID *string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
 
+	// Creation date of the object.
+	CreateTime *time.Time `json:"createTime,omitempty" msgpack:"createTime,omitempty" bson:"createtime,omitempty" mapstructure:"createTime,omitempty"`
+
 	// The description of the object.
 	Description *string `json:"description,omitempty" msgpack:"description,omitempty" bson:"description,omitempty" mapstructure:"description,omitempty"`
 
@@ -670,6 +784,9 @@ type SparseNamespace struct {
 
 	// The namespace of the object.
 	Namespace *string `json:"namespace,omitempty" msgpack:"namespace,omitempty" bson:"namespace,omitempty" mapstructure:"namespace,omitempty"`
+
+	// Last update date of the object.
+	UpdateTime *time.Time `json:"updateTime,omitempty" msgpack:"updateTime,omitempty" bson:"updatetime,omitempty" mapstructure:"updateTime,omitempty"`
 
 	// Hash of the object used to shard the data.
 	ZHash *int `json:"-" msgpack:"-" bson:"zhash,omitempty" mapstructure:"-,omitempty"`
@@ -712,7 +829,7 @@ func (o *SparseNamespace) SetIdentifier(id string) {
 
 // GetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *SparseNamespace) GetBSON() (interface{}, error) {
+func (o *SparseNamespace) GetBSON() (any, error) {
 
 	if o == nil {
 		return nil, nil
@@ -723,6 +840,9 @@ func (o *SparseNamespace) GetBSON() (interface{}, error) {
 	if o.ID != nil {
 		s.ID = bson.ObjectIdHex(*o.ID)
 	}
+	if o.CreateTime != nil {
+		s.CreateTime = o.CreateTime
+	}
 	if o.Description != nil {
 		s.Description = o.Description
 	}
@@ -731,6 +851,9 @@ func (o *SparseNamespace) GetBSON() (interface{}, error) {
 	}
 	if o.Namespace != nil {
 		s.Namespace = o.Namespace
+	}
+	if o.UpdateTime != nil {
+		s.UpdateTime = o.UpdateTime
 	}
 	if o.ZHash != nil {
 		s.ZHash = o.ZHash
@@ -757,6 +880,9 @@ func (o *SparseNamespace) SetBSON(raw bson.Raw) error {
 
 	id := s.ID.Hex()
 	o.ID = &id
+	if s.CreateTime != nil {
+		o.CreateTime = s.CreateTime
+	}
 	if s.Description != nil {
 		o.Description = s.Description
 	}
@@ -765,6 +891,9 @@ func (o *SparseNamespace) SetBSON(raw bson.Raw) error {
 	}
 	if s.Namespace != nil {
 		o.Namespace = s.Namespace
+	}
+	if s.UpdateTime != nil {
+		o.UpdateTime = s.UpdateTime
 	}
 	if s.ZHash != nil {
 		o.ZHash = s.ZHash
@@ -789,6 +918,9 @@ func (o *SparseNamespace) ToPlain() elemental.PlainIdentifiable {
 	if o.ID != nil {
 		out.ID = *o.ID
 	}
+	if o.CreateTime != nil {
+		out.CreateTime = *o.CreateTime
+	}
 	if o.Description != nil {
 		out.Description = *o.Description
 	}
@@ -797,6 +929,9 @@ func (o *SparseNamespace) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.Namespace != nil {
 		out.Namespace = *o.Namespace
+	}
+	if o.UpdateTime != nil {
+		out.UpdateTime = *o.UpdateTime
 	}
 	if o.ZHash != nil {
 		out.ZHash = *o.ZHash
@@ -822,6 +957,22 @@ func (o *SparseNamespace) GetID() (out string) {
 func (o *SparseNamespace) SetID(ID string) {
 
 	o.ID = &ID
+}
+
+// GetCreateTime returns the CreateTime of the receiver.
+func (o *SparseNamespace) GetCreateTime() (out time.Time) {
+
+	if o.CreateTime == nil {
+		return
+	}
+
+	return *o.CreateTime
+}
+
+// SetCreateTime sets the property CreateTime of the receiver using the address of the given value.
+func (o *SparseNamespace) SetCreateTime(createTime time.Time) {
+
+	o.CreateTime = &createTime
 }
 
 // GetName returns the Name of the receiver.
@@ -854,6 +1005,22 @@ func (o *SparseNamespace) GetNamespace() (out string) {
 func (o *SparseNamespace) SetNamespace(namespace string) {
 
 	o.Namespace = &namespace
+}
+
+// GetUpdateTime returns the UpdateTime of the receiver.
+func (o *SparseNamespace) GetUpdateTime() (out time.Time) {
+
+	if o.UpdateTime == nil {
+		return
+	}
+
+	return *o.UpdateTime
+}
+
+// SetUpdateTime sets the property UpdateTime of the receiver using the address of the given value.
+func (o *SparseNamespace) SetUpdateTime(updateTime time.Time) {
+
+	o.UpdateTime = &updateTime
 }
 
 // GetZHash returns the ZHash of the receiver.
@@ -914,17 +1081,21 @@ func (o *SparseNamespace) DeepCopyInto(out *SparseNamespace) {
 
 type mongoAttributesNamespace struct {
 	ID          bson.ObjectId `bson:"_id,omitempty"`
+	CreateTime  time.Time     `bson:"createtime"`
 	Description string        `bson:"description"`
 	Name        string        `bson:"name"`
 	Namespace   string        `bson:"namespace"`
+	UpdateTime  time.Time     `bson:"updatetime"`
 	ZHash       int           `bson:"zhash"`
 	Zone        int           `bson:"zone"`
 }
 type mongoAttributesSparseNamespace struct {
 	ID          bson.ObjectId `bson:"_id,omitempty"`
+	CreateTime  *time.Time    `bson:"createtime,omitempty"`
 	Description *string       `bson:"description,omitempty"`
 	Name        *string       `bson:"name,omitempty"`
 	Namespace   *string       `bson:"namespace,omitempty"`
+	UpdateTime  *time.Time    `bson:"updatetime,omitempty"`
 	ZHash       *int          `bson:"zhash,omitempty"`
 	Zone        *int          `bson:"zone,omitempty"`
 }

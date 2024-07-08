@@ -16,6 +16,7 @@ model:
   - '@sharded'
   - '@identifiable'
   - '@importable'
+  - '@timed'
 
 # Indexes
 indexes:
@@ -70,7 +71,8 @@ attributes:
     example_value: cn=readonly,dc=universe,dc=io
 
   - name: bindPassword
-    description: Password to be used with the `bindDN` to authenticate to the LDAP server.
+    description: Password to be used with the `bindDN` to authenticate to the LDAP
+      server.
     type: string
     exposed: true
     stored: true

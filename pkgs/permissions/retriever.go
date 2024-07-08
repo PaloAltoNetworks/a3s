@@ -85,7 +85,7 @@ func (a *retriever) Permissions(ctx context.Context, claims []string, ns string,
 
 		if l := len(p.Subnets); l > 0 {
 
-			allowedSubnets := map[string]interface{}{}
+			allowedSubnets := map[string]any{}
 			for _, sub := range p.Subnets {
 				allowedSubnets[sub] = struct{}{}
 			}
@@ -119,7 +119,7 @@ func (a *retriever) Permissions(ctx context.Context, claims []string, ns string,
 	// If we have restrictions on the origin networks from the token
 	// we verify here.
 	if len(cfg.restrictions.Networks) > 0 {
-		allowedSubnets := map[string]interface{}{}
+		allowedSubnets := map[string]any{}
 		for _, net := range cfg.restrictions.Networks {
 			allowedSubnets[net] = struct{}{}
 		}
@@ -163,7 +163,7 @@ func (a *retriever) resolvePoliciesMatchingClaims(ctx context.Context, claims []
 	return matchingPolicies, nil
 }
 
-func validateClientIP(remoteAddr string, allowedSubnets map[string]interface{}) (bool, error) {
+func validateClientIP(remoteAddr string, allowedSubnets map[string]any) (bool, error) {
 
 	ipStr, _, err := net.SplitHostPort(remoteAddr)
 	if err != nil {
@@ -199,7 +199,7 @@ func validateClientIP(remoteAddr string, allowedSubnets map[string]interface{}) 
 // makeAPIAuthorizationPolicyRetrieveFilter creates a manipulate filter to retrieve the api authorization policies matching the claims.
 func makeAPIAuthorizationPolicyRetrieveFilter(claims []string) *elemental.Filter {
 
-	itags := []interface{}{}
+	itags := []any{}
 	set := mapset.NewSet()
 	var issuer string
 	for _, tag := range claims {
@@ -269,8 +269,8 @@ func match(expression [][]string, tags []string) bool {
 	return false
 }
 
-func stringListToInterfaceList(in []string) (out []interface{}) {
-	out = make([]interface{}, len(in))
+func stringListToInterfaceList(in []string) (out []any) {
+	out = make([]any, len(in))
 	for i, s := range in {
 		out[i] = s
 	}

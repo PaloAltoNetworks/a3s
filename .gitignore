@@ -2,8 +2,11 @@ cmd/a3s/a3s
 cmd/a3sctl/a3sctl
 coverage.xml
 unit_coverage.out
+cov.report
 remod.dev
 .remod
+go.work
+go.work.sum
 .data
 dist
 docker/in

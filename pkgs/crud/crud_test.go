@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"testing"
+	"time"
 
 	. "github.com/smartystreets/goconvey/convey"
 	"go.aporeto.io/a3s/pkgs/api"
@@ -37,6 +38,9 @@ func TestCreate(t *testing.T) {
 
 			So(err, ShouldBeNil)
 			So(obj.Namespace, ShouldEqual, "/hello")
+			So(obj.GetCreateTime(), ShouldNotBeZeroValue)
+			So(obj.GetUpdateTime().Round(time.Second), ShouldResemble, time.Now().Round(time.Second))
+			So(obj.GetCreateTime(), ShouldEqual, obj.GetUpdateTime())
 		})
 
 		Convey("When read only object is set", func() {
@@ -211,6 +215,8 @@ func TestUpdate(t *testing.T) {
 			So(err, ShouldBeNil)
 			So(expectedNamespace, ShouldEqual, "/hello")
 			So(expectedID, ShouldEqual, "xyz")
+			So(obj.GetUpdateTime(), ShouldNotBeZeroValue)
+			So(obj.GetUpdateTime().Round(time.Second), ShouldResemble, time.Now().Round(time.Second))
 		})
 
 		Convey("When read only object is set", func() {
