@@ -375,7 +375,7 @@ func createMongoDBAccount(cfg conf.MongoConf, username string) error {
 	db, close, _ := manipmongo.GetDatabase(m)
 	defer close()
 
-	role := map[string][]mgo.Role{
+	role := map[string][]string{
 		"a3s": {"readWrite", "dbAdmin"},
 	}
 	createCommand := bson.D{
