@@ -1,6 +1,7 @@
 package processors
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"sort"
@@ -36,6 +37,7 @@ func NewAuthorizationProcessor(manipulator manipulate.Manipulator, pubsub bahamu
 
 // ProcessCreate handles the creates requests for Authorizations.
 func (p *AuthorizationsProcessor) ProcessCreate(bctx bahamut.Context) error {
+	fmt.Printf("KCN: a3s. auth ProcessCreate\n")
 	return crud.Create(bctx, p.manipulator, bctx.InputData().(*api.Authorization),
 		crud.OptionPreWriteHook(p.makePreHook(bctx)),
 		crud.OptionPostWriteHook(p.makeNotify()),
@@ -44,7 +46,15 @@ func (p *AuthorizationsProcessor) ProcessCreate(bctx bahamut.Context) error {
 
 // ProcessRetrieveMany handles the retrieve many requests for Authorizations.
 func (p *AuthorizationsProcessor) ProcessRetrieveMany(bctx bahamut.Context) error {
-	return crud.RetrieveMany(bctx, p.manipulator, &api.AuthorizationsList{})
+	fmt.Printf("KCN: a3s. auth ProcessRetrieveMany\n")
+	//return crud.RetrieveMany(bctx, p.manipulator, &api.AuthorizationsList{})
+	authorizations := api.AuthorizationsList{}
+	err := crud.RetrieveMany(bctx, p.manipulator, &authorizations)
+	for _, auth := range authorizations {
+		printjson, _ := json.MarshalIndent(auth, "", "  ")
+		fmt.Printf("KCN: a3s auth ProcessRetrieveMany auth = %s\n", printjson)
+	}
+	return err
 }
 
 // ProcessRetrieve handles the retrieve requests for Authorizations.
@@ -62,6 +72,7 @@ func (p *AuthorizationsProcessor) ProcessUpdate(bctx bahamut.Context) error {
 
 // ProcessDelete handles the delete requests for Authorizations.
 func (p *AuthorizationsProcessor) ProcessDelete(bctx bahamut.Context) error {
+	fmt.Printf("KCN: a3s. auth ProcessDelete\n")
 	return crud.Delete(bctx, p.manipulator, api.NewAuthorization(),
 		crud.OptionPostWriteHook(p.makeNotify()),
 	)

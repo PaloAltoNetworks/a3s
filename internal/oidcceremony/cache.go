@@ -4,9 +4,9 @@ import (
 	"context"
 	"time"
 
-	"github.com/globalsign/mgo/bson"
 	"go.aporeto.io/manipulate"
 	"go.aporeto.io/manipulate/manipmongo"
+	"go.mongodb.org/mongo-driver/bson"
 	"golang.org/x/oauth2"
 )
 

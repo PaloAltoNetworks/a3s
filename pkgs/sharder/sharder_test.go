@@ -6,7 +6,6 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/globalsign/mgo/bson"
 	. "github.com/smartystreets/goconvey/convey"
 	"github.com/spaolacci/murmur3"
 	"go.aporeto.io/a3s/pkgs/api"
@@ -15,6 +14,7 @@ import (
 	"go.aporeto.io/manipulate"
 	"go.aporeto.io/manipulate/manipmongo"
 	"go.aporeto.io/manipulate/maniptest"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 type testHasher struct{}
@@ -157,7 +157,7 @@ func TestFilterOne(t *testing.T) {
 					ZHash: 43,
 				},
 			},
-			bson.D{{Name: "zone", Value: 0}, {Name: "zhash", Value: 43}},
+			bson.D{{Key: "zone", Value: 0}, {Key: "zhash", Value: 43}},
 			false,
 		},
 		{
@@ -171,7 +171,7 @@ func TestFilterOne(t *testing.T) {
 					ZHash: 0,
 				},
 			},
-			bson.D{{Name: "zone", Value: 0}},
+			bson.D{{Key: "zone", Value: 0}},
 			false,
 		},
 		{
@@ -187,7 +187,7 @@ func TestFilterOne(t *testing.T) {
 					Name:  "abcd",
 				},
 			},
-			bson.D{{Name: "zone", Value: 0}, {Name: "zhash", Value: 43}},
+			bson.D{{Key: "zone", Value: 0}, {Key: "zhash", Value: 43}},
 			false,
 		},
 	}
@@ -227,7 +227,7 @@ func TestFilterMany(t *testing.T) {
 				nil,
 				elemental.Identity{},
 			},
-			bson.D{{Name: "zone", Value: 0}},
+			bson.D{{Key: "zone", Value: 0}},
 			false,
 		},
 	}
