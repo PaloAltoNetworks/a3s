@@ -30,22 +30,22 @@ func NewIssueGCP() *IssueGCP {
 	}
 }
 
-// GetBSON implements the bson marshaling interface.
+// MarshalBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *IssueGCP) GetBSON() (any, error) {
+func (o *IssueGCP) MarshalBSON() ([]byte, error) {
 
 	if o == nil {
 		return nil, nil
 	}
 
-	s := &mongoAttributesIssueGCP{}
+	s := mongoAttributesIssueGCP{}
 
-	return s, nil
+	return bson.Marshal(s)
 }
 
-// SetBSON implements the bson marshaling interface.
-// This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *IssueGCP) SetBSON(raw bson.Raw) error {
+// UnmarshalBSON implements the bson unmarshaling interface.
+// This is used to transparently convert MongoDBID to ID.
+func (o *IssueGCP) UnmarshalBSON(raw []byte) error {
 
 	if o == nil {
 		return nil

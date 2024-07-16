@@ -168,15 +168,15 @@ func (o *OIDCSource) SetIdentifier(id string) {
 	o.ID = id
 }
 
-// GetBSON implements the bson marshaling interface.
+// MarshalBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *OIDCSource) GetBSON() (any, error) {
+func (o *OIDCSource) MarshalBSON() ([]byte, error) {
 
 	if o == nil {
 		return nil, nil
 	}
 
-	s := &mongoAttributesOIDCSource{}
+	s := mongoAttributesOIDCSource{}
 
 	s.CA = o.CA
 	if o.ID != "" {
@@ -201,12 +201,12 @@ func (o *OIDCSource) GetBSON() (any, error) {
 	s.ZHash = o.ZHash
 	s.Zone = o.Zone
 
-	return s, nil
+	return bson.Marshal(s)
 }
 
-// SetBSON implements the bson marshaling interface.
-// This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *OIDCSource) SetBSON(raw bson.Raw) error {
+// UnmarshalBSON implements the bson unmarshaling interface.
+// This is used to transparently convert MongoDBID to ID.
+func (o *OIDCSource) UnmarshalBSON(raw []byte) error {
 
 	if o == nil {
 		return nil
@@ -1205,15 +1205,15 @@ func (o *SparseOIDCSource) SetIdentifier(id string) {
 	}
 }
 
-// GetBSON implements the bson marshaling interface.
+// MarshalBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *SparseOIDCSource) GetBSON() (any, error) {
+func (o *SparseOIDCSource) MarshalBSON() ([]byte, error) {
 
 	if o == nil {
 		return nil, nil
 	}
 
-	s := &mongoAttributesSparseOIDCSource{}
+	s := mongoAttributesSparseOIDCSource{}
 
 	if o.CA != nil {
 		s.CA = o.CA
@@ -1268,12 +1268,12 @@ func (o *SparseOIDCSource) GetBSON() (any, error) {
 		s.Zone = o.Zone
 	}
 
-	return s, nil
+	return bson.Marshal(s)
 }
 
-// SetBSON implements the bson marshaling interface.
-// This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *SparseOIDCSource) SetBSON(raw bson.Raw) error {
+// UnmarshalBSON implements the bson unmarshaling interface.
+// This is used to transparently convert MongoDBID to ID.
+func (o *SparseOIDCSource) UnmarshalBSON(raw []byte) error {
 
 	if o == nil {
 		return nil

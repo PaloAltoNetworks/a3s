@@ -27,22 +27,22 @@ func NewIssueRemoteA3S() *IssueRemoteA3S {
 	}
 }
 
-// GetBSON implements the bson marshaling interface.
+// MarshalBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *IssueRemoteA3S) GetBSON() (any, error) {
+func (o *IssueRemoteA3S) MarshalBSON() ([]byte, error) {
 
 	if o == nil {
 		return nil, nil
 	}
 
-	s := &mongoAttributesIssueRemoteA3S{}
+	s := mongoAttributesIssueRemoteA3S{}
 
-	return s, nil
+	return bson.Marshal(s)
 }
 
-// SetBSON implements the bson marshaling interface.
-// This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *IssueRemoteA3S) SetBSON(raw bson.Raw) error {
+// UnmarshalBSON implements the bson unmarshaling interface.
+// This is used to transparently convert MongoDBID to ID.
+func (o *IssueRemoteA3S) UnmarshalBSON(raw []byte) error {
 
 	if o == nil {
 		return nil

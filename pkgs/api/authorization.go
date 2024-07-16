@@ -181,15 +181,15 @@ func (o *Authorization) SetIdentifier(id string) {
 	o.ID = id
 }
 
-// GetBSON implements the bson marshaling interface.
+// MarshalBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *Authorization) GetBSON() (any, error) {
+func (o *Authorization) MarshalBSON() ([]byte, error) {
 
 	if o == nil {
 		return nil, nil
 	}
 
-	s := &mongoAttributesAuthorization{}
+	s := mongoAttributesAuthorization{}
 
 	if o.ID != "" {
 		objectID, err := primitive.ObjectIDFromHex(o.ID)
@@ -217,12 +217,12 @@ func (o *Authorization) GetBSON() (any, error) {
 	s.ZHash = o.ZHash
 	s.Zone = o.Zone
 
-	return s, nil
+	return bson.Marshal(s)
 }
 
-// SetBSON implements the bson marshaling interface.
-// This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *Authorization) SetBSON(raw bson.Raw) error {
+// UnmarshalBSON implements the bson unmarshaling interface.
+// This is used to transparently convert MongoDBID to ID.
+func (o *Authorization) UnmarshalBSON(raw []byte) error {
 
 	if o == nil {
 		return nil
@@ -1301,15 +1301,15 @@ func (o *SparseAuthorization) SetIdentifier(id string) {
 	}
 }
 
-// GetBSON implements the bson marshaling interface.
+// MarshalBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *SparseAuthorization) GetBSON() (any, error) {
+func (o *SparseAuthorization) MarshalBSON() ([]byte, error) {
 
 	if o == nil {
 		return nil, nil
 	}
 
-	s := &mongoAttributesSparseAuthorization{}
+	s := mongoAttributesSparseAuthorization{}
 
 	if o.ID != nil {
 		objectID, err := primitive.ObjectIDFromHex(*o.ID)
@@ -1373,12 +1373,12 @@ func (o *SparseAuthorization) GetBSON() (any, error) {
 		s.Zone = o.Zone
 	}
 
-	return s, nil
+	return bson.Marshal(s)
 }
 
-// SetBSON implements the bson marshaling interface.
-// This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *SparseAuthorization) SetBSON(raw bson.Raw) error {
+// UnmarshalBSON implements the bson unmarshaling interface.
+// This is used to transparently convert MongoDBID to ID.
+func (o *SparseAuthorization) UnmarshalBSON(raw []byte) error {
 
 	if o == nil {
 		return nil

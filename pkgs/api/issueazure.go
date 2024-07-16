@@ -27,22 +27,22 @@ func NewIssueAzure() *IssueAzure {
 	}
 }
 
-// GetBSON implements the bson marshaling interface.
+// MarshalBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *IssueAzure) GetBSON() (any, error) {
+func (o *IssueAzure) MarshalBSON() ([]byte, error) {
 
 	if o == nil {
 		return nil, nil
 	}
 
-	s := &mongoAttributesIssueAzure{}
+	s := mongoAttributesIssueAzure{}
 
-	return s, nil
+	return bson.Marshal(s)
 }
 
-// SetBSON implements the bson marshaling interface.
-// This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *IssueAzure) SetBSON(raw bson.Raw) error {
+// UnmarshalBSON implements the bson unmarshaling interface.
+// This is used to transparently convert MongoDBID to ID.
+func (o *IssueAzure) UnmarshalBSON(raw []byte) error {
 
 	if o == nil {
 		return nil

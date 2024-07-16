@@ -165,15 +165,15 @@ func (o *HTTPSource) SetIdentifier(id string) {
 	o.ID = id
 }
 
-// GetBSON implements the bson marshaling interface.
+// MarshalBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *HTTPSource) GetBSON() (any, error) {
+func (o *HTTPSource) MarshalBSON() ([]byte, error) {
 
 	if o == nil {
 		return nil, nil
 	}
 
-	s := &mongoAttributesHTTPSource{}
+	s := mongoAttributesHTTPSource{}
 
 	s.CA = o.CA
 	if o.ID != "" {
@@ -197,12 +197,12 @@ func (o *HTTPSource) GetBSON() (any, error) {
 	s.ZHash = o.ZHash
 	s.Zone = o.Zone
 
-	return s, nil
+	return bson.Marshal(s)
 }
 
-// SetBSON implements the bson marshaling interface.
-// This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *HTTPSource) SetBSON(raw bson.Raw) error {
+// UnmarshalBSON implements the bson unmarshaling interface.
+// This is used to transparently convert MongoDBID to ID.
+func (o *HTTPSource) UnmarshalBSON(raw []byte) error {
 
 	if o == nil {
 		return nil
@@ -1166,15 +1166,15 @@ func (o *SparseHTTPSource) SetIdentifier(id string) {
 	}
 }
 
-// GetBSON implements the bson marshaling interface.
+// MarshalBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *SparseHTTPSource) GetBSON() (any, error) {
+func (o *SparseHTTPSource) MarshalBSON() ([]byte, error) {
 
 	if o == nil {
 		return nil, nil
 	}
 
-	s := &mongoAttributesSparseHTTPSource{}
+	s := mongoAttributesSparseHTTPSource{}
 
 	if o.CA != nil {
 		s.CA = o.CA
@@ -1226,12 +1226,12 @@ func (o *SparseHTTPSource) GetBSON() (any, error) {
 		s.Zone = o.Zone
 	}
 
-	return s, nil
+	return bson.Marshal(s)
 }
 
-// SetBSON implements the bson marshaling interface.
-// This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *SparseHTTPSource) SetBSON(raw bson.Raw) error {
+// UnmarshalBSON implements the bson unmarshaling interface.
+// This is used to transparently convert MongoDBID to ID.
+func (o *SparseHTTPSource) UnmarshalBSON(raw []byte) error {
 
 	if o == nil {
 		return nil

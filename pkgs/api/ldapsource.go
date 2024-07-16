@@ -200,15 +200,15 @@ func (o *LDAPSource) SetIdentifier(id string) {
 	o.ID = id
 }
 
-// GetBSON implements the bson marshaling interface.
+// MarshalBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *LDAPSource) GetBSON() (any, error) {
+func (o *LDAPSource) MarshalBSON() ([]byte, error) {
 
 	if o == nil {
 		return nil, nil
 	}
 
-	s := &mongoAttributesLDAPSource{}
+	s := mongoAttributesLDAPSource{}
 
 	s.CA = o.CA
 	if o.ID != "" {
@@ -237,12 +237,12 @@ func (o *LDAPSource) GetBSON() (any, error) {
 	s.ZHash = o.ZHash
 	s.Zone = o.Zone
 
-	return s, nil
+	return bson.Marshal(s)
 }
 
-// SetBSON implements the bson marshaling interface.
-// This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *LDAPSource) SetBSON(raw bson.Raw) error {
+// UnmarshalBSON implements the bson unmarshaling interface.
+// This is used to transparently convert MongoDBID to ID.
+func (o *LDAPSource) UnmarshalBSON(raw []byte) error {
 
 	if o == nil {
 		return nil
@@ -1392,15 +1392,15 @@ func (o *SparseLDAPSource) SetIdentifier(id string) {
 	}
 }
 
-// GetBSON implements the bson marshaling interface.
+// MarshalBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *SparseLDAPSource) GetBSON() (any, error) {
+func (o *SparseLDAPSource) MarshalBSON() ([]byte, error) {
 
 	if o == nil {
 		return nil, nil
 	}
 
-	s := &mongoAttributesSparseLDAPSource{}
+	s := mongoAttributesSparseLDAPSource{}
 
 	if o.CA != nil {
 		s.CA = o.CA
@@ -1467,12 +1467,12 @@ func (o *SparseLDAPSource) GetBSON() (any, error) {
 		s.Zone = o.Zone
 	}
 
-	return s, nil
+	return bson.Marshal(s)
 }
 
-// SetBSON implements the bson marshaling interface.
-// This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *SparseLDAPSource) SetBSON(raw bson.Raw) error {
+// UnmarshalBSON implements the bson unmarshaling interface.
+// This is used to transparently convert MongoDBID to ID.
+func (o *SparseLDAPSource) UnmarshalBSON(raw []byte) error {
 
 	if o == nil {
 		return nil

@@ -258,22 +258,22 @@ func (o *Issue) SetIdentifier(id string) {
 
 }
 
-// GetBSON implements the bson marshaling interface.
+// MarshalBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *Issue) GetBSON() (any, error) {
+func (o *Issue) MarshalBSON() ([]byte, error) {
 
 	if o == nil {
 		return nil, nil
 	}
 
-	s := &mongoAttributesIssue{}
+	s := mongoAttributesIssue{}
 
-	return s, nil
+	return bson.Marshal(s)
 }
 
-// SetBSON implements the bson marshaling interface.
-// This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *Issue) SetBSON(raw bson.Raw) error {
+// UnmarshalBSON implements the bson unmarshaling interface.
+// This is used to transparently convert MongoDBID to ID.
+func (o *Issue) UnmarshalBSON(raw []byte) error {
 
 	if o == nil {
 		return nil
@@ -1305,22 +1305,22 @@ func (o *SparseIssue) SetIdentifier(id string) {
 
 }
 
-// GetBSON implements the bson marshaling interface.
+// MarshalBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *SparseIssue) GetBSON() (any, error) {
+func (o *SparseIssue) MarshalBSON() ([]byte, error) {
 
 	if o == nil {
 		return nil, nil
 	}
 
-	s := &mongoAttributesSparseIssue{}
+	s := mongoAttributesSparseIssue{}
 
-	return s, nil
+	return bson.Marshal(s)
 }
 
-// SetBSON implements the bson marshaling interface.
-// This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *SparseIssue) SetBSON(raw bson.Raw) error {
+// UnmarshalBSON implements the bson unmarshaling interface.
+// This is used to transparently convert MongoDBID to ID.
+func (o *SparseIssue) UnmarshalBSON(raw []byte) error {
 
 	if o == nil {
 		return nil

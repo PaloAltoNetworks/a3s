@@ -129,15 +129,15 @@ func (o *NamespaceDeletionRecord) SetIdentifier(id string) {
 	o.ID = id
 }
 
-// GetBSON implements the bson marshaling interface.
+// MarshalBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *NamespaceDeletionRecord) GetBSON() (any, error) {
+func (o *NamespaceDeletionRecord) MarshalBSON() ([]byte, error) {
 
 	if o == nil {
 		return nil, nil
 	}
 
-	s := &mongoAttributesNamespaceDeletionRecord{}
+	s := mongoAttributesNamespaceDeletionRecord{}
 
 	if o.ID != "" {
 		objectID, err := primitive.ObjectIDFromHex(o.ID)
@@ -151,12 +151,12 @@ func (o *NamespaceDeletionRecord) GetBSON() (any, error) {
 	s.ZHash = o.ZHash
 	s.Zone = o.Zone
 
-	return s, nil
+	return bson.Marshal(s)
 }
 
-// SetBSON implements the bson marshaling interface.
-// This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *NamespaceDeletionRecord) SetBSON(raw bson.Raw) error {
+// UnmarshalBSON implements the bson unmarshaling interface.
+// This is used to transparently convert MongoDBID to ID.
+func (o *NamespaceDeletionRecord) UnmarshalBSON(raw []byte) error {
 
 	if o == nil {
 		return nil
@@ -624,15 +624,15 @@ func (o *SparseNamespaceDeletionRecord) SetIdentifier(id string) {
 	}
 }
 
-// GetBSON implements the bson marshaling interface.
+// MarshalBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *SparseNamespaceDeletionRecord) GetBSON() (any, error) {
+func (o *SparseNamespaceDeletionRecord) MarshalBSON() ([]byte, error) {
 
 	if o == nil {
 		return nil, nil
 	}
 
-	s := &mongoAttributesSparseNamespaceDeletionRecord{}
+	s := mongoAttributesSparseNamespaceDeletionRecord{}
 
 	if o.ID != nil {
 		objectID, err := primitive.ObjectIDFromHex(*o.ID)
@@ -654,12 +654,12 @@ func (o *SparseNamespaceDeletionRecord) GetBSON() (any, error) {
 		s.Zone = o.Zone
 	}
 
-	return s, nil
+	return bson.Marshal(s)
 }
 
-// SetBSON implements the bson marshaling interface.
-// This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *SparseNamespaceDeletionRecord) SetBSON(raw bson.Raw) error {
+// UnmarshalBSON implements the bson unmarshaling interface.
+// This is used to transparently convert MongoDBID to ID.
+func (o *SparseNamespaceDeletionRecord) UnmarshalBSON(raw []byte) error {
 
 	if o == nil {
 		return nil

@@ -160,15 +160,15 @@ func (o *MTLSSource) SetIdentifier(id string) {
 	o.ID = id
 }
 
-// GetBSON implements the bson marshaling interface.
+// MarshalBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *MTLSSource) GetBSON() (any, error) {
+func (o *MTLSSource) MarshalBSON() ([]byte, error) {
 
 	if o == nil {
 		return nil, nil
 	}
 
-	s := &mongoAttributesMTLSSource{}
+	s := mongoAttributesMTLSSource{}
 
 	s.CA = o.CA
 	if o.ID != "" {
@@ -191,12 +191,12 @@ func (o *MTLSSource) GetBSON() (any, error) {
 	s.ZHash = o.ZHash
 	s.Zone = o.Zone
 
-	return s, nil
+	return bson.Marshal(s)
 }
 
-// SetBSON implements the bson marshaling interface.
-// This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *MTLSSource) SetBSON(raw bson.Raw) error {
+// UnmarshalBSON implements the bson unmarshaling interface.
+// This is used to transparently convert MongoDBID to ID.
+func (o *MTLSSource) UnmarshalBSON(raw []byte) error {
 
 	if o == nil {
 		return nil
@@ -1098,15 +1098,15 @@ func (o *SparseMTLSSource) SetIdentifier(id string) {
 	}
 }
 
-// GetBSON implements the bson marshaling interface.
+// MarshalBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *SparseMTLSSource) GetBSON() (any, error) {
+func (o *SparseMTLSSource) MarshalBSON() ([]byte, error) {
 
 	if o == nil {
 		return nil, nil
 	}
 
-	s := &mongoAttributesSparseMTLSSource{}
+	s := mongoAttributesSparseMTLSSource{}
 
 	if o.CA != nil {
 		s.CA = o.CA
@@ -1155,12 +1155,12 @@ func (o *SparseMTLSSource) GetBSON() (any, error) {
 		s.Zone = o.Zone
 	}
 
-	return s, nil
+	return bson.Marshal(s)
 }
 
-// SetBSON implements the bson marshaling interface.
-// This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *SparseMTLSSource) SetBSON(raw bson.Raw) error {
+// UnmarshalBSON implements the bson unmarshaling interface.
+// This is used to transparently convert MongoDBID to ID.
+func (o *SparseMTLSSource) UnmarshalBSON(raw []byte) error {
 
 	if o == nil {
 		return nil

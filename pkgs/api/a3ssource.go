@@ -163,15 +163,15 @@ func (o *A3SSource) SetIdentifier(id string) {
 	o.ID = id
 }
 
-// GetBSON implements the bson marshaling interface.
+// MarshalBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *A3SSource) GetBSON() (any, error) {
+func (o *A3SSource) MarshalBSON() ([]byte, error) {
 
 	if o == nil {
 		return nil, nil
 	}
 
-	s := &mongoAttributesA3SSource{}
+	s := mongoAttributesA3SSource{}
 
 	s.CA = o.CA
 	if o.ID != "" {
@@ -195,12 +195,12 @@ func (o *A3SSource) GetBSON() (any, error) {
 	s.ZHash = o.ZHash
 	s.Zone = o.Zone
 
-	return s, nil
+	return bson.Marshal(s)
 }
 
-// SetBSON implements the bson marshaling interface.
-// This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *A3SSource) SetBSON(raw bson.Raw) error {
+// UnmarshalBSON implements the bson unmarshaling interface.
+// This is used to transparently convert MongoDBID to ID.
+func (o *A3SSource) UnmarshalBSON(raw []byte) error {
 
 	if o == nil {
 		return nil
@@ -1128,15 +1128,15 @@ func (o *SparseA3SSource) SetIdentifier(id string) {
 	}
 }
 
-// GetBSON implements the bson marshaling interface.
+// MarshalBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *SparseA3SSource) GetBSON() (any, error) {
+func (o *SparseA3SSource) MarshalBSON() ([]byte, error) {
 
 	if o == nil {
 		return nil, nil
 	}
 
-	s := &mongoAttributesSparseA3SSource{}
+	s := mongoAttributesSparseA3SSource{}
 
 	if o.CA != nil {
 		s.CA = o.CA
@@ -1188,12 +1188,12 @@ func (o *SparseA3SSource) GetBSON() (any, error) {
 		s.Zone = o.Zone
 	}
 
-	return s, nil
+	return bson.Marshal(s)
 }
 
-// SetBSON implements the bson marshaling interface.
-// This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *SparseA3SSource) SetBSON(raw bson.Raw) error {
+// UnmarshalBSON implements the bson unmarshaling interface.
+// This is used to transparently convert MongoDBID to ID.
+func (o *SparseA3SSource) UnmarshalBSON(raw []byte) error {
 
 	if o == nil {
 		return nil

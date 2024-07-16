@@ -150,15 +150,15 @@ func (o *IdentityModifier) SetIdentifier(id string) {
 
 }
 
-// GetBSON implements the bson marshaling interface.
+// MarshalBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *IdentityModifier) GetBSON() (any, error) {
+func (o *IdentityModifier) MarshalBSON() ([]byte, error) {
 
 	if o == nil {
 		return nil, nil
 	}
 
-	s := &mongoAttributesIdentityModifier{}
+	s := mongoAttributesIdentityModifier{}
 
 	s.CA = o.CA
 	s.URL = o.URL
@@ -166,12 +166,12 @@ func (o *IdentityModifier) GetBSON() (any, error) {
 	s.Key = o.Key
 	s.Method = o.Method
 
-	return s, nil
+	return bson.Marshal(s)
 }
 
-// SetBSON implements the bson marshaling interface.
-// This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *IdentityModifier) SetBSON(raw bson.Raw) error {
+// UnmarshalBSON implements the bson unmarshaling interface.
+// This is used to transparently convert MongoDBID to ID.
+func (o *IdentityModifier) UnmarshalBSON(raw []byte) error {
 
 	if o == nil {
 		return nil
@@ -633,15 +633,15 @@ func (o *SparseIdentityModifier) SetIdentifier(id string) {
 
 }
 
-// GetBSON implements the bson marshaling interface.
+// MarshalBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *SparseIdentityModifier) GetBSON() (any, error) {
+func (o *SparseIdentityModifier) MarshalBSON() ([]byte, error) {
 
 	if o == nil {
 		return nil, nil
 	}
 
-	s := &mongoAttributesSparseIdentityModifier{}
+	s := mongoAttributesSparseIdentityModifier{}
 
 	if o.CA != nil {
 		s.CA = o.CA
@@ -659,12 +659,12 @@ func (o *SparseIdentityModifier) GetBSON() (any, error) {
 		s.Method = o.Method
 	}
 
-	return s, nil
+	return bson.Marshal(s)
 }
 
-// SetBSON implements the bson marshaling interface.
-// This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *SparseIdentityModifier) SetBSON(raw bson.Raw) error {
+// UnmarshalBSON implements the bson unmarshaling interface.
+// This is used to transparently convert MongoDBID to ID.
+func (o *SparseIdentityModifier) UnmarshalBSON(raw []byte) error {
 
 	if o == nil {
 		return nil
