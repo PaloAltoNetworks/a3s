@@ -6,9 +6,9 @@ package api
 import (
 	"fmt"
 
-	"github.com/globalsign/mgo/bson"
 	"github.com/mitchellh/copystructure"
 	"go.aporeto.io/elemental"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 // RootIdentity represents the Identity of the object.
@@ -71,7 +71,7 @@ func (o *Root) SetBSON(raw bson.Raw) error {
 	}
 
 	s := &mongoAttributesRoot{}
-	if err := raw.Unmarshal(s); err != nil {
+	if err := bson.Unmarshal(raw, s); err != nil {
 		return err
 	}
 

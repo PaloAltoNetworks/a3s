@@ -6,9 +6,9 @@ package api
 import (
 	"fmt"
 
-	"github.com/globalsign/mgo/bson"
 	"github.com/mitchellh/copystructure"
 	"go.aporeto.io/elemental"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 // IssueAWS represents the model of a issueaws
@@ -55,7 +55,7 @@ func (o *IssueAWS) SetBSON(raw bson.Raw) error {
 	}
 
 	s := &mongoAttributesIssueAWS{}
-	if err := raw.Unmarshal(s); err != nil {
+	if err := bson.Unmarshal(raw, s); err != nil {
 		return err
 	}
 

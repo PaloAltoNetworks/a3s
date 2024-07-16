@@ -143,3 +143,5 @@ require (
 replace github.com/mitchellh/mapstructure => github.com/mitchellh/mapstructure v1.4.3
 
 replace go.aporeto.io/manipulate => ../manipulate
+
+replace go.aporeto.io/elemental => ../elemental

@@ -6,9 +6,9 @@ package api
 import (
 	"fmt"
 
-	"github.com/globalsign/mgo/bson"
 	"github.com/mitchellh/copystructure"
 	"go.aporeto.io/elemental"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 // IssueLDAP represents the model of a issueldap
@@ -52,7 +52,7 @@ func (o *IssueLDAP) SetBSON(raw bson.Raw) error {
 	}
 
 	s := &mongoAttributesIssueLDAP{}
-	if err := raw.Unmarshal(s); err != nil {
+	if err := bson.Unmarshal(raw, s); err != nil {
 		return err
 	}
 

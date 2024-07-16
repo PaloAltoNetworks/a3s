@@ -6,9 +6,9 @@ package api
 import (
 	"fmt"
 
-	"github.com/globalsign/mgo/bson"
 	"github.com/mitchellh/copystructure"
 	"go.aporeto.io/elemental"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 // IssueSourceTypeValue represents the possible values for attribute "sourceType".
@@ -280,7 +280,7 @@ func (o *Issue) SetBSON(raw bson.Raw) error {
 	}
 
 	s := &mongoAttributesIssue{}
-	if err := raw.Unmarshal(s); err != nil {
+	if err := bson.Unmarshal(raw, s); err != nil {
 		return err
 	}
 
@@ -1327,7 +1327,7 @@ func (o *SparseIssue) SetBSON(raw bson.Raw) error {
 	}
 
 	s := &mongoAttributesSparseIssue{}
-	if err := raw.Unmarshal(s); err != nil {
+	if err := bson.Unmarshal(raw, s); err != nil {
 		return err
 	}
 

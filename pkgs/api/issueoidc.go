@@ -6,9 +6,9 @@ package api
 import (
 	"fmt"
 
-	"github.com/globalsign/mgo/bson"
 	"github.com/mitchellh/copystructure"
 	"go.aporeto.io/elemental"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 // IssueOIDC represents the model of a issueoidc
@@ -65,7 +65,7 @@ func (o *IssueOIDC) SetBSON(raw bson.Raw) error {
 	}
 
 	s := &mongoAttributesIssueOIDC{}
-	if err := raw.Unmarshal(s); err != nil {
+	if err := bson.Unmarshal(raw, s); err != nil {
 		return err
 	}
 

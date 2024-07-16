@@ -6,9 +6,9 @@ package api
 import (
 	"fmt"
 
-	"github.com/globalsign/mgo/bson"
 	"github.com/mitchellh/copystructure"
 	"go.aporeto.io/elemental"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 // IssueGCP represents the model of a issuegcp
@@ -52,7 +52,7 @@ func (o *IssueGCP) SetBSON(raw bson.Raw) error {
 	}
 
 	s := &mongoAttributesIssueGCP{}
-	if err := raw.Unmarshal(s); err != nil {
+	if err := bson.Unmarshal(raw, s); err != nil {
 		return err
 	}
 

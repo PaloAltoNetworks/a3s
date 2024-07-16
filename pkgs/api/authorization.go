@@ -7,9 +7,10 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/globalsign/mgo/bson"
 	"github.com/mitchellh/copystructure"
 	"go.aporeto.io/elemental"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 // AuthorizationIdentity represents the Identity of the object.
@@ -191,7 +192,11 @@ func (o *Authorization) GetBSON() (any, error) {
 	s := &mongoAttributesAuthorization{}
 
 	if o.ID != "" {
-		s.ID = bson.ObjectIdHex(o.ID)
+		objectID, err := primitive.ObjectIDFromHex(o.ID)
+		if err != nil {
+			return nil, err
+		}
+		s.ID = objectID
 	}
 	s.CreateTime = o.CreateTime
 	s.Description = o.Description
@@ -224,7 +229,7 @@ func (o *Authorization) SetBSON(raw bson.Raw) error {
 	}
 
 	s := &mongoAttributesAuthorization{}
-	if err := raw.Unmarshal(s); err != nil {
+	if err := bson.Unmarshal(raw, s); err != nil {
 		return err
 	}
 
@@ -1307,7 +1312,11 @@ func (o *SparseAuthorization) GetBSON() (any, error) {
 	s := &mongoAttributesSparseAuthorization{}
 
 	if o.ID != nil {
-		s.ID = bson.ObjectIdHex(*o.ID)
+		objectID, err := primitive.ObjectIDFromHex(*o.ID)
+		if err != nil {
+			return nil, err
+		}
+		s.ID = objectID
 	}
 	if o.CreateTime != nil {
 		s.CreateTime = o.CreateTime
@@ -1376,7 +1385,7 @@ func (o *SparseAuthorization) SetBSON(raw bson.Raw) error {
 	}
 
 	s := &mongoAttributesSparseAuthorization{}
-	if err := raw.Unmarshal(s); err != nil {
+	if err := bson.Unmarshal(raw, s); err != nil {
 		return err
 	}
 
@@ -1680,44 +1689,44 @@ func (o *SparseAuthorization) DeepCopyInto(out *SparseAuthorization) {
 }
 
 type mongoAttributesAuthorization struct {
-	ID               bson.ObjectId `bson:"_id,omitempty"`
-	CreateTime       time.Time     `bson:"createtime"`
-	Description      string        `bson:"description"`
-	Disabled         bool          `bson:"disabled"`
-	FlattenedSubject []string      `bson:"flattenedsubject"`
-	Hidden           bool          `bson:"hidden"`
-	ImportHash       string        `bson:"importhash,omitempty"`
-	ImportLabel      string        `bson:"importlabel,omitempty"`
-	Name             string        `bson:"name"`
-	Namespace        string        `bson:"namespace"`
-	Permissions      []string      `bson:"permissions"`
-	Propagate        bool          `bson:"propagate"`
-	Subject          [][]string    `bson:"subject"`
-	Subnets          []string      `bson:"subnets"`
-	TargetNamespaces []string      `bson:"targetnamespaces"`
-	TrustedIssuers   []string      `bson:"trustedissuers"`
-	UpdateTime       time.Time     `bson:"updatetime"`
-	ZHash            int           `bson:"zhash"`
-	Zone             int           `bson:"zone"`
+	ID               primitive.ObjectID `bson:"_id,omitempty"`
+	CreateTime       time.Time          `bson:"createtime"`
+	Description      string             `bson:"description"`
+	Disabled         bool               `bson:"disabled"`
+	FlattenedSubject []string           `bson:"flattenedsubject"`
+	Hidden           bool               `bson:"hidden"`
+	ImportHash       string             `bson:"importhash,omitempty"`
+	ImportLabel      string             `bson:"importlabel,omitempty"`
+	Name             string             `bson:"name"`
+	Namespace        string             `bson:"namespace"`
+	Permissions      []string           `bson:"permissions"`
+	Propagate        bool               `bson:"propagate"`
+	Subject          [][]string         `bson:"subject"`
+	Subnets          []string           `bson:"subnets"`
+	TargetNamespaces []string           `bson:"targetnamespaces"`
+	TrustedIssuers   []string           `bson:"trustedissuers"`
+	UpdateTime       time.Time          `bson:"updatetime"`
+	ZHash            int                `bson:"zhash"`
+	Zone             int                `bson:"zone"`
 }
 type mongoAttributesSparseAuthorization struct {
-	ID               bson.ObjectId `bson:"_id,omitempty"`
-	CreateTime       *time.Time    `bson:"createtime,omitempty"`
-	Description      *string       `bson:"description,omitempty"`
-	Disabled         *bool         `bson:"disabled,omitempty"`
-	FlattenedSubject *[]string     `bson:"flattenedsubject,omitempty"`
-	Hidden           *bool         `bson:"hidden,omitempty"`
-	ImportHash       *string       `bson:"importhash,omitempty"`
-	ImportLabel      *string       `bson:"importlabel,omitempty"`
-	Name             *string       `bson:"name,omitempty"`
-	Namespace        *string       `bson:"namespace,omitempty"`
-	Permissions      *[]string     `bson:"permissions,omitempty"`
-	Propagate        *bool         `bson:"propagate,omitempty"`
-	Subject          *[][]string   `bson:"subject,omitempty"`
-	Subnets          *[]string     `bson:"subnets,omitempty"`
-	TargetNamespaces *[]string     `bson:"targetnamespaces,omitempty"`
-	TrustedIssuers   *[]string     `bson:"trustedissuers,omitempty"`
-	UpdateTime       *time.Time    `bson:"updatetime,omitempty"`
-	ZHash            *int          `bson:"zhash,omitempty"`
-	Zone             *int          `bson:"zone,omitempty"`
+	ID               primitive.ObjectID `bson:"_id,omitempty"`
+	CreateTime       *time.Time         `bson:"createtime,omitempty"`
+	Description      *string            `bson:"description,omitempty"`
+	Disabled         *bool              `bson:"disabled,omitempty"`
+	FlattenedSubject *[]string          `bson:"flattenedsubject,omitempty"`
+	Hidden           *bool              `bson:"hidden,omitempty"`
+	ImportHash       *string            `bson:"importhash,omitempty"`
+	ImportLabel      *string            `bson:"importlabel,omitempty"`
+	Name             *string            `bson:"name,omitempty"`
+	Namespace        *string            `bson:"namespace,omitempty"`
+	Permissions      *[]string          `bson:"permissions,omitempty"`
+	Propagate        *bool              `bson:"propagate,omitempty"`
+	Subject          *[][]string        `bson:"subject,omitempty"`
+	Subnets          *[]string          `bson:"subnets,omitempty"`
+	TargetNamespaces *[]string          `bson:"targetnamespaces,omitempty"`
+	TrustedIssuers   *[]string          `bson:"trustedissuers,omitempty"`
+	UpdateTime       *time.Time         `bson:"updatetime,omitempty"`
+	ZHash            *int               `bson:"zhash,omitempty"`
+	Zone             *int               `bson:"zone,omitempty"`
 }

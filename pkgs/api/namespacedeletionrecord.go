@@ -7,9 +7,10 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/globalsign/mgo/bson"
 	"github.com/mitchellh/copystructure"
 	"go.aporeto.io/elemental"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 // NamespaceDeletionRecordIdentity represents the Identity of the object.
@@ -139,7 +140,11 @@ func (o *NamespaceDeletionRecord) GetBSON() (any, error) {
 	s := &mongoAttributesNamespaceDeletionRecord{}
 
 	if o.ID != "" {
-		s.ID = bson.ObjectIdHex(o.ID)
+		objectID, err := primitive.ObjectIDFromHex(o.ID)
+		if err != nil {
+			return nil, err
+		}
+		s.ID = objectID
 	}
 	s.DeleteTime = o.DeleteTime
 	s.Namespace = o.Namespace
@@ -158,7 +163,7 @@ func (o *NamespaceDeletionRecord) SetBSON(raw bson.Raw) error {
 	}
 
 	s := &mongoAttributesNamespaceDeletionRecord{}
-	if err := raw.Unmarshal(s); err != nil {
+	if err := bson.Unmarshal(raw, s); err != nil {
 		return err
 	}
 
@@ -630,7 +635,11 @@ func (o *SparseNamespaceDeletionRecord) GetBSON() (any, error) {
 	s := &mongoAttributesSparseNamespaceDeletionRecord{}
 
 	if o.ID != nil {
-		s.ID = bson.ObjectIdHex(*o.ID)
+		objectID, err := primitive.ObjectIDFromHex(*o.ID)
+		if err != nil {
+			return nil, err
+		}
+		s.ID = objectID
 	}
 	if o.DeleteTime != nil {
 		s.DeleteTime = o.DeleteTime
@@ -657,7 +666,7 @@ func (o *SparseNamespaceDeletionRecord) SetBSON(raw bson.Raw) error {
 	}
 
 	s := &mongoAttributesSparseNamespaceDeletionRecord{}
-	if err := raw.Unmarshal(s); err != nil {
+	if err := bson.Unmarshal(raw, s); err != nil {
 		return err
 	}
 
@@ -781,16 +790,16 @@ func (o *SparseNamespaceDeletionRecord) DeepCopyInto(out *SparseNamespaceDeletio
 }
 
 type mongoAttributesNamespaceDeletionRecord struct {
-	ID         bson.ObjectId `bson:"_id,omitempty"`
-	DeleteTime time.Time     `bson:"deletetime"`
-	Namespace  string        `bson:"namespace"`
-	ZHash      int           `bson:"zhash"`
-	Zone       int           `bson:"zone"`
+	ID         primitive.ObjectID `bson:"_id,omitempty"`
+	DeleteTime time.Time          `bson:"deletetime"`
+	Namespace  string             `bson:"namespace"`
+	ZHash      int                `bson:"zhash"`
+	Zone       int                `bson:"zone"`
 }
 type mongoAttributesSparseNamespaceDeletionRecord struct {
-	ID         bson.ObjectId `bson:"_id,omitempty"`
-	DeleteTime *time.Time    `bson:"deletetime,omitempty"`
-	Namespace  *string       `bson:"namespace,omitempty"`
-	ZHash      *int          `bson:"zhash,omitempty"`
-	Zone       *int          `bson:"zone,omitempty"`
+	ID         primitive.ObjectID `bson:"_id,omitempty"`
+	DeleteTime *time.Time         `bson:"deletetime,omitempty"`
+	Namespace  *string            `bson:"namespace,omitempty"`
+	ZHash      *int               `bson:"zhash,omitempty"`
+	Zone       *int               `bson:"zone,omitempty"`
 }

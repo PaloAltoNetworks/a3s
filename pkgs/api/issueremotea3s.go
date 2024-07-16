@@ -6,9 +6,9 @@ package api
 import (
 	"fmt"
 
-	"github.com/globalsign/mgo/bson"
 	"github.com/mitchellh/copystructure"
 	"go.aporeto.io/elemental"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 // IssueRemoteA3S represents the model of a issueremotea3s
@@ -49,7 +49,7 @@ func (o *IssueRemoteA3S) SetBSON(raw bson.Raw) error {
 	}
 
 	s := &mongoAttributesIssueRemoteA3S{}
-	if err := raw.Unmarshal(s); err != nil {
+	if err := bson.Unmarshal(raw, s); err != nil {
 		return err
 	}
 

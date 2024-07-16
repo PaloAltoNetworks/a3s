@@ -6,9 +6,9 @@ package api
 import (
 	"fmt"
 
-	"github.com/globalsign/mgo/bson"
 	"github.com/mitchellh/copystructure"
 	"go.aporeto.io/elemental"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 // AuthzIdentity represents the Identity of the object.
@@ -154,7 +154,7 @@ func (o *Authz) SetBSON(raw bson.Raw) error {
 	}
 
 	s := &mongoAttributesAuthz{}
-	if err := raw.Unmarshal(s); err != nil {
+	if err := bson.Unmarshal(raw, s); err != nil {
 		return err
 	}
 
@@ -620,7 +620,7 @@ func (o *SparseAuthz) SetBSON(raw bson.Raw) error {
 	}
 
 	s := &mongoAttributesSparseAuthz{}
-	if err := raw.Unmarshal(s); err != nil {
+	if err := bson.Unmarshal(raw, s); err != nil {
 		return err
 	}
 

@@ -7,9 +7,10 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/globalsign/mgo/bson"
 	"github.com/mitchellh/copystructure"
 	"go.aporeto.io/elemental"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 // A3SSourceIdentity represents the Identity of the object.
@@ -174,7 +175,11 @@ func (o *A3SSource) GetBSON() (any, error) {
 
 	s.CA = o.CA
 	if o.ID != "" {
-		s.ID = bson.ObjectIdHex(o.ID)
+		objectID, err := primitive.ObjectIDFromHex(o.ID)
+		if err != nil {
+			return nil, err
+		}
+		s.ID = objectID
 	}
 	s.Audience = o.Audience
 	s.CreateTime = o.CreateTime
@@ -202,7 +207,7 @@ func (o *A3SSource) SetBSON(raw bson.Raw) error {
 	}
 
 	s := &mongoAttributesA3SSource{}
-	if err := raw.Unmarshal(s); err != nil {
+	if err := bson.Unmarshal(raw, s); err != nil {
 		return err
 	}
 
@@ -1137,7 +1142,11 @@ func (o *SparseA3SSource) GetBSON() (any, error) {
 		s.CA = o.CA
 	}
 	if o.ID != nil {
-		s.ID = bson.ObjectIdHex(*o.ID)
+		objectID, err := primitive.ObjectIDFromHex(*o.ID)
+		if err != nil {
+			return nil, err
+		}
+		s.ID = objectID
 	}
 	if o.Audience != nil {
 		s.Audience = o.Audience
@@ -1191,7 +1200,7 @@ func (o *SparseA3SSource) SetBSON(raw bson.Raw) error {
 	}
 
 	s := &mongoAttributesSparseA3SSource{}
-	if err := raw.Unmarshal(s); err != nil {
+	if err := bson.Unmarshal(raw, s); err != nil {
 		return err
 	}
 
@@ -1455,36 +1464,36 @@ func (o *SparseA3SSource) DeepCopyInto(out *SparseA3SSource) {
 }
 
 type mongoAttributesA3SSource struct {
-	CA          string            `bson:"ca"`
-	ID          bson.ObjectId     `bson:"_id,omitempty"`
-	Audience    string            `bson:"audience"`
-	CreateTime  time.Time         `bson:"createtime"`
-	Description string            `bson:"description"`
-	Endpoint    string            `bson:"endpoint"`
-	ImportHash  string            `bson:"importhash,omitempty"`
-	ImportLabel string            `bson:"importlabel,omitempty"`
-	Issuer      string            `bson:"issuer"`
-	Modifier    *IdentityModifier `bson:"modifier,omitempty"`
-	Name        string            `bson:"name"`
-	Namespace   string            `bson:"namespace"`
-	UpdateTime  time.Time         `bson:"updatetime"`
-	ZHash       int               `bson:"zhash"`
-	Zone        int               `bson:"zone"`
+	CA          string             `bson:"ca"`
+	ID          primitive.ObjectID `bson:"_id,omitempty"`
+	Audience    string             `bson:"audience"`
+	CreateTime  time.Time          `bson:"createtime"`
+	Description string             `bson:"description"`
+	Endpoint    string             `bson:"endpoint"`
+	ImportHash  string             `bson:"importhash,omitempty"`
+	ImportLabel string             `bson:"importlabel,omitempty"`
+	Issuer      string             `bson:"issuer"`
+	Modifier    *IdentityModifier  `bson:"modifier,omitempty"`
+	Name        string             `bson:"name"`
+	Namespace   string             `bson:"namespace"`
+	UpdateTime  time.Time          `bson:"updatetime"`
+	ZHash       int                `bson:"zhash"`
+	Zone        int                `bson:"zone"`
 }
 type mongoAttributesSparseA3SSource struct {
-	CA          *string           `bson:"ca,omitempty"`
-	ID          bson.ObjectId     `bson:"_id,omitempty"`
-	Audience    *string           `bson:"audience,omitempty"`
-	CreateTime  *time.Time        `bson:"createtime,omitempty"`
-	Description *string           `bson:"description,omitempty"`
-	Endpoint    *string           `bson:"endpoint,omitempty"`
-	ImportHash  *string           `bson:"importhash,omitempty"`
-	ImportLabel *string           `bson:"importlabel,omitempty"`
-	Issuer      *string           `bson:"issuer,omitempty"`
-	Modifier    *IdentityModifier `bson:"modifier,omitempty"`
-	Name        *string           `bson:"name,omitempty"`
-	Namespace   *string           `bson:"namespace,omitempty"`
-	UpdateTime  *time.Time        `bson:"updatetime,omitempty"`
-	ZHash       *int              `bson:"zhash,omitempty"`
-	Zone        *int              `bson:"zone,omitempty"`
+	CA          *string            `bson:"ca,omitempty"`
+	ID          primitive.ObjectID `bson:"_id,omitempty"`
+	Audience    *string            `bson:"audience,omitempty"`
+	CreateTime  *time.Time         `bson:"createtime,omitempty"`
+	Description *string            `bson:"description,omitempty"`
+	Endpoint    *string            `bson:"endpoint,omitempty"`
+	ImportHash  *string            `bson:"importhash,omitempty"`
+	ImportLabel *string            `bson:"importlabel,omitempty"`
+	Issuer      *string            `bson:"issuer,omitempty"`
+	Modifier    *IdentityModifier  `bson:"modifier,omitempty"`
+	Name        *string            `bson:"name,omitempty"`
+	Namespace   *string            `bson:"namespace,omitempty"`
+	UpdateTime  *time.Time         `bson:"updatetime,omitempty"`
+	ZHash       *int               `bson:"zhash,omitempty"`
+	Zone        *int               `bson:"zone,omitempty"`
 }

@@ -7,9 +7,10 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/globalsign/mgo/bson"
 	"github.com/mitchellh/copystructure"
 	"go.aporeto.io/elemental"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 // HTTPSourceIdentity represents the Identity of the object.
@@ -176,7 +177,11 @@ func (o *HTTPSource) GetBSON() (any, error) {
 
 	s.CA = o.CA
 	if o.ID != "" {
-		s.ID = bson.ObjectIdHex(o.ID)
+		objectID, err := primitive.ObjectIDFromHex(o.ID)
+		if err != nil {
+			return nil, err
+		}
+		s.ID = objectID
 	}
 	s.URL = o.URL
 	s.Certificate = o.Certificate
@@ -204,7 +209,7 @@ func (o *HTTPSource) SetBSON(raw bson.Raw) error {
 	}
 
 	s := &mongoAttributesHTTPSource{}
-	if err := raw.Unmarshal(s); err != nil {
+	if err := bson.Unmarshal(raw, s); err != nil {
 		return err
 	}
 
@@ -1175,7 +1180,11 @@ func (o *SparseHTTPSource) GetBSON() (any, error) {
 		s.CA = o.CA
 	}
 	if o.ID != nil {
-		s.ID = bson.ObjectIdHex(*o.ID)
+		objectID, err := primitive.ObjectIDFromHex(*o.ID)
+		if err != nil {
+			return nil, err
+		}
+		s.ID = objectID
 	}
 	if o.URL != nil {
 		s.URL = o.URL
@@ -1229,7 +1238,7 @@ func (o *SparseHTTPSource) SetBSON(raw bson.Raw) error {
 	}
 
 	s := &mongoAttributesSparseHTTPSource{}
-	if err := raw.Unmarshal(s); err != nil {
+	if err := bson.Unmarshal(raw, s); err != nil {
 		return err
 	}
 
@@ -1493,36 +1502,36 @@ func (o *SparseHTTPSource) DeepCopyInto(out *SparseHTTPSource) {
 }
 
 type mongoAttributesHTTPSource struct {
-	CA          string            `bson:"ca"`
-	ID          bson.ObjectId     `bson:"_id,omitempty"`
-	URL         string            `bson:"url"`
-	Certificate string            `bson:"certificate"`
-	CreateTime  time.Time         `bson:"createtime"`
-	Description string            `bson:"description"`
-	ImportHash  string            `bson:"importhash,omitempty"`
-	ImportLabel string            `bson:"importlabel,omitempty"`
-	Key         string            `bson:"key"`
-	Modifier    *IdentityModifier `bson:"modifier,omitempty"`
-	Name        string            `bson:"name"`
-	Namespace   string            `bson:"namespace"`
-	UpdateTime  time.Time         `bson:"updatetime"`
-	ZHash       int               `bson:"zhash"`
-	Zone        int               `bson:"zone"`
+	CA          string             `bson:"ca"`
+	ID          primitive.ObjectID `bson:"_id,omitempty"`
+	URL         string             `bson:"url"`
+	Certificate string             `bson:"certificate"`
+	CreateTime  time.Time          `bson:"createtime"`
+	Description string             `bson:"description"`
+	ImportHash  string             `bson:"importhash,omitempty"`
+	ImportLabel string             `bson:"importlabel,omitempty"`
+	Key         string             `bson:"key"`
+	Modifier    *IdentityModifier  `bson:"modifier,omitempty"`
+	Name        string             `bson:"name"`
+	Namespace   string             `bson:"namespace"`
+	UpdateTime  time.Time          `bson:"updatetime"`
+	ZHash       int                `bson:"zhash"`
+	Zone        int                `bson:"zone"`
 }
 type mongoAttributesSparseHTTPSource struct {
-	CA          *string           `bson:"ca,omitempty"`
-	ID          bson.ObjectId     `bson:"_id,omitempty"`
-	URL         *string           `bson:"url,omitempty"`
-	Certificate *string           `bson:"certificate,omitempty"`
-	CreateTime  *time.Time        `bson:"createtime,omitempty"`
-	Description *string           `bson:"description,omitempty"`
-	ImportHash  *string           `bson:"importhash,omitempty"`
-	ImportLabel *string           `bson:"importlabel,omitempty"`
-	Key         *string           `bson:"key,omitempty"`
-	Modifier    *IdentityModifier `bson:"modifier,omitempty"`
-	Name        *string           `bson:"name,omitempty"`
-	Namespace   *string           `bson:"namespace,omitempty"`
-	UpdateTime  *time.Time        `bson:"updatetime,omitempty"`
-	ZHash       *int              `bson:"zhash,omitempty"`
-	Zone        *int              `bson:"zone,omitempty"`
+	CA          *string            `bson:"ca,omitempty"`
+	ID          primitive.ObjectID `bson:"_id,omitempty"`
+	URL         *string            `bson:"url,omitempty"`
+	Certificate *string            `bson:"certificate,omitempty"`
+	CreateTime  *time.Time         `bson:"createtime,omitempty"`
+	Description *string            `bson:"description,omitempty"`
+	ImportHash  *string            `bson:"importhash,omitempty"`
+	ImportLabel *string            `bson:"importlabel,omitempty"`
+	Key         *string            `bson:"key,omitempty"`
+	Modifier    *IdentityModifier  `bson:"modifier,omitempty"`
+	Name        *string            `bson:"name,omitempty"`
+	Namespace   *string            `bson:"namespace,omitempty"`
+	UpdateTime  *time.Time         `bson:"updatetime,omitempty"`
+	ZHash       *int               `bson:"zhash,omitempty"`
+	Zone        *int               `bson:"zone,omitempty"`
 }

@@ -7,9 +7,10 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/globalsign/mgo/bson"
 	"github.com/mitchellh/copystructure"
 	"go.aporeto.io/elemental"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 // LDAPSourceSecurityProtocolValue represents the possible values for attribute "securityProtocol".
@@ -211,7 +212,11 @@ func (o *LDAPSource) GetBSON() (any, error) {
 
 	s.CA = o.CA
 	if o.ID != "" {
-		s.ID = bson.ObjectIdHex(o.ID)
+		objectID, err := primitive.ObjectIDFromHex(o.ID)
+		if err != nil {
+			return nil, err
+		}
+		s.ID = objectID
 	}
 	s.Address = o.Address
 	s.BaseDN = o.BaseDN
@@ -244,7 +249,7 @@ func (o *LDAPSource) SetBSON(raw bson.Raw) error {
 	}
 
 	s := &mongoAttributesLDAPSource{}
-	if err := raw.Unmarshal(s); err != nil {
+	if err := bson.Unmarshal(raw, s); err != nil {
 		return err
 	}
 
@@ -1401,7 +1406,11 @@ func (o *SparseLDAPSource) GetBSON() (any, error) {
 		s.CA = o.CA
 	}
 	if o.ID != nil {
-		s.ID = bson.ObjectIdHex(*o.ID)
+		objectID, err := primitive.ObjectIDFromHex(*o.ID)
+		if err != nil {
+			return nil, err
+		}
+		s.ID = objectID
 	}
 	if o.Address != nil {
 		s.Address = o.Address
@@ -1470,7 +1479,7 @@ func (o *SparseLDAPSource) SetBSON(raw bson.Raw) error {
 	}
 
 	s := &mongoAttributesSparseLDAPSource{}
-	if err := raw.Unmarshal(s); err != nil {
+	if err := bson.Unmarshal(raw, s); err != nil {
 		return err
 	}
 
@@ -1785,7 +1794,7 @@ func (o *SparseLDAPSource) DeepCopyInto(out *SparseLDAPSource) {
 
 type mongoAttributesLDAPSource struct {
 	CA               string                          `bson:"ca,omitempty"`
-	ID               bson.ObjectId                   `bson:"_id,omitempty"`
+	ID               primitive.ObjectID              `bson:"_id,omitempty"`
 	Address          string                          `bson:"address"`
 	BaseDN           string                          `bson:"basedn"`
 	BindDN           string                          `bson:"binddn"`
@@ -1807,7 +1816,7 @@ type mongoAttributesLDAPSource struct {
 }
 type mongoAttributesSparseLDAPSource struct {
 	CA               *string                          `bson:"ca,omitempty"`
-	ID               bson.ObjectId                    `bson:"_id,omitempty"`
+	ID               primitive.ObjectID               `bson:"_id,omitempty"`
 	Address          *string                          `bson:"address,omitempty"`
 	BaseDN           *string                          `bson:"basedn,omitempty"`
 	BindDN           *string                          `bson:"binddn,omitempty"`

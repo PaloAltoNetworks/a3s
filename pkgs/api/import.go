@@ -6,9 +6,9 @@ package api
 import (
 	"fmt"
 
-	"github.com/globalsign/mgo/bson"
 	"github.com/mitchellh/copystructure"
 	"go.aporeto.io/elemental"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 // ImportIdentity represents the Identity of the object.
@@ -161,7 +161,7 @@ func (o *Import) SetBSON(raw bson.Raw) error {
 	}
 
 	s := &mongoAttributesImport{}
-	if err := raw.Unmarshal(s); err != nil {
+	if err := bson.Unmarshal(raw, s); err != nil {
 		return err
 	}
 
@@ -682,7 +682,7 @@ func (o *SparseImport) SetBSON(raw bson.Raw) error {
 	}
 
 	s := &mongoAttributesSparseImport{}
-	if err := raw.Unmarshal(s); err != nil {
+	if err := bson.Unmarshal(raw, s); err != nil {
 		return err
 	}
 

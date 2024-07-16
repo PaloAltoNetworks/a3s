@@ -6,9 +6,9 @@ package api
 import (
 	"fmt"
 
-	"github.com/globalsign/mgo/bson"
 	"github.com/mitchellh/copystructure"
 	"go.aporeto.io/elemental"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 // IssueHTTP represents the model of a issuehttp
@@ -55,7 +55,7 @@ func (o *IssueHTTP) SetBSON(raw bson.Raw) error {
 	}
 
 	s := &mongoAttributesIssueHTTP{}
-	if err := raw.Unmarshal(s); err != nil {
+	if err := bson.Unmarshal(raw, s); err != nil {
 		return err
 	}
 
