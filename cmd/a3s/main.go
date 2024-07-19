@@ -381,8 +381,7 @@ func createMongoDBAccount(cfg conf.MongoConf, username string) error {
 
 	m := bootstrap.MakeMongoManipulator(cfg, &hasher.Hasher{}, api.Manager())
 
-	db, closeFunc, _ := manipmongo.GetDatabase(m)
-	defer closeFunc()
+	db := manipmongo.GetDatabase(m)
 
 	role := map[string][]string{
 		"a3s": {"readWrite", "dbAdmin"},

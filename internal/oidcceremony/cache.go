@@ -27,15 +27,11 @@ func Set(m manipulate.Manipulator, item *CacheItem) error {
 
 	item.Time = time.Now()
 
-	db, disco, err := manipmongo.GetDatabase(m)
-	if err != nil {
-		return err
-	}
-	defer disco()
+	db := manipmongo.GetDatabase(m)
 
 	collection := db.Collection("oidcCacheCollection")
 	// Insert the item
-	_, err = collection.InsertOne(context.TODO(), item)
+	_, err := collection.InsertOne(context.TODO(), item)
 	if err != nil {
 		return err
 	}
@@ -46,16 +42,12 @@ func Set(m manipulate.Manipulator, item *CacheItem) error {
 // If none is found, it will return nil.
 func Get(m manipulate.Manipulator, state string) (*CacheItem, error) {
 
-	db, disco, err := manipmongo.GetDatabase(m)
-	if err != nil {
-		return nil, err
-	}
-	defer disco()
+	db := manipmongo.GetDatabase(m)
 
 	item := &CacheItem{}
 	collection := db.Collection("oidcCacheCollection")
 	filter := bson.M{"state": state}
-	err = collection.FindOne(context.TODO(), filter).Decode(item)
+	err := collection.FindOne(context.TODO(), filter).Decode(item)
 	if err != nil {
 		return nil, err
 	}
@@ -65,15 +57,11 @@ func Get(m manipulate.Manipulator, state string) (*CacheItem, error) {
 // Delete deletes the items with the given state.
 func Delete(m manipulate.Manipulator, state string) error {
 
-	db, disco, err := manipmongo.GetDatabase(m)
-	if err != nil {
-		return err
-	}
-	defer disco()
+	db := manipmongo.GetDatabase(m)
 
 	collection := db.Collection("oidcCacheCollection")
 	filter := bson.M{"state": state}
-	_, err = collection.DeleteOne(context.TODO(), filter)
+	_, err := collection.DeleteOne(context.TODO(), filter)
 	if err != nil {
 		return err
 	}
