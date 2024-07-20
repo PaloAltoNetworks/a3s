@@ -3,10 +3,12 @@ package indexes
 import (
 	"strings"
 
-	"github.com/globalsign/mgo"
 	"go.aporeto.io/elemental"
 	"go.aporeto.io/manipulate"
 	"go.aporeto.io/manipulate/manipmongo"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.uber.org/zap"
 )
 
@@ -25,11 +27,11 @@ func Ensure(m manipulate.Manipulator, model elemental.ModelManager, packageName 
 }
 
 // GetIndexes returns all the indexes for all the identity in the model
-func GetIndexes(packageName string, model elemental.ModelManager) (mIndexes map[elemental.Identity][]mgo.Index) {
+func GetIndexes(packageName string, model elemental.ModelManager) (mIndexes map[elemental.Identity][]mongo.IndexModel) {
 
 	var indexes [][]string
 
-	mIndexes = map[elemental.Identity][]mgo.Index{}
+	mIndexes = map[elemental.Identity][]mongo.IndexModel{}
 
 	for _, ident := range model.AllIdentities() {
 
@@ -46,10 +48,10 @@ func GetIndexes(packageName string, model elemental.ModelManager) (mIndexes map[
 
 		for i := range indexes {
 
-			idx := mgo.Index{}
-
 			piName := iName
 			var hashedApplied bool
+			var keys []string
+			var unique bool
 
 			for _, name := range indexes[i] {
 
@@ -63,7 +65,7 @@ func GetIndexes(packageName string, model elemental.ModelManager) (mIndexes map[
 					piName = "shard_" + iName
 
 				case ":unique":
-					idx.Unique = true
+					unique = true
 
 				default:
 
@@ -74,7 +76,7 @@ func GetIndexes(packageName string, model elemental.ModelManager) (mIndexes map[
 						}
 					}
 
-					idx.Key = append(idx.Key, name)
+					keys = append(keys, name)
 
 					if strings.HasPrefix(name, "$hashed:") {
 						hashedApplied = true
@@ -82,8 +84,15 @@ func GetIndexes(packageName string, model elemental.ModelManager) (mIndexes map[
 				}
 			}
 
-			idx.Name = piName + strings.Join(idx.Key, "_")
-			idx.Background = true
+			idxKeys := bson.D{}
+			for _, key := range keys {
+				idxKeys = append(idxKeys, bson.E{Key: key, Value: 1}) // Use 1 for ascending order
+			}
+
+			idx := mongo.IndexModel{
+				Keys:    idxKeys,
+				Options: options.Index().SetName(piName + strings.Join(keys, "_")).SetBackground(true).SetUnique(unique),
+			}
 
 			mIndexes[ident] = append(mIndexes[ident], idx)
 		}

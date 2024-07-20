@@ -14,7 +14,6 @@ import (
 	"time"
 
 	"github.com/ghodss/yaml"
-	"github.com/globalsign/mgo"
 	"go.aporeto.io/a3s/internal/hasher"
 	"go.aporeto.io/a3s/internal/processors"
 	"go.aporeto.io/a3s/internal/ui"
@@ -41,6 +40,7 @@ import (
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 
 	gwpush "go.aporeto.io/bahamut/gateway/upstreamer/push"
 )
@@ -88,18 +88,16 @@ func main() {
 		zap.L().Fatal("Unable to ensure indexes", zap.Error(err))
 	}
 
-	if err := manipmongo.EnsureIndex(m, elemental.MakeIdentity("oidccache", "oidccache"), mgo.Index{
-		Key:         []string{"time"},
-		ExpireAfter: 1 * time.Minute,
-		Name:        "index_expiration_exp",
+	if err := manipmongo.EnsureIndex(m, elemental.MakeIdentity("oidccache", "oidccache"), mongo.IndexModel{
+		Keys:    bson.D{{Key: "time", Value: 1}},
+		Options: options.Index().SetName("index_expiration_exp").SetExpireAfterSeconds(60),
 	}); err != nil {
 		zap.L().Fatal("Unable to create exp expiration index for oidccache", zap.Error(err))
 	}
 
-	if err := manipmongo.EnsureIndex(m, api.NamespaceDeletionRecordIdentity, mgo.Index{
-		Key:         []string{"deletetime"},
-		ExpireAfter: 24 * time.Hour,
-		Name:        "index_expiration_deletetime",
+	if err := manipmongo.EnsureIndex(m, api.NamespaceDeletionRecordIdentity, mongo.IndexModel{
+		Keys:    bson.D{{Key: "deletetime", Value: 1}},
+		Options: options.Index().SetName("index_expiration_deletetime").SetExpireAfterSeconds(int32((24 * time.Hour).Seconds())),
 	}); err != nil {
 		zap.L().Fatal("Unable to create expiration index for namesapce deletion records", zap.Error(err))
 	}
