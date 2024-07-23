@@ -580,10 +580,7 @@ func retrieveSource(
 		)
 	case 1:
 	default:
-		// XXX: For some reasons, mtlssource table is added with one more user record whenever a3s restarts.
-		// Must be because m.Create with MTLSSource identity is not doing upsert like it used to do earlier.
-		// I couldn't find how it used to be Upsert and not Create. Commenting out throwing error for now.
-		//return nil, fmt.Errorf("more than one auth source found for %s: %d", identity.Name, len(lst))
+		return nil, fmt.Errorf("more than one auth source found for %s: %d", identity.Name, len(lst))
 	}
 
 	return lst[0], nil
