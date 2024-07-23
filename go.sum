@@ -337,6 +337,10 @@ github.com/yusufpapurcu/wmi v1.2.2 h1:KBNDSne4vP5mbSWnJbO+51IMOXJB67QiYCSBrubbPR
 github.com/yusufpapurcu/wmi v1.2.2/go.mod h1:SBZ9tNy3G9/m5Oi98Zks0QjeHVDvuK0qfxQmPyzfmi0=
 go.aporeto.io/bahamut v1.148.1-0.20230918174422-3c4160cac883 h1:ER0UWdiPpePWc8cv0zcqZI4u/IkLv1g6CvyRCbzkEr8=
 go.aporeto.io/bahamut v1.148.1-0.20230918174422-3c4160cac883/go.mod h1:npkvnUaNoJZ7wJ4i4BYjDfpGCsK73sVVYpz6DK0g0jQ=
+go.aporeto.io/elemental v1.123.1-0.20240723180601-4e889389e543 h1:yzhCbGm2NtmFwyMY4AsjT9UkuF6EOw8ocma781Hgn7M=
+go.aporeto.io/elemental v1.123.1-0.20240723180601-4e889389e543/go.mod h1:D8sdpC6HAaPm4uSeRe5KI/NlzfRQxPCnVY9Rvkig2xg=
+go.aporeto.io/manipulate v1.135.1-0.20240723172022-a2e0c69d3191 h1:ox/V4S7ZY9IdoxlaQQlG0b+UpgMN7lIPZOX7K1gFdqg=
+go.aporeto.io/manipulate v1.135.1-0.20240723172022-a2e0c69d3191/go.mod h1:dVeJapoNZ3BA/ihec4ZoWYA71FgN6tUpiUnMD0iPNDA=
 go.aporeto.io/tg v1.50.2-0.20240628182153-2a29ce7adecf h1:jdDybvL2cZ//UP5zDR+yVl7rPC+P7fiX0VB9V/b5iOY=
 go.aporeto.io/tg v1.50.2-0.20240628182153-2a29ce7adecf/go.mod h1:tnukIYK7+WFJPVsnW+0MJVu8xa+DpeBJ0Ch/yETqOXM=
 go.aporeto.io/wsc v1.52.0 h1:iy2FR+P8rG7lG/c4pWXZJSDaj4jesgM4KfcbGQZB0kc=

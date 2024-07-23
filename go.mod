@@ -6,8 +6,8 @@ toolchain go1.22.2
 
 require (
 	go.aporeto.io/bahamut v1.148.1-0.20230918174422-3c4160cac883
-	go.aporeto.io/elemental v1.123.1-0.20231116202419-3d09d6d39dcc
-	go.aporeto.io/manipulate v1.135.1-0.20230918174435-3581994d0a01
+	go.aporeto.io/elemental v1.123.1-0.20240723180601-4e889389e543
+	go.aporeto.io/manipulate v1.135.1-0.20240723172022-a2e0c69d3191
 	go.aporeto.io/tg v1.50.2-0.20240628182153-2a29ce7adecf
 )
 
@@ -140,7 +140,3 @@ require (
 
 // Mapstructure v1.5.0 breaks current nested import logic
 replace github.com/mitchellh/mapstructure => github.com/mitchellh/mapstructure v1.4.3
-
-replace go.aporeto.io/manipulate => ../manipulate
-
-replace go.aporeto.io/elemental => ../elemental
