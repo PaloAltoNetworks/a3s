@@ -10,8 +10,6 @@ import (
 	"golang.org/x/oauth2"
 )
 
-const oidcCacheCollection = "oidccache"
-
 // CacheItem represents a cache OIDC request info.
 type CacheItem struct {
 	State            string        `bson:"state"`

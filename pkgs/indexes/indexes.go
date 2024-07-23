@@ -91,7 +91,7 @@ func GetIndexes(packageName string, model elemental.ModelManager) (mIndexes map[
 
 			idx := mongo.IndexModel{
 				Keys:    idxKeys,
-				Options: options.Index().SetName(piName + strings.Join(keys, "_")).SetBackground(true).SetUnique(unique),
+				Options: options.Index().SetName(piName + strings.Join(keys, "_")).SetUnique(unique),
 			}
 
 			mIndexes[ident] = append(mIndexes[ident], idx)

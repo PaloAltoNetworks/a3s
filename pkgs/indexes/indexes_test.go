@@ -33,31 +33,31 @@ func TestGetIndexes(t *testing.T) {
 				api.AuthorizationIdentity: {
 					{
 						Keys:    bson.D{{Key: "zone", Value: 1}, {Key: "zhash", Value: 1}},
-						Options: options.Index().SetName("shard_index_authorization_zone_zhash").SetBackground(true).SetUnique(true),
+						Options: options.Index().SetName("shard_index_authorization_zone_zhash").SetUnique(true),
 					},
 					{
 						Keys:    bson.D{{Key: "namespace", Value: 1}},
-						Options: options.Index().SetName("index_authorization_namespace").SetBackground(true),
+						Options: options.Index().SetName("index_authorization_namespace"),
 					},
 					{
 						Keys:    bson.D{{Key: "namespace", Value: 1}, {Key: "_id", Value: 1}},
-						Options: options.Index().SetName("index_authorization_namespace__id").SetBackground(true),
+						Options: options.Index().SetName("index_authorization_namespace__id"),
 					},
 					{
 						Keys:    bson.D{{Key: "namespace", Value: 1}, {Key: "flattenedsubject", Value: 1}, {Key: "disabled", Value: 1}},
-						Options: options.Index().SetName("index_authorization_namespace_flattenedsubject_disabled").SetBackground(true),
+						Options: options.Index().SetName("index_authorization_namespace_flattenedsubject_disabled"),
 					},
 					{
 						Keys:    bson.D{{Key: "namespace", Value: 1}, {Key: "flattenedsubject", Value: 1}, {Key: "propagate", Value: 1}},
-						Options: options.Index().SetName("index_authorization_namespace_flattenedsubject_propagate").SetBackground(true),
+						Options: options.Index().SetName("index_authorization_namespace_flattenedsubject_propagate"),
 					},
 					{
 						Keys:    bson.D{{Key: "namespace", Value: 1}, {Key: "importlabel", Value: 1}},
-						Options: options.Index().SetName("index_authorization_namespace_importlabel").SetBackground(true),
+						Options: options.Index().SetName("index_authorization_namespace_importlabel"),
 					},
 					{
 						Keys:    bson.D{{Key: "namespace", Value: 1}, {Key: "trustedissuers", Value: 1}},
-						Options: options.Index().SetName("index_authorization_namespace_trustedissuers").SetBackground(true),
+						Options: options.Index().SetName("index_authorization_namespace_trustedissuers"),
 					},
 				},
 			},
@@ -80,16 +80,10 @@ func TestGetIndexes(t *testing.T) {
 			return false
 		}
 
-		expectedBackground := expected.Background != nil && *expected.Background == true
-		actualBackground := actual.Background != nil && *actual.Background == true
-
 		expectedUnique := expected.Unique != nil && *expected.Unique == true
 		actualUnique := actual.Unique != nil && *actual.Unique == true
 
-		if expectedUnique != actualUnique || expectedBackground != actualBackground {
-			return false
-		}
-		return true
+		return expectedUnique == actualUnique
 	}
 
 	for _, tt := range tests {
