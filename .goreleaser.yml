@@ -1,5 +1,14 @@
+# usage:
+#   * tag a commit
+#   * push the tag
+#   * call 'make release'
+#
+# for any syntax issues, etc.:
+# https://goreleaser.com/deprecations/
+---
+version: 2
 snapshot:
-  name_template: "{{ .Tag }}-next"
+  name_template: "{{ .Var.Tag }}-next"
 changelog:
   sort: asc
   filters:
