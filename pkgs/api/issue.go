@@ -6,9 +6,9 @@ package api
 import (
 	"fmt"
 
-	"github.com/globalsign/mgo/bson"
 	"github.com/mitchellh/copystructure"
 	"go.aporeto.io/elemental"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 // IssueSourceTypeValue represents the possible values for attribute "sourceType".
@@ -258,29 +258,29 @@ func (o *Issue) SetIdentifier(id string) {
 
 }
 
-// GetBSON implements the bson marshaling interface.
+// MarshalBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *Issue) GetBSON() (any, error) {
+func (o *Issue) MarshalBSON() ([]byte, error) {
 
 	if o == nil {
 		return nil, nil
 	}
 
-	s := &mongoAttributesIssue{}
+	s := mongoAttributesIssue{}
 
-	return s, nil
+	return bson.Marshal(s)
 }
 
-// SetBSON implements the bson marshaling interface.
-// This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *Issue) SetBSON(raw bson.Raw) error {
+// UnmarshalBSON implements the bson unmarshaling interface.
+// This is used to transparently convert MongoDBID to ID.
+func (o *Issue) UnmarshalBSON(raw []byte) error {
 
 	if o == nil {
 		return nil
 	}
 
 	s := &mongoAttributesIssue{}
-	if err := raw.Unmarshal(s); err != nil {
+	if err := bson.Unmarshal(raw, s); err != nil {
 		return err
 	}
 
@@ -1305,29 +1305,29 @@ func (o *SparseIssue) SetIdentifier(id string) {
 
 }
 
-// GetBSON implements the bson marshaling interface.
+// MarshalBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *SparseIssue) GetBSON() (any, error) {
+func (o *SparseIssue) MarshalBSON() ([]byte, error) {
 
 	if o == nil {
 		return nil, nil
 	}
 
-	s := &mongoAttributesSparseIssue{}
+	s := mongoAttributesSparseIssue{}
 
-	return s, nil
+	return bson.Marshal(s)
 }
 
-// SetBSON implements the bson marshaling interface.
-// This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *SparseIssue) SetBSON(raw bson.Raw) error {
+// UnmarshalBSON implements the bson unmarshaling interface.
+// This is used to transparently convert MongoDBID to ID.
+func (o *SparseIssue) UnmarshalBSON(raw []byte) error {
 
 	if o == nil {
 		return nil
 	}
 
 	s := &mongoAttributesSparseIssue{}
-	if err := raw.Unmarshal(s); err != nil {
+	if err := bson.Unmarshal(raw, s); err != nil {
 		return err
 	}
 

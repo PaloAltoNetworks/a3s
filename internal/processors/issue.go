@@ -580,7 +580,7 @@ func retrieveSource(
 		)
 	case 1:
 	default:
-		return nil, fmt.Errorf("more than one auth source found")
+		return nil, fmt.Errorf("more than one auth source found for %s: %d", identity.Name, len(lst))
 	}
 
 	return lst[0], nil

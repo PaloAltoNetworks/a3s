@@ -7,9 +7,10 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/globalsign/mgo/bson"
 	"github.com/mitchellh/copystructure"
 	"go.aporeto.io/elemental"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 // LDAPSourceSecurityProtocolValue represents the possible values for attribute "securityProtocol".
@@ -199,19 +200,23 @@ func (o *LDAPSource) SetIdentifier(id string) {
 	o.ID = id
 }
 
-// GetBSON implements the bson marshaling interface.
+// MarshalBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *LDAPSource) GetBSON() (any, error) {
+func (o *LDAPSource) MarshalBSON() ([]byte, error) {
 
 	if o == nil {
 		return nil, nil
 	}
 
-	s := &mongoAttributesLDAPSource{}
+	s := mongoAttributesLDAPSource{}
 
 	s.CA = o.CA
 	if o.ID != "" {
-		s.ID = bson.ObjectIdHex(o.ID)
+		objectID, err := primitive.ObjectIDFromHex(o.ID)
+		if err != nil {
+			return nil, err
+		}
+		s.ID = objectID
 	}
 	s.Address = o.Address
 	s.BaseDN = o.BaseDN
@@ -232,19 +237,19 @@ func (o *LDAPSource) GetBSON() (any, error) {
 	s.ZHash = o.ZHash
 	s.Zone = o.Zone
 
-	return s, nil
+	return bson.Marshal(s)
 }
 
-// SetBSON implements the bson marshaling interface.
-// This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *LDAPSource) SetBSON(raw bson.Raw) error {
+// UnmarshalBSON implements the bson unmarshaling interface.
+// This is used to transparently convert MongoDBID to ID.
+func (o *LDAPSource) UnmarshalBSON(raw []byte) error {
 
 	if o == nil {
 		return nil
 	}
 
 	s := &mongoAttributesLDAPSource{}
-	if err := raw.Unmarshal(s); err != nil {
+	if err := bson.Unmarshal(raw, s); err != nil {
 		return err
 	}
 
@@ -1387,21 +1392,25 @@ func (o *SparseLDAPSource) SetIdentifier(id string) {
 	}
 }
 
-// GetBSON implements the bson marshaling interface.
+// MarshalBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *SparseLDAPSource) GetBSON() (any, error) {
+func (o *SparseLDAPSource) MarshalBSON() ([]byte, error) {
 
 	if o == nil {
 		return nil, nil
 	}
 
-	s := &mongoAttributesSparseLDAPSource{}
+	s := mongoAttributesSparseLDAPSource{}
 
 	if o.CA != nil {
 		s.CA = o.CA
 	}
 	if o.ID != nil {
-		s.ID = bson.ObjectIdHex(*o.ID)
+		objectID, err := primitive.ObjectIDFromHex(*o.ID)
+		if err != nil {
+			return nil, err
+		}
+		s.ID = objectID
 	}
 	if o.Address != nil {
 		s.Address = o.Address
@@ -1458,19 +1467,19 @@ func (o *SparseLDAPSource) GetBSON() (any, error) {
 		s.Zone = o.Zone
 	}
 
-	return s, nil
+	return bson.Marshal(s)
 }
 
-// SetBSON implements the bson marshaling interface.
-// This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *SparseLDAPSource) SetBSON(raw bson.Raw) error {
+// UnmarshalBSON implements the bson unmarshaling interface.
+// This is used to transparently convert MongoDBID to ID.
+func (o *SparseLDAPSource) UnmarshalBSON(raw []byte) error {
 
 	if o == nil {
 		return nil
 	}
 
 	s := &mongoAttributesSparseLDAPSource{}
-	if err := raw.Unmarshal(s); err != nil {
+	if err := bson.Unmarshal(raw, s); err != nil {
 		return err
 	}
 
@@ -1785,7 +1794,7 @@ func (o *SparseLDAPSource) DeepCopyInto(out *SparseLDAPSource) {
 
 type mongoAttributesLDAPSource struct {
 	CA               string                          `bson:"ca,omitempty"`
-	ID               bson.ObjectId                   `bson:"_id,omitempty"`
+	ID               primitive.ObjectID              `bson:"_id,omitempty"`
 	Address          string                          `bson:"address"`
 	BaseDN           string                          `bson:"basedn"`
 	BindDN           string                          `bson:"binddn"`
@@ -1807,7 +1816,7 @@ type mongoAttributesLDAPSource struct {
 }
 type mongoAttributesSparseLDAPSource struct {
 	CA               *string                          `bson:"ca,omitempty"`
-	ID               bson.ObjectId                    `bson:"_id,omitempty"`
+	ID               primitive.ObjectID               `bson:"_id,omitempty"`
 	Address          *string                          `bson:"address,omitempty"`
 	BaseDN           *string                          `bson:"basedn,omitempty"`
 	BindDN           *string                          `bson:"binddn,omitempty"`

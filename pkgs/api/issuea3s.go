@@ -6,9 +6,9 @@ package api
 import (
 	"fmt"
 
-	"github.com/globalsign/mgo/bson"
 	"github.com/mitchellh/copystructure"
 	"go.aporeto.io/elemental"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 // IssueA3S represents the model of a issuea3s
@@ -27,29 +27,29 @@ func NewIssueA3S() *IssueA3S {
 	}
 }
 
-// GetBSON implements the bson marshaling interface.
+// MarshalBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *IssueA3S) GetBSON() (any, error) {
+func (o *IssueA3S) MarshalBSON() ([]byte, error) {
 
 	if o == nil {
 		return nil, nil
 	}
 
-	s := &mongoAttributesIssueA3S{}
+	s := mongoAttributesIssueA3S{}
 
-	return s, nil
+	return bson.Marshal(s)
 }
 
-// SetBSON implements the bson marshaling interface.
-// This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *IssueA3S) SetBSON(raw bson.Raw) error {
+// UnmarshalBSON implements the bson unmarshaling interface.
+// This is used to transparently convert MongoDBID to ID.
+func (o *IssueA3S) UnmarshalBSON(raw []byte) error {
 
 	if o == nil {
 		return nil
 	}
 
 	s := &mongoAttributesIssueA3S{}
-	if err := raw.Unmarshal(s); err != nil {
+	if err := bson.Unmarshal(raw, s); err != nil {
 		return err
 	}
 

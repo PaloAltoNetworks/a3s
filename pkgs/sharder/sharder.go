@@ -3,10 +3,10 @@ package sharder
 import (
 	"errors"
 
-	"github.com/globalsign/mgo/bson"
 	"go.aporeto.io/elemental"
 	"go.aporeto.io/manipulate"
 	"go.aporeto.io/manipulate/manipmongo"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 // ErrNotZonable indicates that the object is Shardable and
@@ -70,13 +70,13 @@ func (s *sharder) FilterOne(m manipulate.TransactionalManipulator, mctx manipula
 	z, ok := o.(Shardable)
 	if !ok || z.GetZHash() == 0 {
 		return bson.D{
-			{Name: "zone", Value: s.hasher.Zone(o.Identity())},
+			{Key: "zone", Value: s.hasher.Zone(o.Identity())},
 		}, nil
 	}
 
 	return bson.D{
-		{Name: "zone", Value: s.hasher.Zone(o.Identity())},
-		{Name: "zhash", Value: z.GetZHash()},
+		{Key: "zone", Value: s.hasher.Zone(o.Identity())},
+		{Key: "zhash", Value: z.GetZHash()},
 	}, nil
 }
 
@@ -84,6 +84,6 @@ func (s *sharder) FilterOne(m manipulate.TransactionalManipulator, mctx manipula
 func (s *sharder) FilterMany(m manipulate.TransactionalManipulator, mctx manipulate.Context, identity elemental.Identity) (bson.D, error) {
 
 	return bson.D{
-		{Name: "zone", Value: s.hasher.Zone(identity)},
+		{Key: "zone", Value: s.hasher.Zone(identity)},
 	}, nil
 }

@@ -6,9 +6,9 @@ package api
 import (
 	"fmt"
 
-	"github.com/globalsign/mgo/bson"
 	"github.com/mitchellh/copystructure"
 	"go.aporeto.io/elemental"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 // IssueHTTP represents the model of a issuehttp
@@ -33,29 +33,29 @@ func NewIssueHTTP() *IssueHTTP {
 	}
 }
 
-// GetBSON implements the bson marshaling interface.
+// MarshalBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *IssueHTTP) GetBSON() (any, error) {
+func (o *IssueHTTP) MarshalBSON() ([]byte, error) {
 
 	if o == nil {
 		return nil, nil
 	}
 
-	s := &mongoAttributesIssueHTTP{}
+	s := mongoAttributesIssueHTTP{}
 
-	return s, nil
+	return bson.Marshal(s)
 }
 
-// SetBSON implements the bson marshaling interface.
-// This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *IssueHTTP) SetBSON(raw bson.Raw) error {
+// UnmarshalBSON implements the bson unmarshaling interface.
+// This is used to transparently convert MongoDBID to ID.
+func (o *IssueHTTP) UnmarshalBSON(raw []byte) error {
 
 	if o == nil {
 		return nil
 	}
 
 	s := &mongoAttributesIssueHTTP{}
-	if err := raw.Unmarshal(s); err != nil {
+	if err := bson.Unmarshal(raw, s); err != nil {
 		return err
 	}
 

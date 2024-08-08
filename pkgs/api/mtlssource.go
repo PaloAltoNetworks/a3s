@@ -7,9 +7,10 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/globalsign/mgo/bson"
 	"github.com/mitchellh/copystructure"
 	"go.aporeto.io/elemental"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 // MTLSSourceIdentity represents the Identity of the object.
@@ -159,19 +160,23 @@ func (o *MTLSSource) SetIdentifier(id string) {
 	o.ID = id
 }
 
-// GetBSON implements the bson marshaling interface.
+// MarshalBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *MTLSSource) GetBSON() (any, error) {
+func (o *MTLSSource) MarshalBSON() ([]byte, error) {
 
 	if o == nil {
 		return nil, nil
 	}
 
-	s := &mongoAttributesMTLSSource{}
+	s := mongoAttributesMTLSSource{}
 
 	s.CA = o.CA
 	if o.ID != "" {
-		s.ID = bson.ObjectIdHex(o.ID)
+		objectID, err := primitive.ObjectIDFromHex(o.ID)
+		if err != nil {
+			return nil, err
+		}
+		s.ID = objectID
 	}
 	s.CreateTime = o.CreateTime
 	s.Description = o.Description
@@ -186,19 +191,19 @@ func (o *MTLSSource) GetBSON() (any, error) {
 	s.ZHash = o.ZHash
 	s.Zone = o.Zone
 
-	return s, nil
+	return bson.Marshal(s)
 }
 
-// SetBSON implements the bson marshaling interface.
-// This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *MTLSSource) SetBSON(raw bson.Raw) error {
+// UnmarshalBSON implements the bson unmarshaling interface.
+// This is used to transparently convert MongoDBID to ID.
+func (o *MTLSSource) UnmarshalBSON(raw []byte) error {
 
 	if o == nil {
 		return nil
 	}
 
 	s := &mongoAttributesMTLSSource{}
-	if err := raw.Unmarshal(s); err != nil {
+	if err := bson.Unmarshal(raw, s); err != nil {
 		return err
 	}
 
@@ -1093,21 +1098,25 @@ func (o *SparseMTLSSource) SetIdentifier(id string) {
 	}
 }
 
-// GetBSON implements the bson marshaling interface.
+// MarshalBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *SparseMTLSSource) GetBSON() (any, error) {
+func (o *SparseMTLSSource) MarshalBSON() ([]byte, error) {
 
 	if o == nil {
 		return nil, nil
 	}
 
-	s := &mongoAttributesSparseMTLSSource{}
+	s := mongoAttributesSparseMTLSSource{}
 
 	if o.CA != nil {
 		s.CA = o.CA
 	}
 	if o.ID != nil {
-		s.ID = bson.ObjectIdHex(*o.ID)
+		objectID, err := primitive.ObjectIDFromHex(*o.ID)
+		if err != nil {
+			return nil, err
+		}
+		s.ID = objectID
 	}
 	if o.CreateTime != nil {
 		s.CreateTime = o.CreateTime
@@ -1146,19 +1155,19 @@ func (o *SparseMTLSSource) GetBSON() (any, error) {
 		s.Zone = o.Zone
 	}
 
-	return s, nil
+	return bson.Marshal(s)
 }
 
-// SetBSON implements the bson marshaling interface.
-// This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *SparseMTLSSource) SetBSON(raw bson.Raw) error {
+// UnmarshalBSON implements the bson unmarshaling interface.
+// This is used to transparently convert MongoDBID to ID.
+func (o *SparseMTLSSource) UnmarshalBSON(raw []byte) error {
 
 	if o == nil {
 		return nil
 	}
 
 	s := &mongoAttributesSparseMTLSSource{}
-	if err := raw.Unmarshal(s); err != nil {
+	if err := bson.Unmarshal(raw, s); err != nil {
 		return err
 	}
 
@@ -1416,34 +1425,34 @@ func (o *SparseMTLSSource) DeepCopyInto(out *SparseMTLSSource) {
 }
 
 type mongoAttributesMTLSSource struct {
-	CA            string            `bson:"ca"`
-	ID            bson.ObjectId     `bson:"_id,omitempty"`
-	CreateTime    time.Time         `bson:"createtime"`
-	Description   string            `bson:"description"`
-	Fingerprints  []string          `bson:"fingerprints"`
-	ImportHash    string            `bson:"importhash,omitempty"`
-	ImportLabel   string            `bson:"importlabel,omitempty"`
-	Modifier      *IdentityModifier `bson:"modifier,omitempty"`
-	Name          string            `bson:"name"`
-	Namespace     string            `bson:"namespace"`
-	SubjectKeyIDs []string          `bson:"subjectkeyids"`
-	UpdateTime    time.Time         `bson:"updatetime"`
-	ZHash         int               `bson:"zhash"`
-	Zone          int               `bson:"zone"`
+	CA            string             `bson:"ca"`
+	ID            primitive.ObjectID `bson:"_id,omitempty"`
+	CreateTime    time.Time          `bson:"createtime"`
+	Description   string             `bson:"description"`
+	Fingerprints  []string           `bson:"fingerprints"`
+	ImportHash    string             `bson:"importhash,omitempty"`
+	ImportLabel   string             `bson:"importlabel,omitempty"`
+	Modifier      *IdentityModifier  `bson:"modifier,omitempty"`
+	Name          string             `bson:"name"`
+	Namespace     string             `bson:"namespace"`
+	SubjectKeyIDs []string           `bson:"subjectkeyids"`
+	UpdateTime    time.Time          `bson:"updatetime"`
+	ZHash         int                `bson:"zhash"`
+	Zone          int                `bson:"zone"`
 }
 type mongoAttributesSparseMTLSSource struct {
-	CA            *string           `bson:"ca,omitempty"`
-	ID            bson.ObjectId     `bson:"_id,omitempty"`
-	CreateTime    *time.Time        `bson:"createtime,omitempty"`
-	Description   *string           `bson:"description,omitempty"`
-	Fingerprints  *[]string         `bson:"fingerprints,omitempty"`
-	ImportHash    *string           `bson:"importhash,omitempty"`
-	ImportLabel   *string           `bson:"importlabel,omitempty"`
-	Modifier      *IdentityModifier `bson:"modifier,omitempty"`
-	Name          *string           `bson:"name,omitempty"`
-	Namespace     *string           `bson:"namespace,omitempty"`
-	SubjectKeyIDs *[]string         `bson:"subjectkeyids,omitempty"`
-	UpdateTime    *time.Time        `bson:"updatetime,omitempty"`
-	ZHash         *int              `bson:"zhash,omitempty"`
-	Zone          *int              `bson:"zone,omitempty"`
+	CA            *string            `bson:"ca,omitempty"`
+	ID            primitive.ObjectID `bson:"_id,omitempty"`
+	CreateTime    *time.Time         `bson:"createtime,omitempty"`
+	Description   *string            `bson:"description,omitempty"`
+	Fingerprints  *[]string          `bson:"fingerprints,omitempty"`
+	ImportHash    *string            `bson:"importhash,omitempty"`
+	ImportLabel   *string            `bson:"importlabel,omitempty"`
+	Modifier      *IdentityModifier  `bson:"modifier,omitempty"`
+	Name          *string            `bson:"name,omitempty"`
+	Namespace     *string            `bson:"namespace,omitempty"`
+	SubjectKeyIDs *[]string          `bson:"subjectkeyids,omitempty"`
+	UpdateTime    *time.Time         `bson:"updatetime,omitempty"`
+	ZHash         *int               `bson:"zhash,omitempty"`
+	Zone          *int               `bson:"zone,omitempty"`
 }
