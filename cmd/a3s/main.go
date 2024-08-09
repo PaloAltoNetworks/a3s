@@ -375,6 +375,14 @@ func main() {
 	server.Run(ctx)
 }
 
+func isUserAlreadyExistsError(err error) bool {
+	var cmdErr mongo.CommandError
+	if errors.As(err, &cmdErr) {
+		return cmdErr.Code == 51003
+	}
+	return false
+}
+
 func createMongoDBAccount(cfg conf.MongoConf, username string) error {
 
 	m := bootstrap.MakeMongoManipulator(cfg, &hasher.Hasher{}, api.Manager())
@@ -394,22 +402,24 @@ func createMongoDBAccount(cfg conf.MongoConf, username string) error {
 		}},
 	}
 
-	err := db.RunCommand(context.TODO(), createCommand).Err()
-	if err != nil && !mongo.IsDuplicateKeyError(err) {
-		return fmt.Errorf("unable to create the user: %w", err)
-	} else if err != nil && mongo.IsDuplicateKeyError(err) {
-		// User already exists, update user instead
-		updateCommand := bson.D{
-			{Key: "updateUser", Value: username},
-			{Key: "roles", Value: bson.A{
-				bson.D{
-					{Key: "role", Value: role},
-					{Key: "db", Value: db.Name},
-				},
-			}},
-		}
-		if err := db.RunCommand(context.TODO(), updateCommand).Err(); err != nil {
-			return fmt.Errorf("unable to upsert the user: %w", err)
+	err := db.RunCommand(context.Background(), createCommand).Err()
+	if err != nil {
+		if isUserAlreadyExistsError(err) {
+			// User already exists, update user instead
+			updateCommand := bson.D{
+				{Key: "updateUser", Value: username},
+				{Key: "roles", Value: bson.A{
+					bson.D{
+						{Key: "role", Value: role},
+						{Key: "db", Value: db.Name},
+					},
+				}},
+			}
+			if err := db.RunCommand(context.Background(), updateCommand).Err(); err != nil {
+				return fmt.Errorf("unable to upsert the user: %w", err)
+			}
+		} else {
+			return fmt.Errorf("unable to create the user: %w", err)
 		}
 	}
 
