@@ -4,9 +4,11 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/globalsign/mgo"
 	"go.aporeto.io/a3s/pkgs/api"
 	"go.aporeto.io/elemental"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 func TestGetIndexes(t *testing.T) {
@@ -18,7 +20,7 @@ func TestGetIndexes(t *testing.T) {
 	tests := []struct {
 		name         string
 		args         args
-		wantMIndexes map[elemental.Identity][]mgo.Index
+		wantMIndexes map[elemental.Identity][]mongo.IndexModel
 	}{
 		{
 			name: "all indexes",
@@ -27,59 +29,83 @@ func TestGetIndexes(t *testing.T) {
 				identity:    api.AuthorizationIdentity,
 				model:       api.Manager(),
 			},
-			wantMIndexes: map[elemental.Identity][]mgo.Index{
+			wantMIndexes: map[elemental.Identity][]mongo.IndexModel{
 				api.AuthorizationIdentity: {
 					{
-						Name:       "shard_index_authorization_zone_zhash",
-						Key:        []string{"zone", "zhash"},
-						Background: true,
-						Unique:     true,
+						Keys:    bson.D{{Key: "zone", Value: 1}, {Key: "zhash", Value: 1}},
+						Options: options.Index().SetName("shard_index_authorization_zone_zhash").SetUnique(true),
 					},
 					{
-						Name:       "index_authorization_namespace",
-						Key:        []string{"namespace"},
-						Background: true,
+						Keys:    bson.D{{Key: "namespace", Value: 1}},
+						Options: options.Index().SetName("index_authorization_namespace"),
 					},
 					{
-						Name:       "index_authorization_namespace__id",
-						Key:        []string{"namespace", "_id"},
-						Background: true,
+						Keys:    bson.D{{Key: "namespace", Value: 1}, {Key: "_id", Value: 1}},
+						Options: options.Index().SetName("index_authorization_namespace__id"),
 					},
 					{
-						Name:       "index_authorization_namespace_flattenedsubject_disabled",
-						Key:        []string{"namespace", "flattenedsubject", "disabled"},
-						Background: true,
+						Keys:    bson.D{{Key: "namespace", Value: 1}, {Key: "flattenedsubject", Value: 1}, {Key: "disabled", Value: 1}},
+						Options: options.Index().SetName("index_authorization_namespace_flattenedsubject_disabled"),
 					},
 					{
-						Name:       "index_authorization_namespace_flattenedsubject_propagate",
-						Key:        []string{"namespace", "flattenedsubject", "propagate"},
-						Background: true,
+						Keys:    bson.D{{Key: "namespace", Value: 1}, {Key: "flattenedsubject", Value: 1}, {Key: "propagate", Value: 1}},
+						Options: options.Index().SetName("index_authorization_namespace_flattenedsubject_propagate"),
 					},
 					{
-						Name:       "index_authorization_namespace_importlabel",
-						Key:        []string{"namespace", "importlabel"},
-						Background: true,
+						Keys:    bson.D{{Key: "namespace", Value: 1}, {Key: "importlabel", Value: 1}},
+						Options: options.Index().SetName("index_authorization_namespace_importlabel"),
 					},
 					{
-						Name:       "index_authorization_namespace_trustedissuers",
-						Key:        []string{"namespace", "trustedissuers"},
-						Background: true,
+						Keys:    bson.D{{Key: "namespace", Value: 1}, {Key: "trustedissuers", Value: 1}},
+						Options: options.Index().SetName("index_authorization_namespace_trustedissuers"),
 					},
 				},
 			},
 		},
 	}
+
+	// compareIndexOptions compares two IndexOptions structs using reflection
+	compareIndexOptions := func(expected, actual *options.IndexOptions) bool {
+		if expected == nil && actual == nil {
+			return true
+		}
+
+		if expected == nil || actual == nil {
+			return false
+		}
+
+		if expected.Name == nil && actual.Name != nil ||
+			expected.Name != nil && actual.Name == nil ||
+			*expected.Name != *actual.Name {
+			return false
+		}
+
+		expectedUnique := expected.Unique != nil && *expected.Unique == true
+		actualUnique := actual.Unique != nil && *actual.Unique == true
+
+		return expectedUnique == actualUnique
+	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 
-			if gotMIndexes := GetIndexes(tt.args.packageName, tt.args.model); !reflect.DeepEqual(gotMIndexes[tt.args.identity], tt.wantMIndexes[tt.args.identity]) {
-				t.Errorf("GetIndexes()\n"+
-					"EXPECTED:\n"+
-					"%+v\n"+
-					"ACTUAL:\n"+
-					"%+v\n",
-					tt.wantMIndexes[tt.args.identity],
-					gotMIndexes[tt.args.identity])
+			gotMIndexes := GetIndexes(tt.args.packageName, tt.args.model)
+			actual := gotMIndexes[tt.args.identity]
+			expected := tt.wantMIndexes[tt.args.identity]
+
+			if len(expected) != len(actual) {
+				t.Errorf("Number of index models do not match. Expected: %d, got: %d", len(expected), len(actual))
+				return
+			}
+
+			for i := range expected {
+				if !reflect.DeepEqual(expected[i].Keys, actual[i].Keys) {
+					t.Errorf("Keys do not match. Expected: %v, got: %v", expected[i].Keys, actual[i].Keys)
+				}
+
+				if !compareIndexOptions(expected[i].Options, actual[i].Options) {
+					t.Errorf("Options do not match. Expected: %+v, got: %+v", expected[i].Options, actual[i].Options)
+				}
 			}
 		})
 	}

@@ -7,9 +7,10 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/globalsign/mgo/bson"
 	"github.com/mitchellh/copystructure"
 	"go.aporeto.io/elemental"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 // NamespaceDeletionRecordIdentity represents the Identity of the object.
@@ -128,37 +129,41 @@ func (o *NamespaceDeletionRecord) SetIdentifier(id string) {
 	o.ID = id
 }
 
-// GetBSON implements the bson marshaling interface.
+// MarshalBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *NamespaceDeletionRecord) GetBSON() (any, error) {
+func (o *NamespaceDeletionRecord) MarshalBSON() ([]byte, error) {
 
 	if o == nil {
 		return nil, nil
 	}
 
-	s := &mongoAttributesNamespaceDeletionRecord{}
+	s := mongoAttributesNamespaceDeletionRecord{}
 
 	if o.ID != "" {
-		s.ID = bson.ObjectIdHex(o.ID)
+		objectID, err := primitive.ObjectIDFromHex(o.ID)
+		if err != nil {
+			return nil, err
+		}
+		s.ID = objectID
 	}
 	s.DeleteTime = o.DeleteTime
 	s.Namespace = o.Namespace
 	s.ZHash = o.ZHash
 	s.Zone = o.Zone
 
-	return s, nil
+	return bson.Marshal(s)
 }
 
-// SetBSON implements the bson marshaling interface.
-// This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *NamespaceDeletionRecord) SetBSON(raw bson.Raw) error {
+// UnmarshalBSON implements the bson unmarshaling interface.
+// This is used to transparently convert MongoDBID to ID.
+func (o *NamespaceDeletionRecord) UnmarshalBSON(raw []byte) error {
 
 	if o == nil {
 		return nil
 	}
 
 	s := &mongoAttributesNamespaceDeletionRecord{}
-	if err := raw.Unmarshal(s); err != nil {
+	if err := bson.Unmarshal(raw, s); err != nil {
 		return err
 	}
 
@@ -619,18 +624,22 @@ func (o *SparseNamespaceDeletionRecord) SetIdentifier(id string) {
 	}
 }
 
-// GetBSON implements the bson marshaling interface.
+// MarshalBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *SparseNamespaceDeletionRecord) GetBSON() (any, error) {
+func (o *SparseNamespaceDeletionRecord) MarshalBSON() ([]byte, error) {
 
 	if o == nil {
 		return nil, nil
 	}
 
-	s := &mongoAttributesSparseNamespaceDeletionRecord{}
+	s := mongoAttributesSparseNamespaceDeletionRecord{}
 
 	if o.ID != nil {
-		s.ID = bson.ObjectIdHex(*o.ID)
+		objectID, err := primitive.ObjectIDFromHex(*o.ID)
+		if err != nil {
+			return nil, err
+		}
+		s.ID = objectID
 	}
 	if o.DeleteTime != nil {
 		s.DeleteTime = o.DeleteTime
@@ -645,19 +654,19 @@ func (o *SparseNamespaceDeletionRecord) GetBSON() (any, error) {
 		s.Zone = o.Zone
 	}
 
-	return s, nil
+	return bson.Marshal(s)
 }
 
-// SetBSON implements the bson marshaling interface.
-// This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *SparseNamespaceDeletionRecord) SetBSON(raw bson.Raw) error {
+// UnmarshalBSON implements the bson unmarshaling interface.
+// This is used to transparently convert MongoDBID to ID.
+func (o *SparseNamespaceDeletionRecord) UnmarshalBSON(raw []byte) error {
 
 	if o == nil {
 		return nil
 	}
 
 	s := &mongoAttributesSparseNamespaceDeletionRecord{}
-	if err := raw.Unmarshal(s); err != nil {
+	if err := bson.Unmarshal(raw, s); err != nil {
 		return err
 	}
 
@@ -781,16 +790,16 @@ func (o *SparseNamespaceDeletionRecord) DeepCopyInto(out *SparseNamespaceDeletio
 }
 
 type mongoAttributesNamespaceDeletionRecord struct {
-	ID         bson.ObjectId `bson:"_id,omitempty"`
-	DeleteTime time.Time     `bson:"deletetime"`
-	Namespace  string        `bson:"namespace"`
-	ZHash      int           `bson:"zhash"`
-	Zone       int           `bson:"zone"`
+	ID         primitive.ObjectID `bson:"_id,omitempty"`
+	DeleteTime time.Time          `bson:"deletetime"`
+	Namespace  string             `bson:"namespace"`
+	ZHash      int                `bson:"zhash"`
+	Zone       int                `bson:"zone"`
 }
 type mongoAttributesSparseNamespaceDeletionRecord struct {
-	ID         bson.ObjectId `bson:"_id,omitempty"`
-	DeleteTime *time.Time    `bson:"deletetime,omitempty"`
-	Namespace  *string       `bson:"namespace,omitempty"`
-	ZHash      *int          `bson:"zhash,omitempty"`
-	Zone       *int          `bson:"zone,omitempty"`
+	ID         primitive.ObjectID `bson:"_id,omitempty"`
+	DeleteTime *time.Time         `bson:"deletetime,omitempty"`
+	Namespace  *string            `bson:"namespace,omitempty"`
+	ZHash      *int               `bson:"zhash,omitempty"`
+	Zone       *int               `bson:"zone,omitempty"`
 }

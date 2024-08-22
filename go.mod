@@ -5,9 +5,9 @@ go 1.22
 toolchain go1.22.2
 
 require (
-	go.aporeto.io/bahamut v1.148.1-0.20230918174422-3c4160cac883
-	go.aporeto.io/elemental v1.123.1-0.20231116202419-3d09d6d39dcc
-	go.aporeto.io/manipulate v1.135.1-0.20230918174435-3581994d0a01
+	go.aporeto.io/bahamut v1.148.1-0.20240822214319-3add6af83846
+	go.aporeto.io/elemental v1.123.1-0.20240822212917-6f8c7be6698c
+	go.aporeto.io/manipulate v1.135.1-0.20240822214351-08957ab8ed0b
 	go.aporeto.io/tg v1.50.2-0.20240726190142-d7d9b061a4ea
 )
 
@@ -19,7 +19,6 @@ require (
 	github.com/deckarep/golang-set v1.8.0
 	github.com/fatih/structs v1.1.0
 	github.com/ghodss/yaml v1.0.0
-	github.com/globalsign/mgo v0.0.0-20181015135952-eeefdecb41b8
 	github.com/go-ldap/ldap/v3 v3.4.4
 	github.com/gofrs/uuid v4.4.0+incompatible
 	github.com/golang-jwt/jwt/v4 v4.4.3
@@ -39,6 +38,7 @@ require (
 	github.com/spf13/viper v1.19.0
 	github.com/uber/jaeger-client-go v2.30.0+incompatible
 	github.com/ugorji/go/codec v1.2.12
+	go.mongodb.org/mongo-driver v1.16.0
 	go.uber.org/automaxprocs v1.5.3
 	go.uber.org/zap v1.27.0
 	golang.org/x/oauth2 v0.21.0
@@ -63,6 +63,7 @@ require (
 	github.com/go-jose/go-jose/v3 v3.0.3 // indirect
 	github.com/go-ole/go-ole v1.2.6 // indirect
 	github.com/go-zoo/bone v1.3.0 // indirect
+	github.com/golang/snappy v0.0.4 // indirect
 	github.com/google/uuid v1.4.0 // indirect
 	github.com/gopherjs/gopherjs v1.17.2 // indirect
 	github.com/gorilla/websocket v1.5.3 // indirect
@@ -83,6 +84,7 @@ require (
 	github.com/mattn/go-runewidth v0.0.14 // indirect
 	github.com/minio/highwayhash v1.0.3 // indirect
 	github.com/mitchellh/reflectwalk v1.0.2 // indirect
+	github.com/montanaflynn/stats v0.7.1 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
 	github.com/nats-io/jwt/v2 v2.5.8 // indirect
 	github.com/nats-io/nats.go v1.36.0 // indirect
@@ -113,6 +115,10 @@ require (
 	github.com/valyala/tcplisten v1.0.0 // indirect
 	github.com/vulcand/oxy/v2 v2.0.0-20221121151423-d5cb734e4467 // indirect
 	github.com/vulcand/predicate v1.2.0 // indirect
+	github.com/xdg-go/pbkdf2 v1.0.0 // indirect
+	github.com/xdg-go/scram v1.1.2 // indirect
+	github.com/xdg-go/stringprep v1.0.4 // indirect
+	github.com/youmark/pkcs8 v0.0.0-20181117223130-1be2e3e5546d // indirect
 	github.com/yusufpapurcu/wmi v1.2.2 // indirect
 	go.aporeto.io/wsc v1.52.0 // indirect
 	go.uber.org/atomic v1.11.0 // indirect
@@ -120,6 +126,7 @@ require (
 	golang.org/x/crypto v0.25.0 // indirect
 	golang.org/x/exp v0.0.0-20240719175910-8a7402abbf56 // indirect
 	golang.org/x/net v0.27.0 // indirect
+	golang.org/x/sync v0.7.0 // indirect
 	golang.org/x/sys v0.22.0 // indirect
 	golang.org/x/text v0.16.0 // indirect
 	golang.org/x/time v0.5.0 // indirect
@@ -130,3 +137,6 @@ require (
 	k8s.io/helm v2.17.0+incompatible // indirect
 	rsc.io/qr v0.2.0 // indirect
 )
+
+// Mapstructure v1.5.0 breaks current nested import logic
+replace github.com/mitchellh/mapstructure => github.com/mitchellh/mapstructure v1.4.3

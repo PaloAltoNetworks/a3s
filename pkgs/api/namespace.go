@@ -7,9 +7,10 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/globalsign/mgo/bson"
 	"github.com/mitchellh/copystructure"
 	"go.aporeto.io/elemental"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 // NamespaceIdentity represents the Identity of the object.
@@ -138,18 +139,22 @@ func (o *Namespace) SetIdentifier(id string) {
 	o.ID = id
 }
 
-// GetBSON implements the bson marshaling interface.
+// MarshalBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *Namespace) GetBSON() (any, error) {
+func (o *Namespace) MarshalBSON() ([]byte, error) {
 
 	if o == nil {
 		return nil, nil
 	}
 
-	s := &mongoAttributesNamespace{}
+	s := mongoAttributesNamespace{}
 
 	if o.ID != "" {
-		s.ID = bson.ObjectIdHex(o.ID)
+		objectID, err := primitive.ObjectIDFromHex(o.ID)
+		if err != nil {
+			return nil, err
+		}
+		s.ID = objectID
 	}
 	s.CreateTime = o.CreateTime
 	s.Description = o.Description
@@ -159,19 +164,19 @@ func (o *Namespace) GetBSON() (any, error) {
 	s.ZHash = o.ZHash
 	s.Zone = o.Zone
 
-	return s, nil
+	return bson.Marshal(s)
 }
 
-// SetBSON implements the bson marshaling interface.
-// This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *Namespace) SetBSON(raw bson.Raw) error {
+// UnmarshalBSON implements the bson unmarshaling interface.
+// This is used to transparently convert MongoDBID to ID.
+func (o *Namespace) UnmarshalBSON(raw []byte) error {
 
 	if o == nil {
 		return nil
 	}
 
 	s := &mongoAttributesNamespace{}
-	if err := raw.Unmarshal(s); err != nil {
+	if err := bson.Unmarshal(raw, s); err != nil {
 		return err
 	}
 
@@ -827,18 +832,22 @@ func (o *SparseNamespace) SetIdentifier(id string) {
 	}
 }
 
-// GetBSON implements the bson marshaling interface.
+// MarshalBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *SparseNamespace) GetBSON() (any, error) {
+func (o *SparseNamespace) MarshalBSON() ([]byte, error) {
 
 	if o == nil {
 		return nil, nil
 	}
 
-	s := &mongoAttributesSparseNamespace{}
+	s := mongoAttributesSparseNamespace{}
 
 	if o.ID != nil {
-		s.ID = bson.ObjectIdHex(*o.ID)
+		objectID, err := primitive.ObjectIDFromHex(*o.ID)
+		if err != nil {
+			return nil, err
+		}
+		s.ID = objectID
 	}
 	if o.CreateTime != nil {
 		s.CreateTime = o.CreateTime
@@ -862,19 +871,19 @@ func (o *SparseNamespace) GetBSON() (any, error) {
 		s.Zone = o.Zone
 	}
 
-	return s, nil
+	return bson.Marshal(s)
 }
 
-// SetBSON implements the bson marshaling interface.
-// This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *SparseNamespace) SetBSON(raw bson.Raw) error {
+// UnmarshalBSON implements the bson unmarshaling interface.
+// This is used to transparently convert MongoDBID to ID.
+func (o *SparseNamespace) UnmarshalBSON(raw []byte) error {
 
 	if o == nil {
 		return nil
 	}
 
 	s := &mongoAttributesSparseNamespace{}
-	if err := raw.Unmarshal(s); err != nil {
+	if err := bson.Unmarshal(raw, s); err != nil {
 		return err
 	}
 
@@ -1080,22 +1089,22 @@ func (o *SparseNamespace) DeepCopyInto(out *SparseNamespace) {
 }
 
 type mongoAttributesNamespace struct {
-	ID          bson.ObjectId `bson:"_id,omitempty"`
-	CreateTime  time.Time     `bson:"createtime"`
-	Description string        `bson:"description"`
-	Name        string        `bson:"name"`
-	Namespace   string        `bson:"namespace"`
-	UpdateTime  time.Time     `bson:"updatetime"`
-	ZHash       int           `bson:"zhash"`
-	Zone        int           `bson:"zone"`
+	ID          primitive.ObjectID `bson:"_id,omitempty"`
+	CreateTime  time.Time          `bson:"createtime"`
+	Description string             `bson:"description"`
+	Name        string             `bson:"name"`
+	Namespace   string             `bson:"namespace"`
+	UpdateTime  time.Time          `bson:"updatetime"`
+	ZHash       int                `bson:"zhash"`
+	Zone        int                `bson:"zone"`
 }
 type mongoAttributesSparseNamespace struct {
-	ID          bson.ObjectId `bson:"_id,omitempty"`
-	CreateTime  *time.Time    `bson:"createtime,omitempty"`
-	Description *string       `bson:"description,omitempty"`
-	Name        *string       `bson:"name,omitempty"`
-	Namespace   *string       `bson:"namespace,omitempty"`
-	UpdateTime  *time.Time    `bson:"updatetime,omitempty"`
-	ZHash       *int          `bson:"zhash,omitempty"`
-	Zone        *int          `bson:"zone,omitempty"`
+	ID          primitive.ObjectID `bson:"_id,omitempty"`
+	CreateTime  *time.Time         `bson:"createtime,omitempty"`
+	Description *string            `bson:"description,omitempty"`
+	Name        *string            `bson:"name,omitempty"`
+	Namespace   *string            `bson:"namespace,omitempty"`
+	UpdateTime  *time.Time         `bson:"updatetime,omitempty"`
+	ZHash       *int               `bson:"zhash,omitempty"`
+	Zone        *int               `bson:"zone,omitempty"`
 }

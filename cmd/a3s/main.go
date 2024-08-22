@@ -14,7 +14,6 @@ import (
 	"time"
 
 	"github.com/ghodss/yaml"
-	"github.com/globalsign/mgo"
 	"go.aporeto.io/a3s/internal/hasher"
 	"go.aporeto.io/a3s/internal/processors"
 	"go.aporeto.io/a3s/internal/ui"
@@ -38,6 +37,10 @@ import (
 	"go.aporeto.io/manipulate/manipmongo"
 	"go.aporeto.io/tg/tglib"
 	"go.uber.org/zap"
+
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 
 	gwpush "go.aporeto.io/bahamut/gateway/upstreamer/push"
 )
@@ -85,18 +88,16 @@ func main() {
 		zap.L().Fatal("Unable to ensure indexes", zap.Error(err))
 	}
 
-	if err := manipmongo.EnsureIndex(m, elemental.MakeIdentity("oidccache", "oidccache"), mgo.Index{
-		Key:         []string{"time"},
-		ExpireAfter: 1 * time.Minute,
-		Name:        "index_expiration_exp",
+	if err := manipmongo.EnsureIndex(m, elemental.MakeIdentity("oidccache", "oidccache"), mongo.IndexModel{
+		Keys:    bson.D{{Key: "time", Value: 1}},
+		Options: options.Index().SetName("index_expiration_exp").SetExpireAfterSeconds(60),
 	}); err != nil {
 		zap.L().Fatal("Unable to create exp expiration index for oidccache", zap.Error(err))
 	}
 
-	if err := manipmongo.EnsureIndex(m, api.NamespaceDeletionRecordIdentity, mgo.Index{
-		Key:         []string{"deletetime"},
-		ExpireAfter: 24 * time.Hour,
-		Name:        "index_expiration_deletetime",
+	if err := manipmongo.EnsureIndex(m, api.NamespaceDeletionRecordIdentity, mongo.IndexModel{
+		Keys:    bson.D{{Key: "deletetime", Value: 1}},
+		Options: options.Index().SetName("index_expiration_deletetime").SetExpireAfterSeconds(int32((24 * time.Hour).Seconds())),
 	}); err != nil {
 		zap.L().Fatal("Unable to create expiration index for namesapce deletion records", zap.Error(err))
 	}
@@ -374,22 +375,52 @@ func main() {
 	server.Run(ctx)
 }
 
+func isUserAlreadyExistsError(err error) bool {
+	var cmdErr mongo.CommandError
+	if errors.As(err, &cmdErr) {
+		return cmdErr.Code == 51003
+	}
+	return false
+}
+
 func createMongoDBAccount(cfg conf.MongoConf, username string) error {
 
 	m := bootstrap.MakeMongoManipulator(cfg, &hasher.Hasher{}, api.Manager())
 
-	db, closeFunc, _ := manipmongo.GetDatabase(m)
-	defer closeFunc()
+	db := manipmongo.GetDatabase(m)
 
-	user := mgo.User{
-		Username: username,
-		OtherDBRoles: map[string][]mgo.Role{
-			"a3s": {mgo.RoleReadWrite, mgo.RoleDBAdmin},
-		},
+	role := map[string][]string{
+		"a3s": {"readWrite", "dbAdmin"},
+	}
+	createCommand := bson.D{
+		{Key: "createUser", Value: username},
+		{Key: "roles", Value: bson.A{
+			bson.D{
+				{Key: "role", Value: role},
+				{Key: "db", Value: db.Name},
+			},
+		}},
 	}
 
-	if err := db.UpsertUser(&user); err != nil {
-		return fmt.Errorf("unable to upsert the user: %w", err)
+	err := db.RunCommand(context.Background(), createCommand).Err()
+	if err != nil {
+		if isUserAlreadyExistsError(err) {
+			// User already exists, update user instead
+			updateCommand := bson.D{
+				{Key: "updateUser", Value: username},
+				{Key: "roles", Value: bson.A{
+					bson.D{
+						{Key: "role", Value: role},
+						{Key: "db", Value: db.Name},
+					},
+				}},
+			}
+			if err := db.RunCommand(context.Background(), updateCommand).Err(); err != nil {
+				return fmt.Errorf("unable to upsert the user: %w", err)
+			}
+		} else {
+			return fmt.Errorf("unable to create the user: %w", err)
+		}
 	}
 
 	zap.L().Info("Successfully created mongodb account", zap.String("user", username))

@@ -66,7 +66,10 @@ func (c *NamespacedCache) Start(ctx context.Context) {
 		c.pubsub,
 		c.notificationName,
 		func(msg *notification.Message) {
-			c.cleanupCacheForNamespace(msg.Data.(string))
+			data, ok := msg.Data.(string)
+			if ok {
+				c.cleanupCacheForNamespace(data)
+			}
 		},
 	)
 }

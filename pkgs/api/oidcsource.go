@@ -7,9 +7,10 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/globalsign/mgo/bson"
 	"github.com/mitchellh/copystructure"
 	"go.aporeto.io/elemental"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 // OIDCSourceIdentity represents the Identity of the object.
@@ -167,19 +168,23 @@ func (o *OIDCSource) SetIdentifier(id string) {
 	o.ID = id
 }
 
-// GetBSON implements the bson marshaling interface.
+// MarshalBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *OIDCSource) GetBSON() (any, error) {
+func (o *OIDCSource) MarshalBSON() ([]byte, error) {
 
 	if o == nil {
 		return nil, nil
 	}
 
-	s := &mongoAttributesOIDCSource{}
+	s := mongoAttributesOIDCSource{}
 
 	s.CA = o.CA
 	if o.ID != "" {
-		s.ID = bson.ObjectIdHex(o.ID)
+		objectID, err := primitive.ObjectIDFromHex(o.ID)
+		if err != nil {
+			return nil, err
+		}
+		s.ID = objectID
 	}
 	s.ClientID = o.ClientID
 	s.ClientSecret = o.ClientSecret
@@ -196,19 +201,19 @@ func (o *OIDCSource) GetBSON() (any, error) {
 	s.ZHash = o.ZHash
 	s.Zone = o.Zone
 
-	return s, nil
+	return bson.Marshal(s)
 }
 
-// SetBSON implements the bson marshaling interface.
-// This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *OIDCSource) SetBSON(raw bson.Raw) error {
+// UnmarshalBSON implements the bson unmarshaling interface.
+// This is used to transparently convert MongoDBID to ID.
+func (o *OIDCSource) UnmarshalBSON(raw []byte) error {
 
 	if o == nil {
 		return nil
 	}
 
 	s := &mongoAttributesOIDCSource{}
-	if err := raw.Unmarshal(s); err != nil {
+	if err := bson.Unmarshal(raw, s); err != nil {
 		return err
 	}
 
@@ -1200,21 +1205,25 @@ func (o *SparseOIDCSource) SetIdentifier(id string) {
 	}
 }
 
-// GetBSON implements the bson marshaling interface.
+// MarshalBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *SparseOIDCSource) GetBSON() (any, error) {
+func (o *SparseOIDCSource) MarshalBSON() ([]byte, error) {
 
 	if o == nil {
 		return nil, nil
 	}
 
-	s := &mongoAttributesSparseOIDCSource{}
+	s := mongoAttributesSparseOIDCSource{}
 
 	if o.CA != nil {
 		s.CA = o.CA
 	}
 	if o.ID != nil {
-		s.ID = bson.ObjectIdHex(*o.ID)
+		objectID, err := primitive.ObjectIDFromHex(*o.ID)
+		if err != nil {
+			return nil, err
+		}
+		s.ID = objectID
 	}
 	if o.ClientID != nil {
 		s.ClientID = o.ClientID
@@ -1259,19 +1268,19 @@ func (o *SparseOIDCSource) GetBSON() (any, error) {
 		s.Zone = o.Zone
 	}
 
-	return s, nil
+	return bson.Marshal(s)
 }
 
-// SetBSON implements the bson marshaling interface.
-// This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *SparseOIDCSource) SetBSON(raw bson.Raw) error {
+// UnmarshalBSON implements the bson unmarshaling interface.
+// This is used to transparently convert MongoDBID to ID.
+func (o *SparseOIDCSource) UnmarshalBSON(raw []byte) error {
 
 	if o == nil {
 		return nil
 	}
 
 	s := &mongoAttributesSparseOIDCSource{}
-	if err := raw.Unmarshal(s); err != nil {
+	if err := bson.Unmarshal(raw, s); err != nil {
 		return err
 	}
 
@@ -1561,38 +1570,38 @@ func (o *SparseOIDCSource) DeepCopyInto(out *SparseOIDCSource) {
 }
 
 type mongoAttributesOIDCSource struct {
-	CA           string            `bson:"ca"`
-	ID           bson.ObjectId     `bson:"_id,omitempty"`
-	ClientID     string            `bson:"clientid"`
-	ClientSecret string            `bson:"clientsecret"`
-	CreateTime   time.Time         `bson:"createtime"`
-	Description  string            `bson:"description"`
-	Endpoint     string            `bson:"endpoint"`
-	ImportHash   string            `bson:"importhash,omitempty"`
-	ImportLabel  string            `bson:"importlabel,omitempty"`
-	Modifier     *IdentityModifier `bson:"modifier,omitempty"`
-	Name         string            `bson:"name"`
-	Namespace    string            `bson:"namespace"`
-	Scopes       []string          `bson:"scopes"`
-	UpdateTime   time.Time         `bson:"updatetime"`
-	ZHash        int               `bson:"zhash"`
-	Zone         int               `bson:"zone"`
+	CA           string             `bson:"ca"`
+	ID           primitive.ObjectID `bson:"_id,omitempty"`
+	ClientID     string             `bson:"clientid"`
+	ClientSecret string             `bson:"clientsecret"`
+	CreateTime   time.Time          `bson:"createtime"`
+	Description  string             `bson:"description"`
+	Endpoint     string             `bson:"endpoint"`
+	ImportHash   string             `bson:"importhash,omitempty"`
+	ImportLabel  string             `bson:"importlabel,omitempty"`
+	Modifier     *IdentityModifier  `bson:"modifier,omitempty"`
+	Name         string             `bson:"name"`
+	Namespace    string             `bson:"namespace"`
+	Scopes       []string           `bson:"scopes"`
+	UpdateTime   time.Time          `bson:"updatetime"`
+	ZHash        int                `bson:"zhash"`
+	Zone         int                `bson:"zone"`
 }
 type mongoAttributesSparseOIDCSource struct {
-	CA           *string           `bson:"ca,omitempty"`
-	ID           bson.ObjectId     `bson:"_id,omitempty"`
-	ClientID     *string           `bson:"clientid,omitempty"`
-	ClientSecret *string           `bson:"clientsecret,omitempty"`
-	CreateTime   *time.Time        `bson:"createtime,omitempty"`
-	Description  *string           `bson:"description,omitempty"`
-	Endpoint     *string           `bson:"endpoint,omitempty"`
-	ImportHash   *string           `bson:"importhash,omitempty"`
-	ImportLabel  *string           `bson:"importlabel,omitempty"`
-	Modifier     *IdentityModifier `bson:"modifier,omitempty"`
-	Name         *string           `bson:"name,omitempty"`
-	Namespace    *string           `bson:"namespace,omitempty"`
-	Scopes       *[]string         `bson:"scopes,omitempty"`
-	UpdateTime   *time.Time        `bson:"updatetime,omitempty"`
-	ZHash        *int              `bson:"zhash,omitempty"`
-	Zone         *int              `bson:"zone,omitempty"`
+	CA           *string            `bson:"ca,omitempty"`
+	ID           primitive.ObjectID `bson:"_id,omitempty"`
+	ClientID     *string            `bson:"clientid,omitempty"`
+	ClientSecret *string            `bson:"clientsecret,omitempty"`
+	CreateTime   *time.Time         `bson:"createtime,omitempty"`
+	Description  *string            `bson:"description,omitempty"`
+	Endpoint     *string            `bson:"endpoint,omitempty"`
+	ImportHash   *string            `bson:"importhash,omitempty"`
+	ImportLabel  *string            `bson:"importlabel,omitempty"`
+	Modifier     *IdentityModifier  `bson:"modifier,omitempty"`
+	Name         *string            `bson:"name,omitempty"`
+	Namespace    *string            `bson:"namespace,omitempty"`
+	Scopes       *[]string          `bson:"scopes,omitempty"`
+	UpdateTime   *time.Time         `bson:"updatetime,omitempty"`
+	ZHash        *int               `bson:"zhash,omitempty"`
+	Zone         *int               `bson:"zone,omitempty"`
 }
