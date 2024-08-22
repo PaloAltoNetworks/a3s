@@ -5,10 +5,9 @@ go 1.22
 toolchain go1.22.2
 
 require (
-	go.aporeto.io/bahamut v1.148.1-0.20230918174422-3c4160cac883
-
-	go.aporeto.io/elemental v1.123.1-0.20240806224019-39b3d7f5cd27
-	go.aporeto.io/manipulate v1.135.1-0.20240807205712-ecd147508682
+	go.aporeto.io/bahamut v1.148.1-0.20240822214319-3add6af83846
+	go.aporeto.io/elemental v1.123.1-0.20240822212917-6f8c7be6698c
+	go.aporeto.io/manipulate v1.135.1-0.20240822214351-08957ab8ed0b
 	go.aporeto.io/tg v1.50.2-0.20240726190142-d7d9b061a4ea
 )
 
@@ -127,7 +126,7 @@ require (
 	golang.org/x/crypto v0.25.0 // indirect
 	golang.org/x/exp v0.0.0-20240719175910-8a7402abbf56 // indirect
 	golang.org/x/net v0.27.0 // indirect
-  golang.org/x/sync v0.7.0 // indirect
+	golang.org/x/sync v0.7.0 // indirect
 	golang.org/x/sys v0.22.0 // indirect
 	golang.org/x/text v0.16.0 // indirect
 	golang.org/x/time v0.5.0 // indirect
