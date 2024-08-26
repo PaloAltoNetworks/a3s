@@ -47,6 +47,21 @@ sec:
 vuln:
 	govulncheck ./...
 
+update-deps:
+	go get -u go.aporeto.io/tg@master
+	go get -u go.aporeto.io/bahamut@master
+	go get -u go.aporeto.io/manipulate@master
+	go get -u go.aporeto.io/elemental@master
+
+	go get -u github.com/nats-io/nats-server/v2@latest
+	go get -u github.com/smartystreets/goconvey@latest
+	go get -u github.com/spf13/viper@latest
+	go get -u github.com/spf13/cobra@latest
+	go get -u github.com/spf13/pflag@latest
+	go get -u golang.org/x/term@latest
+	go get -u go.uber.org/zap@latest
+
+	go mod tidy
 
 ## Code generation
 
