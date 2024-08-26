@@ -8,7 +8,7 @@
 ---
 version: 2
 snapshot:
-  name_template: "{{ .Var.Tag }}-next"
+  version_template: "{{ .Var.Tag }}-next"
 changelog:
   sort: asc
   filters:
