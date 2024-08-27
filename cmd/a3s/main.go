@@ -389,17 +389,20 @@ func createMongoDBAccount(cfg conf.MongoConf, username string) error {
 
 	db := manipmongo.GetDatabase(m)
 
-	role := map[string][]string{
-		"a3s": {"readWrite", "dbAdmin"},
+	roles := bson.A{
+		bson.D{
+			{Key: "role", Value: "readWrite"},
+			{Key: "db", Value: "a3s"},
+		},
+		bson.D{
+			{Key: "role", Value: "dbAdmin"},
+			{Key: "db", Value: "a3s"},
+		},
 	}
+
 	createCommand := bson.D{
 		{Key: "createUser", Value: username},
-		{Key: "roles", Value: bson.A{
-			bson.D{
-				{Key: "role", Value: role},
-				{Key: "db", Value: db.Name},
-			},
-		}},
+		{Key: "roles", Value: roles},
 	}
 
 	err := db.RunCommand(context.Background(), createCommand).Err()
@@ -408,12 +411,7 @@ func createMongoDBAccount(cfg conf.MongoConf, username string) error {
 			// User already exists, update user instead
 			updateCommand := bson.D{
 				{Key: "updateUser", Value: username},
-				{Key: "roles", Value: bson.A{
-					bson.D{
-						{Key: "role", Value: role},
-						{Key: "db", Value: db.Name},
-					},
-				}},
+				{Key: "roles", Value: roles},
 			}
 			if err := db.RunCommand(context.Background(), updateCommand).Err(); err != nil {
 				return fmt.Errorf("unable to upsert the user: %w", err)
