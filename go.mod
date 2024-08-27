@@ -4,9 +4,9 @@ go 1.23
 
 require (
 	go.aporeto.io/bahamut v1.148.1-0.20240822214319-3add6af83846
-	go.aporeto.io/elemental v1.123.1-0.20240822212917-6f8c7be6698c
+	go.aporeto.io/elemental v1.123.1-0.20240827155859-220cce1f31f7
 	go.aporeto.io/manipulate v1.135.1-0.20240822214351-08957ab8ed0b
-	go.aporeto.io/tg v1.50.2-0.20240726190142-d7d9b061a4ea
+	go.aporeto.io/tg v1.50.2-0.20240826171209-4d3661dcb1cb
 )
 
 require (
