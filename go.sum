@@ -337,12 +337,12 @@ github.com/yusufpapurcu/wmi v1.2.2 h1:KBNDSne4vP5mbSWnJbO+51IMOXJB67QiYCSBrubbPR
 github.com/yusufpapurcu/wmi v1.2.2/go.mod h1:SBZ9tNy3G9/m5Oi98Zks0QjeHVDvuK0qfxQmPyzfmi0=
 go.aporeto.io/bahamut v1.148.1-0.20240822214319-3add6af83846 h1:6gpulBp1V9xDS8zr6PkJSXIBzfG3UerGK7BoOn/rIYI=
 go.aporeto.io/bahamut v1.148.1-0.20240822214319-3add6af83846/go.mod h1:dKgjjpdNcNUH+PCfSiLIKtAAZnytjLINHkxAySJ8wVE=
-go.aporeto.io/elemental v1.123.1-0.20240822212917-6f8c7be6698c h1:goT+BIlOoWKa4j4PLmVkqX4mk+YqnDw5SA74oen5YQA=
-go.aporeto.io/elemental v1.123.1-0.20240822212917-6f8c7be6698c/go.mod h1:vqhSZ25rw+2HyAwZbqCHO3LRuI3YTMtTxrSIuhvIFuU=
+go.aporeto.io/elemental v1.123.1-0.20240827155859-220cce1f31f7 h1:PXc0QqFUSwQu4EBuGsxEjB6zV4gXHg4qfWLaGPZdSSo=
+go.aporeto.io/elemental v1.123.1-0.20240827155859-220cce1f31f7/go.mod h1:vqhSZ25rw+2HyAwZbqCHO3LRuI3YTMtTxrSIuhvIFuU=
 go.aporeto.io/manipulate v1.135.1-0.20240822214351-08957ab8ed0b h1:NApgJXiSDy0yVPPO513efrkUXmunncD6YwwCtBBl2xY=
 go.aporeto.io/manipulate v1.135.1-0.20240822214351-08957ab8ed0b/go.mod h1:XqVv6U5wJekakQVlbS1ArcfQxahkcvkzN96E7NUdeYc=
-go.aporeto.io/tg v1.50.2-0.20240726190142-d7d9b061a4ea h1:LixBTuL4yNl0z6xMcSP+STsGWEWpHOBh32ETNm98Btw=
-go.aporeto.io/tg v1.50.2-0.20240726190142-d7d9b061a4ea/go.mod h1:kpP8iJYT8blpGvQzo2W8oxYFqx7TkNSyjmLGaLrUiF4=
+go.aporeto.io/tg v1.50.2-0.20240826171209-4d3661dcb1cb h1:KNnxM2xgXEswCFLSPJHKMspKIKxt5A+bODq+6eLWVEU=
+go.aporeto.io/tg v1.50.2-0.20240826171209-4d3661dcb1cb/go.mod h1:iFzRD5JQ1dCQpo2oJkgV3PXJGZDyNFoTJA8nY6/yRYY=
 go.aporeto.io/wsc v1.52.0 h1:iy2FR+P8rG7lG/c4pWXZJSDaj4jesgM4KfcbGQZB0kc=
 go.aporeto.io/wsc v1.52.0/go.mod h1:0gL/S3uPkS4f3q7/lXF5Hlt804T0d9EhgOSYJkHUbVo=
 go.mongodb.org/mongo-driver v1.16.0 h1:tpRsfBJMROVHKpdGyc1BBEzzjDUWjItxbVSZ8Ls4BQ4=
