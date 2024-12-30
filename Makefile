@@ -60,6 +60,7 @@ update-deps:
 	go get -u github.com/spf13/pflag@latest
 	go get -u golang.org/x/term@latest
 	go get -u go.uber.org/zap@latest
+	go get -u github.com/golang-jwt/jwt/v4
 
 	go mod tidy
 
