@@ -43,12 +43,14 @@ builds:
 
 archives:
   - id: a3s
-    format: binary
+    formats:
+      - binary
     builds:
       - a3s
 
   - id: a3sctl
-    format: binary
+    formats:
+      - binary
     builds:
       - a3sctl
 
