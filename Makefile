@@ -61,6 +61,7 @@ update-deps:
 	go get -u golang.org/x/term@latest
 	go get -u go.uber.org/zap@latest
 	go get -u github.com/golang-jwt/jwt/v4
+	go get -u github.com/coreos/go-oidc/v3/oidc
 
 	go mod tidy
 

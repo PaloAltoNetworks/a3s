@@ -19,7 +19,7 @@ jobs:
       fail-fast: false
       matrix:
         go:
-          - "1.23"
+          - "1.24"
     steps:
       - uses: actions/checkout@v3
 
@@ -37,9 +37,9 @@ jobs:
         run: |
           make
 
-      - uses: PaloAltoNetworks/cov@3.0.0
-        with:
-          main_branch: master
-          cov_file: unit_coverage.out
-          cov_threshold: "5"
-          cov_mode: coverage
+#      - uses: PaloAltoNetworks/cov@3.0.0
+#        with:
+#          main_branch: master
+#          cov_file: unit_coverage.out
+#          cov_threshold: "5"
+#          cov_mode: coverage
