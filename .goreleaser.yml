@@ -45,13 +45,13 @@ archives:
   - id: a3s
     formats:
       - binary
-    builds:
+    ids:
       - a3s
 
   - id: a3sctl
     formats:
       - binary
-    builds:
+    ids:
       - a3sctl
 
 signs:
